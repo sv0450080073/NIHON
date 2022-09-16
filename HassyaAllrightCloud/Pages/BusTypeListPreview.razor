@@ -1,0 +1,98 @@
+﻿@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject CustomNavigation NavManager
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+@using HassyaAllrightCloud.IService.CommonComponents
+@inject IReservationClassComponentService _service
+
+@if (!string.IsNullOrEmpty(reportUrl) && !string.IsNullOrWhiteSpace(reportUrl))
+{
+    <DxDocumentViewer ReportUrl="@reportUrl" Height="800px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+@code {
+    [Parameter] public string SearchString { get; set; }
+    private string reportUrl { get; set; }
+    List<ReservationClassComponentData> BookingTypes = new List<ReservationClassComponentData>();
+    BusTypeListDataUri BusTypeListDataUri { get; set; } = new BusTypeListDataUri();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(SearchString) && !String.IsNullOrWhiteSpace(SearchString))
+            {
+                await LoadBookingType();
+                BusTypeListDataUri = EncryptHelper.Decrypt<BusTypeListDataUri>(SearchString);
+                SearchString = EncryptHelper.EncryptToUrl(SetValueUri(BusTypeListDataUri));
+                reportUrl = $"{nameof(IBusTypeListReportService)}?{SearchString}";
+                NavManager.NavigateTo("/bustypelistPreview", false);
+            }
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
+    private async Task LoadBookingType()
+    {
+        BookingTypes = await _service.GetListReservationClass();
+        await InvokeAsync(StateHasChanged);
+    }
+    private BusTypeListData SetValueUri(BusTypeListDataUri data)
+    {
+        var result = new BusTypeListData();
+        try
+        {
+            if (data != null)
+            {
+                result.StartDate = data.StartDate;
+                result.BookingTypeFrom = data.BookingTypeFrom;
+                result.BookingTypeTo = data.BookingTypeTo;
+                result.Company = data.Company;
+                result.BranchStart = data.BranchStart;
+                result.BranchEnd = data.BranchEnd;
+                result.SalesStaffStart = data.SalesStaffStart;
+                result.SalesStaffEnd = data.SalesStaffEnd;
+                result.PersonInputStart = data.PersonInputStart;
+                result.PersonInputEnd = data.PersonInputEnd;
+                result.DestinationStart = data.DestinationStart;
+                result.DestinationEnd = data.DestinationEnd;
+                result.BusType = data.BusType;
+                result.VehicleFrom = data.VehicleFrom;
+                result.VehicleTo = data.VehicleTo;
+                result.OutputType = data.OutputType;
+                result.DepositOutputTemplate = data.DepositOutputTemplate;
+                result.PaperSize = data.PaperSize;
+                result.GridSize = data.GridSize;
+                result.GroupMode = data.GroupMode;
+                result.TenantCdSeq = data.TenantCdSeq;
+                result.SyainNm = data.SyainNm;
+                result.SyainCd = data.SyainCd;
+                result.TenantCdSeqByCodeSyu = data.TenantCdSeqByCodeSyu;
+                result.ReservationList = CutSpecialCharactersReservationList(data.ReservationListID);
+                result.numberDay = data.numberDayUri;
+            }
+        }
+        catch (Exception ex)
+        {
+            //ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+    private List<ReservationClassComponentData> CutSpecialCharactersReservationList(string strValue)
+    {
+        try
+        {
+            string[] strValueArr = strValue.Split('-');
+            var result = BookingTypes.Where(x => strValueArr.Contains(x.YoyaKbnSeq.ToString())).ToList();
+            return result;
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
+    }
+}
+
+
+

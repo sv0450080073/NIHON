@@ -1,0 +1,25 @@
+﻿@page "/MySetting"
+@inject LineNotifyBotApi lineNotifyBotApi
+@inject IStringLocalizer<MySetting> Lang
+@inject CustomNavigation NavigationManager
+
+<h3><b>@Lang["Title"]</b></h3>
+<hr />
+
+<p>@Lang["Instruction"]</p>
+
+<a href="@ClientAuthorizeUrl">
+    <img src="/images/btn_login_base.png" />
+</a>
+
+@code {
+    public string CallbackUrl { get; set; }
+    public string ClientAuthorizeUrl { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CallbackUrl = NavigationManager.BaseUri + "line";
+        ClientAuthorizeUrl = lineNotifyBotApi.GenerateAuthorizeUrl(CallbackUrl, "1234");
+
+    }
+}

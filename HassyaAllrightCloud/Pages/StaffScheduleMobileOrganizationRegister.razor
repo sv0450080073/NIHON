@@ -1,0 +1,72 @@
+﻿@inherits StaffScheduleMobileOrganizationRegisterBase
+@layout SPLayout
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<DxPopup @bind-Visible="@ShowErrorPopup">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> @Lang["Error"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@Lang["UpdateDatabaseErrorMessage"]</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(() => ShowErrorPopup = false)">OK</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+
+<div id="content-schedule-organization-sfmb" style="overflow-y: auto">
+    <div class="body-schedule-mobile">
+        <div class="lst-sfmb-header">
+            <a @onclick="BackToStaffScheduleMobileOrganization">
+                <div class="float-left">
+                    <i class="fa fa-angle-left lbl-text-white" aria-hidden="true"></i>
+                </div>
+                <div class="text-center">
+                    <label class="lbl-text-white-title">@Lang["TitleScheduleRegister"]</label>
+                </div>
+            </a>
+        </div>
+        <div class="region-register-group-sfmb">
+            <EditForm Context="formContext" Model="@customGroupScheduleForm">
+                <DataAnnotationsValidator />
+                <FluentValidator TValidator="CustomGroupScheduleFormValidator" />
+                <ul class="validation-errors">
+                    @foreach (var message in formContext.GetValidationMessages().Distinct())
+                    {
+                        <li class="validation-message">@Lang[message]</li>
+                    }
+                </ul>
+                <div class="group-name-register-sfmb">
+                    <label class="lbl-register-group">@Lang["GroupName"]</label>
+                    <DxTextBox CssClass="txt-register-group length10"
+                               Text="@customGroupScheduleForm.GroupName"
+                               TextExpression="@(() => customGroupScheduleForm.GroupName)"
+                               TextChanged="@((newValue) => ChangeGroupName(newValue))">
+                    </DxTextBox>
+                </div>
+                <div class="">
+                    <label class="lbl-register-group">@Lang["SelectMember"]</label>
+                    <DxTagBox Data="@StaffList"
+                              TextFieldName="SyainNm"
+                              CssClass="txt-register-group"
+                              FilteringMode="@DataGridFilteringMode.StartsWith"
+                              ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                              SelectedItems="@customGroupScheduleForm.StaffList"
+                              SelectedItemsExpression="@(() => customGroupScheduleForm.StaffList)"
+                              SelectedItemsChanged="@((newValue) => ChangeMemberList(newValue))"></DxTagBox>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-sm btn-cancel-group-sfmb" @onclick="BackToStaffScheduleMobileOrganization">@Lang["Cancel"]</button>
+                    <button class="btn btn-sm btn-register-group-sfmb" disabled="@(string.IsNullOrEmpty(customGroupScheduleForm.GroupName) || string.IsNullOrEmpty(customGroupScheduleForm.GroupName.Trim()) || customGroupScheduleForm.StaffList.Count() == 0 ? "disabled" : null)" @onclick="SaveGroupSchedule">@Lang["Register"]</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>

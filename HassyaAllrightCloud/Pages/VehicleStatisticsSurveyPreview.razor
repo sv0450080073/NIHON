@@ -1,0 +1,16 @@
+﻿<DxDocumentViewer ReportUrl="@reportUrl" Height="1000px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code {
+    [Parameter]
+    public string searchString { get; set; }
+
+    public string reportUrl { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        reportUrl = $"{nameof(IVehicleStatisticsSurveyService)}?{searchString}";
+        return base.OnInitializedAsync();
+    }
+}

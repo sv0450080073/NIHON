@@ -1,0 +1,2114 @@
+﻿@page "/subcontractorstatus"
+@inject IStringLocalizer<SubContractorStatus> Lang
+@inject ICustomerListService CustomerService
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService CompanyDataService
+@inject ITPM_EigyosDataListService BranchDataService
+@inject ILoadingService LoadingService
+@inject IGridLayoutService GridLayoutService
+@inject IStaffListService StaffService
+@inject IFilterCondition FilterServices
+@inject ISubContractorStatusReportService SubContractorStatusReportService
+@inject IJSRuntime IJSRuntime
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostingEnvironment
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient Http
+@inject IBlazorContextMenuService blazorContextMenuService
+@inject IErrorHandlerService errorModalService
+@using HassyaAllrightCloud.Pages.Components.CommonComponents;
+@using HassyaAllrightCloud.Domain.Dto.SubContractorStatus;
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents;
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@notifyNotFound" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => notifyNotFound = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true" />
+        @NotFound
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => notifyNotFound = false)" Text="@Lang["OK"]" />
+    </FooterTemplate>
+</DxPopup>
+
+<ContextMenu Id="Menu1" CssClass="contextmenu" OnAppearing="MenuOnAppearingHandler">
+    <Item>
+        @Lang["CarRequestForm"]
+        <SubMenu>
+            <Item>@Lang["Printing"]</Item>
+            <Item>@Lang["preview"]</Item>
+        </SubMenu>
+    </Item>
+</ContextMenu>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>@Lang["PageTitle"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="@HandleClearSearchCondition">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["clear"]
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    @if (isSearching)
+    {
+        <div class="loader loader-search">
+            <div class="loader-icon"></div>
+        </div>
+    }
+    <div class="main-top mb-2">
+        <EditForm EditContext="@formContext">
+            <DataAnnotationsValidator />
+            <FluentValidator TValidator="SubContractorStatusValidator" />
+            <div id="control-tab" class="title-section mb-2">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["condition"]
+            </div>
+            <div class="express-condition mb-2">
+                <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+                    <DxTab Text="@Lang["tab_searchCondition"]"></DxTab>
+                    <DxTab Text="@Lang["tab_changeSize"]"></DxTab>
+                    <DxTab Text="@Lang["tab_export"]"></DxTab>
+                    <DxTab Text="@Lang["tab_gridAction"]"></DxTab>
+                </DxTabs>
+                <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+                    <div class="card-body">
+                        @switch (ActiveTabIndex)
+                        {
+                            case 0:
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--120 mr-3">@Lang["date_specified"]</label>
+                                    <nav class="nav nav-pills">
+                                        <a href="javascript:void(0)" class="nav-link @(data.DateType == DateType.Dispatch ? "active" : null)" @onclick="@(e => DateTypeChanged(e, DateType.Dispatch))">@Lang["DateOfDispatch"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(data.DateType == DateType.Arrival ? "active" : null)" @onclick="@(e => DateTypeChanged(e, DateType.Arrival))">@Lang["DateOfArrival"]</a>
+                                    </nav>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--120 mr-3">@Lang["date"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => data.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit Date="@data.StartDate"
+                                                    Format="yyyy/MM/dd"
+                                                    DateChanged="@((newValue) => OnDateChanged(newValue))"
+                                                    DateExpression="@(() => data.StartDate)"
+                                                    CssClass="width--130">
+                                        </DxDateEdit>
+                                    </div>
+                                    <span class="mx-2">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => data.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit Date="@data.EndDate"
+                                                    Format="yyyy/MM/dd"
+                                                    DateChanged="@((newValue) => OnDateChanged(newValue, false))"
+                                                    DateExpression="@(() => data.StartDate)"
+                                                    CssClass="width--130">
+                                        </DxDateEdit>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--120 mr-3">@Lang["Customer"]</label>
+                                    <div class="custom-validate">
+                                        <CustomerComponent @ref="CustomerFromRef" VehicleClassification="1" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                           RenderMode="ListRenderMode.Virtual"
+                                                           LangDic="LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           GyosyaExpression="() => data.SelectedGyosyaFrom"
+                                                           SelectedGyosya="data.SelectedGyosyaFrom"
+                                                           SelectedGyosyaChanged="(val) => OnModelChanged(nameof(data.SelectedGyosyaFrom), val, true)"
+                                                           DefaultGyosya="DefaultValueCustomerFrom.GyosyaCdSeq"
+                                                           TokiskExpression="() => data.SelectedTokiskFrom"
+                                                           SelectedTokisk="data.SelectedTokiskFrom"
+                                                           SelectedTokiskChanged="(val) => OnModelChanged(nameof(data.SelectedTokiskFrom), val, true)"
+                                                           DefaultTokisk="DefaultValueCustomerFrom.TokiskCdSeq"
+                                                           TokiStExpression="() => data.SelectedTokiStFrom"
+                                                           SelectedTokiSt="data.SelectedTokiStFrom"
+                                                           SelectedTokiStChanged="(val) => OnModelChanged(nameof(data.SelectedTokiStFrom), val, true)"
+                                                           DefaultTokiSt="DefaultValueCustomerFrom.TokiStCdSeq">
+                                        </CustomerComponent>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="custom-validate">
+                                        <CustomerComponent @ref="CustomerToRef" VehicleClassification="1" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                           RenderMode="ListRenderMode.Virtual"
+                                                           LangDic="LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           GyosyaExpression="() => data.SelectedGyosyaTo"
+                                                           SelectedGyosya="data.SelectedGyosyaTo"
+                                                           SelectedGyosyaChanged="(val) => OnModelChanged(nameof(data.SelectedGyosyaTo), val, false)"
+                                                           DefaultGyosya="DefaultValueCustomerTo.GyosyaCdSeq"
+                                                           TokiskExpression="() => data.SelectedTokiskTo"
+                                                           SelectedTokisk="data.SelectedTokiskTo"
+                                                           SelectedTokiskChanged="(val) => OnModelChanged(nameof(data.SelectedTokiskTo), val, false)"
+                                                           DefaultTokisk="DefaultValueCustomerTo.TokiskCdSeq"
+                                                           TokiStExpression="() => data.SelectedTokiStTo"
+                                                           SelectedTokiSt="data.SelectedTokiStTo"
+                                                           SelectedTokiStChanged="(val) => OnModelChanged(nameof(data.SelectedTokiStTo), val, false)"
+                                                           DefaultTokiSt="DefaultValueCustomerTo.TokiStCdSeq">
+                                        </CustomerComponent>
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm width--120 mr-3">@Lang["UkeCd"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => data.UkeCdTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox Text="@(data.UkeCdFrom)"
+                                                       TextChanged="@((newValue) => OnUkeCdChanged(newValue))"
+                                                       TextExpression="@(() => data.UkeCdTo)"
+                                                       CssClass="width--130 code-number length10">
+                                            </DxTextBox>
+                                        </div>
+                                        <span class="mx-2">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => data.UkeCdTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox Text="@(data.UkeCdTo)"
+                                                       TextChanged="@((newValue) => OnUkeCdChanged(newValue, false))"
+                                                       TextExpression="()=> data.UkeCdTo"
+                                                       CssClass="width--130 code-number length10">
+                                            </DxTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--100">@Lang["BookingType"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => data.RegistrationTypeFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       isAddNullItem="-1"
+                                                                       DefaultValue="DefaultValueReservationFrom"
+                                                                       SelectedReservationClass="data.RegistrationTypeFrom"
+                                                                       ReservationClassExpression="() => data.RegistrationTypeFrom"
+                                                                       SelectedReservationClassChanged="@(v => OnModelChanged(nameof(data.RegistrationTypeFrom), v, true))"
+                                                                       @ref="reservationFromRef">
+                                            </ReservationClassComponent>
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => data.RegistrationTypeTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       isAddNullItem="-1"
+                                                                       DefaultValue="DefaultValueReservationTo"
+                                                                       SelectedReservationClass="data.RegistrationTypeTo"
+                                                                       ReservationClassExpression="() => data.RegistrationTypeTo"
+                                                                       SelectedReservationClassChanged="@(v => OnModelChanged(nameof(data.RegistrationTypeTo), v, false))"
+                                                                       @ref="reservationToRef">
+                                            </ReservationClassComponent>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm width--120 mr-3">@Lang["Company"]</label>
+                                        <div class="dropdown dropdown-listbox">
+                                            <div class=@("has-tooltip-error custom-listbox-invalid" + (cmbCompanyIsError ? " invalid" : ""))>
+                                                <Tooltip Lang="@LangDic" ValueExpressions="@(() =>data.Companies)"
+                                                         Position="PositionTooltip.top"> </Tooltip>
+                                                <div class="input-group input-group-sm dx-listbox width--290 multi-combobox dropdown-toggle" id="lstcompany" data-toggle="dropdown">
+                                                    <input class="form-control form-control-sm withtabindex" value="@GetSelectedCompanyText()">
+                                                    <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                                                        <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle " type="button">
+                                                            <span></span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                                                    <DxListBox Data="@Companies"
+                                                               TextFieldName="@nameof(CompanyData.CompanyInfo)"
+                                                               ListRenderMode="ListRenderMode.Entire"
+                                                               SelectionMode="ListBoxSelectionMode.Multiple"
+                                                               SelectedItems="@CompanySelecteds"
+                                                               SelectedItemsChanged="@OnCompanySelectedChanged"
+                                                               SelectedItemsExpression="@(() => data.Companies)"
+                                                               ShowCheckboxes="true">
+                                                    </DxListBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--100">@Lang["ReceiptOfficeCode"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => data.BranchStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox NullText="@Lang["BranchNullText"]"
+                                                        Data="@Branches"
+                                                        TextFieldName="BranchText"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        ListRenderMode="ListRenderMode.Virtual"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.BranchStart"
+                                                        SelectedItemChanged="@((newBranch)=> OnSaleBranchChanged(newBranch))"
+                                                        SelectedItemExpression="@(() => data.BranchStart)">
+                                            </DxComboBox>
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() =>  data.BranchStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox NullText="@Lang["BranchNullText"]"
+                                                        Data="@Branches"
+                                                        TextFieldName="BranchText"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        ListRenderMode="ListRenderMode.Virtual"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.BranchEnd"
+                                                        SelectedItemChanged="@((newBranch)=> OnSaleBranchChanged(newBranch, false))"
+                                                        SelectedItemExpression="@(() => data.BranchStart)">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--120 mr-3">@Lang["EigTanCd"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => data.StaffStart)" Lang="@LangDic" Position="PositionTooltip.top" />
+                                        <DxComboBox Data="Staffs"
+                                                    TextFieldName="StaffText"
+                                                    NullText="@Lang["StaffNullText"]"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    ListRenderMode="ListRenderMode.Virtual"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.StaffStart"
+                                                    SelectedItemChanged="@(newStaff => OnStaffSelectedChanged(newStaff))"
+                                                    SelectedItemExpression="@(() => data.StaffStart)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => data.StaffStart)" Lang="@LangDic" Position="PositionTooltip.top" />
+                                        <DxComboBox Data="Staffs"
+                                                    TextFieldName="StaffText"
+                                                    NullText="@Lang["StaffNullText"]"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    ListRenderMode="ListRenderMode.Virtual"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.StaffEnd"
+                                                    SelectedItemChanged="@(newStaff => OnStaffSelectedChanged(newStaff, false))"
+                                                    SelectedItemExpression="@(() => data.StaffStart)">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm width--120 mr-3">@Lang["OwnCompanyType"]</label>
+                                        <DxComboBox Data="@OwnCompanyTypes"
+                                                    TextFieldName="DisplayName"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.OwnCompanyType"
+                                                    SelectedItemChanged="@OnOwnCompanyTypeChanged"
+                                                    SelectedItemExpression="@(() => data.OwnCompanyType)"
+                                                    CssClass="width--130">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm mr-3">@Lang["OutputOrder"]</label>
+                                        <DxComboBox Data="@OutputOrders"
+                                                    TextFieldName="DisplayName"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.OutputOrder"
+                                                    SelectedItemChanged="@OnOutputOrderChanged"
+                                                    SelectedItemExpression="@(() => data.OutputOrder)"
+                                                    CssClass="width--130">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                                <div class="text-center form-group mt-4">
+                                    @*<DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100" @onclick="async () => await OnButtonSearchClicked()" Text="@Lang["BtnSearch"]"></DxButton>*@
+                                </div>
+                                break;
+                            case 1:
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3">@Lang["switching_width"]</label>
+                                    <nav class="nav nav-pills">
+                                        <a href="javascript:void(0)" class="nav-link width--65 text-center  @(data.FormViewSize == ViewMode.Large ? "active" : null)" @onclick="@(async () => await FormViewSizeChanged(ViewMode.Large))">@Lang["large"]</a>
+                                        <a href="javascript:void(0)" class="nav-link width--65 text-center  @(data.FormViewSize == ViewMode.Medium ? "active" : null)" @onclick="@(async () => await FormViewSizeChanged(ViewMode.Medium))">@Lang["medium"]</a>
+                                        <a href="javascript:void(0)" class="nav-link width--65 text-center k @(data.FormViewSize == ViewMode.Small ? "active" : null)" @onclick="@(async () => await FormViewSizeChanged(ViewMode.Small))">@Lang["small"]</a>
+                                    </nav>
+                                </div>
+                                break;
+                            case 2:
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--65 mr-3">@Lang["print_mode"]</label>
+                                    <nav class="nav nav-pills">
+                                        <a href="javascript:void(0)" class="nav-link @(data.ExportType == OutputReportType.Preview ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.Preview))">@Lang["preview"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(data.ExportType == OutputReportType.CSV ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.CSV))">@Lang["csv"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(data.ExportType == OutputReportType.ExportPdf ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.ExportPdf))">@Lang["pdf"]</a>
+                                    </nav>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap align-items-center">
+                                    <label class="col-form-label-sm width--65 mr-3">@Lang["form_setting"]</label>
+                                    <div class="border p-2 form-group d-flex flex-nowrap @(data.ExportType == OutputReportType.CSV ? "disabled-content" : null)">
+                                        <div class="d-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3">@Lang["size_of_paper"]</label>
+                                            <DxComboBox Data="@PaperSizeOptions"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.PaperSize"
+                                                        SelectedItemChanged="@OnPaperSizeChanged"
+                                                        SelectedItemExpression="@(() => @data.PaperSize)"
+                                                        CssClass="width--120">
+                                            </DxComboBox>
+                                        </div>
+                                        <div class="d-flex flex-nowrap ml-5">
+                                            <label class="col-form-label-sm width--100 mr-3">@Lang["GroupDivision"]</label>
+                                            <DxComboBox Data="@Group"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.Group"
+                                                        SelectedItemChanged="@OnGroupDivisionChanged"
+                                                        SelectedItemExpression="@(() => data.Group)">
+                                            </DxComboBox>
+                                        </div>
+                                        <div class="d-flex flex-nowrap ml-5">
+                                            <label class="col-form-label-sm width--100 mr-3">@Lang["PageBreakType"]</label>
+                                            <DxComboBox Data="@PageBreakTypes"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.PageBreak"
+                                                        SelectedItemChanged="@OnPageBreakChanged"
+                                                        SelectedItemExpression="@(() => data.PageBreak)"
+                                                        ReadOnly="disableCmbBreakPage"
+                                                        CssClass="@((disableCmbBreakPage ? "disabled-content" : ""))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap align-items-center">
+                                    <label class="col-form-label-sm width--65 mr-3">@Lang["csv_setting"]</label>
+                                    <div class="border p-2 d-flex flex-nowrap @(data.ExportType == OutputReportType.CSV ? null: "disabled-content")">
+                                        <label class="col-form-label-sm mr-3">@Lang["heading_ouput"]</label>
+                                        <div class="@(data.CsvConfigOption.Delimiter.Option == CSV_Delimiter.FixedLength ? "disabled-content" : null)">
+                                            <DxComboBox Data="@CsvHeaderOptions"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@(data.CsvConfigOption.Header)"
+                                                        SelectedItemChanged="@OnCsvHeaderChanged"
+                                                        SelectedItemExpression="@(()=>@data.CsvConfigOption.Header)"
+                                                        ReadOnly="@(data.ExportType != OutputReportType.CSV)"
+                                                        CssClass="width--160">
+                                            </DxComboBox>
+                                        </div>
+                                        <label class="col-form-label-sm mr-3 ml-5">@Lang["grouping_output"]</label>
+                                        <div class="@(data.CsvConfigOption.Delimiter.Option == CSV_Delimiter.FixedLength ? "disabled-content" : null)">
+                                            <DxComboBox Data="@CsvGroupSymbolOptions"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        SelectedItem="@data.CsvConfigOption.GroupSymbol"
+                                                        SelectedItemChanged="@OnGroupSymbolChanged"
+                                                        SelectedItemExpression="@(()=>@data.CsvConfigOption.GroupSymbol)"
+                                                        ReadOnly="@(data.ExportType != OutputReportType.CSV)"
+                                                        CssClass="width--160">
+                                            </DxComboBox>
+                                        </div>
+                                        <label class="col-form-label-sm mr-3 ml-5">@Lang["separator_output"]</label>
+                                        <DxComboBox Data="@CsvDelimiterOptions"
+                                                    TextFieldName="DisplayName"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.CsvConfigOption.Delimiter"
+                                                    SelectedItemChanged="@OnSeparatorChanged"
+                                                    SelectedItemExpression="@(()=>@data.CsvConfigOption.Delimiter)"
+                                                    ReadOnly="@(data.ExportType != OutputReportType.CSV)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                        @if (data.CsvConfigOption.Delimiter.Option == CSV_Delimiter.Other)
+                                        {
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => data.CsvConfigOption.DelimiterSymbol)" Lang="@LangDic" Position="PositionTooltip.top" />
+                                                <DxTextBox NullText="@Lang["CharacterNullText"]"
+                                                           Text="@data.CsvConfigOption.DelimiterSymbol"
+                                                           TextChanged="@((newValue) => OnDelimiterTextChanged(newValue))"
+                                                           TextExpression="@(() => @data.CsvConfigOption.DelimiterSymbol)"
+                                                           ReadOnly="@(data.ExportType != OutputReportType.CSV)"
+                                                           maxlength="1"
+                                                           CssClass="ml-3">
+                                                </DxTextBox>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="text-center form-group mt-4">
+                                    <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100" @onclick="@OnButtonReportClicked" Enabled="@isExportable" Text="@Lang["BtnExport"]"></DxButton>
+                                </div>
+                                break;
+                            case 3:
+                                <div class="d-flex">
+                                    <DxButton RenderStyle="ButtonRenderStyle.Primary" Enabled="PagedResultData.PageData.Any()" Text="@Lang["SaveGridLayout"]" @onclick="ReOrderTable" CssClass="pl-2 width--90"></DxButton>
+                                    <DxButton RenderStyle="ButtonRenderStyle.Primary" Enabled="PagedResultData.PageData.Any()" Text="@Lang["InitGridLayout"]" @onclick="InitGridLayout" CssClass="mx-2 width--90"></DxButton>
+                                </div>
+                                break;
+                        }
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+}
+
+@if ((PagedResultData.PageData?.Any() ?? false) && Header != null && Body != null)
+{
+    <KoboSimpleGrid Header="Header"
+                    Body="Body"
+                    DataItems="@PagedResultData.PageData"
+                    CssClass="@(string.Format(" kobo-grid-size-{0} mn-3", (int)data.FormViewSize))"
+                    OnRowClick="async e => await OnRowClicked(e)" />
+    <Pagination TotalCount=@TotalItems
+                ItemPerPage=@((byte)RecordsPerPage)
+                OnChangePage="(page) => OnPaginationChanged(page)"
+                OnChangeItemPerPage="(value) => HandleItemPerPageChange(value)"
+                @ref="pagination" />
+
+    @if (PagedResultData.Summary != null)
+    {
+        <div id="total-area" class="total-table mt-3 w-75 @(string.Format("kobo-grid-size-{0}", (int)data.FormViewSize))">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" rowspan="3" style="vertical-align: middle">@Lang["Total"]</th>
+                        <th scope="col" colspan="9">@Lang["OwnerCarMoney"]</th>
+                        <th scope="col" colspan="9">@Lang["LoanCarMoney"]</th>
+                        <th scope="col" rowspan="3" style="vertical-align: middle">@Lang["ProfitAndLoss"]</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" colspan="3">@Lang["Fare"]</th>
+                        <th scope="col" colspan="3">@Lang["Guide"]</th>
+                        <th scope="col" colspan="3">@Lang["IncidentalMoney"]</th>
+                        <th scope="col" colspan="3">@Lang["Fare"]</th>
+                        <th scope="col" colspan="3">@Lang["Guide"]</th>
+                        <th scope="col" colspan="3">@Lang["IncidentalMoney"]</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">@Lang["Fare"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                        <th scope="col">@Lang["Guide"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                        <th scope="col">@Lang["IncidentalCharges"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                        <th scope="col">@Lang["Fare"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                        <th scope="col">@Lang["GuideFee"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                        <th scope="col">@Lang["IncidentalCharges"]</th>
+                        <th scope="col">@Lang["ConsumptionTax"]</th>
+                        <th scope="col">@Lang["Fee"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">@Lang["PageTotal"]</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalSyaRyoUnc</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalZeiRui</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalTesuRyoG</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalGuideFee</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalGuideTax</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalUnitGuiderFee</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalIncidentalFee</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalIncidentalTax</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalIncidentalCharge</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYoushaUnc</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYoushaSyo</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYoushaTes</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumGuiKin</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumGuiTax</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumGuiTes</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumKin</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumTax</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.TotalYouFutTumTes</td>
+                        <td class="text-right">@PagedResultData.CurrentPageSummary.Profit</td>
+                    </tr>
+                    <tr>
+                        <td scope="row">@Lang["Cumulative"]</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalSyaRyoUnc</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalZeiRui</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalTesuRyoG</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalGuideFee</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalGuideTax</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalUnitGuiderFee</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalIncidentalFee</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalIncidentalTax</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalIncidentalCharge</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYoushaUnc</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYoushaSyo</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYoushaTes</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumGuiKin</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumGuiTax</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumGuiTes</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumKin</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumTax</td>
+                        <td class="text-right">@PagedResultData.Summary.TotalYouFutTumTes</td>
+                        <td class="text-right">@PagedResultData.Summary.Profit</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    EditContext formContext;
+    int activeTabIndex = 0;
+    bool isTabChange = false;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; isTabChange = true; StateHasChanged(); } }
+    string baseUrl;
+
+    SubContractorStatusData data = new SubContractorStatusData();
+    private List<LoadCustomerList> Customers = new List<LoadCustomerList>();
+    private List<ReservationData> BookingTypes = new List<ReservationData>();
+    private List<CompanyData> Companies = new List<CompanyData>();
+    private List<LoadSaleBranch> Branches = new List<LoadSaleBranch>();
+    private List<LoadStaff> Staffs = new List<LoadStaff>();
+    private List<SelectedOption<OwnCompanyType>> OwnCompanyTypes = new List<SelectedOption<OwnCompanyType>>();
+    private List<SelectedOption<ContractorOutputOrder>> OutputOrders = new List<SelectedOption<ContractorOutputOrder>>();
+    private List<SelectedOption<GroupDivision>> Group = new List<SelectedOption<GroupDivision>>();
+    private List<SelectedOption<PageBreak>> PageBreakTypes = new List<SelectedOption<PageBreak>>();
+    private List<PaperSize> PaperSizeOptions = new List<PaperSize>();
+    private List<SelectedOption<CSV_Header>> CsvHeaderOptions = new List<SelectedOption<CSV_Header>>();
+    private List<SelectedOption<CSV_Group>> CsvGroupSymbolOptions = new List<SelectedOption<CSV_Group>>();
+    private List<SelectedOption<CSV_Delimiter>> CsvDelimiterOptions = new List<SelectedOption<CSV_Delimiter>>();
+    private IEnumerable<CompanyData> CompanySelecteds = new List<CompanyData>();
+    private CustomerComponent CustomerFromRef { get; set; }
+    private CustomerComponent CustomerToRef { get; set; }
+    private DefaultCustomerData DefaultValueCustomerFrom { get; set; } = new DefaultCustomerData();
+    private DefaultCustomerData DefaultValueCustomerTo { get; set; } = new DefaultCustomerData();
+
+    protected ReservationClassComponent reservationFromRef;
+    protected ReservationClassComponent reservationToRef;
+    private int DefaultValueReservationFrom;
+    private int DefaultValueReservationTo;
+
+    private bool IsCompanySelectedAll = true;
+    private bool IsSelectEmptyCompany = false;
+
+    private string DisplayBookingTypeCmb = string.Empty;
+    private bool isSearching = false;
+    private bool isFilterApply = false;
+    private bool isLoading = true;
+    private bool isExportable = false;
+    private bool notifyNotFound = false;
+    private bool cmbCompanyIsError = false;
+    private bool disableCmbBreakPage = false;
+
+    private string filterConditionFormName = "KU4000";
+
+    private Pagination pagination = new Pagination();
+    private int CurrentPage = 1;
+    private int RecordsPerPage = 25;
+    private int TotalItems = 0;
+
+    private SubContractorStatusSearchPaged PagedResultData = new SubContractorStatusSearchPaged();
+
+    private HeaderTemplate Header { get; set; } = new HeaderTemplate();
+    private HeaderTemplate headerTemplate { get; set; } = new HeaderTemplate();
+
+    private BodyTemplate Body { get; set; }
+
+    private ClaimModel GetCurrentUserInfo;
+
+    #region Localization string
+    private string NotFound;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    private void LocalizationInit()
+    {
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+
+        NotFound = Lang["BI_T007"];
+
+    }
+    #endregion
+
+    #region Component Lifecycle
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Header = new HeaderTemplate();
+            headerTemplate = new HeaderTemplate();
+            baseUrl = AppSettingsService.GetBaseUrl();
+            formContext = new EditContext(data);
+            formContext.OnValidationStateChanged += OnValidationStateChanged;
+            GetCurrentUserInfo = new ClaimModel();
+
+            LocalizationInit();
+            LoadStaticData();
+
+            await Task.Run(async () =>
+            {
+                await LoadCompany();
+                await LoadBranch();
+                await LoadStaff();
+            })
+                .ContinueWith(async (t) =>
+                {
+                    ApplyFillter();
+                    isExportable = formContext.Validate();
+                    GenrateGrid();
+                    isLoading = false;
+
+                    await InvokeAsync(StateHasChanged);
+                    await OnButtonSearchClicked();
+                });
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    #endregion
+
+    #region Load Data
+    private async Task OnInitCustomerReservation()
+    {
+        DefaultValueReservationFrom = DefaultValueReservationTo = -1;
+        DefaultValueCustomerFrom.GyosyaCdSeq = DefaultValueCustomerTo.GyosyaCdSeq = -1;
+        DefaultValueCustomerFrom.TokiskCdSeq = DefaultValueCustomerTo.TokiskCdSeq = -1;
+        DefaultValueCustomerFrom.TokiStCdSeq = DefaultValueCustomerTo.TokiStCdSeq = -1;
+        data.SelectedGyosyaFrom = data.SelectedGyosyaTo = null;
+        data.SelectedTokiskFrom = data.SelectedTokiskFrom = null;
+        data.SelectedTokiStFrom = data.SelectedTokiStTo = null;
+        data.RegistrationTypeFrom = data.RegistrationTypeTo = null;
+        await Task.Yield();
+        await CustomerFromRef.RenderDefault();
+        await CustomerToRef.RenderDefault();
+    }
+
+    private async Task LoadCompany()
+    {
+        Companies = await CompanyDataService.GetCompanyByTenantIdAsync(new ClaimModel().TenantID);
+
+        if (Companies.Any())
+        {
+            if (!Companies.Any(_ => _ != null && _.IsSelectedAll))
+                Companies.Insert(0, new CompanyData { IsSelectedAll = true });
+            data.Companies = Companies;
+
+            CompanySelecteds = Companies;
+        }
+        else
+        {
+        }
+        //data.Company = Companies.FirstOrDefault();
+    }
+
+    private async Task LoadBranch()
+    {
+        Branches = await BranchDataService.GetBranchDataByCompanies(new ClaimModel().TenantID, data.Companies.Where(_ => _ != null).Select(_ => _.CompanyCdSeq).ToList());
+
+        InsertSelectAll(Branches);
+
+        if (!isFilterApply)
+        {
+            data.BranchStart = Branches.FirstOrDefault();
+            data.BranchEnd = Branches.FirstOrDefault();
+        }
+    }
+
+    private async Task LoadStaff()
+    {
+        Staffs = await StaffService.GetStaffByTenantIdAsync(new ClaimModel().TenantID,
+            data.StartDate.ToString("yyyyMMdd"),
+            data.EndDate.ToString("yyyyMMdd"));
+        InsertSelectAll(Staffs);
+
+        data.StaffStart = Staffs.FirstOrDefault();
+        data.StaffEnd = Staffs.FirstOrDefault();
+    }
+
+    private void LoadStaticData()
+    {
+        data.DateTypeText = Lang["DateOfDispatch"];
+
+        OwnCompanyTypes = new List<SelectedOption<OwnCompanyType>>(){
+            new SelectedOption<OwnCompanyType>{Option = OwnCompanyType.Output, DisplayName= Lang["Output"] },
+            new SelectedOption<OwnCompanyType>{Option = OwnCompanyType.NoOutput, DisplayName= Lang["NoOutput"] },
+        };
+        data.OwnCompanyType = OwnCompanyTypes.LastOrDefault();
+
+        OutputOrders = new List<SelectedOption<ContractorOutputOrder>>(){
+            new SelectedOption<ContractorOutputOrder>{Option = ContractorOutputOrder.Dispatch, DisplayName= Lang["DateOfDispatch"] },
+            new SelectedOption<ContractorOutputOrder>{Option = ContractorOutputOrder.Arrival, DisplayName= Lang["DateOfArrival"] },
+        };
+        data.OutputOrder = OutputOrders.FirstOrDefault();
+
+        Group = new List<SelectedOption<GroupDivision>>(){
+            new SelectedOption<GroupDivision>{Option = GroupDivision.All, DisplayName= Lang["All"] },
+            new SelectedOption<GroupDivision>{Option = GroupDivision.ParentCompanies, DisplayName= Lang["CarDestination"] },
+            new SelectedOption<GroupDivision>{Option = GroupDivision.SubsidiaryCompanies, DisplayName= Lang["CarDestinationBranch"] },
+        };
+        data.Group = Group.FirstOrDefault();
+        disableCmbBreakPage = true;
+
+        PageBreakTypes = new List<SelectedOption<PageBreak>>(){
+            new SelectedOption<PageBreak>{Option = PageBreak.Yes, DisplayName= Lang["Yes"] },
+            new SelectedOption<PageBreak>{Option = PageBreak.No, DisplayName= Lang["No"] },
+        };
+        data.PageBreak = PageBreakTypes.FirstOrDefault();
+
+        PaperSizeOptions = new List<PaperSize>{
+            PaperSize.A4,
+            PaperSize.A3,
+            PaperSize.B4,
+        };
+        data.PaperSize = PaperSizeOptions.FirstOrDefault();
+
+        CsvHeaderOptions = new List<SelectedOption<CSV_Header>>(){
+            new SelectedOption<CSV_Header>{Option = CSV_Header.IncludeHeader, DisplayName= Lang["CsvHadHeader"] },
+            new SelectedOption<CSV_Header>{Option = CSV_Header.WithoutHeader, DisplayName= Lang["CsvWithoutHeader"] },
+        };
+        data.CsvConfigOption.Header = CsvHeaderOptions.FirstOrDefault();
+
+        CsvGroupSymbolOptions = new List<SelectedOption<CSV_Group>>(){
+            new SelectedOption<CSV_Group>{Option = CSV_Group.QuotationMarks, DisplayName= Lang["CsvGrQuotesMarks"]},
+            new SelectedOption<CSV_Group>{Option = CSV_Group.WithoutQuotes, DisplayName= Lang["CsvGrWithoutQuotes"]},
+        };
+        data.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.FirstOrDefault();
+
+        CsvDelimiterOptions = new List<SelectedOption<CSV_Delimiter>>(){
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Comma, DisplayName= Lang["CsvSpaceComma"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Semicolon, DisplayName= Lang["CsvSpaceSemicolon"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Space, DisplayName= Lang["CsvSpacing"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.FixedLength, DisplayName= Lang["CsvSpaceFixedLength"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Other, DisplayName= Lang["CsvSpaceOther"]},
+        };
+        data.CsvConfigOption.Delimiter = CsvDelimiterOptions.FirstOrDefault();
+    }
+
+    private void InsertSelectAll<T>(List<T> source) where T : class
+    {
+        if (source.Any(item => item is null))
+            return;
+
+        source.Insert(0, null);
+    }
+    #endregion
+
+    #region Value Changed Method
+
+    private async Task FormViewSizeChanged(ViewMode formViewSize)
+    {
+        try
+        {
+            data.FormViewSize = formViewSize;
+
+            if (!isFilterApply)
+            {
+                await SaveCurrentFilter();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void DateTypeChanged(MouseEventArgs e, DateType dateType)
+    {
+        try
+        {
+            data.DateTypeText = dateType switch
+            {
+                DateType.Arrival => Lang["DateOfArrival"],
+                DateType.Dispatch => Lang["DateOfDispatch"],
+                _ => string.Empty,
+            };
+
+            data.DateType = dateType;
+
+            if (!isFilterApply)
+            {
+                await OnButtonSearchClicked();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnDateChanged(DateTime newDate, bool isStart = true)
+    {
+        try
+        {
+            if (isStart)
+            {
+                data.StartDate = newDate;
+            }
+            else
+            {
+                data.EndDate = newDate;
+            }
+
+            if (!isFilterApply)
+                //await LoadCustomer().ContinueWith(async t => { await OnButtonSearchClicked(); });
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnUkeCdChanged(string newUkeCd, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.UkeCdFrom = newUkeCd;
+            }
+            else
+            {
+                data.UkeCdTo = newUkeCd;
+            }
+
+            if (!isFilterApply)
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnCompanySelectedChanged(IEnumerable<CompanyData> companies)
+    {
+        try
+        {
+            int newCount = companies.Count();
+            int maxCount = Companies.Count();
+
+            CompanySelecteds = companies;
+
+            bool isContainSelectAll = CompanySelecteds.Where(_ => _.IsSelectedAll).Any();
+            if (!isFilterApply)
+            {
+                if (IsCompanySelectedAll == true)
+                {
+                    if (!isContainSelectAll)
+                    {
+                        CompanySelecteds = CompanySelecteds.Take(0);
+                        IsCompanySelectedAll = false;
+                    }
+                    else if (isContainSelectAll && newCount < maxCount)
+                    {
+                        CompanySelecteds = CompanySelecteds.Where(_ => !_.IsSelectedAll);
+                        IsCompanySelectedAll = false;
+                    }
+                }
+                else
+                {
+                    if (isContainSelectAll)
+                    {
+                        CompanySelecteds = Companies;
+                        IsCompanySelectedAll = true;
+                    }
+                    else if (!isContainSelectAll && newCount == maxCount - 1)
+                    {
+                        CompanySelecteds = Companies;
+                        IsCompanySelectedAll = true;
+                    }
+                }
+            }
+            data.Companies = CompanySelecteds.Select(_ => new CompanyData { CompanyCdSeq = _.CompanyCdSeq }).ToList();
+
+            Branches = await BranchDataService.GetBranchDataByCompanies(GetCurrentUserInfo.TenantID, data.Companies?.Select(_ => _.CompanyCdSeq).ToList());
+            InsertSelectAll(Branches);
+            if (Branches.Any())
+            {
+                data.BranchStart = Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == (data.BranchStart?.EigyoCdSeq ?? 0));
+                data.BranchEnd = Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == (data.BranchEnd?.EigyoCdSeq ?? 0));
+            }
+            await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private string GetSelectedCompanyText()
+    {
+        int newCount = CompanySelecteds.Count();
+        int maxCount = Companies.Count();
+        string displayText = string.Empty;
+        try
+        {
+            if (newCount == 1 && (!CompanySelecteds.FirstOrDefault()?.IsSelectedAll ?? false))
+            {
+                displayText = CompanySelecteds.FirstOrDefault()?.CompanyInfo ?? string.Empty;
+            }
+            else if (newCount == maxCount)
+            {
+                displayText = Constants.SelectedAll;
+            }
+            else
+            {
+                displayText = $"{Lang["Choices"]}: {newCount}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return displayText;
+    }
+
+    private async void OnSaleBranchChanged(LoadSaleBranch newBranch, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.BranchStart = newBranch;
+            }
+            else
+            {
+                data.BranchEnd = newBranch;
+            }
+
+            if (!isFilterApply)
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnStaffSelectedChanged(LoadStaff newStaff, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.StaffStart = newStaff;
+            }
+            else
+            {
+                data.StaffEnd = newStaff;
+            }
+
+            if (!isFilterApply)
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnOwnCompanyTypeChanged(SelectedOption<OwnCompanyType> newValue)
+    {
+        try
+        {
+            data.OwnCompanyType = newValue;
+
+            if (!isFilterApply)
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void OnOutputOrderChanged(SelectedOption<ContractorOutputOrder> order)
+    {
+        try
+        {
+            data.OutputOrder = order;
+
+            if (!isFilterApply)
+                await OnButtonSearchClicked();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void OnGroupDivisionChanged(SelectedOption<GroupDivision> group)
+    {
+        data.Group = group;
+
+        disableCmbBreakPage = group.Option == GroupDivision.All;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    private void OnPageBreakChanged(SelectedOption<PageBreak> pagebreak)
+    {
+        data.PageBreak = pagebreak;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    private void OnExportTypeClicked(MouseEventArgs e, OutputReportType type)
+    {
+        try
+        {
+            if (data.ExportType == OutputReportType.CSV && type != OutputReportType.CSV)
+            {
+                //Reset fields in CSV config form
+                data.CsvConfigOption.DelimiterSymbol = string.Empty;
+                data.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.First();
+                data.CsvConfigOption.Header = CsvHeaderOptions.First();
+                data.CsvConfigOption.Delimiter = CsvDelimiterOptions.First();
+            }
+            data.ExportType = type;
+
+            formContext.Validate();
+
+            if (!isFilterApply)
+                StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void OnPaperSizeChanged(PaperSize size)
+    {
+        data.PaperSize = size;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    private void OnCsvHeaderChanged(SelectedOption<CSV_Header> selectedItems)
+    {
+        data.CsvConfigOption.Header = selectedItems;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    private void OnGroupSymbolChanged(SelectedOption<CSV_Group> selectedItems)
+    {
+        data.CsvConfigOption.GroupSymbol = selectedItems;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    private void OnSeparatorChanged(SelectedOption<CSV_Delimiter> selectedItems)
+    {
+        try
+        {
+            if (data.CsvConfigOption.Delimiter.Option == CSV_Delimiter.Other && selectedItems.Option != CSV_Delimiter.Other)
+            {
+                data.CsvConfigOption.DelimiterSymbol = string.Empty;
+            }
+            if (selectedItems.Option == CSV_Delimiter.FixedLength)
+            {
+                data.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.Where(_ => _.Option == CSV_Group.WithoutQuotes).FirstOrDefault();
+                data.CsvConfigOption.Header = CsvHeaderOptions.Where(_ => _.Option == CSV_Header.WithoutHeader).FirstOrDefault();
+            }
+            data.CsvConfigOption.Delimiter = selectedItems;
+
+            if (!isFilterApply)
+                StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void OnDelimiterTextChanged(string newValue)
+    {
+        data.CsvConfigOption.DelimiterSymbol = newValue;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+    #endregion
+
+
+    #region Action
+
+    private async Task OnButtonSearchClicked()
+    {
+        if (!formContext.Validate() || isFilterApply)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        await LoadingService.ShowAsync();
+
+        try
+        {
+            data.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+            PagedResultData = await SubContractorStatusReportService.SearchSubContractorStatusSearchPaged(data, new ClaimModel().TenantID, CurrentPage, RecordsPerPage);
+            data.BookingTypes = null;
+
+            TotalItems = PagedResultData.TotalRecord;
+
+            if (PagedResultData.PageData.Any())
+            {
+                await SaveCurrentFilter();
+            }
+            else
+            {
+                notifyNotFound = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        await LoadingService.HideAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnButtonReportClicked(MouseEventArgs args)
+    {
+        if (!isExportable)
+            return;
+
+        try
+        {
+            switch (data.ExportType)
+            {
+                case OutputReportType.Preview:
+                    await PreviewReport();
+                    break;
+                case OutputReportType.Print: //disable this feature
+                    notifyNotFound = true;
+                    break;
+                case OutputReportType.ExportPdf:
+                    await PDFReport();
+                    break;
+                case OutputReportType.CSV:
+                    await CSVReport();
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    void MenuOnAppearingHandler(MenuAppearingEventArgs e)
+    {
+        if (e.Data != null)
+        {
+            // to do
+        }
+        StateHasChanged();
+    }
+
+    private async void HandleClearSearchCondition()
+    {
+        try
+        {
+            isLoading = true;
+            IsCompanySelectedAll = true;
+            DisplayBookingTypeCmb = string.Empty;
+
+            isFilterApply = false;
+            isExportable = false;
+            notifyNotFound = false;
+            cmbCompanyIsError = false;
+            disableCmbBreakPage = false;
+
+            CurrentPage = 1;
+            RecordsPerPage = 25;
+            TotalItems = 0;
+            pagination.currentPage = CurrentPage;
+
+            data.DateType = DateType.Dispatch;
+            data.StartDate = data.EndDate = DateTime.Now;
+            data.UkeCdFrom = data.UkeCdTo = "";
+            data.Companies = Companies;
+            await OnInitCustomerReservation();
+            data.BranchStart = data.BranchEnd = Branches.FirstOrDefault();
+            data.StaffStart = data.StaffEnd = Staffs.FirstOrDefault();
+            data.OwnCompanyType = OwnCompanyTypes.LastOrDefault();
+            data.OutputOrder = OutputOrders.FirstOrDefault();
+            data.FormViewSize = ViewMode.Medium;
+            data.ExportType = OutputReportType.Preview;
+            data.PaperSize = PaperSizeOptions.FirstOrDefault();
+            data.Group = Group.FirstOrDefault();
+            data.PageBreak = PageBreakTypes.FirstOrDefault();
+            data.CsvConfigOption.Header = CsvHeaderOptions.FirstOrDefault();
+            data.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.FirstOrDefault();
+            data.CsvConfigOption.Delimiter = CsvDelimiterOptions.FirstOrDefault();
+            data.BookingTypes = BookingTypes;
+            await OnButtonSearchClicked();
+            //await InvokeAsync(StateHasChanged);
+
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Export
+
+    private async Task PreviewReport()
+    {
+        isSearching = true;
+        StateHasChanged();
+
+        var param = GetReportParam(data);
+        param.SearchCondition.CompanyIds = param.SearchCondition.Companies.Select(_ => _.CompanyCdSeq).ToList();
+        param.SearchCondition.Companies = null;
+        param.SearchCondition.BookingTypes = null;
+        bool ableToExport = PagedResultData.TotalRecord > 0;
+
+        if (ableToExport)
+        {
+            RedirectToPreviewPage();
+        }
+        else
+        {
+            var src = await SubContractorStatusReportService.GetSubContractorStatusReportData(param);
+
+            if (src.Any())
+            {
+                RedirectToPreviewPage();
+            }
+            else
+            {
+                notifyNotFound = true;
+            }
+        }
+
+        isSearching = false;
+        StateHasChanged();
+
+        void RedirectToPreviewPage()
+        {
+            var searchString = EncryptHelper.EncryptToUrl(param);
+            IJSRuntime.InvokeVoidAsync("open", "SubContractorStatusReportPreview?searchString=" + searchString, "_blank");
+        }
+    }
+
+    private async Task PDFReport()
+    {
+        isSearching = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            await Handle();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+        isSearching = false;
+        await InvokeAsync(StateHasChanged);
+
+        async Task Handle()
+        {
+            var result = await SubContractorStatusReportService.GetSubContractorStatusReportPagedData(GetReportParam(data));
+
+            if (result.Any())
+            {
+                DevExpress.XtraReports.UI.XtraReport report = new DevExpress.XtraReports.UI.XtraReport();
+
+                switch (data.PaperSize)
+                {
+                    case PaperSize.A3:
+                        report = new Reports.ReportTemplate.SubContractor.SubContractorA3();
+                        break;
+                    case PaperSize.A4:
+                        report = new Reports.ReportTemplate.SubContractor.SubContractorA4();
+                        break;
+                    case PaperSize.B4:
+                        report = new Reports.ReportTemplate.SubContractor.SubContractorB4();
+                        break;
+                    default:
+                        break;
+                }
+
+                report.DataSource = result;
+                await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                {
+                    report.CreateDocument();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        report.ExportToPdf(ms);
+
+                        byte[] exportedFileBytes = ms.ToArray();
+                        string myExportString = Convert.ToBase64String(exportedFileBytes);
+                        IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "SubContractorStatusReport");
+                    }
+                });
+            }
+            else
+            {
+                notifyNotFound = true;
+            }
+        }
+    }
+
+    private async Task CSVReport()
+    {
+        isSearching = true;
+        StateHasChanged();
+
+        try
+        {
+            await HandleCSV();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+        isSearching = false;
+        StateHasChanged();
+
+        async Task HandleCSV()
+        {
+            //this temp path to check valid
+            string path = string.Format("{0}/csv/{1}.csv", HostingEnvironment.WebRootPath, Guid.NewGuid());
+
+            var reportData = await SubContractorStatusReportService.GetSubContractorStatusCsvData(GetReportParam(data));
+
+            if (reportData.Any())
+            {
+                var csvData = reportData.Cast<SubContractorStatusExportCsvData>().ToList();
+
+                var result = CsvHelper.ExportCollectionToCsv(
+                    csvData,
+                    new CsvConfigOption
+                    {
+                        FilePath = path.Substring(0, path.LastIndexOf("/")),
+                        Delimiter = data.CsvConfigOption.Delimiter,
+                        DelimiterSymbol = data.CsvConfigOption.DelimiterSymbol,
+                        GroupSymbol = data.CsvConfigOption.GroupSymbol,
+                        Header = data.CsvConfigOption.Header,
+                    },
+                    SetupHeaderCsvReport());
+
+                await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                {
+                    string myExportString = Convert.ToBase64String(result);
+                    IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "csv", "SubContractorStatusReport");
+                });
+            }
+            else
+            {
+                notifyNotFound = true;
+            }
+        }
+    }
+
+    private SubContractorStatusReportSearchParams GetReportParam(SubContractorStatusData searchCondition)
+    {
+        var condition = new SubContractorStatusData();
+        condition.SimpleCloneProperties(searchCondition);
+        condition.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+        SubContractorStatusReportSearchParams param = new SubContractorStatusReportSearchParams
+        {
+            TenantId = new ClaimModel().TenantID,
+            UserLoginId = new ClaimModel().SyainCdSeq,
+            SearchCondition = condition,
+        };
+
+        return param;
+    }
+
+    private List<string> SetupHeaderCsvReport()
+    {
+        return new List<string>
+{
+            "No",
+            "予約区分", "予約区分名","受付番号", "運行日連番","運行配車年月日", "運行到着年月日",
+            "業者コード", "得意先コード", "得意先支店コード", "得意先名", "得意先支店名", "得意先略名", "得意先支店略名", "得意先担当者名",
+            "得意先電話番号", "受付営業所コード", "受付営業所名", "受付営業所略名", "団体名", "行先名", "配車地名(運行日)",
+            "配車時間(運行日)", "配車地住所1(運行日)", "配車地住所2(運行日)", "配車地交通機関分類コード(運行日)", "配車地交通機関コード(運行日)",
+            "配車地交通機関分類名(運行日)", "配車地交通機関分類略名(運行日)", "配車地交通機関名(運行日)",  "配車地交通機関略名(運行日)",
+            "配車地便コード(運行日)", "配車地便名(運行日)", "到着地名(運行日)", "到着時間(運行日)", "到着地住所1(運行日)", "到着地住所2(運行日)",
+            "到着地交通機関分類コード(運行日)", "到着地交通機関コード(運行日)", "到着地交通機関分類名(運行日)", "到着地交通機関分類略名(運行日)",
+            "到着地交通機関名(運行日)", "到着地交通機関略名(運行日)", "到着地便コード(運行日)", "到着地便名(運行日)", "乗車人員(運行日)",
+            "プラス人員(運行日)", "総台数", "運賃", "税区分", "税区分名", "消費税率", "消費税額", "手数料率", "手数料額", "運賃合計",
+            "ガイド料", "ガイド料消費税", "ガイド料手数料", "ガイド料合計", "付帯積込品額", "付帯積込品消費税","付帯積込品手数料額", "付帯積込品合計",
+            "傭車先業者区分", "傭車先コード","傭車先支店コード", "傭車先名","傭車先支店名", "傭車先略名",
+            "傭車先支店略名", "号車","団体名２", "行先名(配車)","配車地名(配車)", "配車年月日(配車)","配車時間(配車)",
+            "配車地住所1(配車)", "配車地住所2(配車)", "配車地交通機関分類コード(配車)","配車地交通機関コード(配車)", "配車地交通機関分類名(配車)",
+            "配車地交通機関分類略名(配車)", "配車地交通機関名(配車)","配車地交通機関略名(配車)", "配車地便コード(配車)",
+            "配車地便名(配車)", "到着地名(配車)", "到着年月日(配車)", "到着時間(配車)", "到着地住所1(配車)", "到着地住所2(配車)",
+            "到着地交通機関分類コード(配車)", "到着地交通機関コード(配車)", "到着地交通機関分類名(配車)", "到着地交通機関分類略名(配車)",
+            "到着地交通機関名(配車)", "到着地交通機関略名(配車)","到着地便コード(配車)", "到着地便名(配車)","乗車人員(配車)",
+            "プラス人員(配車)","傭車運賃", "傭車税区分","傭車税区分名", "傭車消費税率","傭車消費税額", "傭車手数料率",
+            "傭車手数料額", "傭車運賃合計","傭車ガイド料", "傭車ガイド料消費税",
+            "傭車ガイド料手数料", "傭車ガイド料合計","傭車付帯積込品額", "傭車付帯積込品消費税","傭車付帯積込品手数料額", "傭車付帯積込品合計"
+        };
+    }
+    #endregion
+
+    #region Fillter form value
+
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(data.ToDictionary(), filterConditionFormName, GetCurrentUserInfo.SyainCdSeq);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async void ApplyFillter()
+    {
+        try
+        {
+            await Handle();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+        async Task Handle()
+        {
+            var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, GetCurrentUserInfo.SyainCdSeq))
+                                .ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues()
+                                .ConvertMultipleToSingleValues();
+
+            if (filterValues?.Any() ?? false)
+            {
+                isFilterApply = true;
+                var tempModel = new SubContractorStatusData();
+                tempModel.ApplyDictionary(ref data, DefaultValueCustomerFrom, DefaultValueCustomerTo, DefaultValueReservationFrom, DefaultValueReservationTo, filterValues);
+                data.SimpleCloneProperties(tempModel);
+
+                DateTypeChanged(null, data.DateType);
+                OnDateChanged(tempModel.StartDate);
+                OnDateChanged(tempModel.EndDate, false);
+
+                OnCompanySelectedChanged(Companies.Where(_ => _ != null).Where(c => data.Companies.Select(_ => _.CompanyCdSeq).Contains(c.CompanyCdSeq)));
+                OnSaleBranchChanged(tempModel.BranchStart == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == tempModel.BranchStart.EigyoCdSeq));
+                OnSaleBranchChanged(tempModel.BranchEnd == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == tempModel.BranchEnd.EigyoCdSeq), false);
+                OnStaffSelectedChanged(tempModel.StaffStart == null ? null : Staffs.FirstOrDefault(_ => _ != null && _.SyainCdSeq == tempModel.StaffStart.SyainCdSeq));
+                OnStaffSelectedChanged(tempModel.StaffEnd == null ? null : Staffs.FirstOrDefault(_ => _ != null && _.SyainCdSeq == tempModel.StaffEnd.SyainCdSeq), false);
+
+                OnOwnCompanyTypeChanged(OwnCompanyTypes.FirstOrDefault(_ => _.Option == tempModel.OwnCompanyType.Option));
+                OnOutputOrderChanged(OutputOrders.FirstOrDefault(_ => _.Option == tempModel.OutputOrder.Option));
+                OnOwnCompanyTypeChanged(OwnCompanyTypes.FirstOrDefault(_ => _.Option == tempModel.OwnCompanyType.Option));
+                OnGroupDivisionChanged(Group.FirstOrDefault(_ => _.Option == tempModel.Group.Option));
+                OnPageBreakChanged(PageBreakTypes.FirstOrDefault(_ => _.Option == tempModel.PageBreak.Option));
+
+                OnCsvHeaderChanged(CsvHeaderOptions.SingleOrDefault(c => c.Option == tempModel.CsvConfigOption.Header.Option));
+                OnGroupSymbolChanged(CsvGroupSymbolOptions.SingleOrDefault(c => c.Option == tempModel.CsvConfigOption.GroupSymbol.Option));
+                OnSeparatorChanged(CsvDelimiterOptions.SingleOrDefault(c => c.Option == tempModel.CsvConfigOption.Delimiter.Option));
+                OnDelimiterTextChanged(tempModel.CsvConfigOption.DelimiterSymbol);
+
+                IsCompanySelectedAll = tempModel.Companies.Any(_ => _.IsSelectedAll);
+
+                isFilterApply = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Grid
+
+    private void GenrateGrid()
+    {
+        try
+        {
+            List<TkdGridLy> tkdGridLies = GridLayoutService.GetGridLayout(GetCurrentUserInfo.SyainCdSeq, filterConditionFormName, SubContractorStatusGridHeaderNameConstants.GridName).Result;
+            RenderGridBySavedLayout(tkdGridLies);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void RenderGridBySavedLayout(List<TkdGridLy> gridlayouts)
+    {
+        headerTemplate.Rows = new List<RowHeaderTemplate>();
+        headerTemplate.StickyCount = 1;
+        BodyTemplate bodyTemplate = new BodyTemplate();
+        bodyTemplate.Rows = new List<RowBodyTemplate>();
+
+        for (int i = 0; i < 3; i++)
+        {
+            headerTemplate.Rows.Add(new RowHeaderTemplate());
+            bodyTemplate.Rows.Add(new RowBodyTemplate());
+        }
+        bodyTemplate.Rows.Add(new RowBodyTemplate());
+        for (int i = 0; i < 3; i++)
+        {
+            headerTemplate.Rows[i].Columns = new List<ColumnHeaderTemplate>();
+            bodyTemplate.Rows[i].Columns = new List<ColumnBodyTemplate>();
+        }
+        bodyTemplate.Rows[3].Columns = new List<ColumnBodyTemplate>();
+
+        int CurrentIndex = 0;
+
+        while (true)
+        {
+            // No
+            if ((gridlayouts.Count == 0 && CurrentIndex == 0) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.NoItemNm))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["No"], RowSpan = 3, CodeName = SubContractorStatusGridHeaderNameConstants.NoItemNm, Width = gridlayouts.Count == 0 ? 50 : gridlayouts[CurrentIndex].Width });
+
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.No), RowSpan = 4, AlignCol = AlignColEnum.Center, CustomCss = "align-top" });
+
+            }
+            //運行全日程
+            if ((gridlayouts.Count == 0 && CurrentIndex == 1) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.AllServiceSchedule))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["AllServiceSchedule"], RowSpan = 3, CodeName = SubContractorStatusGridHeaderNameConstants.AllServiceSchedule, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.HaiSYmd), RowSpan = 2, AlignCol = AlignColEnum.Center });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TouYmd), RowSpan = 2, AlignCol = AlignColEnum.Center });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Center,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.HaiSYmd },
+                            new List<string> { model.TouYmd }
+                        }
+                    }
+                });
+            }
+            //得意先, 担当, 電話
+            if ((gridlayouts.Count == 0 && CurrentIndex == 2) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.Tokui))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["Tokui"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.Tokui, Width = gridlayouts.Count == 0 ? 200 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["Staff"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.Staff, Width = gridlayouts.Count == 0 ? 200 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["Tel"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.Tel, Width = gridlayouts.Count == 0 ? 200 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TokuiNm), RowSpan = 1, AlignCol = AlignColEnum.Left });
+                //bodyTemplate.Rows[1].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SitenNm), RowSpan = 1, AlignCol = AlignColEnum.Left });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TokuiTanNm), RowSpan = 1, AlignCol = AlignColEnum.Left });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TokuiTel), RowSpan = 1, AlignCol = AlignColEnum.Left });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Left,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.TokuiNm } ,
+                            new List<string> { model.SitenNm } ,
+                            new List<string> { model.TokuiTanNm } ,
+                            new List<string> { model.TokuiTel }
+                        }
+                    }
+                });
+            }
+            //団体名, 行き先名
+            if ((gridlayouts.Count == 0 && CurrentIndex == 2) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.DanTaNm))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["DanTaNm"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.DanTaNm, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["IkNm"], RowSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.IkNm, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.DanTaNm), RowSpan = 2, AlignCol = AlignColEnum.Left });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.IkNm), RowSpan = 2, AlignCol = AlignColEnum.Left });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Left,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.DanTaNm } ,
+                            new List<string> { model.IkNm } ,
+                        }
+                    }
+                });
+            }
+            //総台数
+            if ((gridlayouts.Count == 0 && CurrentIndex == 3) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.SumDai))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["SumDai"], RowSpan = 3, CodeName = SubContractorStatusGridHeaderNameConstants.SumDai, Width = gridlayouts.Count == 0 ? 70 : gridlayouts[CurrentIndex].Width });
+
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TotalNumber), RowSpan = 4, AlignCol = AlignColEnum.Right, CustomCss = "align-top" });
+            }
+            //運賃, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 4) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.SyaRyoUnc))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["SyaRyoUnc"], RowSpan = 1, ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.SyaRyoUnc, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["SyaRyoSyo"], RowSpan = 1, ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.Zeiritsu, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["SyaRyoTes"], RowSpan = 1, ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.SyaRyoSyo, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumSyaRyoUnc), RowSpan = 2, ColSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.Zeiritsu), ColSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumZeiRui), ColSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TesuRitu), ColSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumTesuRyoG), ColSpan = 1, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    ColSpan = 2,
+                    AlignCol = AlignColEnum.Left,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { "", model.SumSyaRyoUnc } ,
+                            new List<string> { model.Zeiritsu, model.SumZeiRui } ,
+                            new List<string> {  model.TesuRitu, model.SumTesuRyoG } ,
+                            new List<string> { "", "" }
+                        }
+                    }
+                });
+            }
+            //ガイド料, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 5) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.FutTumGuiKin))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumGuiKin"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumGuiKin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumGuiTax"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumGuiTax, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumGuiTes"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumGuiTes, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumGuideFee), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumGuideTax), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.SumUnitGuiderFee), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Right,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.SumGuideFee } ,
+                            new List<string> { model.SumGuideTax } ,
+                            new List<string> { model.SumUnitGuiderFee } ,
+                        }
+                    }
+                });
+            }
+            //付帯料, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 6) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.FutTumKin))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumKin"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumKin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumTax"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumTax, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["FutTumTes"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.FutTumTes, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.IncidentalFee), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.IncidentalTax), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.IncidentalCharge), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Right,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.IncidentalFee } ,
+                            new List<string> { model.IncidentalTax } ,
+                            new List<string> { model.IncidentalCharge } ,
+                        }
+                    }
+                });
+            }
+            //傭車先
+            if ((gridlayouts.Count == 0 && CurrentIndex == 7) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.CarDestination))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["CarDestination"], RowSpan = 3, CodeName = SubContractorStatusGridHeaderNameConstants.CarDestination, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouSkTokuiNm), RowSpan = 2, AlignCol = AlignColEnum.Left });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouStSitenNm), RowSpan = 2, AlignCol = AlignColEnum.Left });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Left,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.YouSkTokuiNm } ,
+                            new List<string> { model.YouStSitenNm } ,
+                        }
+                    }
+                });
+            }
+            //傭車先
+            if ((gridlayouts.Count == 0 && CurrentIndex == 8) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.Gyosya))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["Gyosya"], RowSpan = 3, CodeName = SubContractorStatusGridHeaderNameConstants.Gyosya, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.GoSyas), RowSpan = 4, AlignCol = AlignColEnum.Right, CustomTextFormatDelegate = KoboGridHelper.BreakListBusScheduleInfoNo, CustomCss = "text-preline" });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { RowSpan = 4, AlignCol = AlignColEnum.Right, Control = new TableControl<SubContractorStatusSearchResultData> { TableValue = GetBusNumRentInfo } });
+            }
+            //配車・接続, 到着・接続
+            if ((gridlayouts.Count == 0 && CurrentIndex == 9) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.HaiSInfo))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["HaiSInfo"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.HaiSInfo, Width = gridlayouts.Count == 0 ? 410 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["TouChInfo"], RowSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.TouChInfo, Width = gridlayouts.Count == 0 ? 410 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.BusScheduleInfos), RowSpan = 4, AlignCol = AlignColEnum.Left, CustomTextFormatDelegate = KoboGridHelper.BreakListBusScheduleInfo, CustomCss = "text-preline" });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { RowSpan = 4, AlignCol = AlignColEnum.Left, Control = new TableControl<SubContractorStatusSearchResultData> { TableValue = GetBusScheduleInfo } });
+            }
+            //傭車運賃, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 10) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.YoushaUnc))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YoushaUnc"], ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.YoushaUnc, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YoushaSyo"], ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.YouZeiritsu, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YoushaTes"], ColSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.YouTesuRitu, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { ColSpan = 2, RowSpan = 4, AlignCol = AlignColEnum.Right, Control = new TableControl<SubContractorStatusSearchResultData> { TableValue = GetTaxFeeDisplay } });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TaxFeeInfos), ColSpan = 1, RowSpan = 4, AlignCol = AlignColEnum.Right, CustomTextFormatDelegate = KoboGridHelper.BreakListTaxRateInfo, CustomCss = "text-preline" });
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.TaxFeeInfos), ColSpan = 1, RowSpan = 4, AlignCol = AlignColEnum.Right, CustomTextFormatDelegate = KoboGridHelper.BreakListTaxFeeInfo, CustomCss = "text-preline" });
+            }
+            //傭車ガイド料, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 11) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.YouFutTumGuiKin))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumGuiKin"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumGuiKin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumGuiTax"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumGuiTax, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumGuiTes"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumGuiTes, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumGuiKin), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumGuiTax), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumGuiTes), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Right,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.YouFutTumGuiKin } ,
+                            new List<string> { model.YouFutTumGuiTax } ,
+                            new List<string> { model.YouFutTumGuiTes } ,
+                        }
+                    }
+                });
+            }
+            //傭車付帯料, 消費税, 手数料
+            if ((gridlayouts.Count == 0 && CurrentIndex == 12) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.YouFutTumKin))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumKin"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumKin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumTax"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumTax, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YouFutTumTes"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YouFutTumTes, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumKin), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumTax), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YouFutTumTes), RowSpan = 1, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Right,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.YouFutTumKin } ,
+                            new List<string> { model.YouFutTumTax } ,
+                            new List<string> { model.YouFutTumTes } ,
+                        }
+                    }
+                });
+            }
+            //乗車人員, プラス人員
+            if ((gridlayouts.Count == 0 && CurrentIndex == 13) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.JyoSyaJin))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["JyoSyaJin"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.JyoSyaJin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["PlusJin"], RowSpan = 2, CodeName = SubContractorStatusGridHeaderNameConstants.PlusJin, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.JyoSyaJin), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.PlusJin), RowSpan = 2, AlignCol = AlignColEnum.Right });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Right,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.JyoSyaJin } ,
+                            new List<string> { model.PlusJin } ,
+                        }
+                    }
+                });
+            }
+            //受付営業所, 予約区分, 受付日 / 番号
+            if ((gridlayouts.Count == 0 && CurrentIndex == 14) || (gridlayouts.Count != 0 && gridlayouts[CurrentIndex].ItemNm == SubContractorStatusGridHeaderNameConstants.UkeEigyosRyaku))
+            {
+                headerTemplate.Rows[0].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["UkeEigyosRyaku"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.UkeEigyosRyaku, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[1].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["YoyaKbn"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.YoyaKbn, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+                headerTemplate.Rows[2].Columns.Add(new ColumnHeaderTemplate() { ColName = Lang["UkeInfo"], RowSpan = 1, CodeName = SubContractorStatusGridHeaderNameConstants.UkeYmd, Width = gridlayouts.Count == 0 ? 150 : gridlayouts[CurrentIndex].Width });
+
+                //bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.UkeEigyosRyaku), RowSpan = 1, AlignCol = AlignColEnum.Center });
+                //bodyTemplate.Rows[1].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.YoyaKbn), ColSpan = 1, AlignCol = AlignColEnum.Center });
+                //bodyTemplate.Rows[2].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.UkeYmd), ColSpan = 1, AlignCol = AlignColEnum.Center });
+                //bodyTemplate.Rows[3].Columns.Add(new ColumnBodyTemplate() { DisplayFieldName = nameof(SubContractorStatusSearchResultData.UkeCd), ColSpan = 1, AlignCol = AlignColEnum.Center });
+                bodyTemplate.Rows[0].Columns.Add(new ColumnBodyTemplate()
+                {
+                    RowSpan = 4,
+                    AlignCol = AlignColEnum.Center,
+                    CustomCss = "align-top",
+                    Control = new TableControl<SubContractorStatusSearchResultData>
+                    {
+                        TableValue = (model) => new List<List<string>> {
+                            new List<string> { model.UkeEigyosRyaku } ,
+                            new List<string> { model.YoyaKbn } ,
+                            new List<string> { model.UkeYmd } ,
+                            new List<string> { model.UkeCd } ,
+                        }
+                    }
+                });
+
+                if (gridlayouts.Count == 0)
+                {
+                    break;
+                }
+            }
+
+            CurrentIndex++;
+            if (gridlayouts.Count != 0 && CurrentIndex >= gridlayouts.Count)
+            {
+                break;
+            }
+        }
+        Header = headerTemplate;
+        Body = bodyTemplate;
+    }
+
+    public async void ReOrderTable()
+    {
+        await LoadingService.ShowAsync();
+        var headerColumns = Header.Rows.Count > 0 ? Header.Rows[0].Columns : new List<ColumnHeaderTemplate>();
+        List<TkdGridLy> gridLayouts = new List<TkdGridLy>();
+
+        for (int i = 0; i < headerColumns.Count; i++)
+        {
+            string itemName = headerColumns[i].CodeName;
+            gridLayouts.Add(new TkdGridLy()
+            {
+                DspNo = i,
+                FormNm = filterConditionFormName,
+                FrozenCol = 0,
+                GridNm = SubContractorStatusGridHeaderNameConstants.GridName,
+                ItemNm = itemName,
+                SyainCdSeq = GetCurrentUserInfo.SyainCdSeq,
+                UpdPrgId = filterConditionFormName,
+                UpdSyainCd = GetCurrentUserInfo.SyainCdSeq,
+                UpdYmd = DateTime.Now.ToString("yyyyMMdd"),
+                UpdTime = DateTime.Now.ToString("HHmmss"),
+                Width = headerColumns[i].Width
+            });
+        }
+        var isSaved = await GridLayoutService.SaveGridLayout(gridLayouts);
+        await LoadingService.HideAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void InitGridLayout()
+    {
+
+        await LoadingService.ShowAsync();
+        await Task.Run(() =>
+        {
+            List<TkdGridLy> tkdGridLies = new List<TkdGridLy>();
+            RenderGridBySavedLayout(tkdGridLies);
+            DeleteSavedGridLayout();
+            InvokeAsync(StateHasChanged).Wait();
+        });
+        await LoadingService.HideAsync();
+    }
+
+    private void DeleteSavedGridLayout()
+    {
+        var isDeleted = GridLayoutService.DeleteSavedGridLayout(GetCurrentUserInfo.SyainCdSeq, filterConditionFormName, StatusConfirmationGridHeaderNameConstants.GridName).Result;
+    }
+
+
+    private async Task OnRowClicked(RowClickEventArgs<SubContractorStatusSearchResultData> args)
+    {
+        var mouseLocation = new Point { X = args.Event.ClientX, Y = args.Event.ClientY };
+
+        if (args.Event.Detail > 1)
+        {
+            await blazorContextMenuService.ShowMenu("Menu1", (int)mouseLocation.X, (int)mouseLocation.Y);
+        }
+        else
+        {
+            await blazorContextMenuService.HideMenu("Menu1");
+
+        }
+        StateHasChanged();
+    }
+
+    private async void OnPaginationChanged(int page)
+    {
+        //Because in Paination component page start at 0
+        CurrentPage = page + 1;
+
+        isSearching = true;
+        StateHasChanged();
+
+        data.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+        PagedResultData = await SubContractorStatusReportService.SearchSubContractorStatusSearchPaged(data, new ClaimModel().TenantID, CurrentPage, RecordsPerPage);
+        data.BookingTypes = null;
+
+        TotalItems = PagedResultData.TotalRecord;
+
+        if (PagedResultData.PageData.Any())
+        {
+
+        }
+        else
+        {
+            notifyNotFound = true;
+        }
+
+        isSearching = false;
+        StateHasChanged();
+    }
+
+    private void HandleItemPerPageChange(byte newItemPerPage)
+    {
+        RecordsPerPage = newItemPerPage;
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Helper
+    private void OnValidationStateChanged(object sender, ValidationStateChangedEventArgs args)
+    {
+        isExportable = !((EditContext)sender).GetValidationMessages().Any();
+
+        cmbCompanyIsError = ((EditContext)sender).GetValidationMessages().Any(_ => _ == Constants.ErrorMessage.SCS_CompanyIsRequired);
+    }
+
+    public IReadOnlyList<IReadOnlyList<string>> GetTaxFeeDisplay(SubContractorStatusSearchResultData data)
+    {
+        List<TaxFeeInfo> info = data.TaxFeeInfos;
+        var tbl = new List<List<string>>();
+
+        foreach (var row in info)
+        {
+            tbl.Add(new List<string> { "\t", row.YoushaUnc });
+            tbl.Add(new List<string> { row.YouZeiritsu, row.YoushaSyo });
+            tbl.Add(new List<string> { row.YouTesuRitu, row.YoushaTes });
+            tbl.Add(new List<string> { "\t", "\t" });
+            tbl.Add(new List<string> { "\t", "\t" });
+        }
+        tbl.RemoveAt(tbl.Count - 1);
+        return tbl;
+    }
+
+    public IReadOnlyList<IReadOnlyList<string>> GetBusScheduleInfo(SubContractorStatusSearchResultData data)
+    {
+        List<BusScheduleInfo> info = data.BusScheduleInfos;
+        var tbl = new List<List<string>>();
+
+        foreach (var row in info)
+        {
+            tbl.Add(new List<string> { row.VehicleDispatch });
+            tbl.Add(new List<string> { row.VehicleDispatchOther });
+            tbl.Add(new List<string> { row.ArrivalConnection });
+            tbl.Add(new List<string> { row.ArrivalConnectionOther });
+            tbl.Add(new List<string> { "" });
+        }
+
+        tbl.RemoveAt(tbl.Count - 1);
+
+        return tbl;
+    }
+
+    public IReadOnlyList<IReadOnlyList<string>> GetBusNumRentInfo(SubContractorStatusSearchResultData data)
+    {
+        List<string> info = data.GoSyas;
+        var tbl = new List<List<string>>();
+
+        foreach (var row in info)
+        {
+            tbl.Add(new List<string> { "" });
+            tbl.Add(new List<string> { "" });
+            tbl.Add(new List<string> { row.Trim() });
+            tbl.Add(new List<string> { "" });
+            tbl.Add(new List<string> { "" });
+        }
+
+        tbl.RemoveAt(tbl.Count - 1);
+
+        return tbl;
+    }
+
+    async Task OnModelChanged(string propertyName, dynamic val, bool isFrom = true, bool isSelect = true)
+    {
+        if (!isFilterApply)
+        {
+            if (val != null && val.IsSelect)
+                isTabChange = false;
+
+            if (!isTabChange)
+            {
+                var propertyFromInfo = data.GetType().GetProperty(propertyName);
+                propertyFromInfo.SetValue(data, val);
+
+
+                if (isFrom)
+                {
+                    if ((propertyName == nameof(data.SelectedGyosyaFrom) && (data?.SelectedGyosyaFrom?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.SelectedTokiskFrom) && (data?.SelectedTokiskFrom?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.SelectedTokiStFrom) && (data?.SelectedTokiStFrom?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.RegistrationTypeFrom) && (data?.RegistrationTypeFrom?.IsSelect ?? false)))
+                        await OnButtonSearchClicked();
+                }
+                else
+                {
+                    if ((propertyName == nameof(data.SelectedGyosyaTo) && (data?.SelectedGyosyaTo?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.SelectedTokiskTo) && (data?.SelectedTokiskTo?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.SelectedTokiStTo) && (data?.SelectedTokiStTo?.IsSelect ?? false)) ||
+                        (propertyName == nameof(data.RegistrationTypeTo) && (data?.RegistrationTypeTo?.IsSelect ?? false)))
+                        await OnButtonSearchClicked();
+                }
+            }
+        }
+        StateHasChanged();
+    }
+    #endregion
+}

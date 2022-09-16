@@ -1,0 +1,747 @@
+﻿@inject BusScheduleHelper busScheduleHelper
+@inject IJSRuntime JSRuntime
+@if (LineStatus == 2)
+{
+    classLine = "over-vehicles";
+}
+else
+{
+    classLine = "";
+}
+
+@if (LineType == 3)
+{
+    bg = "linear-gradient(90deg, " + allow + " " + allowPercent + "%, " + notallow + " " + allowPercent + "%)";
+}
+
+
+@if (Container.Mode == (int)BusLineMode.View || Container.Mode == (int)BusLineMode.Zoom)
+{
+    if (LineStatus == 1)
+    {
+        <div class='listTimeline__item @classLine @(LineType == 1 ? "listTimeline__item--rentalBus" : null) @(LineType == 2 ? "listTimeline__item--spareBus" : null)' style="height:@(height)rem; background: @bg;" ondragover="event.preventDefault();" @ondrop="HandleDrop">
+            @foreach (var job in Jobs)
+            {
+                if (job.IsBusRepair)
+                {
+                    MenuId = "myMenuBusRepair";
+                }
+                else
+                {
+                    MenuId = "myMenuCutline";
+                }
+                <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" Data="job" MenuId="@MenuId">
+                    <EditItem BusLines="@BusLines" ValueCheckHaitaBusLines="@ValueCheckHaitaBusLines" UpYmdTimes="@UpYmdTimeTmps" Item="job" Width="@Width" Param="@Param" />
+                </ContextMenuTrigger>
+            }
+        </div>
+    }
+    else
+    {
+        <div class='listTimeline__item @classLine @(LineType == 1 ? "listTimeline__item--rentalBus" : null) @(LineType == 2 ? "listTimeline__item--spareBus" : null)' style="height:@(height)rem; background: @bg;" ondragover="event.preventDefault();" @ondrop="HandleDrop">
+            @foreach (var job in Jobs)
+            {
+                if (job.IsBusRepair)
+                {
+                    MenuId = "myMenuBusRepair";
+                }
+                else
+                {
+                    MenuId = "myMenuCutline";
+                }
+                <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" Data="job" MenuId="@MenuId">
+                    <EditItem BusLines="@BusLines" ValueCheckHaitaBusLines="@ValueCheckHaitaBusLines" UpYmdTimes="@UpYmdTimeTmps" Item="job" Width="@Width" Param="@Param" />
+                </ContextMenuTrigger>
+
+            }
+        </div>
+    }
+}
+else if (Container.Mode == (int)BusLineMode.Edit)
+{
+    <div id="@LineId" class='listTimeline__item @classLine @(LineType == 1 ? "listTimeline__item--rentalBus" : null) @(LineType == 2 ? "listTimeline__item--spareBus" : null)' style="height:@(height)rem; background: @bg;">
+        @foreach (var job in Jobs)
+        {
+            <HassyaAllrightCloud.Pages.Components.EditItem BusLines="@BusLines" ValueCheckHaitaBusLines="@ValueCheckHaitaBusLines" UpYmdTimes="@UpYmdTimeTmps" Item="job" Width="@Width" Param="@Param" />
+        }
+    </div>
+}
+else if (Container.Mode == (int)BusLineMode.Create || Container.Mode == (int)BusLineMode.Repair)
+{ <div id="@LineId" @ref="buslineRef" class='listTimeline__item @classLine new @(LineType == 1 ? "listTimeline__item--rentalBus" : null) @(LineType == 2 ? "listTimeline__item--spareBus" : null)' style="height:@(height)rem; background: @bg;" @onmousedown="e => HandleMouseDown(e, LineId, buslineRef)">
+        @foreach (var job in Jobs)
+        {
+            <EditItem BusLines="@BusLines" ValueCheckHaitaBusLines="@ValueCheckHaitaBusLines" UpYmdTimes="@UpYmdTimeTmps" Item="job" Width="@Width" Param="@Param" />
+        }
+
+    </div>
+}
+else if (Container.Mode == (int)BusLineMode.Cut)
+{
+    <div class='listTimeline__item @classLine @(LineType == 1 ? "listTimeline__item--rentalBus" : null) @(LineType == 2 ? "listTimeline__item--spareBus" : null)' style="height:@(height)rem;">
+        @foreach (var job in Jobs)
+        {
+            <EditItem BusLines="@BusLines" ValueCheckHaitaBusLines="@ValueCheckHaitaBusLines" UpYmdTimes="@UpYmdTimeTmps" Item="job" Width="@Width" Param="@Param" />
+        }
+    </div>
+}
+
+@code {
+    [Inject] protected IErrorHandlerService _errorModalService { get; set; }
+    [Inject] public IBusScheduleService _busScheduleService { get; set; }
+    [Parameter] public EventCallback<DataInit> ValueCheckHaitaBus { get; set; }
+    private ElementReference buslineRef;
+    [CascadingParameter] MouseContainer Container { get; set; }
+    //[Parameter] public JobStatuses ListStatus { get; set; }
+    //[Parameter] public JobStatuses[] AllowedStatuses { get; set; }
+    [Parameter] public string LineId { get; set; }
+    [Parameter] public int BusVehicle { get; set; }
+    [Parameter] public string Busname { get; set; }
+    [Parameter] public int SitenCdSeq { get; set; }
+    [Parameter] public int LineStatus { get; set; }
+    [Parameter] public int LineType { get; set; }
+    [Parameter] public int NumberDate { get; set; }
+    [Parameter] public double Width { get; set; }
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public string startdate { get; set; }
+    [Parameter] public string enddate { get; set; }
+    [Parameter] public ConfigBusSchedule Param { get; set; }
+    [Parameter] public VPM_RepairData CodeKbnItem { get; set; }
+    [Parameter] public List<ResponseHaiTaCheck> UpYmdTimes { get; set; }
+    private List<ResponseHaiTaCheck> UpYmdTimeInits { get; set; }
+    private List<ResponseHaiTaCheck> UpYmdTimeAfters { get; set; }
+    [Parameter] public List<ItemBus> BusLines { get; set; }
+    public List<ResponseHaiTaCheck> UpYmdTimeTmps { get; set; }
+    List<ItemBus> Jobs = new List<ItemBus>();
+    List<ItemBusinLine> iteminLineLst = new List<ItemBusinLine>();
+    BusLineData tmpbus = new BusLineData();
+    double height;
+    double heightline = 2; // 2rem = 32px
+    public string classLine;
+    double childWidth = 20;
+    double time = 5;
+    bool enableCreate = false;
+    DateTime startdatedt;
+    DateTime enddatedt;
+    public string colorAllow { get; } = "#ffc0cb00";
+    public string colorNotAllow { get; } = "#C6C6C6";
+    string allow = "#ffc0cb00";
+    string notallow = "#ffc0cb00";
+    Double allowPercent = 50;
+    string bg;
+    string MenuId = "";
+
+    private void MouseOver(MouseEventArgs e)
+    {
+        enableCreate = true;
+    }
+
+    private void MouseOut(MouseEventArgs e)
+    {
+        enableCreate = false;
+    }
+    [JSInvokable]
+    public async Task ActualFocusCell(double left, double width)
+    {
+        ItemBus tmp = new ItemBus();
+        tmp.Id = (Container.Jobs.Max(t => t.BookingId) + 1).ToString();
+        if (Container.Mode == (int)BusLineMode.Create)
+        {
+            tmp.BookingId = "0";
+        }
+        else
+        {
+            tmp.BookingId = "-1";
+        }
+        tmp.BusLine = LineId;
+        tmp.ColorLine = "color-10";
+        tmp.Height = 30;
+        tmp.Width = width;
+        tmp.WidthDefault = width;
+        tmp.LeftDefault = 0;
+        tmp.Top = 10;
+        tmp.Name = "仮予約";
+        tmp.Left = left;
+        tmp.KSKbn = 2;
+        tmp.IsShow = true;
+        tmp.StartDate = busScheduleHelper.convertwidthtodate(Width, left, Param.Number_of_days, Date).ToString("yyyyMMdd");
+        tmp.TimeStart = int.Parse(busScheduleHelper.convertwidthtodate(Width, left, Param.Number_of_days, Date).ToString("HHmm"));
+        tmp.EndDate = busScheduleHelper.convertwidthtodate(Width, left + width, Param.Number_of_days, Date).ToString("yyyyMMdd");
+        tmp.TimeEnd = int.Parse(busScheduleHelper.convertwidthtodate(Width, left + width, Param.Number_of_days, Date).ToString("HHmm"));
+        tmp.StartDateDefault = busScheduleHelper.convertwidthtodate(Width, left, Param.Number_of_days, Date).ToString("yyyyMMdd");
+        tmp.TimeStartDefault = int.Parse(busScheduleHelper.convertwidthtodate(Width, left, Param.Number_of_days, Date).ToString("HHmm"));
+        tmp.EndDateDefault = busScheduleHelper.convertwidthtodate(Width, left + width, Param.Number_of_days, Date).ToString("yyyyMMdd");
+        tmp.TimeEndDefault = int.Parse(busScheduleHelper.convertwidthtodate(Width, left + width, Param.Number_of_days, Date).ToString("HHmm"));
+        tmp.ShuriCdSeq = CodeKbnItem.RepairCdSeq;
+        //tmp.AllowEdit = true;
+        tmp.AllowDrop = true;
+        tmp.MinDate = Date.ToString("yyyyMMdd");
+        tmp.MinTime = 0;
+        tmp.Maxdate = Date.AddDays(NumberDate).ToString("yyyyMMdd");
+        tmp.MaxTime = 2359;
+        Container.IsCreating = true;
+        Container.PayloadCreate = tmp;
+        await Container.CreatedJobAsync(tmp);
+    }
+
+    protected override void OnParametersSet()
+    {
+        Jobs.Clear();
+        //Jobs.AddRange(Container.Jobs.Where(x => x.BusLine == LineId ));
+        ReformatRenderItem();
+        UpYmdTimeInits = UpYmdTimeTmps = UpYmdTimes;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Jobs.Count == 1)
+        {
+            var job = Jobs.ToList();
+        }
+        if (firstRender)
+        {
+            await Container.UpdateHeightAsync(tmpbus); //TODO remove change of ticket 1101
+        }
+        if (Container.Mode == (int)BusLineMode.Create || Container.Mode == (int)BusLineMode.Repair)
+        {
+            iteminLineLst = new List<ItemBusinLine>();
+
+        }
+
+    }
+    private async Task HandleMouseDown(MouseEventArgs e, string LineId, ElementReference lineref)
+    {
+        if (LineType != 1 && LineType != 2 && e.Buttons == 1)
+        {
+            foreach (var item in Jobs.Where(t => t.BusLine == LineId))
+            {
+
+                ItemBusinLine iteminline = new ItemBusinLine();
+                iteminline.lineID = item.BusLine;
+                iteminline.left = item.Left;
+                iteminline.width = item.Left + item.Width;
+                iteminline.minleft = item.minleftcreate;
+                iteminline.maxwidth = item.maxwidthcreate;
+                iteminLineLst.Add(iteminline);
+            }
+            if (Jobs.Where(t => t.BusLine == LineId).Count() == 0)
+            {
+                ItemBusinLine iteminline = new ItemBusinLine();
+                iteminline.minleft = 0;
+                iteminline.maxwidth = Width;
+                iteminLineLst.Add(iteminline);
+            }
+            DateTime date = DateTime.Today;
+            DateTime mindate = new DateTime();
+            if (Container.Mode == (int)BusLineMode.Repair)
+            {
+                mindate = date.AddMinutes(60);
+            }
+            else
+            {
+                mindate = date.AddMinutes(15);
+            }
+            double minwidth = busScheduleHelper.calwidth(Width, date.ToString("yyyyMMdd"), date.ToString("HHmm"), mindate.ToString("yyyyMMdd"), mindate.ToString("HHmm"), Param.Number_of_days);
+            await JSRuntime.InvokeVoidAsync("loadPageScript", "busSchedulePage", "creatediv", LineId, iteminLineLst, DotNetObjectReference.Create(this), minwidth, Param.ActiveV);
+        }
+    }
+    private void ReformatRenderItem()
+    {
+        DateTime fromdate = Date;
+        DateTime todate = Date.AddDays(NumberDate);
+        DateTime.TryParseExact(startdate != null ? startdate.ToString() : "19700101", "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startdatedt);
+        DateTime.TryParseExact(enddate != null ? enddate.ToString() : "25003112", "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out enddatedt);
+        if (startdatedt >= fromdate && startdatedt <= todate)
+        {
+            allow = colorNotAllow;
+            notallow = colorAllow;
+            int days = (startdatedt - fromdate).Days;
+            allowPercent = ((double)days / (double)NumberDate) * 100;
+        }
+        else if (enddatedt >= fromdate && enddatedt <= todate)
+        {
+            allow = colorAllow;
+            notallow = colorNotAllow;
+            var end = enddatedt.AddDays(1);
+            int days = (end - fromdate).Days;
+            allowPercent = ((double)days / (double)NumberDate) * 100;
+        }
+        else if (startdatedt >= todate)
+        {
+            allow = colorAllow;
+            notallow = colorNotAllow;
+            allowPercent = 0;
+        }
+        else
+        {
+            allow = colorAllow;
+            notallow = colorAllow;
+            allowPercent = 100;
+        }
+
+        if (Container.View == 1)
+        {
+            heightline = 2; // 32px
+        }
+        if (Container.View == 2)
+        {
+            heightline = 1.0625; // 17px
+        }
+        if (Container.View == 3)
+        {
+            heightline = 0.875; // 14px
+        }
+        height = 0;
+        List<ItemBus> tmp = new List<ItemBus>();
+
+        if (Container.Type == 0)
+        {
+            tmp.AddRange(Container.Jobs.Where(x => x.BusLine == LineId && x.KSKbn == 2).OrderBy(o => o.StartDate).ThenBy(o => o.TimeStartString));
+        }
+        else if (Container.Type == 1)
+        {
+            tmp.AddRange(Container.Jobs.Where(x => (x.BusLine == LineId && x.KSKbn == 2) || (x.Tokisk_SitenCdSeq == SitenCdSeq && x.KSKbn == 1 && x.YouTblSeq > 0)).OrderBy(o => o.StartDate).ThenBy(o => o.TimeStartString));
+        }
+        else if (Container.Type == 2)
+        {
+            tmp.AddRange(Container.Jobs.Where(x => (x.BusLine == LineId && x.KSKbn == 2) || (x.BusName == Busname && x.KSKbn == 1 && x.YouTblSeq == 0)).OrderBy(o => o.StartDate).ThenBy(o => o.TimeStartString));
+        }
+        else if (Container.Type == 3)
+        {
+            tmp.AddRange(Container.Jobs.Where(x => (x.BusLine == LineId && x.KSKbn == 2) || (x.Tokisk_SitenCdSeq == SitenCdSeq && x.KSKbn == 1 && x.YouTblSeq > 0) || (x.BusName == Busname && x.KSKbn == 1 && x.YouTblSeq == 0)).OrderBy(o => o.StartDate).ThenBy(o => o.TimeStartString));
+        }
+
+        if (tmp.Count > 0)
+        {
+            List<List<ItemBus>> myList = new List<List<ItemBus>>();
+            foreach (ItemBus bus in tmp)
+            {
+                var rowPosition = arrangePositionTmp(bus, myList);
+
+                if (myList.Any())
+                {
+                    if (rowPosition >= myList.Count - 1)
+                    {
+                        myList.Add(new List<ItemBus>());
+                    }
+                    if (myList[rowPosition].Any())
+                    {
+                        myList[rowPosition].Add(bus);
+                    }
+                    else
+                    {
+                        myList[rowPosition].Add(bus);
+                    }
+                }
+                else
+                {
+                    myList.Add(new List<ItemBus>());
+                    myList[rowPosition].Add(bus);
+                }
+            }
+            for (var i = 0; i < myList.Count; i++)
+            {
+                if (myList[i].Count() < 1)
+                {
+                    myList.RemoveAt(i);
+                }
+            }
+            int d = Param.Number_of_days;
+
+            for (var i = 0; i < myList.Count; i++)
+            {
+                for (var j = 0; j < myList[i].Count; j++)
+                {
+                    if (i == 0)
+                    {
+                        ItemBus tmpV = myList[i][j];
+                        DateTime startdate;
+                        DateTime enddate;
+                        DateTime.TryParseExact(tmpV.MinDate + tmpV.MinTime.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startdate);
+                        DateTime.TryParseExact(tmpV.Maxdate + tmpV.MaxTime.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out enddate);
+                        if (j == 0)
+                        {
+                            if (startdate < startdatedt)
+                            {
+                                tmpV.MinLeft = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                            }
+                            else
+                            {
+                                tmpV.MinLeft = busScheduleHelper.calleft(Width, tmpV.MinDate, tmpV.MinTime.ToString("D4"), d, Container.Date);
+                            }
+                            if (enddatedt < enddate)
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) - tmpV.Left;
+                            }
+                            else
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date) - tmpV.Left;
+                            }
+                            if (myList[i].Count() > (j + 1))
+                            {
+                                double maxWidthtpm = myList[i][j + 1].Left - myList[i][j].Left;
+                                if (maxWidthtpm < tmpV.MaxWidth)
+                                {
+                                    tmpV.MaxWidth = maxWidthtpm;
+                                }
+                            }
+                            //if (tmpV.StartDate == tmpV.MinDate && tmpV.TimeStart == tmpV.MinTime && tmpV.EndDate == tmpV.Maxdate && tmpV.TimeEnd == tmpV.MaxTime)
+                            //{
+                            //    tmpV.AllowEdit = false;
+                            //}
+                        }
+                        else
+                        {
+                            double minleft1 = 0;
+                            if (startdate < startdatedt)
+                            {
+                                minleft1 = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                            }
+                            else
+                            {
+                                minleft1 = busScheduleHelper.calleft(Width, tmpV.MinDate, tmpV.MinTime.ToString("D4"), d, Container.Date);
+                            }
+                            if (enddatedt < enddate)
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) - tmpV.Left;
+                            }
+                            else
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date) - tmpV.Left;
+                            }
+                            double minleft2 = myList[i][j - 1].Left + myList[i][j - 1].Width;
+                            tmpV.MinLeft = minleft1;
+                            if (minleft2 > minleft1)
+                            {
+                                tmpV.MinLeft = minleft2;
+                            }
+                        }
+                        if (myList[i].Count() > j && j > 0)
+                        {
+                            if ((myList[i].Count() - 1) == j)
+                            {
+                                if (enddatedt < enddate)
+                                {
+                                    tmpV.MaxWidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) - tmpV.Left;
+                                }
+                                else
+                                {
+                                    tmpV.MaxWidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date) - tmpV.Left;
+                                }
+
+                            }
+                            else
+                            {
+                                double maxwidth = 0;
+                                if (enddatedt < enddate)
+                                {
+                                    maxwidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) - tmpV.Left;
+                                }
+                                else
+                                {
+                                    maxwidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date) - tmpV.Left;
+                                }
+                                double maxwidth1 = myList[i][j + 1].Left - myList[i][j].Left;
+                                tmpV.MaxWidth = maxwidth;
+                                if (maxwidth1 < maxwidth)
+                                {
+                                    tmpV.MaxWidth = maxwidth1;
+                                }
+                            }
+                        }
+
+                        tmpV.Top = 0.3125; //5px
+                        tmpV.BusVehicle = BusVehicle;
+                        tmpV.Height = heightline;
+                        tmpV.CCSStyle = StyleItemText(tmpV);
+                        tmpV.CCSStyleDefault = StyleItemTextDefault(tmpV);
+                        tmpV.minleftcreate = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) < 0 ? 0 : busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                        tmpV.maxwidthcreate = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) > Width ? Width : busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                        Jobs.Add(tmpV);
+                        continue;
+                    }
+                    else
+                    {
+                        ItemBus tmpV = myList[i][j];
+                        DateTime startdate;
+                        DateTime enddate;
+                        DateTime.TryParseExact(tmpV.MinDate + tmpV.MinTime.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startdate);
+                        DateTime.TryParseExact(tmpV.Maxdate + tmpV.MaxTime.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out enddate);
+                        if (j == 0)
+                        {
+                            if (startdate < startdatedt)
+                            {
+                                tmpV.MinLeft = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                            }
+                            else
+                            {
+                                tmpV.MinLeft = busScheduleHelper.calleft(Width, tmpV.MinDate, tmpV.MinTime.ToString("D4"), d, Container.Date);
+                            }
+                            if (enddatedt < enddate)
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) - tmpV.Left;
+                            }
+                            else
+                            {
+                                tmpV.MaxWidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date) - tmpV.Left;
+                            }
+
+
+                            if (myList[i].Count() > (j + 1))
+                            {
+                                double maxwidth = 0;
+                                if (enddatedt < enddate)
+                                {
+                                    maxwidth = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                                }
+                                else
+                                {
+                                    maxwidth = busScheduleHelper.calleft(Width, tmpV.Maxdate, tmpV.MaxTime.ToString("D4"), d, Container.Date);
+                                }
+
+                                double maxwidth1 = myList[i][j + 1].Left - myList[i][j].Left;
+                                tmpV.MaxWidth = maxwidth;
+                                if (maxwidth1 < maxwidth)
+                                {
+                                    tmpV.MaxWidth = maxwidth1;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            double minleft1 = 0;
+                            if (startdate < startdatedt)
+                            {
+                                minleft1 = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                            }
+                            else
+                            {
+                                minleft1 = busScheduleHelper.calleft(Width, tmpV.MinDate, tmpV.MinTime.ToString("D4"), d, Container.Date);
+                            }
+                            double minleft2 = myList[i][j - 1].TimeEnd;
+                            tmpV.MinLeft = minleft1;
+                            if (minleft2 > minleft1)
+                            {
+                                tmpV.MinLeft = minleft2;
+                            }
+                            tmpV.MinLeft =
+                            tmpV.MaxWidth = -1;
+                        }
+                        if (myList[i].Count() > j && j > 0)
+                        {
+                            if ((myList[i].Count() - 1) == j)
+                            {
+                                tmpV.MaxWidth = -1;
+                            }
+                            else
+                            {
+                                double maxWidthtpm = myList[i][j + 1].Left - myList[i][j].Left;
+                                if (maxWidthtpm < tmpV.MaxWidth)
+                                {
+                                    tmpV.MaxWidth = maxWidthtpm;
+                                }
+                            }
+
+                        }
+                        tmpV.Top = heightline * i + 0.3125 + (i) * 0.3125 + (i) * 0.0625;
+                        tmpV.Height = heightline;
+                        tmpV.BusVehicle = BusVehicle;
+                        tmpV.CCSStyle = StyleItemText(tmpV);
+                        tmpV.CCSStyleDefault = StyleItemTextDefault(tmpV);
+                        //tmpV.AllowEdit = true;
+                        tmpV.minleftcreate = busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) < 0 ? 0 : busScheduleHelper.calleft(Width, startdatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                        tmpV.maxwidthcreate = busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date) > Width ? Width : busScheduleHelper.calleft(Width, enddatedt.ToString("yyyyMMdd"), "0000", d, Container.Date);
+                        Jobs.Add(tmpV);
+                        continue;
+                    }
+                }
+            }
+            if (myList.Count() == 1)
+            {
+                height = heightline + 0.625;
+            }
+            else
+            {
+                height = heightline * myList.Count() + myList.Count() * 2 * 0.3125 + ((myList.Count() - 1) * 0.0625);
+                tmpbus = new BusLineData();
+                tmpbus.LineID = LineId;
+                tmpbus.LineHeight = height;
+            }
+            for (var i = 0; i < Container.BusLists.Count; i++)
+            {
+                if (Container.BusLists[i].BusID == LineId)
+                {
+                    Container.BusLists[i].BusHeight = height;
+                }
+            }
+            for (var i = 0; i < Container.BusGreenLists.Count; i++)
+            {
+                if (Container.BusGreenLists[i].BusName == Busname)
+                {
+                    Container.BusGreenLists[i].BusHeight = height;
+                }
+            }
+            for (var i = 0; i < Container.BusGrayLists.Count; i++)
+            {
+                if (Container.BusGrayLists[i].BusName == Busname)
+                {
+                    Container.BusGrayLists[i].BusHeight = height;
+                }
+            }
+        }
+    }
+
+    private double getHeightLine(int i, double heightline)
+    {
+        double v1 = heightline;
+        if (i > 0)
+        {
+            v1 = heightline + i * 0.3125;
+        }
+        return v1;
+    }
+    private int arrangePositionTmp(ItemBus tmp, List<List<ItemBus>> itemList)
+    {
+        if (itemList.Count <= 0)
+        {
+            return 0;
+        }
+        for (var i = 0; i < itemList.Count; i++)
+        {
+            if (itemList[i].Count == 0)
+            {
+                return i;
+            }
+            //if (itemList[i][itemList[i].Count - 1].EndLine <= tmp.StartLine)
+            if (itemList[i][itemList[i].Count - 1].TimeEndString <= tmp.TimeStartString)
+            {
+                return i;
+            }
+        }
+        return itemList.Count;
+    }
+    private string StyleItemText(ItemBus item)
+    {
+        return "width:" + item.Width.ToString() + "px;top:" + item.Top.ToString() + "rem;left:" + item.Left.ToString() + "px;";
+    }
+
+    private string StyleItemTextDefault(ItemBus item)
+    {
+        return "width:" + item.WidthDefault.ToString() + "px;left:" + item.LeftDefault.ToString() + "px;";
+    }
+    private async Task HandleDrop()
+    {
+        if(Container.Payload != null)
+        {
+            var isValid = await HaiTaCheck();
+            var upYmdTimeInits = UpYmdTimeInits;
+            var ukeNo = Container.Payload.BookingId.Substring(5, 10);
+
+            var dataInit = new DataInit();
+
+            if (isValid)
+            {
+                if (Container.Payload == null || Container.Payload.Status == 0 || Container.Payload.AllowDrop == false || Container.Payload.BusLine == LineId) return;
+                System.Diagnostics.Debug.WriteLine(LineId.ToString());
+                //if (AllowedStatuses != null && !AllowedStatuses.Contains(Container.Payload.Status)) return;
+                await Container.UpdateJobAsync(LineId, BusVehicle);
+
+                dataInit.IsValid = isValid;
+                dataInit.ResponseHaiTaCheckInit = await GetUpdYmds();
+            }
+            else
+            {
+                dataInit.IsValid = false;
+                dataInit.ResponseHaiTaCheckInit = upYmdTimeInits;
+            }
+
+            dataInit.ActionBusSchedule = ActionBusSchedule.Move;
+            dataInit.UkeNo = ukeNo;
+            await ValueCheckHaitaBus.InvokeAsync(dataInit);
+        }
+    }
+    protected override void OnInitialized()
+    {
+        // 1day-15minute
+        if (Container.GridView == (int)TimeMode.Minute)
+        {
+            childWidth = 20;
+            time = 5;
+        }
+        // 1day-1hour, 1day-3hours, 1day-6hour, 3days-1hour, 1week-1hour, 1month-1hour
+        if (Container.GridData == (int)DayMode.OneDay && Container.GridView == (int)TimeMode.OneHour ||
+            Container.GridData == (int)DayMode.OneDay && Container.GridView == (int)TimeMode.ThreeHours ||
+            Container.GridData == (int)DayMode.OneDay && Container.GridView == (int)TimeMode.SixHours ||
+            Container.GridData == (int)DayMode.ThreeDays && Container.GridView == (int)TimeMode.OneHour ||
+            Container.GridData == (int)DayMode.Week && Container.GridView == (int)TimeMode.OneHour ||
+            Container.GridData == (int)DayMode.Month && Container.GridView == (int)TimeMode.OneHour)
+        {
+            childWidth = Container.Width / (Param.Number_of_days * 96);
+            time = 15;
+        }
+        // 3days-3hours, 3days-6hours, 1week-3hours, 1week-6hours
+        if (Container.GridData == (int)DayMode.ThreeDays && Container.GridView == (int)TimeMode.ThreeHours ||
+            Container.GridData == (int)DayMode.ThreeDays && Container.GridView == (int)TimeMode.SixHours ||
+            Container.GridData == (int)DayMode.Week && Container.GridView == (int)TimeMode.ThreeHours ||
+            Container.GridData == (int)DayMode.Week && Container.GridView == (int)TimeMode.SixHours)
+        {
+            childWidth = Container.Width / (Param.Number_of_days * 48);
+            time = 30;
+        }
+        // 1week-1day, 1month-3hours, 1month-1day, 1month-6hours -->
+        if (Container.GridData == (int)DayMode.Week && Container.GridView == (int)TimeMode.Day ||
+            Container.GridData == (int)DayMode.Month && Container.GridView == (int)TimeMode.ThreeHours ||
+            Container.GridData == (int)DayMode.Month && Container.GridView == (int)TimeMode.SixHours ||
+            Container.GridData == (int)DayMode.Month && Container.GridView == (int)TimeMode.Day)
+        {
+            childWidth = Container.Width / (Param.Number_of_days * 24);
+            time = 60;
+        }
+    }
+
+    private async Task<bool> HaiTaCheck()
+    {
+        try
+        {
+            UpYmdTimeAfters = await GetUpdYmds();
+
+            var upYmdTimeInitSelectd = UpYmdTimeInits.FirstOrDefault(_ => _.UkeNo == Container.Payload.BookingId && _.UnkRen == Container.Payload.haUnkRen
+                                && _.TeiDanNo == Container.Payload.TeiDanNo && _.BunkRen == Container.Payload.BunkRen);
+
+            var upYmdTimeAfterSelectd = UpYmdTimeAfters.FirstOrDefault(_ => _.UkeNo == Container.Payload.BookingId && _.UnkRen == Container.Payload.haUnkRen
+                                        && _.TeiDanNo == Container.Payload.TeiDanNo && _.BunkRen == Container.Payload.BunkRen);
+
+            var upYmdTimeInitJson = JsonConvert.SerializeObject(upYmdTimeInitSelectd?.UpYmdTimes);
+            var upYmdTimeAfterJson = JsonConvert.SerializeObject(upYmdTimeAfterSelectd?.UpYmdTimes);
+
+            return upYmdTimeInitJson == upYmdTimeAfterJson ? true : false;
+        }
+        catch (Exception ex)
+        {
+            _errorModalService.HandleError(ex);
+        }
+        return true;
+    }
+
+    public async Task ValueCheckHaitaBusLines(DataInit item)
+    {
+        await ValueCheckHaitaBus.InvokeAsync(item);
+    }
+
+    protected async Task<List<ResponseHaiTaCheck>> GetUpdYmds()
+    {
+        if (BusLines.Any())
+        {
+            var dataParam = BusLines?.Select(_ => new ParamHaiTaCheck
+            {
+                UkeNo = _.BookingId,
+                UnkRen = _.haUnkRen,
+                TeiDanNo = _.TeiDanNo,
+                BunkRen = _.BunkRen,
+                SyaSyuRen = _.SyaSyuRen
+            }).ToList();
+            if (dataParam.Any())
+                return await _busScheduleService.GetUpYmdTimes(dataParam);
+        }
+        return new List<ResponseHaiTaCheck>();
+    }
+}

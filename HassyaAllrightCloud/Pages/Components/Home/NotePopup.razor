@@ -1,0 +1,75 @@
+﻿@inject ITKD_PersonalNoteDataService TKD_PersonalNoteDataService
+@inject IStringLocalizer<NotePopup> Lang
+@inject IErrorHandlerService errorModalService
+
+<EditForm EditContext="@EditFormContext" Context="formContext">
+    <FluentValidator TValidator="NoteFormValidator" />
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-2 width--75">@Lang["Content"]</label>
+        <div class="has-tooltip-error">
+            <Tooltip ValueExpressions="@(() => editPersonalNote.PersonalNote_Note)"
+                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+            <InputTextArea rows="10" cols="40" placeholder="@Lang["PleaseInputMemoHere"]" class="memo--message scrollbar--1"
+                           @bind-Value="editPersonalNote.PersonalNote_Note">@editPersonalNote.PersonalNote_Note</InputTextArea>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    protected EditContext EditFormContext { get; set; }
+    protected TKD_PersonalNoteData editPersonalNote;
+    public Dictionary<string, string> LangDic = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            LoadData();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            editPersonalNote = await TKD_PersonalNoteDataService.Get();
+            if (editPersonalNote == null)
+            {
+                editPersonalNote = new TKD_PersonalNoteData();
+            }
+            StateHasChanged();
+
+            EditFormContext = new EditContext(editPersonalNote);
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public async Task<string> Save()
+    {
+        try
+        {
+            if (EditFormContext.Validate())
+            {
+                return await TKD_PersonalNoteDataService.UpdatePersonalNote(editPersonalNote);
+            }
+            else
+            {
+                return "";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+            return "";
+        }
+    }
+}

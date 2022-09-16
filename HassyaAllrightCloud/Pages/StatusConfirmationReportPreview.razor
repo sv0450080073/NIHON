@@ -1,0 +1,12 @@
+<DxDocumentViewer ReportUrl="@($"{nameof(IStatusConfirmationService)}?" + searchString)" Height="1000px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code{
+    [Parameter] public string searchString { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

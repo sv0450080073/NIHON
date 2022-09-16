@@ -1,0 +1,61 @@
+﻿@inherits CustomerComponentBase
+
+<div class="row">
+    <div class="col-4 has-tooltip-error" style="max-width: 100%">
+        <Tooltip ValueExpressions="GyosyaExpression"
+                 Lang="@LangDic" Text="@GyosyaTextError" Position="PositionTooltip.top"></Tooltip>
+        <DxComboBox Data="ListGyosya"
+                    SelectedItem="SelectedGyosya"
+                    SelectedItemChanged="OnChangeGyosya"
+                    SelectedItemExpression="GyosyaExpression"
+                    ClearButtonDisplayMode="IsGyoSyaNotNull ? DataEditorClearButtonDisplayMode.Never : ClearButtonDisplayMode"
+                    AllowUserInput="false"
+                    FilteringMode="@DataGridFilteringMode.Contains"
+                    NullText="@DefaultGyosyaNullText"
+                    TextFieldName="Text"
+                    ReadOnly="ReadOnlyGyosya"
+                    DropDownDirection="DropDownDirection"
+                    ListRenderMode="RenderMode"
+                    CssClass="@GyosyaCssClass"
+                    @oninput="e => gyosyaSearchString = e.Value.ToString()"
+                    @onkeyup="@(e => Enter(e, Gyosya))"></DxComboBox>
+    </div>
+    <div class="col-4 has-tooltip-error" style="max-width: 100%">
+        <Tooltip ValueExpressions="TokiskExpression"
+                 Lang="@LangDic" Text="@TokiskTextError" Position="PositionTooltip.top"></Tooltip>
+        <DxComboBox Data="ListTokisk"
+                    SelectedItem="SelectedTokisk"
+                    SelectedItemChanged="OnChangeTokisk"
+                    SelectedItemExpression="TokiskExpression"
+                    ClearButtonDisplayMode="ClearButtonDisplayMode"
+                    AllowUserInput="false"
+                    FilteringMode="@DataGridFilteringMode.Contains"
+                    NullText="@DefaultTokiskNullText"
+                    TextFieldName="Text"
+                    ReadOnly="ReadOnlyTokisk"
+                    DropDownDirection="DropDownDirection"
+                    ListRenderMode="RenderMode"
+                    CssClass="@TokiskCssClass"
+                    @oninput="e => tokiskSearchString = e.Value.ToString()"
+                    @onkeyup="@(e => Enter(e, Tokisk))"></DxComboBox>
+    </div>
+    <div class="col-4 has-tooltip-error" style="max-width: 100%">
+        <Tooltip ValueExpressions="TokiStExpression"
+                 Lang="@LangDic" Text="@TokiStTextError" Position="PositionTooltip.top"></Tooltip>
+        <DxComboBox Data="ListTokiSt"
+                    SelectedItem="SelectedTokiSt"
+                    SelectedItemChanged="OnChangeTokiSt"
+                    SelectedItemExpression="TokiStExpression"
+                    ClearButtonDisplayMode="ClearButtonDisplayMode"
+                    AllowUserInput="false"
+                    FilteringMode="@DataGridFilteringMode.Contains"
+                    NullText="@DefaultTokiStNullText"
+                    TextFieldName="Text"
+                    ReadOnly="ReadOnlyTokiSt"
+                    DropDownDirection="DropDownDirection"
+                    ListRenderMode="RenderMode"
+                    CssClass="@TokiStCssClass"
+                    @oninput="e => tokistSearchString = e.Value.ToString()"
+                    @onkeyup="@(e => Enter(e, Tokist))"></DxComboBox>
+    </div>
+</div>

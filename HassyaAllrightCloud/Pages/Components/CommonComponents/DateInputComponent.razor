@@ -1,0 +1,20 @@
+﻿@inherits DateInputComponentBase
+
+<div class="row">
+    <div class="col-12 has-tooltip-error">
+        <Tooltip ValueExpressions="DateInputExpression"
+                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+        <DxDateEdit Date="@SelectedDate"
+                    DateExpression="() => SelectedDate"
+                    Format="@Format"
+                    DateChanged="@(async(newValue) => await OnDateChanged(newValue))"
+                    ClearButtonDisplayMode="ClearButtonDisplayMode"
+                    CssClass="@CssClass"
+                    ReadOnly="ReadOnly"
+                    DisplayFormat="@DisplayFormat"
+                    DropDownDirection="DropDownDirection"
+                    @oninput="e => dateInputString = e.Value.ToString()"
+                    @onkeydown="async e => await Enter(e)">
+        </DxDateEdit>
+    </div>
+</div>

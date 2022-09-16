@@ -1,0 +1,22 @@
+﻿@inherits DeleteConfirmBase
+
+<DxPopup @bind-Visible="IsShowPopup" CssClass="custom-popup modal-dialog modal-dialog-centered" Id="delete-confirm">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Header
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => IsShowPopup = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x mr-3 fa-warning"></i>
+            @Message
+        </div>
+    </ChildContent>
+    <FooterTemplate>
+        <div class="text-right">
+            <button class="btn btn-sm mx-2 width--100 btn-danger" @onclick="@(() => OnTogglePopup.InvokeAsync(true))">@_lang["btn_delete"]</button>
+            <button class="btn btn-sm mx-2 width--100 btn-outline-dark" @onclick="@(() => OnTogglePopup.InvokeAsync(false))">@_lang["btn_cancel"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>

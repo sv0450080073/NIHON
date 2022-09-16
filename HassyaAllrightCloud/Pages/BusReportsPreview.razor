@@ -1,0 +1,192 @@
+﻿@inject CustomNavigation NavManager
+@inject IStringLocalizer<BusReports> Lang
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CodeKbListService TPM_CodeKbnService
+@inject IBusReportService BusReportService
+@using MediatR;
+@using HassyaAllrightCloud.Application.ReportLayout.Queries;
+
+@*<DxPopup CssClass="custom-popup" @bind-Visible="@reportDataIsEmpty" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["TitlePopupInfo"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="OnClosePopupNotFound"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="d-flex align-items-center">
+                <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>@Lang["BI_T005"]
+            </div>
+        </Content>
+        <FooterTemplate>
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="OnClosePopupNotFound" Text="OK" />
+        </FooterTemplate>
+    </DxPopup>*@
+
+@if (!reportDataIsEmpty && !string.IsNullOrEmpty(strUri) && !string.IsNullOrWhiteSpace(strUri))
+{
+    <DxDocumentViewer ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.BusReport)}?"+strUri)" Height="800px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+@code {
+    [Parameter] public string SearchString { get; set; }
+    [Parameter] public string IsLoadDefault { get; set; }
+    [Parameter] public string Date { get; set; }
+    [Parameter] public string Option { get; set; }
+
+    [Inject] public IMediator _mediator { get; set; }
+
+    string strUri { get; set; } = "";
+    BusReportDataUri BusReportData { get; set; } = new BusReportDataUri();
+    List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+    List<DepartureOfficeData> vehicledispatchofficelst = new List<DepartureOfficeData>();
+    List<ReservationData> reservationlst = new List<ReservationData>();
+    List<OutputOrderData> outputorderlst = new List<OutputOrderData>();
+    List<string> undeliveredlst = new List<string>();
+    List<string> temporarycarlst = new List<string>();
+    List<string> sizeofpaperlst = new List<string>();
+    VpmSyain SyainNmItem = new VpmSyain();
+    BusReportData reportCondition = new BusReportData();
+
+    private bool reportDataIsEmpty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsLoadDefault == "1")
+        {
+            companychartlst = await TPM_CompnyDataService.GetCompany(new ClaimModel().TenantID);
+            companychartlst.Insert(0, new CompanyChartData());
+            vehicledispatchofficelst = await TPM_EigyosDataService.GetAllBranchData(new ClaimModel().TenantID);
+            vehicledispatchofficelst.Insert(0, new DepartureOfficeData());
+            reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+            reservationlst.Insert(0, new ReservationData());
+            undeliveredlst = new List<string>(){
+            "出力",
+            "未出力",
+                };
+            temporarycarlst = new List<string>(){
+            "出力",
+            "未出力",
+                };
+            outputorderlst = new List<OutputOrderData>();
+            outputorderlst = OutputOrderListData.OutputOrderlst;
+
+            sizeofpaperlst = new List<string>(){
+            "A3",
+            "A4",
+            "B4",
+                };
+            SyainNmItem = await TPM_CompnyDataService.GetSyainNm(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+            reportCondition.CompanyChartData = companychartlst.ToList();
+            reportCondition.VehicleDispatchOffice1 = vehicledispatchofficelst.First();
+            reportCondition.VehicleDispatchOffice2 = vehicledispatchofficelst.First();
+            reportCondition.ReservationList = reservationlst.ToList();
+            reportCondition.Undelivered = undeliveredlst.First();
+            reportCondition.TemporaryCar = temporarycarlst.First();
+            reportCondition.OutputOrder = outputorderlst.First();
+            reportCondition.SizeOfPaper = sizeofpaperlst.First();
+            reportCondition.TenantCdSeq = new ClaimModel().TenantID;
+            reportCondition.SyainNm = SyainNmItem.SyainNm == null ? "" : SyainNmItem.SyainNm;
+            reportCondition.SyainCd = SyainNmItem.SyainCd == null ? "" : SyainNmItem.SyainCd;
+            if (!string.IsNullOrEmpty(Date))
+            {
+                DateTime dateTimeConvert;
+                try
+                {
+                    dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                    reportCondition.OperationDate = dateTimeConvert;
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            strUri = await GetUri();
+
+            var tempResult = await BusReportService.GetInfoMainReport(reportCondition);
+            reportDataIsEmpty = !tempResult?.Any() ?? true;
+            if (reportDataIsEmpty)
+            {
+                OnClosePopupNotFound();
+            }
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(SearchString) && !string.IsNullOrWhiteSpace(SearchString))
+            {
+                BusReportData = EncryptHelper.Decrypt<BusReportDataUri>(SearchString);
+                strUri = BusReportData.Uri;
+            }
+        }
+
+        NavManager.NavigateTo("/BusReportsPreview", false);
+        base.OnInitialized();
+    }
+    private async Task<string> GetUri()
+    {
+        var claimModel = new ClaimModel();
+        int CurrentTemplateId = await _mediator.Send(new GetReportCurrentTemplateQuery { TenantCdSeq = claimModel.TenantID, ReportId = ReportIdForSetting.Busreports, EigyouCdSeq = claimModel.EigyoCdSeq });
+        string ReportClassName = BaseNamespace.Report + BaseNamespace.Busreports + CurrentTemplateId + reportCondition.SizeOfPaper;
+        return String.Format("DateBooking={0}&" +
+                "ListCompany={1}&" +
+                "BranchFrom={2}&" +
+                "BranchTo={3}&" +
+                "BookingTypeList={4}" +
+                "&MihaisyaKbn={5}" +
+                "&Order={6}&" +
+                "TenantCdSeq={7}" +
+                "&SyainNm={8}" +
+                "&DateTimeHeader={9}" +
+                "&DateTimeFooter={10}" +
+                "&SizeOfPaper={11}" +
+                "&SyainCd={12}" +
+                "&ReportTemplate={13}"
+                , reportCondition.OperationDate.ToString("yyyyMMdd"),
+                FormatListStringCompany(reportCondition.CompanyChartData),
+                reportCondition.VehicleDispatchOffice1.EigyoCdSeq.ToString(),
+                reportCondition.VehicleDispatchOffice2.EigyoCdSeq.ToString(),
+                string.Join('-', reportCondition.ReservationList.Select(_ => _.YoyaKbnSeq)),
+                // string.Join('-', reportCondition.ReservationList.Select(_ => _.YoyaKbnSeq)),
+                reportCondition.Undelivered,
+                reportCondition.OutputOrder.IdValue.ToString(),
+                reportCondition.TenantCdSeq.ToString(),
+                reportCondition.SyainNm,
+                reportCondition.OperationDate.ToString("yyyy/MM/dd     ddd曜日"),
+                reportCondition.DateTimeFooter,
+                reportCondition.SizeOfPaper,
+                reportCondition.SyainCd,
+                ReportClassName
+                );
+    }
+    public string FormatListStringCompany(List<CompanyChartData> companyChartData)
+    {
+        if (companyChartData == null) return "";
+        if (companyChartData.Count > 1 && companyChartData[0].CompanyCdSeq == 0) return "0";//check all
+        else
+        {
+            string[] strFormatCompanyArr = new string[companyChartData.Count];
+            if (companyChartData.Count > 1)
+            {
+                for (int i = 0; i < companyChartData.Count; i++)
+                {
+                    if (companyChartData[i].CompanyCdSeq > 0)
+                    {
+                        strFormatCompanyArr[i] = companyChartData[i].CompanyCdSeq.ToString();
+                    }
+                }
+                return String.Join("-", strFormatCompanyArr);
+            }
+            else
+            {
+                return companyChartData.First().CompanyCdSeq.ToString();
+            }
+        }
+    }
+
+    private void OnClosePopupNotFound()
+    {
+        NavManager.NavigateTo($"/BusReports?Option={OptionReport.Preview.ToString()}&Date={reportCondition.OperationDate.ToString("yyyyMMdd")}", true);
+    }
+}

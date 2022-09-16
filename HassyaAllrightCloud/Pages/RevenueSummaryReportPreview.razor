@@ -1,0 +1,20 @@
+﻿@using DevExpress.Blazor.Reporting
+@inject CustomNavigation MyNavigationManager
+
+<DxDocumentViewer ReportUrl="@ReportUrl" Height="1000px" Width="100">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+<HassyaAllrightCloud.Pages.Components.ReportLoading ReportId="_key"></HassyaAllrightCloud.Pages.Components.ReportLoading>
+@code {
+    [Parameter]
+    public string Params { get; set; }
+    public string ReportUrl { get; set; }
+    
+    public Guid _key { get; set; } = Guid.NewGuid();
+    protected override void OnInitialized()
+    {
+        var model = EncryptHelper.Decrypt<TransportationRevenueSearchModel>(Params);
+        model.ReportId = _key;
+        ReportUrl = $"{nameof(IRevenueSummaryService)}?{EncryptHelper.EncryptToUrl(model)}";
+    }
+}

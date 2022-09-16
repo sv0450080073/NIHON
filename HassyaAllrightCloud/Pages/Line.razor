@@ -1,0 +1,93 @@
+﻿@page "/Line"
+@using HassyaAllrightCloud.Domain.Entities
+@inject ILineService lineService
+@inject CustomNavigation navigationManager
+@inject LineNotifyBotApi _lineNotifyBotApi
+@inject IStringLocalizer<Line> Lang
+
+<h3><b>@Lang["Title"]</b></h3>
+<hr />
+@if (IsSaveSuccess)
+{
+    <div class="alert alert-success" role="alert">
+        <strong>@Lang["SuccessMessage"]</strong>
+    </div>
+}
+else
+{
+    <p>@Lang["Instruction"]</p>
+    <EditForm EditContext="@EditFormContext" Context="formContext">
+        <FluentValidator TValidator="LineUserValidator" />
+        <ul class="validation-errors mt-2">
+            @foreach (var item in EditFormContext.GetValidationMessages().Distinct())
+            {
+                <li class="validation-message">@Lang[item]</li>
+            }
+        </ul>
+        <DxFormLayout CssClass="col-md-3">
+            <DxFormLayoutItem Caption="@Lang["LblFirstName"]" ColSpanMd="12">
+                <Template>
+                    <DxTextBox @bind-Text="@Model.FirstName" />
+                </Template>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="@Lang["LblLastName"]" ColSpanMd="12">
+                <Template>
+                    <DxTextBox @bind-Text="@Model.LastName" />
+                </Template>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem ColSpanMd="12">
+                <Template>
+                    <DxButton Text="@Lang["Save"]" Click="e => SaveLineUser()" />
+                </Template>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditForm>
+
+}
+
+
+@code {
+    [Parameter] public string Code { get; set; }
+    [Parameter] public string State { get; set; }
+    [Parameter] public string Error { get; set; }
+    [Parameter] public string Error_Description { get; set; }
+
+    public LineUser Model { get; set; }
+    protected EditContext EditFormContext;
+    protected bool IsSaveSuccess;
+
+    protected override void OnInitialized()
+    {
+        Model = new LineUser();
+        EditFormContext = new EditContext(Model);
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Error) || string.IsNullOrEmpty(Code))
+        {
+            navigationManager.NavigateTo(Constants.Url.MySetting);
+        }
+        else
+        {
+            var apiResult = await _lineNotifyBotApi.Token(new TokenRequestDTO
+            {
+                Code = Code,
+                RedirectUri = navigationManager.BaseUri + "line"
+            });
+            if (apiResult != null)
+            {
+                Model.AccessToken = apiResult.Access_Token;
+            }
+        }
+    }
+
+    void SaveLineUser()
+    {
+        if (EditFormContext.Validate())
+        {
+            IsSaveSuccess = lineService.SaveLineUser(Model);
+            StateHasChanged();
+        }
+    }
+}

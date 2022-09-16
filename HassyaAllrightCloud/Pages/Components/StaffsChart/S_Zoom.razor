@@ -1,0 +1,167 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="zoom-bar">
+    <button id="minus" value="@range" @onclick="ZoomOut" disabled="@isDisable">-</button>
+    <input id="range" type="range" step="1" min="1" max="8" value="@range" @onchange="ChangeMode" disabled="@isDisable">
+    <button id="plus" value="@range" @onclick="ZoomIn" disabled="@isDisable">+</button>    
+</div>
+
+@code {
+    [Parameter] public ConfigStaffsChart Param { get; set; }
+    [Parameter] public EventCallback<string> OnCallBackZoom { get; set; }
+    public int range = 5;
+    bool isDisable = false;
+
+    protected override void OnParametersSet()
+    {
+        if (Param.DisplayRange == (int)DayMode.OneDay && Param.TimeRange == (int)TimeMode.Minute)
+        {
+            range = 1;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.OneDay && Param.TimeRange == (int)TimeMode.OneHour)
+        {
+            range = 2;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.OneDay && Param.TimeRange == (int)TimeMode.ThreeHours)
+        {
+            range = 3;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.OneDay && Param.TimeRange == (int)TimeMode.SixHours)
+        {
+            range = 4;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.ThreeDays && Param.TimeRange == (int)TimeMode.ThreeHours)
+        {
+            range = 5;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.ThreeDays && Param.TimeRange == (int)TimeMode.SixHours)
+        {
+            range = 6;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.Week && Param.TimeRange == (int)TimeMode.Day)
+        {
+            range = 7;
+            return;
+        }
+        if (Param.DisplayRange == (int)DayMode.Month && Param.TimeRange == (int)TimeMode.Day)
+        {
+            range = 8;
+            return;
+        }
+    }
+
+    public async Task setModeZoom(int mode)
+    {
+        if (mode == (int)ZoomMode.Zoom1d15)
+        {
+            Param.DisplayRange = (int)DayMode.OneDay;
+            Param.TimeRange = (int)TimeMode.Minute;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d1h)
+        {
+            Param.DisplayRange = (int)DayMode.OneDay;
+            Param.TimeRange = (int)TimeMode.OneHour;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d3h)
+        {
+            Param.DisplayRange = (int)DayMode.OneDay;
+            Param.TimeRange = (int)TimeMode.ThreeHours;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d6h)
+        {
+            Param.DisplayRange = (int)DayMode.OneDay;
+            Param.TimeRange = (int)TimeMode.SixHours;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom3d3h)
+        {
+            Param.DisplayRange = (int)DayMode.ThreeDays;
+            Param.TimeRange = (int)TimeMode.ThreeHours;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom3d6h)
+        {
+            Param.DisplayRange = (int)DayMode.ThreeDays;
+            Param.TimeRange = (int)TimeMode.SixHours;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1w1d)
+        {
+            Param.DisplayRange = (int)DayMode.Week;
+            Param.TimeRange = (int)TimeMode.Day;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1m1d)
+        {
+            Param.DisplayRange = (int)DayMode.Month;
+            Param.TimeRange = (int)TimeMode.Day;
+            await OnCallBackZoom.InvokeAsync(Param.DisplayRange.ToString()+","+Param.TimeRange.ToString());
+            await EnableButton();
+            return;
+        }
+    }
+
+    private async Task EnableButton()
+    {
+        await Task.Delay(300);
+        isDisable = false;
+    }
+
+    public async Task ChangeMode(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        range = Convert.ToInt32(e.Value);
+        isDisable = true;
+        await setModeZoom(range);
+    }
+
+    public async Task ZoomOut()
+    {
+        if (range == 1)
+        {
+            return;
+        }
+        else
+        {
+            range -= 1;
+        }
+        isDisable = true;
+        await setModeZoom(range);
+    }
+
+    public async Task ZoomIn()
+    {
+        if (range == 8)
+        {
+            return;
+        }
+        else
+        {
+            range += 1;
+        }
+        isDisable = true;
+        await setModeZoom(range);
+    }
+}

@@ -1,0 +1,586 @@
+﻿@inject IStringLocalizer<Tehai> Lang
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient HttpClient
+@inject CustomNavigation NavManager
+@using HassyaAllrightCloud.Commons.Extensions;
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowPopupInfo" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @PopupTitle
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="() => OnClosePopup()"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @PopupInfoContent
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                  @onclick="() => OnClosePopup()" Text="@Ok" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowPopupError" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @PopupTitle
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="() => OnClosePopup()"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i>
+        @PopupInfoContent
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                  @onclick="() => OnClosePopup()" Text="@Ok" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@ShowPopupConfirmDelete" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @PopupConfirmDeleteTitle
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="() => OnClosePopupConfirmDelete()"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @PopupConfirmDeleteContent
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Danger" @onclick="() => OnConfirmDelete()" Text="@Yes" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" @onclick="() => OnClosePopupConfirmDelete()" Text="@No" />
+    </FooterTemplate>
+</DxPopup>
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <EditForm EditContext="FormContext" OnSubmit="async () => await HandleValidSubmitAsync()">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BookingArrangementListValidator" />
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <ul class="validation-errors">
+                <li class="validation-message">@ErrorMessage</li>
+            </ul>
+        }
+        <div class="d-flex">
+            <div class="form-group form-inline mr-5">
+                <label class="col-form-label-sm mr-3">@Lang["receipt_number"]</label>
+                <DxTextBox Text="@UkeNo.Substring(5)" ReadOnly="true" TextExpression="() => TempStr" CssClass="width--130" />
+            </div>
+            <div class="form-group form-inline">
+                <label class="col-form-label-sm mr-3">@Lang["car"]</label>
+                <div>
+                    @*task 7501 change
+                <div class="@("has-tooltip-error "+(IsEmptyCarArrangementList ? "custom-invalid" :"" ))"><Tooltip ValueExpressions="@(() =>  SelectedCar)"
+                              Lang="@LangDic" Text="@(IsEmptyCarArrangementList? emptyItemMessage[nameof(EmptyCarArrangementList)] :"")" Position="PositionTooltip.top"></Tooltip>
+                         CssClass="@("width--130 " + (IsEmptyCarArrangementList ? "custom-invalid" : ""))"*@
+                    <DxComboBox NullText="共通"
+                                Data="CarArrangementList"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Text"
+                                AllowUserInput="false"
+                                SelectedItem="SelectedCar"
+                                SelectedItemChanged="async value => await HandleCarArrangementChanged(value)"
+                                SelectedItemExpression="() => SelectedCar">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-sm mb-2">
+            <thead class="thead-primary">
+                <tr>
+                    <th scope="col" class="text-center" width="50px">Ｎｏ．</th>
+                    <th scope="col" class="text-center" width="150px">@Lang["schedule"]</th>
+                    <th scope="col" class="text-center" width="100px">@Lang["Type"]</th>
+                    <th scope="col" class="text-center">@Lang["TehaiName"]</th>
+                    <th scope="col" class="text-center" width="100px">@Lang["ArrivalTime"]</th>
+                    <th scope="col" class="text-center" width="100px">@Lang["DepartureTime"]</th>
+                    <th scope="col" colspan="2" class="text-center bg-white" width="80px">
+                        <a href="javascript:void(0)" @onclick="HandleCreateArrangement" class="@(IsDisableEdit || ShowFormCreateArrangement ? "disabled" : "")">@Lang["addnew"]</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ShowFormCreateArrangement)
+                {
+                    <tr>
+                        <EditArrangementBooking ArrangementOrigin="SelectedArrangementItem"
+                                                IsEditMode="false"
+                                                ArrangementTypeList="ArrangementTypeList"
+                                                ArrangementCodeList="ArrangementCodeList"
+                                                ArrangementLocationList="ArrangementLocationList"
+                                                ArrangementPlaceTypeList="ArrangementPlaceTypeList"
+                                                ScheduleList="ScheduleList"
+                                                OnSubmit="HandleAddArrangement"
+                                                OnCancel="HandleCancelCreateArrangement" />
+                    </tr>
+                }
+                @foreach (var (arrangement, index) in ArrangementDataListNotDeleted.WithIndex())
+                {
+                    <tr>
+                        @if (arrangement.Editing)
+                        {
+                            <EditArrangementBooking ArrangementOrigin="arrangement"
+                                                    IsEditMode="true"
+                                                    ArrangementTypeList="ArrangementTypeList"
+                                                    ArrangementCodeList="ArrangementCodeList"
+                                                    ArrangementLocationList="ArrangementLocationList"
+                                                    ArrangementPlaceTypeList="ArrangementPlaceTypeList"
+                                                    ScheduleList="ScheduleList"
+                                                    OnSubmit="HandleSaveEditArrangement"
+                                                    OnCancel="HandleCancelEditArrangement" />
+                        }
+                        else
+                        {
+                            <td class="text-center @CssHelper.GetFormEditStateCss(arrangement.EditState)">@(index + 1)</td>
+                            <td>
+                                @arrangement.Schedule?.GetPrefixString()
+                                <br />
+                                @arrangement.Schedule?.GetDateString()
+                            </td>
+                            @if (arrangement.SelectedArrangementType.TypeCode != 0)
+                            {
+                                <td class="text-center">@arrangement.SelectedArrangementType.TypeName</td>
+                            }
+                            else
+                            {
+                                <td class="text-center"></td>
+                            }
+                            <td>@arrangement.LocationName</td>
+                            <td class="text-center">@arrangement.ArrivalTime?.myHour.ToString("D2")：@arrangement.ArrivalTime?.myMinute.ToString("D2")</td>
+                            <td class="text-center">@arrangement.DepartureTime?.myHour.ToString("D2")：@arrangement.DepartureTime?.myMinute.ToString("D2")</td>
+                            <td class="text-center">
+                                <a href="javascript:void(0)"
+                                   @onclick="() => HandleEditArrangement(arrangement.No)"
+                                   class="@(IsDisableEdit ? "disabled" : "")">
+                                    @Lang["edit"]
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0)"
+                                   @onclick="() => HandleDeleteArrangement(arrangement.No)"
+                                   class="@(IsDisableEdit ? "disabled" : "" + "text-danger")">
+                                    @Lang["delete"]
+                                </a>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-right">
+            <DxButton RenderStyle="@ButtonRenderStyle.Dark"
+                      RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="@Lang["cancel"]"
+                      SubmitFormOnClick="false"
+                      @onclick="@(async (e) => await OnClose.InvokeAsync(null))"
+                      CssClass="width--90 mr-2" />
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary"
+                      Text="@Lang["save"]"
+                      SubmitFormOnClick="true"
+                      Enabled="IsEnableSubmitButton()"
+                      CssClass="width--90" />
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string UkeNo { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    protected bool IsDisableEdit { get; set; }
+    protected List<BookingArrangementData> ArrangementDataList { get; set; }
+    protected List<BookingArrangementData> ArrangementDataListNotDeleted { get => ArrangementDataList.Where(_ => _.EditState != FormEditState.Deleted).ToList(); }
+    protected List<ArrangementCar> CarArrangementList { get; set; }
+    protected List<ArrangementType> ArrangementTypeList { get; set; }
+    protected List<ArrangementCode> ArrangementCodeList { get; set; }
+    protected List<ArrangementPlaceType> ArrangementPlaceTypeList { get; set; }
+    protected List<ArrangementLocation> ArrangementLocationList { get; set; }
+    protected List<ScheduleSelectorModel> ScheduleList { get; set; }
+    protected ArrangementCar SelectedCar { get; set; }
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    protected Action OnClosePopup { get; set; }
+    protected CultureInfo CurrentCulture { get; set; }
+    protected EditContext FormContext { get; set; }
+    protected BookingArrangementData SelectedArrangementItem { get; set; }
+
+    protected bool IsLoading { get; set; } = true;
+    protected bool ShowFormCreateArrangement { get; set; }
+    protected bool ShowPopupConfirmDelete { get; set; }
+    protected bool IsShowPopupInfo { get; set; }
+    protected bool IsShowPopupError { get; set; }
+
+    protected string PopupTitle { get; set; }
+    protected string PopupInfoContent { get; set; }
+    protected string PopupConfirmDeleteTitle { get; set; }
+    protected string PopupConfirmDeleteContent { get; set; }
+    protected string TempStr { get; set; }
+
+    [Inject] protected ITehaiService service { get; set; }
+    protected string ErrorMessage { get; set; }
+
+    protected bool IsEmptyCarArrangementList
+    {
+        get
+        {
+            return CarArrangementList is null || CarArrangementList.Count == 0;
+        }
+    }
+
+    private int indexToDelete;
+    private string baseUrl;
+    Dictionary<string, string> emptyItemMessage = new Dictionary<string, string>();
+    #region Localization string
+    string EmptyCarArrangementList = "";
+    string Ok;
+    string Yes;
+    string No;
+    string PopupTitleInfo;
+    string PopupTitleError;
+    string UpdateSucces;
+    string UpdateFail;
+
+    private void LocalizationInit()
+    {
+        Ok = Lang["Ok"];
+        Yes = Lang["Yes"];
+        No = Lang["No"];
+        PopupTitleInfo = Lang["PopupTitleInfo"];
+        PopupTitleError = Lang["PopupTitleError"];
+        UpdateSucces = Lang["UpdateTehaiSuccess"];
+        UpdateFail = Lang["UpdateTehaiFail"];
+        PopupConfirmDeleteTitle = Lang["ConfirmDeleteTehaiTitle"];
+        PopupConfirmDeleteContent = Lang["ConfirmDeleteTehaiContent"];
+        EmptyCarArrangementList = Lang["BI_T008"];
+    }
+
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        LocalizationInit();
+        baseUrl = AppSettingsService.GetBaseUrl();
+        CurrentCulture = new CultureInfo("ja-JP");
+        SelectedArrangementItem = new BookingArrangementData();
+
+        // check booking can edit or not
+        // disable edit
+        //  - paid or coupon
+        //  - lock table
+        var editStateList = await LoadBookingEditableStateAsync(UkeNo);
+        if (editStateList?.Count > 0)
+        {
+            IsDisableEdit = true;
+        }
+
+        await LoadAllDataComboboxAsync();
+        var arrangementDataListDb = await LoadBookingArrangementDataAsync(SelectedCar);
+        if (arrangementDataListDb != null)
+        {
+            ArrangementDataList = arrangementDataListDb;
+            ScheduleList = ScheduleHelper.GetScheduleSelectorList(SelectedCar.StartDate, SelectedCar.EndDate, SelectedCar.IsPreviousDate, SelectedCar.IsAfterDate);
+            LoadArrangementComboboxValue(ArrangementDataList);
+            FormContext = new EditContext(ArrangementDataList);
+        }
+        else
+        {
+            NavManager.NavigateTo("bookinginput?UkeCd=" + UkeNo.Substring(5), true);
+            return;
+        }
+        if (IsEmptyCarArrangementList)
+        {
+            emptyItemMessage[nameof(EmptyCarArrangementList)] = EmptyCarArrangementList;
+        }
+
+        await base.OnInitializedAsync().ContinueWith((t) => { IsLoading = false; });
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected bool IsEnableSubmitButton()
+    {
+        if (IsDisableEdit)
+        {
+            return false;
+        }
+        if (ShowFormCreateArrangement || ArrangementDataList.Any(f => f.Editing))
+        {
+            return false;
+        }
+        var result = FormContext.IsModified() && FormContext.Validate();
+        return result;
+    }
+
+    private async Task<List<BookingArrangementData>> LoadBookingArrangementDataAsync(ArrangementCar car)
+    {
+        try
+        {
+            string uri = string.Format("{0}/api/BookingArrangement?ukeNo={1}&unkRen={2}&teiDanNo={3}&bunkRen={4}", baseUrl, UkeNo, car.UnkRen, car.TeiDanNo, car.BunkRen);
+            var response = await HttpClient.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<BookingArrangementData>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private async Task<List<BookingDisableEditState>> LoadBookingEditableStateAsync(string ukeNo)
+    {
+        try
+        {
+            string uri = string.Format("{0}/api/BookingInput/DisabledBookingStateList?ukeNo={1}", baseUrl, ukeNo);
+            var response = await HttpClient.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<BookingDisableEditState>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    protected async Task LoadAllDataComboboxAsync()
+    {
+        ArrangementTypeList = await HttpClient.GetJsonAsync<List<ArrangementType>>(string.Format("{0}/api/BookingArrangement/ArrangementType?ukeNo={1}", baseUrl, UkeNo));
+        ArrangementPlaceTypeList = await HttpClient.GetJsonAsync<List<ArrangementPlaceType>>(string.Format("{0}/api/BookingArrangement/ArrangementPlaceType?ukeNo={1}", baseUrl, UkeNo));
+        ArrangementLocationList = await HttpClient.GetJsonAsync<List<ArrangementLocation>>(string.Format("{0}/api/BookingArrangement/ArrangementLocation?ukeNo={1}", baseUrl, UkeNo));
+        ArrangementCodeList = await HttpClient.GetJsonAsync<List<ArrangementCode>>(string.Format("{0}/api/BookingArrangement/ArrangementCode?ukeNo={1}", baseUrl, UkeNo));
+
+        CarArrangementList = await HttpClient.GetJsonAsync<List<ArrangementCar>>(string.Format("{0}/api/BookingArrangement/ArrangementCar?ukeNo={1}", baseUrl, UkeNo));
+        SelectedCar = CarArrangementList.First();
+        if (ArrangementTypeList.Any())
+        {
+            ArrangementTypeList.Insert(0, ArrangementType.CreateDefault());
+        }
+        if (ArrangementPlaceTypeList.Any())
+        {
+            ArrangementPlaceTypeList.Insert(0, ArrangementPlaceType.CreateDefault());
+        }
+        if (ArrangementCodeList.Any())
+        {
+            ArrangementCodeList.Insert(0, ArrangementCode.CreateDefault());
+        }
+        if(ArrangementLocationList.Any())
+        {
+            ArrangementLocationList.Insert(0, new ArrangementLocation());
+        }
+    }
+
+    public void LoadArrangementComboboxValue(List<BookingArrangementData> arrangementList)
+    {
+        if (ArrangementTypeList != null)
+        {
+            for (int index = 0; index < arrangementList.Count; index++)
+            {
+                int code = arrangementList[index].SelectedArrangementType.TypeCode;
+                arrangementList[index].SelectedArrangementType = ArrangementTypeList.SingleOrDefault(t => t.TypeCode == code);
+            }
+        }
+    }
+
+    private void HandleClosePopupInfoAfterSubmit()
+    {
+        IsShowPopupInfo = false;
+        IsShowPopupError = false;
+        StateHasChanged();
+    }
+
+    protected void OnConfirmDelete()
+    {
+        var arrangement = ArrangementDataList.SingleOrDefault(f => f.No == indexToDelete);
+
+        // check if added then delete
+        if (arrangement.EditState == FormEditState.Added)
+        {
+            SelectedCar.TehRenMax -= 1;
+            ArrangementDataList.Remove(arrangement);
+        }
+        else
+        {
+            arrangement.EditState = FormEditState.Deleted;
+        }
+
+        FormContext.NotifyFieldChanged(() => ArrangementDataList);
+        ShowPopupConfirmDelete = false;
+
+        StateHasChanged();
+    }
+
+    protected void OnClosePopupConfirmDelete()
+    {
+        ShowPopupConfirmDelete = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleCarArrangementChanged(ArrangementCar newValue)
+    {
+        ErrorMessage = string.Empty;
+        SelectedCar = newValue;
+        ScheduleList = ScheduleHelper.GetScheduleSelectorList(SelectedCar.StartDate, SelectedCar.EndDate, SelectedCar.IsPreviousDate, SelectedCar.IsAfterDate);
+        ArrangementDataList = await LoadBookingArrangementDataAsync(SelectedCar);
+        LoadArrangementComboboxValue(ArrangementDataList);
+        ShowFormCreateArrangement = false;
+        FormContext.MarkAsUnmodified();
+        StateHasChanged();
+    }
+
+    protected void HandleCreateArrangement()
+    {
+        if (IsDisableEdit == false && ShowFormCreateArrangement == false)
+        {
+            ArrangementDataList.ForEach(f => f.Editing = false);
+
+            SelectedArrangementItem = new BookingArrangementData();
+            SelectedArrangementItem.SelectedArrangementCode = ArrangementCodeList.FirstOrDefault();
+            SelectedArrangementItem.SelectedArrangementPlaceType = ArrangementPlaceTypeList.FirstOrDefault();
+            SelectedArrangementItem.SelectedArrangementType = ArrangementTypeList.FirstOrDefault();
+            SelectedArrangementItem.No = ++SelectedCar.TehRenMax;
+            SelectedArrangementItem.Schedule = ScheduleList.FirstOrDefault();
+            SelectedArrangementItem.UnkRen = SelectedCar.UnkRen;
+            SelectedArrangementItem.TeiDanNo = SelectedCar.TeiDanNo;
+            SelectedArrangementItem.BunkRen = SelectedCar.BunkRen;
+
+            ShowFormCreateArrangement = true;
+        }
+    }
+
+    protected void HandleAddArrangement()
+    {
+        ArrangementDataList.Add(SelectedArrangementItem);
+        SelectedArrangementItem.EditState = FormEditState.Added;
+        FormContext.NotifyFieldChanged(() => ArrangementDataList);
+        ShowFormCreateArrangement = false;
+        StateHasChanged();
+    }
+
+    protected void HandleCancelCreateArrangement(int index)
+    {
+        ShowFormCreateArrangement = false;
+        StateHasChanged();
+    }
+
+    protected void HandleEditArrangement(int no)
+    {
+        if (IsDisableEdit == false)
+        {
+            ArrangementDataList.ForEach(f => f.Editing = false);
+            HandleCancelCreateArrangement(no);
+
+            var selectedArrangement = ArrangementDataList.SingleOrDefault(f => f.No == no);
+            selectedArrangement.Editing = true;
+            StateHasChanged();
+        }
+    }
+
+    protected void HandleSaveEditArrangement(int no)
+    {
+        var selectedArrangement = ArrangementDataList.SingleOrDefault(f => f.No == no);
+        selectedArrangement.Editing = false;
+        selectedArrangement.EditState = selectedArrangement.EditState == FormEditState.Added ? FormEditState.Added : FormEditState.Edited;
+        FormContext.NotifyFieldChanged(() => ArrangementDataList);
+        StateHasChanged();
+    }
+
+    protected void HandleCancelEditArrangement(int no)
+    {
+        var selectedArrangement = ArrangementDataList.SingleOrDefault(f => f.No == no);
+        selectedArrangement.Editing = false;
+        StateHasChanged();
+    }
+
+    protected void HandleDeleteArrangement(int no)
+    {
+        if (IsDisableEdit == false)
+        {
+            indexToDelete = no;
+            ShowPopupConfirmDelete = true;
+            StateHasChanged();
+        }
+    }
+
+    protected async Task HandleValidSubmitAsync()
+    {
+        ErrorMessage = string.Empty;
+        await Task.Run(() =>
+        {
+            InvokeAsync(StateHasChanged);
+        });
+
+        var tehai = ArrangementDataList.OrderByDescending(_ => _.UpdYmd).ThenByDescending(_ => _.UpdTime).FirstOrDefault();
+        var updYmdTime = tehai == null ? string.Empty : tehai.UpdYmd + tehai.UpdTime;
+        var isValid = await HaitaCheck(updYmdTime);
+        if (FormContext.Validate() && isValid)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            var requstUri = string.Format("{0}/api/BookingArrangement?ukeNo={1}&unkRen={2}&teiDanNo={3}&bunkRen={4}",
+                                        baseUrl, UkeNo, SelectedCar.UnkRen, SelectedCar.TeiDanNo, SelectedCar.BunkRen);
+            response = await HttpClient.PutJsonAsync(requstUri, ArrangementDataList);
+
+            if (response.IsSuccessStatusCode)
+            {
+                IsShowPopupInfo = true;
+                PopupInfoContent = UpdateSucces;
+                PopupTitle = PopupTitleInfo;
+            }
+            else
+            {
+                IsShowPopupError = true;
+                PopupInfoContent = UpdateFail;
+                PopupTitle = PopupTitleInfo;
+            }
+            var arrangementDataListDb = await LoadBookingArrangementDataAsync(SelectedCar);
+            if (arrangementDataListDb != null)
+            {
+                ArrangementDataList = arrangementDataListDb;
+                ScheduleList = ScheduleHelper.GetScheduleSelectorList(SelectedCar.StartDate, SelectedCar.EndDate, SelectedCar.IsPreviousDate, SelectedCar.IsAfterDate);
+                LoadArrangementComboboxValue(ArrangementDataList);
+                FormContext = new EditContext(ArrangementDataList);
+            }
+            else
+            {
+                NavManager.NavigateTo("bookinginput?UkeCd=" + UkeNo.Substring(5), true);
+            }
+            OnClosePopup = HandleClosePopupInfoAfterSubmit;
+        }
+        else if (!isValid)
+        {
+            ErrorMessage = Lang["BI_T009"];
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    private async Task<bool> HaitaCheck(string updYmdTime)
+    {
+        var haita = await service.GetHaitaCheck(UkeNo, SelectedCar.UnkRen, SelectedCar.TeiDanNo, SelectedCar.BunkRen);
+        if (haita == updYmdTime) return true;
+        return false;
+    }
+}

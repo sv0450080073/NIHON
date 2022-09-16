@@ -1,0 +1,53 @@
+﻿@inherits ShowAlertSettingPopUpBase
+
+<DxPopup @bind-Visible="@isOpeningShowAlertSettingPopUp" Id="show-alert-setting" CssClass="modal-lg">
+    <HeaderTemplate>
+        <div class="bg-primary text-white p-2">
+            <i class="fa fa-cog" aria-hidden="true"></i> @Lang["AlertSetting"]
+        </div>
+        <ul class="validation-errors">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <li class="validation-message">@Lang[errorMessage]</li>
+            }
+        </ul>
+    </HeaderTemplate>
+    <Content>
+        <table class="mb-0 w-100" id="personal-setting-table">
+            <tbody>
+                <tr style="background-color: #909090;">
+                    <th class="text-center">@Lang["Muke"]</th>
+                    <th>@Lang["AlertName"]</th>
+                    <th class="text-center">@Lang["AlertDisplay"]</th>
+                </tr>
+                @for (var i = 0; i < showAlertSettingGridDisplays.Count(); i++)
+                {
+                    @for (var j = 0; j < showAlertSettingGridDisplays[i].ShowAlertSettingGrids.Count(); j++)
+                    {
+                        var t1 = i; var t2 = j;
+                        <tr>
+                            @if (t2 == 0)
+                            {
+                                <td rowspan="@showAlertSettingGridDisplays[t1].ShowAlertSettingGrids.Count()" class="text-center position-relative width--190"
+                                    style="background-color: @(showAlertSettingGridDisplays[t1].AlertTypeColor);">
+                                    <p class="item-center w-100">@showAlertSettingGridDisplays[t1].AlertTypeName</p>
+                                </td>
+                            }
+                            <td style="background-color:@(showAlertSettingGridDisplays[t1].ShowAlertSettingGrids[t2].AlertColor)">@showAlertSettingGridDisplays[t1].ShowAlertSettingGrids[t2].AlertNm</td>
+                            <td class="text-center">
+                                <DxCheckBox CssClass="d-inline-block" @bind-Checked="showAlertSettingGridDisplays[t1].ShowAlertSettingGrids[t2].Checked"
+                                            Id="@(t1 + "" + t2)" @onclick="e => UpdateValue(t1, t2)" />
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </Content>
+    <FooterTemplate>
+        <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 float-right" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                  Text="@Lang["Cancel"]" @onclick="e => CloseModal()" />
+        <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 float-right" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                  Text="@Lang["Save"]" @onclick="e => Save()" />
+    </FooterTemplate>
+</DxPopup>

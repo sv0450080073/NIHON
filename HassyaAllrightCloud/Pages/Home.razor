@@ -1,0 +1,804 @@
+﻿@page "/home"
+@inject ITKD_FavoriteMenuService TKD_FavoriteMenuService
+@inject ITKD_FavoriteSiteService TKD_FavoriteSiteService
+@inject ITKD_PersonalNoteDataService TKD_PersonalNoteDataService
+@inject INoticeService NoticeService
+@inject IAlertSettingService AlertSettingService
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Home> Lang
+@inject IErrorHandlerService errorModalService
+@inject CustomNavigation NavManager
+@using Blazor.DragDrop.Core
+@using HassyaAllrightCloud.Pages.Components.Home
+
+<link href="_content/blazor-dragdrop/dragdrop.css" rel="stylesheet" />
+
+@if (DeleteNotifyPopup)
+{
+    <DxPopup @bind-Visible="@DeleteNotifyPopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-question-circle" aria-hidden="true"></i> @Lang["Confirmation"]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <p>@Lang["DeleteNotifyMessage"]</p>
+            <div class="text-right">
+                <button type="button" class="btn btn-danger width--90" @onclick="@(() => DeleteNotice(Id))">@Lang["Delete"]</button>
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--120" @onclick="@(() => DeleteNotifyPopup = false)">@Lang["Cancel"]</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+}
+
+@if (DeleteMenuPopup)
+{
+    <DxPopup @bind-Visible="@DeleteMenuPopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-question-circle" aria-hidden="true"></i> @Lang["Confirmation"]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <p>@Lang["DeleteMenuMessage"]</p>
+            <div class="text-right">
+                <button type="button" class="btn btn-danger width--90" @onclick="@(() => DeleteMenu(MenuId))">@Lang["Delete"]</button>
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--120" @onclick="@(() => DeleteMenuPopup = false)">@Lang["Cancel"]</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+}
+
+@if (DeleteSitePopup)
+{
+    <DxPopup @bind-Visible="@DeleteSitePopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-question-circle" aria-hidden="true"></i> @Lang["Confirmation"]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <p>@Lang["DeleteSiteMessage"]</p>
+            <div class="text-right">
+                <button type="button" class="btn btn-danger width--90" @onclick="@(() => DeleteSite(SiteId))">@Lang["Delete"]</button>
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--120" @onclick="@(() => DeleteSitePopup = false)">@Lang["Cancel"]</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+}
+
+@if (NotifySettingPopup)
+{
+    <DxPopup @bind-Visible="@NotifySettingPopup">
+        <HeaderTemplate>
+            <div class="bg-primary text-white p-2">
+                <i class="fa fa-plus-circle" aria-hidden="true"></i> @(Id != 0 ? PopupNoficationTitle = Lang["UpdateNotification"] : PopupNoficationTitle = Lang["CreateNotification"])
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="home_error">
+                <NotificationPopup Id="@Id" @ref="CreateForm"></NotificationPopup>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <div class="text-right">
+                <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                          Text="@Lang["Cancel"]" @onclick="@((e) => NotifySettingPopup = false)" />
+                <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                          Text="@Lang["Save"]" @onclick="@(async () => await SaveNotice())" />
+            </div>
+        </FooterTemplate>
+    </DxPopup>
+}
+
+@if (isOpeningCreateMenuPopup)
+{
+    <DxPopup @bind-Visible="@isOpeningCreateMenuPopup">
+        <HeaderTemplate>
+            <div class="bg-primary text-white p-2">
+                <i class="fa fa-plus-circle" aria-hidden="true"></i> @(MenuId != 0 ? PopupMenuTitle = @Lang["UpdateMenu"] : PopupMenuTitle = @Lang["AddNewMenu"])
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <MenuPopup MenuId="@MenuId" @ref="CreateMenuForm"></MenuPopup>
+        </Content>
+        <FooterTemplate>
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="@Lang["Cancel"]" @onclick="@(() => isOpeningCreateMenuPopup = false)" />
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                      Text="@Lang["Save"]" @onclick="@(async () => await SaveMenu())" />
+        </FooterTemplate>
+    </DxPopup>
+}
+
+@if (isOpeningCreateSitePopup)
+{
+    <DxPopup @bind-Visible="@isOpeningCreateSitePopup">
+        <HeaderTemplate>
+            <div class="bg-primary text-white p-2">
+                <i class="fa fa-plus-circle" aria-hidden="true"></i> @(SiteId != 0 ? PopupSiteTitle = @Lang["UpdateSite"] : PopupSiteTitle = @Lang["AddNewSite"])
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <SitePopup SiteId="@SiteId" @ref="CreateSiteForm"></SitePopup>
+        </Content>
+        <FooterTemplate>
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="@Lang["Cancel"]" @onclick="@(() => isOpeningCreateSitePopup = false)" />
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                      Text="@Lang["Save"]" @onclick="@(async () => await SaveSite())" />
+        </FooterTemplate>
+    </DxPopup>
+}
+
+@if (isOpeningCreateNotePopup)
+{
+    <DxPopup @bind-Visible="@isOpeningCreateNotePopup">
+        <HeaderTemplate>
+            <div class="bg-primary text-white p-2">
+                <i class="fa fa-edit" aria-hidden="true"></i> @Lang["PersonalNote"]
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="home_error">
+                <NotePopup @ref="CreateNoteForm"></NotePopup>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="@Lang["Cancel"]" @onclick="@((e) => isOpeningCreateNotePopup = false)" />
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                      Text="@Lang["Save"]" @onclick="@(async () => await SaveNote())" />
+        </FooterTemplate>
+    </DxPopup>
+}
+
+
+@if (isOpeningShowAlertSettingPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.Home.ShowAlertSettingPopUp @bind-isOpeningShowAlertSettingPopUp="@isOpeningShowAlertSettingPopUp"
+                                                                     @bind-alertSettings="@alertSettings">
+    </HassyaAllrightCloud.Pages.Components.Home.ShowAlertSettingPopUp>
+}
+
+<h3>@Lang["Home"]</h3>
+<div class="container-grid-home home">
+    <div class="mb-3 card card--1">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-flag" aria-hidden="true"></i>
+                @Lang["Notification"]
+            </div>
+            <div class="card-header--icon">
+                <i class="fa fa-plus" @onclick="@(() => AddNotify())" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="card-body scrollbar--1 card-timeline style-1">
+            <ul class="notification--list">
+                @*@if (notification != null)
+                    {
+
+                    }*@
+                @foreach (var cardItem in notification)
+                {
+                    <li>
+                        <div class="notify-item">
+                            <div class="notify-item-title">
+                                @(cardItem.UpdYmd + " " + cardItem.UpdTime)
+                                <i class="fa fa-pencil text-info cursor-pointer ml-3 mr-1 @((cardItem.UpdSyainCd != new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq) ? "hide" : "")" aria-hidden="true" @onclick="() => OpenEditNoticePopUp(cardItem.NoticeCdSeq)"></i>
+                                <i class="fa fa-trash text-danger ml-1 cursor-pointer @((cardItem.UpdSyainCd != new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq) ? "hide" : "")" aria-hidden="true" @onclick="() => OpenNoticeDeletePopup(cardItem.NoticeCdSeq)"></i>
+                            </div>
+                            <div class="notify-item-desc">
+                                <div class="notify-item-desc--from">
+                                    @(cardItem.SyainNm + ": ")
+                                </div>
+                                <div class="notify-item-desc--content">
+                                    @(cardItem.NoticeContent)
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="mb-3 card card--2">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                @Lang["Calendar"]
+            </div>
+            <div class="card-header--icon">
+                <a @onclick="Navigate"><i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+        <div class="card-body scrollbar--1 style-1">
+            <HassyaAllrightCloud.Pages.Components.StaffScheduleContent IsHomePage="true"></HassyaAllrightCloud.Pages.Components.StaffScheduleContent>
+        </div>
+    </div>
+
+    <div class="mb-3 card card--3">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-bell" aria-hidden="true"></i>
+                @Lang["Alert"]
+            </div>
+            <div class="card-header--icon" @onclick="e => isOpeningShowAlertSettingPopUp = true">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="card-body scrollbar--1 style-1" style="position: relative">
+            @if (alertSettings.Any())
+            {
+                <ul class="alarm--list">
+                    @foreach (var item in alertSettings)
+                    {
+                        <li>
+                            <a href="@item.Link" style="text-decoration: underline; color:#436cff;">
+                                <div class="alarm">
+                                    <div class="alarm--date">@item.Date</div>
+                                    <div class="alarm--content">@item.AlertName @item.Number</div>
+                                </div>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            } else
+            {
+                <div class="alert-center">@Lang["NoAlert"]</div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3 card card--4">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-heart" aria-hidden="true"></i>
+                @Lang["FavoriteMenu"]
+            </div>
+            <div class="card-header--icon">
+                <i class="fa fa-plus" @onclick="AddMenu" aria-hidden="true"></i>
+                <i class="fa fa-edit" aria-hidden="true" @onclick="ToggleShowEditDeleteIconOfMenu"></i>
+            </div>
+        </div>
+        <div class="card-body scrollbar--1 style-1 sortable-menu" id="favoriteMenuList">
+            @foreach (var item in @FavoriteMenuDataList)
+            {
+                <div class="menu sortable--item" data-id="@item.FavoriteMenu_FavoriteMenuCdSeq" data-order="@item.FavoriteMenu_DisplayOrder">
+                    <a class="menu--link" href="@item.FavoriteMenu_MenuUrl" target="_blank">@item.FavoriteMenu_MenuTitle</a>
+                    <div class="td-actions text-right menu--button @(IsShowEditDeleteIconOfMenu ? "show" : "hide")">
+                        <i class="fa fa-pencil text-info mr-4 cursor-pointer" @onclick="@(() => OpenEditMenuPopup(item.FavoriteMenu_FavoriteMenuCdSeq))"></i>
+                        <i class="fa fa-trash text-danger mr-3 cursor-pointer" @onclick="@(() => OpenMenuDeletePopup(item.FavoriteMenu_FavoriteMenuCdSeq))"></i>
+                    </div>
+                </div>
+
+            }
+        </div>
+    </div>
+
+    <div class="mb-3 card card--5">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-heart" aria-hidden="true"></i>
+                @Lang["FavoriteSite"]
+            </div>
+            <div class="card-header--icon">
+                <i class="fa fa-plus" @onclick="AddSite" aria-hidden="true"></i>
+                <i class="fa fa-edit" aria-hidden="true" @onclick="ToggleShowEditDeleteIconOfSite"></i>
+            </div>
+        </div>
+        <div class="card-body scrollbar--1 style-1 sortable-site" id="favoriteSiteList">
+            @foreach (var item in @FavoriteSiteDataList)
+            {
+                <div class="site sortable--item" data-id="@item.FavoriteSite_FavoriteSiteCdSeq" data-order="@item.FavoriteSite_DisplayOrder">
+                    <a class="site--link" href="@item.FavoriteSite_SiteUrl" target="_blank">@item.FavoriteSite_SiteTitle</a>
+                    <div class="td-actions text-right site--button @(IsShowEditDeleteIconOfSite ? "show" : "hide")">
+                        <i class="fa fa-pencil text-info mr-4 cursor-pointer" @onclick="@(() => OpenEditSitePopup(item.FavoriteSite_FavoriteSiteCdSeq))"></i>
+                        <i class="fa fa-trash text-danger mr-3 cursor-pointer" @onclick="@(() => OpenSiteDeletePopup(item.FavoriteSite_FavoriteSiteCdSeq))"></i>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3 card card--6">
+        <div class="card-header">
+            <div class="card-header--content">
+                <i class="fa fa-clipboard" aria-hidden="true"></i>
+                @Lang["PersonalNote"]
+            </div>
+            <div class="card-header--icon">
+                <i class="fa fa-edit" @onclick="@(() => OpenEditNotePopup())" aria-hidden="true"></i>
+            </div>
+        </div>
+        <textarea class="memo--message scrollbar style-1" readonly="true">@PersonalNoteData?.PersonalNote_Note</textarea>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = "ClaimModel")]
+    protected ClaimModel ClaimModel { get; set; }
+    #region Notify Variables
+    IEnumerable<NoticeDisplayKbnDto> ListPeopleCanSee;
+    NoticeDisplayKbnDto people;
+
+    List<Tkd_NoticeListDto> notification = new List<Tkd_NoticeListDto>();
+    bool NotifySettingPopup { get; set; } = false;
+    bool DeleteNotifyPopup { get; set; } = false;
+    public int Id { get; set; }
+    public NotificationPopup CreateForm { get; set; }
+    string PopupNoficationTitle;
+    #endregion Notify Variables
+
+    #region Menu Variables
+    public MenuPopup CreateMenuForm { get; set; }
+    public SitePopup CreateSiteForm { get; set; }
+    string PopupMenuTitle;
+    string PopupSiteTitle;
+    bool IsShowEditDeleteIconOfMenu = false;
+    bool IsShowEditDeleteIconOfSite = false;
+    public int MenuId { get; set; }
+    public int SiteId { get; set; }
+    public bool isOpeningCreateMenuPopup { get; set; }
+    public bool isOpeningCreateSitePopup { get; set; }
+    bool DeleteMenuPopup { get; set; } = false;
+    bool DeleteSitePopup { get; set; } = false;
+    public List<TKD_FavoriteMenuData> FavoriteMenuDataList = new List<TKD_FavoriteMenuData>();
+    public List<TKD_FavoriteSiteData> FavoriteSiteDataList = new List<TKD_FavoriteSiteData>();
+    #endregion Menu Variables
+
+    #region Note Variables
+    public NotePopup CreateNoteForm { get; set; }
+    bool isOpeningCreateNotePopup = false;
+    TKD_PersonalNoteData PersonalNoteData = new TKD_PersonalNoteData();
+    #endregion Note Variables
+
+    #region Alert Variables
+    public List<AlertSetting> alertSettings = new List<AlertSetting>();
+    public int tenantCdSeq;
+    public int companyCdSeq;
+    public int syainCdSeq;
+    public bool isOpeningShowAlertSettingPopUp { get; set; }
+    #endregion Alert Variables
+
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            JSRuntime.InvokeVoidAsync("loadPageScript", "homePage");
+            base.OnParametersSet();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            notification = NoticeService.GetNoticeList().Result.ToList();
+            people = ListPeopleCanSee?.FirstOrDefault();
+            if (ClaimModel != null)
+            {
+                tenantCdSeq = ClaimModel.TenantID;
+                companyCdSeq = ClaimModel.CompanyID;
+                syainCdSeq = ClaimModel.SyainCdSeq;
+            }
+            await GetAlertDataAsync();
+
+            FavoriteSiteDataList = await TKD_FavoriteSiteService.GetFavoriteSiteList();
+            FavoriteMenuDataList = await TKD_FavoriteMenuService.GetFavoriteMenuList();
+            PersonalNoteData = await TKD_PersonalNoteDataService.Get();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                JSRuntime.InvokeVoidAsync("loadSortableJs", "favoriteMenuList", DotNetObjectReference.Create(this));
+                JSRuntime.InvokeVoidAsync("loadSortableJs", "favoriteSiteList", DotNetObjectReference.Create(this));
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void Navigate()
+    {
+        try
+        {
+            NavManager.NavigateTo("/staffschedule", false);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public async Task GetAlertDataAsync()
+    {
+        try
+        {
+            List<int> alertCds = (await AlertSettingService.GetShowAlertSettingAsync(tenantCdSeq, syainCdSeq)).Where(x => x.Checked).Select(x => x.AlertCd).ToList();
+            alertSettings = await AlertSettingService.GetAlertSettingAsync(alertCds, tenantCdSeq, syainCdSeq, companyCdSeq);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #region Notify
+    protected void AddNotify()
+    {
+        try
+        {
+            Id = 0;
+            NotifySettingPopup = true;
+            ListPeopleCanSee = NoticeService.GetNoticeDisplayKbnList().Result;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void OpenEditNoticePopUp(int id)
+    {
+        try
+        {
+            Id = id;
+            NotifySettingPopup = true;
+            ListPeopleCanSee = NoticeService.GetNoticeDisplayKbnList().Result;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void OpenNoticeDeletePopup(int id)
+    {
+        try
+        {
+            Id = id;
+            DeleteNotifyPopup = true;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected async void DeleteNotice(int id)
+    {
+        try
+        {
+            Id = id;
+            await NoticeService.DeleteNotice(id);
+            DeleteNotifyPopup = false;
+            ReloadNoticeData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void ReloadNoticeData()
+    {
+        try
+        {
+            notification = NoticeService.GetNoticeList().Result.ToList();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected async Task SaveNotice()
+    {
+        try
+        {
+            var result = await CreateForm.Save();
+            if (result)
+            {
+                NotifySettingPopup = false;
+                ReloadNoticeData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion Notify
+
+    #region Menu
+
+    public void AddMenu()
+    {
+        try
+        {
+            MenuId = 0;
+            isOpeningCreateMenuPopup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public void OpenEditMenuPopup(int menuId)
+    {
+        try
+        {
+            MenuId = menuId;
+            isOpeningCreateMenuPopup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void OpenMenuDeletePopup(int id)
+    {
+        try
+        {
+            MenuId = id;
+            DeleteMenuPopup = true;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public async void DeleteMenu(int menuId)
+    {
+        try
+        {
+            MenuId = menuId;
+            await TKD_FavoriteMenuService.DeleteFavoriteMenu(menuId);
+            DeleteMenuPopup = false;
+            ReloadMenuData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected async Task SaveMenu()
+    {
+        try
+        {
+            var result = await CreateMenuForm.Save();
+            if (result == null)
+            {
+                isOpeningCreateMenuPopup = false;
+                ReloadMenuData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void ReloadMenuData()
+    {
+        try
+        {
+            FavoriteMenuDataList = TKD_FavoriteMenuService.GetFavoriteMenuList().Result;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void ToggleShowEditDeleteIconOfMenu()
+    {
+        try
+        {
+            IsShowEditDeleteIconOfMenu = !IsShowEditDeleteIconOfMenu;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnFavouriteMenuOrderChange(ListOrderDto[] orderedList, string elementId, int oldIndex, int newIndex)
+    {
+        try
+        {
+            if (elementId == "favoriteMenuList")
+            {
+                await TKD_FavoriteMenuService.SaveFavoriteMenuOrder(orderedList);
+            }
+            else
+            {
+                await TKD_FavoriteSiteService.SaveFavoriteSiteOrder(orderedList);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion Menu
+
+    #region Site
+    public void AddSite()
+    {
+        try
+        {
+            SiteId = 0;
+            isOpeningCreateSitePopup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public void OpenEditSitePopup(int siteId)
+    {
+        try
+        {
+            SiteId = siteId;
+            isOpeningCreateSitePopup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void OpenSiteDeletePopup(int id)
+    {
+        try
+        {
+            SiteId = id;
+            DeleteSitePopup = true;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public async void DeleteSite(int siteId)
+    {
+        try
+        {
+            SiteId = siteId;
+            await TKD_FavoriteSiteService.DeleteFavoriteSite(siteId);
+            DeleteSitePopup = false;
+            ReloadSiteData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected async Task SaveSite()
+    {
+        try
+        {
+            var result = await CreateSiteForm.Save();
+            if (result == null)
+            {
+                isOpeningCreateSitePopup = false;
+                ReloadSiteData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void ReloadSiteData()
+    {
+        try
+        {
+            FavoriteSiteDataList = TKD_FavoriteSiteService.GetFavoriteSiteList().Result;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void ToggleShowEditDeleteIconOfSite()
+    {
+        try
+        {
+            IsShowEditDeleteIconOfSite = !IsShowEditDeleteIconOfSite;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion Site
+
+    #region Note
+    public void OpenEditNotePopup()
+    {
+        try
+        {
+            isOpeningCreateNotePopup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected async Task SaveNote()
+    {
+        try
+        {
+            var result = await CreateNoteForm.Save();
+            if (result == null)
+            {
+                isOpeningCreateNotePopup = false;
+                ReloadNoteData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void ReloadNoteData()
+    {
+        try
+        {
+            PersonalNoteData = TKD_PersonalNoteDataService.Get().Result;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion Note
+}

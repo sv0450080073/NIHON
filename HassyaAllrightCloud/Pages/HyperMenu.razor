@@ -1,0 +1,731 @@
+﻿@inherits HyperMenuBase
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<DxPopup @bind-Visible="@ShowErrorPopup">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> @Lang["Error"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@ErrorMessage</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(() => ShowErrorPopup = false)">OK</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+
+<EditForm Context="formContext" Model="@hyperData" id="hyper-form">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">@Lang["HyperMenu"]</h5>
+        <button class="btn btn-sm btn-danger btnclear" @onclick="() => ResetHyperForm(formContext)">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            @Lang["Clear"]
+        </button>
+    </div>
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="HyperFormValidator" />
+    <div class="mb-2 express-condition" style="position: relative;">
+        <div class="contain-view">
+            <div class="left-condition">
+                <div class="search-date">
+                    <h6 class="search-title">@Lang["DateSearch"]</h6>
+                    @if (isInitComplete)
+                    {
+                        <div class="search-content">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3 condition-label">@Lang["DateType"]</label>
+                                <nav class="nav nav-pills">
+                                    <button class="type-date nav-link @(hyperData.dateType == (int)DateType.Dispatch ? "active" : null)" @onclick="@(e => ChangeDateType(DateType.Dispatch))">@Lang["DispatchDate"]</button>
+                                    <button class="type-date nav-link @(hyperData.dateType == (int)DateType.Arrival ? "active" : null)" @onclick="@(e => ChangeDateType(DateType.Arrival))">@Lang["ArrivalDate"]</button>
+                                    <button class="type-date nav-link @(hyperData.dateType == (int)DateType.Reservation ? "active" : null)" @onclick="@(e => ChangeDateType(DateType.Reservation))">@Lang["ReserveDate"]</button>
+                                </nav>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["Date"]</label>
+                                    @switch (hyperData.dateType)
+                                    {
+                                        case (int)DateType.Dispatch:
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit CssClass="focus"
+                                                                Date="@hyperData.HaishaBiFrom"
+                                                                DateExpression="@(() => hyperData.HaishaBiFrom)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HaishaBiFrom), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.HaishaBiFrom), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            <label>～</label>
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="@hyperData.HaishaBiTo"
+                                                                DateExpression="@(() => hyperData.HaishaBiTo)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HaishaBiTo), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.HaishaBiTo), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            break;
+                                        case (int)DateType.Arrival:
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.TochakuBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit CssClass="focus"
+                                                                Date="@hyperData.TochakuBiFrom"
+                                                                DateExpression="@(() => hyperData.TochakuBiFrom)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TochakuBiFrom), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.TochakuBiFrom), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            <label>～</label>
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.TochakuBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="@hyperData.TochakuBiTo"
+                                                                DateExpression="@(() => hyperData.TochakuBiTo)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TochakuBiTo), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.TochakuBiTo), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            break;
+                                        case (int)DateType.Reservation:
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.YoyakuBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit CssClass="focus"
+                                                                Date="@hyperData.YoyakuBiFrom"
+                                                                DateExpression="@(() => hyperData.YoyakuBiFrom)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuBiFrom), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.YoyakuBiFrom), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            <label>～</label>
+                                            <div class="item-inline">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => @hyperData.YoyakuBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="@hyperData.YoyakuBiTo"
+                                                                DateExpression="@(() => hyperData.YoyakuBiTo)"
+                                                                Format=@dateFormat
+                                                                DateChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuBiTo), newValue, formContext))"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                @oninput="e => OnDateInputChange(nameof(hyperData.YoyakuBiTo), (string)e.Value, formContext)">
+                                                    </DxDateEdit>
+                                                </div>
+                                            </div>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="search-condition">
+                    <h6 class="search-title">@Lang["SearchCondition"]</h6>
+                    @if (isInitComplete)
+                    {
+                        <div class="search-content">
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["ReceiptNumber"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeBangoFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox CssClass="code-number length10" Text="@CommonUtil.FormatCodeNumber(hyperData.UketsukeBangoFrom)" TextExpression="@(() => hyperData.UketsukeBangoFrom)" TextChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeBangoFrom), newValue, formContext))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeBangoTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox CssClass="code-number length10" Text="@CommonUtil.FormatCodeNumber(hyperData.UketsukeBangoTo)" TextExpression="@(() => hyperData.UketsukeBangoTo)" TextChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeBangoTo), newValue, formContext))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["DantaiNm"]</label>
+                                    <div class="item-inline item-inline-full-width">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.DantaiNm)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox CssClass="length10" Text="@hyperData.DantaiNm" TextExpression="@(() => hyperData.DantaiNm)" TextChanged="@((newValue) => ChangeValueForm(nameof(hyperData.DantaiNm), newValue, formContext))" maxlength="100"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["ReservationClassification"]</label>
+                                    <div class="item-inline">
+                                        <ReservationClassComponent LangDic="@LangDic"
+                                                                   isAddNullItem="true"
+                                                                   DefaultValue="@(hyperData.YoyakuFrom != null ? hyperData.YoyakuFrom.YoyaKbnSeq : 0)"
+                                                                   SelectedReservationClass="@hyperData.YoyakuFrom"
+                                                                   ReservationClassExpression="@(() => hyperData.YoyakuFrom)"
+                                                                   SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuFrom), newValue, formContext))">
+                                        </ReservationClassComponent>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <ReservationClassComponent LangDic="@LangDic"
+                                                                   isAddNullItem="true"
+                                                                   DefaultValue="@(hyperData.YoyakuTo != null ? hyperData.YoyakuTo.YoyaKbnSeq : 0)"
+                                                                   SelectedReservationClass="@hyperData.YoyakuTo"
+                                                                   ReservationClassExpression="@(() => hyperData.YoyakuTo)"
+                                                                   SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuTo), newValue, formContext))">
+                                        </ReservationClassComponent>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["SalesStaff"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.EigyoTantoShaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@StaffList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["SalesStaffNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.EigyoTantoShaFrom"
+                                                        SelectedItemExpression="@(() => hyperData.EigyoTantoShaFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.EigyoTantoShaFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.EigyoTantoShaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@StaffList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["SalesStaffNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.EigyoTantoShaTo"
+                                                        SelectedItemExpression="@(() => hyperData.EigyoTantoShaTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.EigyoTantoShaTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["RegistrationOffice"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeEigyoJoFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@SaleBranchList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["RegistrationOfficeNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.UketsukeEigyoJoFrom"
+                                                        SelectedItemExpression="@(() => hyperData.UketsukeEigyoJoFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeEigyoJoFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeEigyoJoTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@SaleBranchList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["RegistrationOfficeNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.UketsukeEigyoJoTo"
+                                                        SelectedItemExpression="@(() => hyperData.UketsukeEigyoJoTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeEigyoJoTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["InputStaff"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.NyuryokuTantoShaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@StaffList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["InputStaffNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.NyuryokuTantoShaFrom"
+                                                        SelectedItemExpression="@(() => hyperData.NyuryokuTantoShaFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.NyuryokuTantoShaFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.NyuryokuTantoShaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@StaffList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["InputStaffNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.NyuryokuTantoShaTo"
+                                                        SelectedItemExpression="@(() => hyperData.NyuryokuTantoShaTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.NyuryokuTantoShaTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["Customer"]</label>
+                                    <div class="item-inline  custom-width-cmbtk">
+                                        <CustomerComponent LangDic="@LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           DefaultGyosya="@(hyperData.GyosyaTokuiSakiFrom != null ? hyperData.GyosyaTokuiSakiFrom.GyosyaCdSeq : 0)"
+                                                           SelectedGyosya="@hyperData.GyosyaTokuiSakiFrom"
+                                                           GyosyaExpression="@(() => hyperData.GyosyaTokuiSakiFrom)"
+                                                           SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaTokuiSakiFrom), newValue, formContext))"
+                                                           DefaultTokisk="@(hyperData.TokiskTokuiSakiFrom != null ? hyperData.TokiskTokuiSakiFrom.TokuiSeq : 0)"
+                                                           SelectedTokisk="@hyperData.TokiskTokuiSakiFrom"
+                                                           TokiskExpression="@(() => hyperData.TokiskTokuiSakiFrom)"
+                                                           SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskTokuiSakiFrom), newValue, formContext))"
+                                                           DefaultTokiSt="@(hyperData.TokiStTokuiSakiFrom != null ? hyperData.TokiStTokuiSakiFrom.SitenCdSeq : 0)"
+                                                           SelectedTokiSt="@hyperData.TokiStTokuiSakiFrom"
+                                                           TokiStExpression="@(() => hyperData.TokiStTokuiSakiFrom)"
+                                                           SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStTokuiSakiFrom), newValue, formContext))"></CustomerComponent>
+
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label lbl-customer-hpf">～</label>
+                                    <div class="item-inline custom-width-cmbtk">
+                                        <CustomerComponent LangDic="@LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           DefaultGyosya="@(hyperData.GyosyaTokuiSakiTo != null ? hyperData.GyosyaTokuiSakiTo.GyosyaCdSeq : 0)"
+                                                           SelectedGyosya="@hyperData.GyosyaTokuiSakiTo"
+                                                           GyosyaExpression="@(() => hyperData.GyosyaTokuiSakiTo)"
+                                                           SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaTokuiSakiTo), newValue, formContext))"
+                                                           DefaultTokisk="@(hyperData.TokiskTokuiSakiTo != null ? hyperData.TokiskTokuiSakiTo.TokuiSeq : 0)"
+                                                           SelectedTokisk="@hyperData.TokiskTokuiSakiTo"
+                                                           TokiskExpression="@(() => hyperData.TokiskTokuiSakiTo)"
+                                                           SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskTokuiSakiTo), newValue, formContext))"
+                                                           DefaultTokiSt="@(hyperData.TokiStTokuiSakiTo != null ? hyperData.TokiStTokuiSakiTo.SitenCdSeq : 0)"
+                                                           SelectedTokiSt="@hyperData.TokiStTokuiSakiTo"
+                                                           TokiStExpression="@(() => hyperData.TokiStTokuiSakiTo)"
+                                                           SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStTokuiSakiTo), newValue, formContext))"></CustomerComponent>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["Supplier"]</label>
+                                    <div class="item-inline custom-width-cmbtk">
+                                        <CustomerComponent LangDic="@LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                                           DefaultGyosya="@(hyperData.GyosyaShiireSakiFrom != null ? hyperData.GyosyaShiireSakiFrom.GyosyaCdSeq : 0)"
+                                                           SelectedGyosya="@hyperData.GyosyaShiireSakiFrom"
+                                                           GyosyaExpression="@(() => hyperData.GyosyaShiireSakiFrom)"
+                                                           SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaShiireSakiFrom), newValue, formContext))"
+                                                           DefaultTokisk="@(hyperData.TokiskShiireSakiFrom != null ? hyperData.TokiskShiireSakiFrom.TokuiSeq : 0)"
+                                                           SelectedTokisk="@hyperData.TokiskShiireSakiFrom"
+                                                           TokiskExpression="@(() => hyperData.TokiskShiireSakiFrom)"
+                                                           SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskShiireSakiFrom), newValue, formContext))"
+                                                           DefaultTokiSt="@(hyperData.TokiStShiireSakiFrom != null ? hyperData.TokiStShiireSakiFrom.SitenCdSeq : 0)"
+                                                           SelectedTokiSt="@hyperData.TokiStShiireSakiFrom"
+                                                           TokiStExpression="@(() => hyperData.TokiStShiireSakiFrom)"
+                                                           SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStShiireSakiFrom), newValue, formContext))"></CustomerComponent>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label lbl-customer-hpf">～</label>
+                                    <div class="item-inline custom-width-cmbtk">
+                                        <CustomerComponent LangDic="@LangDic"
+                                                           isGyosyaAddNull="true"
+                                                           isTokiskAddNull="true"
+                                                           isTokiStAddNull="true"
+                                                           DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                                           DefaultGyosya="@(hyperData.GyosyaShiireSakiTo != null ? hyperData.GyosyaShiireSakiTo.GyosyaCdSeq : 0)"
+                                                           SelectedGyosya="@hyperData.GyosyaShiireSakiTo"
+                                                           GyosyaExpression="@(() => hyperData.GyosyaShiireSakiTo)"
+                                                           SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaShiireSakiTo), newValue, formContext))"
+                                                           DefaultTokisk="@(hyperData.TokiskShiireSakiTo != null ? hyperData.TokiskShiireSakiTo.TokuiSeq : 0)"
+                                                           SelectedTokisk="@hyperData.TokiskShiireSakiTo"
+                                                           TokiskExpression="@(() => hyperData.TokiskShiireSakiTo)"
+                                                           SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskShiireSakiTo), newValue, formContext))"
+                                                           DefaultTokiSt="@(hyperData.TokiStShiireSakiTo != null ? hyperData.TokiStShiireSakiTo.SitenCdSeq : 0)"
+                                                           SelectedTokiSt="@hyperData.TokiStShiireSakiTo"
+                                                           TokiStExpression="@(() => hyperData.TokiStShiireSakiTo)"
+                                                           SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStShiireSakiTo), newValue, formContext))"></CustomerComponent>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["GroupClassification"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.DantaiKbnFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@CodeKbList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["GroupClassificationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.DantaiKbnFrom"
+                                                        SelectedItemExpression="@(() => hyperData.DantaiKbnFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.DantaiKbnFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.DantaiKbnTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@CodeKbList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["GroupClassificationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.DantaiKbnTo"
+                                                        SelectedItemExpression="@(() => hyperData.DantaiKbnTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.DantaiKbnTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["CustomerTypeClassification"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.KyakuDaneKbnFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@CustomerClassificationList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["CustomerTypeClassificationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.KyakuDaneKbnFrom"
+                                                        SelectedItemExpression="@(() => hyperData.KyakuDaneKbnFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.KyakuDaneKbnFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.KyakuDaneKbnTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@CustomerClassificationList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["CustomerTypeClassificationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.KyakuDaneKbnTo"
+                                                        SelectedItemExpression="@(() => hyperData.KyakuDaneKbnTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.KyakuDaneKbnTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["Destination"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.YukiSakiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@DestinationList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["DestinationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.YukiSakiFrom"
+                                                        SelectedItemExpression="@(() => hyperData.YukiSakiFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YukiSakiFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.YukiSakiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@DestinationList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["DestinationNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.YukiSakiTo"
+                                                        SelectedItemExpression="@(() => hyperData.YukiSakiTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YukiSakiTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["DispatchPlace"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.HaishaChiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@DispatchList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["DispatchPlaceNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.HaishaChiFrom"
+                                                        SelectedItemExpression="@(() => hyperData.HaishaChiFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HaishaChiFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.HaishaChiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@DispatchList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["DispatchPlaceNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.HaishaChiTo"
+                                                        SelectedItemExpression="@(() => hyperData.HaishaChiTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HaishaChiTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["OccurrencePlace"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.HasseiChiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@OriginList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["OccurrencePlaceNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.HasseiChiFrom"
+                                                        SelectedItemExpression="@(() => hyperData.HasseiChiFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HasseiChiFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.HasseiChiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@OriginList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["OccurrencePlaceNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.HasseiChiTo"
+                                                        SelectedItemExpression="@(() => hyperData.HasseiChiTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.HasseiChiTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["Area"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.AreaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@AreaList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["AreaNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.AreaFrom"
+                                                        SelectedItemExpression="@(() => hyperData.AreaFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.AreaFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.AreaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@AreaList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["AreaNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.AreaTo"
+                                                        SelectedItemExpression="@(() => hyperData.AreaTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.AreaTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["BusType"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.ShashuFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@BusTypeList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["BusTypeNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.ShashuFrom"
+                                                        SelectedItemExpression="@(() => hyperData.ShashuFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.ShashuFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.ShashuTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@BusTypeList" CssClass="custom-combo-box"
+                                                        NullText="@Lang["BusTypeNullText"]"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="@hyperData.ShashuTo"
+                                                        SelectedItemExpression="@(() => hyperData.ShashuTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.ShashuTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["BusTypePrice"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.ShashuTankaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox CssClass="text-right number length9" Text=@(hyperData.ShashuTankaFrom == null ? "" : CommonUtil.CurencyFormat(@hyperData.ShashuTankaFrom)) TextExpression="@(() => @hyperData.ShashuTankaFrom)" TextChanged="@((newValue) => ChangeValueForm(nameof(hyperData.ShashuTankaFrom), newValue, formContext))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.ShashuTankaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxTextBox CssClass="text-right number length9" Text=@(hyperData.ShashuTankaTo == null ? "" : CommonUtil.CurencyFormat(@hyperData.ShashuTankaTo)) TextExpression="@(() => @hyperData.ShashuTankaTo)" TextChanged="@((newValue) => ChangeValueForm(nameof(hyperData.ShashuTankaTo), newValue, formContext))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="condition-display-row">
+                                <div class="left-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label">@Lang["ReceiptCondition"]</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeJokenFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@ConditionList" CssClass="custom-combo-box"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="CodeKbnNm"
+                                                        SelectedItem="@hyperData.UketsukeJokenFrom"
+                                                        SelectedItemExpression="@(() => hyperData.UketsukeJokenFrom)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeJokenFrom), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                    <label>～</label>
+                                    <div class="item-inline">
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => @hyperData.UketsukeJokenTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="@ConditionList" CssClass="custom-combo-box"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        TextFieldName="CodeKbnNm"
+                                                        SelectedItem="@hyperData.UketsukeJokenTo"
+                                                        SelectedItemExpression="@(() => hyperData.UketsukeJokenTo)"
+                                                        SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.UketsukeJokenTo), newValue, formContext))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-search-condition">
+                                    <label class="col-form-label-sm mr-3 condition-label right-label">@Lang["MaxMinSetting"]</label>
+                                    <div class="item-inline item-inline-short">
+                                        <DxComboBox Data="@MaxMinSettingList" CssClass="custom-combo-box"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="StringValue"
+                                                    SelectedItem="@hyperData.MaxMinSetting"
+                                                    SelectedItemExpression="@(() => hyperData.MaxMinSetting)"
+                                                    SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.MaxMinSetting), newValue, formContext))">
+                                        </DxComboBox>
+                                    </div>
+                                    <label class="col-form-label-sm mr-3 condition-label right-label long-right-label">@Lang["ReservationStatus"]</label>
+                                    <div class="item-inline item-inline-short">
+                                        <DxComboBox Data="@ReservationStatusList" CssClass="custom-combo-box"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="StringValue"
+                                                    SelectedItem="@hyperData.ReservationStatus"
+                                                    SelectedItemExpression="@(() => hyperData.ReservationStatus)"
+                                                    SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(hyperData.ReservationStatus), newValue, formContext))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="right-display">
+                <div class="table-display">
+                    <h6 class="search-title">@Lang["TableFormatDisplay"]</h6>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToSuperMenu(SuperMenyTypeDisplay.Reservation))" disabled="@(IsValid ? null : "disabled")">SuperMenu<br />@Lang["SupermenuRevervationEdit"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToSuperMenu(SuperMenyTypeDisplay.Vehicle))" disabled="@(IsValid ? null : "disabled")">SuperMenu<br />@Lang["SupermenuVehicleEdit"]</button>
+                    </div>
+                </div>
+                <div>
+                    <h6 class="search-title">@Lang["MajorGraphFormatDisplay"]</h6>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleStaffDayBar))" disabled="@(IsValid ? null : "disabled")">@Lang["SaleStaffBar"]<br />@Lang["GraphPerDay"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleStaffMonthBar))" disabled="@(IsValid ? null : "disabled")">@Lang["SaleStaffBar"]<br />@Lang["GraphPerMonth"]</button>
+                    </div>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphCustomerDayBar))" disabled="@(IsValid ? null : "disabled")">@Lang["CustomerBar"]<br />@Lang["GraphPerDay"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphCustomerMonthBar))" disabled="@(IsValid ? null : "disabled")">@Lang["CustomerBar"]<br />@Lang["GraphPerMonth"]</button>
+                    </div>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphOrganizationBar))" disabled="@(IsValid ? null : "disabled")">@Lang["OrganizationBar"]<br />@Lang["Graph"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphOrganizationPie))" disabled="@(IsValid ? null : "disabled")">@Lang["OrganizationPie"]<br />@Lang["Graph"]</button>
+                    </div>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleDayLine))" disabled="@(IsValid ? null : "disabled")">@Lang["SaleLine"]<br />@Lang["GraphPerDay"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleMonthLine))" disabled="@(IsValid ? null : "disabled")">@Lang["SaleLine"]<br />@Lang["GraphPerMonth"]</button>
+                    </div>
+                    <div class="display-content">
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleQuanDayBarLine))" disabled="@(IsValid ? null : "disabled")">@Lang["GraphSaleQuan"]<br />@Lang["GraphPerDay"]</button>
+                        <button class="btn display-button item-inline" @onclick="@(() => RedirectToGraph(GraphTypeDisplay.GraphSaleQuanMonthBarLine))" disabled="@(IsValid ? null : "disabled")">@Lang["GraphSaleQuan"]<br />@Lang["GraphPerMonth"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>

@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="TestTemplate" Landscape="true" PaperKind="A4" PageWidth="1169" PageHeight="827" Version="20.1" DataMember="GetAllYyksho" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Visible="false" AllowNull="true" Name="MaxUkeCd" Type="#Ref-2" />
+    <Item2 Ref="4" Visible="false" AllowNull="true" Name="MinUkeCd" Type="#Ref-2" />
+    <Item3 Ref="5" Visible="false" Description="Rows Per Page" ValueInfo="10" Name="RowsPerPage" Type="#Ref-2" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="6" ControlType="TopMarginBand" Name="topMarginBand1" />
+    <Item2 Ref="7" ControlType="DetailBand" Name="detailBand1" HeightF="310">
+      <Controls>
+        <Item1 Ref="8" ControlType="XRPageBreak" Name="pageBreak1" LocationFloat="0,0">
+          <ExpressionBindings>
+            <Item1 Ref="9" EventName="BeforePrint" PropertyName="Visible" Expression="([DataSource.CurrentRowIndex] % ?RowsPerPage == 0) &amp;&amp; ([DataSource.CurrentRowIndex] != 0)" />
+          </ExpressionBindings>
+        </Item1>
+        <Item2 Ref="10" ControlType="XRTable" Name="table1" SizeF="969,310" LocationFloat="0,0" Padding="2,2,0,0,96" Borders="All" BorderWidth="2">
+          <Rows>
+            <Item1 Ref="11" ControlType="XRTableRow" Name="tableRow1" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="12" ControlType="XRTableCell" Name="tableCell1" Weight="1" Multiline="true" BorderWidth="2">
+                  <ExpressionBindings>
+                    <Item1 Ref="13" EventName="BeforePrint" PropertyName="Text" Expression="[UkeCd]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="14" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="15" ControlType="XRTableCell" Name="tableCell2" Weight="1" Multiline="true" Text="tableCell2" BorderWidth="2">
+                  <ExpressionBindings>
+                    <Item1 Ref="16" EventName="BeforePrint" PropertyName="Text" Expression="[UkeNo]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="17" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="18" ControlType="XRTableCell" Name="tableCell3" Weight="1" Multiline="true" Text="fix value1&#xD;&#xA;" BorderWidth="2">
+                  <StylePriority Ref="19" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+            </Item1>
+            <Item2 Ref="20" ControlType="XRTableRow" Name="tableRow2" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="21" ControlType="XRTableCell" Name="tableCell4" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="22" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="23" ControlType="XRTableCell" Name="tableCell5" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="24" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="25" ControlType="XRTableCell" Name="tableCell6" Weight="1" Multiline="true" Text="tableCell6" BorderWidth="2">
+                  <StylePriority Ref="26" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="27" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 2 , true, false))" />
+              </ExpressionBindings>
+            </Item2>
+            <Item3 Ref="28" ControlType="XRTableRow" Name="tableRow3" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="29" ControlType="XRTableCell" Name="tableCell7" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="30" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="31" ControlType="XRTableCell" Name="tableCell8" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="32" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="33" ControlType="XRTableCell" Name="tableCell9" Weight="1" Multiline="true" Text="tableCell9" BorderWidth="2">
+                  <StylePriority Ref="34" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="35" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 3 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item3>
+            <Item4 Ref="36" ControlType="XRTableRow" Name="tableRow4" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="37" ControlType="XRTableCell" Name="tableCell10" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="38" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="39" ControlType="XRTableCell" Name="tableCell11" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="40" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="41" ControlType="XRTableCell" Name="tableCell12" Weight="1" Multiline="true" Text="tableCell12" BorderWidth="2">
+                  <StylePriority Ref="42" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="43" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 4 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item4>
+            <Item5 Ref="44" ControlType="XRTableRow" Name="tableRow5" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="45" ControlType="XRTableCell" Name="tableCell13" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="46" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="47" ControlType="XRTableCell" Name="tableCell14" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="48" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="49" ControlType="XRTableCell" Name="tableCell15" Weight="1" Multiline="true" Text="tableCell15" BorderWidth="2">
+                  <StylePriority Ref="50" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="51" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 5 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item5>
+            <Item6 Ref="52" ControlType="XRTableRow" Name="tableRow6" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="53" ControlType="XRTableCell" Name="tableCell16" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="54" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="55" ControlType="XRTableCell" Name="tableCell17" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="56" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="57" ControlType="XRTableCell" Name="tableCell18" Weight="1" Multiline="true" Text="tableCell18" BorderWidth="2">
+                  <StylePriority Ref="58" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="59" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 6 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item6>
+            <Item7 Ref="60" ControlType="XRTableRow" Name="tableRow7" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="61" ControlType="XRTableCell" Name="tableCell19" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="62" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="63" ControlType="XRTableCell" Name="tableCell20" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="64" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="65" ControlType="XRTableCell" Name="tableCell21" Weight="1" Multiline="true" Text="tableCell21" BorderWidth="2">
+                  <StylePriority Ref="66" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="67" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 7 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item7>
+            <Item8 Ref="68" ControlType="XRTableRow" Name="tableRow8" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="69" ControlType="XRTableCell" Name="tableCell22" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="70" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="71" ControlType="XRTableCell" Name="tableCell23" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="72" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="73" ControlType="XRTableCell" Name="tableCell24" Weight="1" Multiline="true" Text="tableCell24" BorderWidth="2">
+                  <StylePriority Ref="74" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="75" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 8 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item8>
+            <Item9 Ref="76" ControlType="XRTableRow" Name="tableRow9" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="77" ControlType="XRTableCell" Name="tableCell25" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="78" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="79" ControlType="XRTableCell" Name="tableCell26" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="80" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="81" ControlType="XRTableCell" Name="tableCell27" Weight="1" Multiline="true" Text="tableCell27" BorderWidth="2">
+                  <StylePriority Ref="82" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="83" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 9 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item9>
+            <Item10 Ref="84" ControlType="XRTableRow" Name="tableRow10" Weight="0.80000023626519079">
+              <Cells>
+                <Item1 Ref="85" ControlType="XRTableCell" Name="tableCell28" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="86" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="87" ControlType="XRTableCell" Name="tableCell29" Weight="1" Multiline="true" BorderWidth="2">
+                  <StylePriority Ref="88" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="89" ControlType="XRTableCell" Name="tableCell30" Weight="1" Multiline="true" Text="tableCell30" BorderWidth="2">
+                  <StylePriority Ref="90" UseBorderWidth="false" />
+                </Item3>
+              </Cells>
+              <ExpressionBindings>
+                <Item1 Ref="91" EventName="BeforePrint" PropertyName="Visible" Expression="Iif([DataSource.CurrentRowIndex] &lt; [DataSource.RowCount] - 1, false, Iif([DataSource.RowCount] % ?RowsPerPage &lt; 10 , true, false))&#xA;" />
+              </ExpressionBindings>
+            </Item10>
+          </Rows>
+          <StylePriority Ref="92" UseBorders="false" UseBorderWidth="false" />
+        </Item2>
+      </Controls>
+    </Item2>
+    <Item3 Ref="93" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="100.416695" />
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.Sql.SqlDataSource,DevExpress.DataAccess.v20.1" Name="GetAllYyksho" Base64="PFNxbERhdGFTb3VyY2UgTmFtZT0iR2V0QWxsWXlrc2hvIj48Q29ubmVjdGlvbiBOYW1lPSJTcWxEYkNvbnRleHQiIEZyb21BcHBDb25maWc9InRydWUiIC8+PFF1ZXJ5IFR5cGU9IlN0b3JlZFByb2NRdWVyeSIgTmFtZT0iR2V0QWxsWXlrc2hvIj48UGFyYW1ldGVyIE5hbWU9IkBtYXgiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLkludDMyKSg/TWF4VWtlQ2QpPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAbWluIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQzMikoP01pblVrZUNkKTwvUGFyYW1ldGVyPjxQcm9jTmFtZT5HZXRBbGxZeWtzaG88L1Byb2NOYW1lPjwvUXVlcnk+PFJlc3VsdFNjaGVtYT48RGF0YVNldCBOYW1lPSJHZXRBbGxZeWtzaG8iPjxWaWV3IE5hbWU9IkdldEFsbFl5a3NobyI+PEZpZWxkIE5hbWU9IlVrZU5vIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IlVrZUNkIiBUeXBlPSJJbnQzMiIgLz48L1ZpZXc+PC9EYXRhU2V0PjwvUmVzdWx0U2NoZW1hPjxDb25uZWN0aW9uT3B0aW9ucyBDbG9zZUNvbm5lY3Rpb249ImZhbHNlIiBEYkNvbW1hbmRUaW1lb3V0PSIxNSIgLz48L1NxbERhdGFTb3VyY2U+" />
+  </ComponentStorage>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v20.1" Ref="2" Content="System.Int32" Type="System.Type" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

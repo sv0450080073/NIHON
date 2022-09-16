@@ -1,0 +1,277 @@
+﻿@inject IStringLocalizer<BookingInputTab> Lang
+@inject IStringLocalizer<Index> IndexLang
+@inject IJSRuntime JSRuntime
+@inject CustomNavigation NavigationManager
+@inject IFileHandler _fileHandler
+@inject ITKD_UnkobiFileService TKD_UnkobiFileService
+@inject CustomNavigation MyNavigationManager
+@inject ITKD_UnkobiDataListService TKD_UnkobiDataListService
+@inject AppSettingsService AppSettingsService
+@inject IHaitaCheckService HaitaCheckService
+@inject CustomHttpClient Http
+@inject SharedLibraries.UI.Services.ISharedLibrariesApi s3Service
+@inject IBillPrintService billPrintService
+@using HassyaAllrightCloud.Pages.Components.Popup
+@using HassyaAllrightCloud.Domain.Dto.BillPrint
+@using SharedLibraries.Utility.Models
+
+@if (lstOperatingSchedule.Count > 0)
+{
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-3">@Lang["OperatingDay"]<span class="text-danger">※</span></label>
+        <DxComboBox Data="lstOperatingSchedule"
+                    AllowUserInput="false"
+                    SelectedItem="selectOperatingSchedule"
+                    TextFieldName="Text"
+                    SelectedItemChanged="OnSelectOperatingScheduleItemChanged"
+                    SelectedItemExpression="@(() => selectOperatingSchedule)">
+        </DxComboBox>
+    </div>
+}
+
+@if (UkeNo != "0" && UkeNo != null && !UploadVisible)
+{
+    <div class="list-file-uploaded mb-2">
+        <ul class="upload-item-list">
+            @foreach (var item in listfile)
+            {
+                string filesize = FileSizeFormatter.FormatSize(item.FileSize);
+                string datetime = item.UpdYmd == null ? "" : DateTime.ParseExact(item.UpdYmd + item.UpdTime, "yyyyMMddHHmmss", null).ToString("yyyy/MM/dd HH:mm:ss");
+                <li class="upload-item-list__item">
+                    <img src="images/xls.png" />
+                    <a class="upload-item-list__name" href="javascript:void(0)" @onclick="() => DownloadFile(item)">@item.FileNm</a>
+                    <span class="upload-item-list__info">(@filesize : @datetime)</span>
+                    <a class="upload-item-list__download" href="javascript:void(0)" @onclick="() => DownloadFile(item)">@Lang["download"]</a>
+                    <DxButton RenderStyle="ButtonRenderStyle.None" @onclick="@((e) => DeleteFile(item))" IconCssClass="fa fa-times"></DxButton>
+                </li>
+
+            }
+        </ul>
+        <DxButton RenderStyle="ButtonRenderStyle.None" SizeMode="SizeMode.Large" Title="@Lang["downloadall"]" @onclick="() => DownloadAll()" IconCssClass="fa fa-arrow-circle-o-down"></DxButton>
+    </div>
+}
+
+<DxUpload Name="myFile"
+          UploadUrl="@GetUploadUrl("api/Upload/")"
+          FileUploaded="OnFileUploaded"
+          AllowMultiFileUpload="true"
+          MaxFileSize="@MaxFileSize"
+          Visible="@UploadVisible"
+          ExternalSelectButtonCssSelector="#overviewSelectButton"
+          ExternalDropZoneCssSelector="#overviewDropZone"
+          ExternalDropZoneDragOverCssClass="custom-drag-over border-light text-white"
+          SelectedFilesChanged="@SelectedFilesChanged"
+          AllowedFileExtensions="@listtypefile"
+          AllowPause="false"
+          AllowCancel="false"
+          CssClass="attachfile mb-2">
+</DxUpload>
+
+<div id="overviewDropZone" class="custom-drop-zone mb-2">
+    <div>@Lang["noteupload"]</div>
+    <div>
+        <span class="mr-3">@Lang["or"]</span>
+        <button id="overviewSelectButton">@Lang["SelectFile"]</button>
+    </div>
+    <div>@Lang["conditionupload"]</div>
+</div>
+
+
+@if (UkeNo != "0" && UkeNo != null)
+{
+    <div class="text-center">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100" Text="@Lang["Save"]" @onclick="Save"></DxButton>
+    </div>
+}
+
+@code {
+    [Parameter] public string UkeNo { get; set; }
+    [Parameter] public short UnkRen { get; set; }
+    [Parameter] public BookingFormData BookingData { get; set; }
+    [Parameter] public EventCallback<List<FileInfoData>> UpdateFileupload { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [CascadingParameter] public EditContext FormContext { get; set; }
+    List<Unkobidatafile> lstOperatingSchedule = new List<Unkobidatafile>();
+    List<FileInfoData> listfile = new List<FileInfoData>();
+    List<SharedLibraries.Utility.Models.FileSendData> ListFile = new List<SharedLibraries.Utility.Models.FileSendData>();
+    Unkobidatafile selectOperatingSchedule;
+    bool UploadVisible { get; set; } = false;
+    int MaxFileSize = 10000000;
+    int MaxNumberOfFile = 50;
+    private string url = string.Empty;
+    List<string> listtypefile = new List<string> { ".jpg", ".jpeg", ".png", ".pdf", ".xlsx", ".xls", ".csv", ".docx", ".doc" };
+    PaymentRequestTenantInfo TenantInfo = new PaymentRequestTenantInfo();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listfile = new List<FileInfoData>();
+        url = MyNavigationManager.BaseUri;
+        TenantInfo = await billPrintService.GetTenantInfoAsync();
+        if (UkeNo != "0" && UkeNo != null)
+        {
+            listfile = await TKD_UnkobiFileService.getDataFileInfo(new ClaimModel().TenantID, UkeNo, UnkRen);
+            listfile = listfile.Where(file => file.SiyoKbn == 1).ToList();
+        }
+        if (BookingData != null && BookingData.UkeNo != null && BookingData.YykshoUpdYmdTime == null)
+        {
+            return;
+        }
+        lstOperatingSchedule = TKD_UnkobiFileService.getInfoUnkobi(new ClaimModel().TenantID, UkeNo);
+        if (lstOperatingSchedule.Count() > 0)
+        {
+            selectOperatingSchedule = lstOperatingSchedule.Where(t => t.UkeNo == UkeNo && t.UnkRen == UnkRen).FirstOrDefault();
+        }
+        else
+        {
+            Unkobidatafile unkobifile = new Unkobidatafile();
+            unkobifile.SyukoYmd = BookingData.ReservationTabData.GarageLeaveDate.ToString("yyyyMMdd");
+            unkobifile.KikYmd = BookingData.ReservationTabData.GarageReturnDate.ToString("yyyyMMdd");
+            unkobifile.UnkRen = 1;
+            lstOperatingSchedule.Add(unkobifile);
+            selectOperatingSchedule = lstOperatingSchedule.First();
+        }
+    }
+
+    void OnSelectOperatingScheduleItemChanged(Unkobidatafile item)
+    {
+        selectOperatingSchedule = item;
+        StateHasChanged();
+    }
+
+    async void DeleteFile(FileInfoData File)
+    {
+        try
+        {
+            await s3Service.RemoveFile(File.FileId);
+        }
+        catch
+        {
+            return;
+        }
+        finally
+        {
+            TKD_UnkobiFileService.DeleteFile(File.TenantCdSeq, File.UkeNo, File.UnkRen, File.FileNo);
+            listfile = new List<FileInfoData>();
+            listfile = await TKD_UnkobiFileService.getDataFileInfo(new ClaimModel().TenantID, UkeNo, UnkRen);
+            BookingData.UnkobiFileUpdYmdTime = listfile.Select(x => x.UpdYmd + x.UpdTime).Max();
+            listfile = listfile.Where(file => file.SiyoKbn == 1).ToList();
+            StateHasChanged();
+        }
+    }
+
+    async Task DownloadFile(FileInfoData File)
+    {
+        var model = new DownloadModel()
+        {
+            FileId = File.FileId,
+            Password = string.Empty,
+            UpdSyainCd = new ClaimModel().SyainCdSeq,
+            UpdPrgID = Common.UpdPrgId
+        };
+
+        var result = await s3Service.DownloadFileAsync(model);
+        if (result != null)
+        {
+            var extension = Path.GetExtension(File.FileNm);
+            string myExportString = result.Content;
+            await JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, extension.Replace(".", string.Empty).ToLower(), File.FileNm.Replace(extension, string.Empty) + "_");
+        }
+    }
+
+    async void DownloadAll()
+    {
+        foreach (FileInfoData file in listfile)
+        {
+            await DownloadFile(file);
+        }
+    }
+
+    protected async void Save()
+    {
+        List<HaitaModelCheck> HaitaModelsToCheck = new List<HaitaModelCheck>();
+        HaitaModelsToCheck.Add(new HaitaModelCheck()
+        {
+            TableName = "TKD_UnkobiFile",
+            CurrentUpdYmdTime = BookingData.UnkobiFileUpdYmdTime,
+            PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = "'" + UkeNo + "'" } })
+        });
+        bool isHaita = await HaitaCheckService.GetHaitaCheck(HaitaModelsToCheck);
+        if (!isHaita)
+        {
+            await OnSubmit.InvokeAsync(null).ContinueWith(t =>
+            {
+                if (FormContext != null)
+                {
+                    FormContext.MarkAsUnmodified();
+                }
+            });
+            return;
+        }
+        var result = await Task.WhenAll(ListFile.Select(f => ProcessFiles(f)));
+        BookingData.UkeNo = UkeNo;
+        if (result.Any(e => e))
+        {
+            TKD_UnkobiDataListService.InsertUnkobiFile(BookingData, listfile);
+        }
+        listfile = new List<FileInfoData>();
+        listfile = await TKD_UnkobiFileService.getDataFileInfo(new ClaimModel().TenantID, UkeNo, UnkRen);
+        BookingData.UnkobiFileUpdYmdTime = listfile.Select(x => x.UpdYmd + x.UpdTime).Max();
+        listfile = listfile.Where(file => file.SiyoKbn == 1).ToList();
+        UploadVisible = false;
+        StateHasChanged();
+    }
+
+    protected string GetUploadUrl(string url)
+    {
+        return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
+    }
+
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        UploadVisible = files.ToList().Count > 0;
+        if (files.ToList().Count < listfile.Count)
+        {
+            listfile.RemoveAll(item => item.FileId == null && !files.Any(f => f.Name == item.FileNm));
+            UpdateFileupload.InvokeAsync(listfile);
+        }
+        StateHasChanged();
+    }
+    protected async void OnFileUploaded(FileUploadEventArgs args)
+    {
+        string url = NavigationManager.ToAbsoluteUri("api/Upload/FileInformation/?fileName=").AbsoluteUri + args.FileInfo.Name;
+        var response = await Http.GetJsonAsync<SharedLibraries.Utility.Models.FileSendData>(url);
+        if (response != null && listfile.Count < MaxNumberOfFile)
+        {
+            ListFile.Add(response);
+            FileInfoData fileInfoData = new FileInfoData();
+            fileInfoData.FileNm = response.FileName;
+            fileInfoData.File = response.File;
+            fileInfoData.UkeNo = UkeNo;
+            fileInfoData.FileSize = (int)response.FileSize;
+            fileInfoData.UnkRen = UnkRen;
+            fileInfoData.TenantCdSeq = new ClaimModel().TenantID;
+            listfile.Add(fileInfoData);
+        }
+        await UpdateFileupload.InvokeAsync(listfile);
+    }
+
+    protected async Task<bool> ProcessFiles(SharedLibraries.Utility.Models.FileSendData myFile)
+    {
+        try
+        {
+            myFile.FilePath = string.Format("{0:D5}", new ClaimModel().TenantID) + "-" + TenantInfo.TenantCompanyName + "/" + Constants.SubStoredFolderForBookingInput + "/" + UkeNo.Substring(5);
+            var f = await s3Service.UploadFileAsync(myFile);
+            FileInfoData file = listfile.Find(item => item.FileNm == f.Name);
+            if (file != null)
+            {
+                file.FolderId = f.EncryptedFolderId;
+                file.FileId = f.EncryptedId;
+            }
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

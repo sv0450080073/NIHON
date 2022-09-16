@@ -1,0 +1,34 @@
+﻿@page "/LineMessage"
+@inherits LineMessageBase
+@inject IStringLocalizer<LineMessage> Lang
+
+<div class="col-12">
+    <h3><b>@Lang["Title"]</b></h3>
+    <hr />
+    <p>@Lang["Instruction"]</p>
+    <div class="col-12 row mb-4">
+        <CheckBoxList Data="@LineUserList"
+                      TextField="@((item)=>item.FirstName + " " + item.LastName)"
+                      ValueField="@((item)=>item.AccessToken)"
+                      SelectedValues="@SelectedTokens" />
+    </div>
+    <div class="col-12 row">
+        <textarea class="form-control" @bind="@Message" />
+    </div>
+    <br />
+    <div class="col-12 row">
+        <span class="col-2"></span>
+        <button class="form-control col-1 btn btn-primary" @onclick="SendMessage">@Lang["BtnSend"]</button>
+    </div>
+    <DxPopup @bind-Visible="@IsShowPopup" CssClass="modal-dialog modal-dialog-centered">
+        <Content>
+            <i class="fa fa-@AlertIcon-circle fa-2x align-middle mr-3" aria-hidden="true"></i>
+            <strong class="align-middle">@Lang[AlertMessage]</strong>
+        </Content>
+        <FooterTemplate>
+            <div class="btn-toolbar w-100">
+                <DxButton Text="@Lang["Ok"]" RenderStyle="ButtonRenderStyle.Primary" Click="@(e => IsShowPopup = false)" />
+            </div>
+        </FooterTemplate>
+    </DxPopup>
+</div>  

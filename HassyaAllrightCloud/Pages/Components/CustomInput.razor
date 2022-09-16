@@ -1,0 +1,277 @@
+@using Microsoft.Extensions.DependencyInjection
+@using HassyaAllrightCloud.Commons.Helpers
+@inherits OwningComponentBase
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<BusAllocation> Lang
+
+<div class="@(ParentDivCssClass + " d-flex mr-3")">
+    <div class="@(ItemDivCssClass + " form-group d-flex")">
+        <label class="@(LabelCssClass + " col-form-label-sm mr-3 width--100")">
+            @FieldConfigs.Label
+        </label>
+        <div class="@("has-tooltip-error width--250 "+((!IsDefaultState || IsValueCustomHasChange) && CustomFieldValidation.IsError ? " custom-invalid ":""))">
+            @if ((!IsDefaultState || IsValueCustomHasChange) && CustomFieldValidation.IsError)
+            {
+                <Tooltip ValueExpressions="@(() =>FieldConfigs)" Lang="@LangDic" Text="@CustomFieldValidation.ErrorMessage" Position="PositionTooltip.top"></Tooltip>
+            }
+            @switch (FieldConfigs.CustomFieldType)
+            {
+                case FieldType.Text:
+                    <DxTextBox CssClass="@(ItemCssClass)"
+                              NullText="@Lang["NullTextDefault"]"
+                               TextExpression="() => TextValue"
+                               TextChanged="OnValueChanged"
+                               Text="@TextValue"
+                               ReadOnly="@ReadOnly">
+                    </DxTextBox>
+                    break;
+                case FieldType.Number:
+                    <DxTextBox CssClass="@(ItemCssClass)"
+                              NullText="@Lang["NullTextDefault"]"
+                               TextExpression="() => NumValue"
+                               TextChanged="OnValueChanged"
+                               Text="@NumValue"
+                               ReadOnly="@ReadOnly">
+                    </DxTextBox>
+                    break;
+                case FieldType.Date:
+                    <DxDateEdit CssClass="@ItemCssClass"
+                                DateExpression="@(() => DateValue)"
+                                Date="DateValue"
+                                NullText=""
+                                DateChanged="@((newValue) => OnDateChanged(newValue))"
+                                Format=@DateFormat
+                                ReadOnly="@ReadOnly">
+                    </DxDateEdit>
+                    break;
+                case FieldType.Time:
+                    <InputTime MyTimeAsString="@TimeValue"
+                               ValueExpressions="@(() => TimeValue)"
+                               MaxHour="@MaxHour"
+                               CssClass="@(ItemCssClass + " customTime length4")"
+                               ReadOnly="@ReadOnly"
+                              
+                               TimeChanged="OnTimeTextChanged">
+                    </InputTime>
+                    break;
+                case FieldType.Combobox:
+                    <DxComboBox Data="ComboboxData"
+                                NullText="@Lang["NullTextDefault"]"
+                                CssClass="@(ItemCssClass+" custom-combo-box-no")"
+                                FilteringMode="@DataGridFilteringMode.Contains"
+                                SelectedItem="@ComboboxSelectedItem"
+                                SelectedItemChanged="OnSelectedItemChanged"
+                                SelectedItemExpression="() => ComboboxSelectedItem"
+                                AllowUserInput="false"
+                                TextFieldName="RyakuNm"
+                                ReadOnly="@ReadOnly">
+                    </DxComboBox>
+                    break;
+                case FieldType.RadioButton:
+                    <div class="custom-item-radio">
+                        @foreach (var i in RadioButtonData)
+                        {
+                            <div class="@(ItemCssClass + " custom-control custom-radio")">
+                                <input type="radio" id="RadioButton@(i.CodeKbn)" name="RadioButton" value="@i.CodeKbn" class="custom-control-input" checked="@(RadioValue == i.CodeKbn)" ReadOnly="@ReadOnly" @onchange="@((e) => OnRadioOptionChanged(e))">
+                                <label class="custom-control-label " for="RadioButton@(i.CodeKbn)" tabindex="0">@i.RyakuNm</label>
+                            </div>
+                        }
+                    </div>
+                    break;
+                case FieldType.Checkbox:
+                    <div class="custom-item-radio">
+                        @foreach (var i in CheckboxData)
+                        {
+                            <DxCheckBox Checked="@i.Checked"
+                                        CheckedChanged="@((bool value) => OnCheckedChanged(value,i))"
+                                        CheckedExpression="@(() => i.Checked)"
+                                        CssClass="@(ItemCssClass + " d-flex")"
+                                        Enabled="@(!ReadOnly)">@i.RyakuNm</DxCheckBox>
+                        }
+                    </div>
+                    break;
+                default:
+                    break;
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    //Move to other folders
+
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [CascadingParameter] bool IsDefaultState { get; set; }
+    //[Parameter] public System.Linq.Expressions.Expression<Func<String>> ValueExpressions { get; set; }
+    [Parameter] public string ParentDivCssClass { get; set; } = "";
+    [Parameter] public string LabelCssClass { get; set; } = "";
+    [Parameter] public string ItemDivCssClass { get; set; } = "";
+    [Parameter] public string ItemCssClass { get; set; } = "";
+    [Parameter] public bool ReadOnly { get; set; } = false;
+    [Parameter] public bool IsEditNormal { get; set; } = true;
+    [Parameter] public CustomFieldConfigs FieldConfigs { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public EventCallback<bool> FormCustomError { get; set; }
+    [Parameter] public string Value { get; set; }
+    [Parameter] public Dictionary<string, string> LangDic { get; set; }
+    [Parameter] public bool IsValueCustomHasChange { get; set; }
+    #region Configurations
+    public int MaxHour { get; set; } = 23;
+    public string DateFormat { get; set; }
+
+    #endregion
+
+    public List<TPM_CodeKbCodeSyuData> ComboboxData { get; set; } = new List<TPM_CodeKbCodeSyuData>();
+    public List<TPM_CodeKbCodeSyuData> CheckboxData { get; set; } = new List<TPM_CodeKbCodeSyuData>();
+    public List<TPM_CodeKbCodeSyuData> RadioButtonData { get; set; } = new List<TPM_CodeKbCodeSyuData>();
+    public CustomFieldValidation CustomFieldValidation { get; set; } = new CustomFieldValidation();
+    public string TextValue { get; set; }
+    public string NumValue { get; set; }
+    public string TimeValue { get; set; }
+    public DateTime DateValue { get; set; }
+    public TPM_CodeKbCodeSyuData ComboboxSelectedItem { get; set; }
+    public string RadioValue { get; set; }
+    public bool FormCustomErrorState { get; set; }
+
+    #region Component Lifecycle
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (FieldConfigs.CustomFieldType == FieldType.Text)
+        {
+            JSRuntime.InvokeAsync<string>("addMaxLength", "length", FieldConfigs.TextLength);
+        }
+        if (FieldConfigs.CustomFieldType == FieldType.Number)
+        {
+            JSRuntime.InvokeAsync<string>("addMaxLength", "length", FieldConfigs.NumMax.Length);
+        }
+        JSRuntime.InvokeVoidAsync("addMaxLength", "length", 4);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 10);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 25);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await AssignParentValue();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!IsDefaultState)
+        {
+            CustomFieldValidation = ValidationHelper.ValidationCustomItem(FieldConfigs, Value, IsEditNormal);
+        }
+        if (IsValueCustomHasChange)
+        {
+            CustomFieldValidation = ValidationHelper.ValidationCustomItem(FieldConfigs, Value, IsEditNormal);
+        }
+        if (CustomFieldValidation.IsError)
+        {
+            FormCustomErrorState = true;
+        }
+        await AssignParentValue();
+    }
+    #endregion
+
+    private async Task AssignParentValue()
+    {
+        switch (FieldConfigs.CustomFieldType)
+        {
+            case FieldType.Text:
+                TextValue = Value;
+                break;
+            case FieldType.Number:
+                NumValue = Value;
+                break;
+            case FieldType.Date:
+                DateTime date;
+                DateTime initDate;
+                var isDate = DateTime.TryParseExact(Value, "yyyyMMdd", null, DateTimeStyles.None, out date);
+                var isInital = DateTime.TryParseExact(FieldConfigs.DateInitial, "yyyyMMdd", null, DateTimeStyles.None, out initDate);
+                DateValue = isDate ? date : isInital ? initDate : DateTime.Now;
+                break;
+            case FieldType.Time:
+                Value = Value == "" ? "" : Value;
+                TimeValue = Value;
+                break;
+            case FieldType.Combobox:
+                var codeKbListService = ScopedServices.GetRequiredService<ITPM_CodeKbListService>();
+                ComboboxData = await codeKbListService.GetDataByCodeSyu(FieldConfigs.CustomKoumokuSource, new ClaimModel().TenantID);
+                ComboboxData.Insert(0, new TPM_CodeKbCodeSyuData());
+                ComboboxSelectedItem = ComboboxData.SingleOrDefault(c => c.CodeKbn == Value);
+                break;
+            case FieldType.Checkbox:
+                var codeKbListServiceCheckbox = ScopedServices.GetRequiredService<ITPM_CodeKbListService>();
+                CheckboxData = await codeKbListServiceCheckbox.GetDataByCodeSyu(FieldConfigs.CustomKoumokuSource, new ClaimModel().TenantID);
+                if (Value != "")
+                {
+                    string[] codeKbnArr = Value.Split('-');
+                    if (codeKbnArr != null && codeKbnArr.Length > 0 && CheckboxData.Any())
+                    {
+                        foreach (var code in codeKbnArr)
+                        {
+                            CheckboxData.Where(x => x.CodeKbn == code).First().Checked = true;
+                        }
+                    }
+                }
+                break;
+            case FieldType.RadioButton:
+                var codeKbListServiceRadioButton = ScopedServices.GetRequiredService<ITPM_CodeKbListService>();
+                RadioButtonData = await codeKbListServiceRadioButton.GetDataByCodeSyu(FieldConfigs.CustomKoumokuSource, new ClaimModel().TenantID);
+                RadioValue = Value;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void OnValueChanged(string value)
+    {
+        Value = value;
+        NumValue = value;
+        TextValue = value;
+        ValueChanged.InvokeAsync(value);
+        StateHasChanged();
+    }
+
+    private void OnSelectedItemChanged(TPM_CodeKbCodeSyuData e)
+    {
+        ComboboxSelectedItem = e;
+        Value = ComboboxSelectedItem.CodeKbn;
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+
+    private void OnDateChanged(DateTime dateTime)
+    {
+        DateValue = dateTime;
+        Value = DateValue.ToString("yyyyMMdd");
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+
+    private void OnTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        Value = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+        Value = Value == "" ? "" : Value;
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+
+    private void OnCheckedChanged(bool value, TPM_CodeKbCodeSyuData data)
+    {
+        if (data != null && CheckboxData.Any())
+        {
+            CheckboxData.Where(x => x.CodeKbn == data.CodeKbn).First().Checked = value;
+            Value = string.Join('-', CheckboxData.Where(x => x.Checked == true).Select(_ => _.CodeKbn));
+            ValueChanged.InvokeAsync(Value);
+        }
+        StateHasChanged();
+    }
+    private void OnRadioOptionChanged(ChangeEventArgs args)
+    {
+        Value = args.Value.ToString();
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+}

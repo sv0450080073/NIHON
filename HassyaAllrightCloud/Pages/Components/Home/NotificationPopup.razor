@@ -1,0 +1,133 @@
+﻿@inject INoticeService NoticeService
+@inject IStringLocalizer<NotificationPopup> Lang
+@inject IErrorHandlerService errorModalService
+
+<EditForm EditContext="@EditFormContext" Context="formContext">
+    <FluentValidator TValidator="NoticeFormValidator" />
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-2 width--75">@Lang["LblNoticeDisplay"]</label>
+        <div class="has-tooltip-error" style="width: 400px">
+            <Tooltip ValueExpressions="@(() => @people)"
+                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+            <DxComboBox Data="@ListPeopleCanSee" CssClass="flex-grow-1"
+                        FilteringMode="@DataGridFilteringMode.Contains"
+                        NullText="@Lang["NullTextNoticeDisplayKbn"]"
+                        AllowUserInput="false"
+                        TextFieldName="RyakuNm"
+                        SelectedItem=@people
+                        SelectedItemChanged="@(e => SelectNoticeDisplayKbnChanged(e))"
+                        SelectedItemExpression="@(() => @people)">
+            </DxComboBox>
+        </div>
+    </div>
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-2 width--75">@Lang["LblNoticeContent"]</label>
+        <div class="has-tooltip-error">
+            <Tooltip ValueExpressions="@(() => Model.NoticeContent)"
+                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+            <InputTextArea rows="10" cols="40" placeholder="@Lang["NoticeContentPlaceHolder"]" class="flex-grow-1" @bind-Value="Model.NoticeContent">@Model.NoticeContent</InputTextArea>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    IEnumerable<NoticeDisplayKbnDto> ListPeopleCanSee;
+    NoticeDisplayKbnDto people;
+    string content;
+    protected EditContext EditFormContext { get; set; }
+    public Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    protected Tkd_NoticeDto Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            LoadData();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    /// Load data base on Id
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadData()
+    {
+        try
+        {
+            ListPeopleCanSee = NoticeService.GetNoticeDisplayKbnList().Result;
+            if (Id != 0)
+            {
+                Model = await NoticeService.GetNoticeById(Id);
+                people = ListPeopleCanSee?.FirstOrDefault(x => x.CodeKbn == Model.NoticeDisplayKbn.ToString());
+                //if (Model == null) DataNotFound = true;
+                //else DataNotFound = false;
+                StateHasChanged();
+            }
+            else
+            {
+                people = ListPeopleCanSee?.FirstOrDefault();
+                Model = new Tkd_NoticeDto
+                {
+                    NoticeDisplayKbn = 1,
+                    NoticeContent = string.Empty
+                };
+            }
+
+            EditFormContext = new EditContext(Model);
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Save BusRepairMaster
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> Save()
+    {
+        try
+        {
+            if (EditFormContext.Validate())
+                return await NoticeService.Save(Model);
+            StateHasChanged();
+            return await Task.FromResult(false);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+            return await Task.FromResult(false);
+        }
+
+    }
+
+    /// <summary>
+    /// Update PopReserveSrc value
+    /// </summary>
+    /// <param name="e"></param>
+    public void SelectNoticeDisplayKbnChanged(NoticeDisplayKbnDto e)
+    {
+        try
+        {
+            people = e;
+            Model.NoticeDisplayKbn = byte.Parse(e.CodeKbn);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+}

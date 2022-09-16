@@ -1,0 +1,262 @@
+﻿@inherits ETCListBase
+
+<div class="pl-2 pr-2 mb-2" style="display: flex; flex: 1; flex-direction: column">
+    <EditForm EditContext="@searchForm">
+        <FluentValidator TValidator="ETCValidator" />
+    </EditForm>
+    <div class="text-right mb-2 mt-2">
+        <button class="btn btn-sm btn-danger mx-2" @onclick="OnRemoveRow">@_lang["btn_remove_row"]</button>
+        <button class="btn btn-sm btn-primary mx-2" @onclick="() => InsertRow()">@_lang["btn_insert_row"]</button>
+    </div>
+    <div style="display: flex; flex: 1; flex-direction: column">
+        <div id="table-container" class="mb-2 w-100 overflow-auto grid-@fontSize" style="display: flex; flex: 1; flex-direction: column; ">
+            <table class="table normal-table table-sm vehicle-table fixed-header mb-0 table-layout"
+                   style="min-width: 2000px; table-layout: fixed; border-collapse: separate; border-spacing: 0">
+                <thead>
+                    <tr>
+                        <th style="width: 3rem" class="sticky etc-header-sticky">@_lang["no_list"]</th>
+                        <th style="width: 3rem">@_lang["capture_list"]</th>
+                        <th style="width: 3rem">@_lang["transfer_list"]</th>
+                        <th style="width: 10rem">@_lang["vehicle_code_list"]<br />@_lang["car_number_list"]</th>
+                        <th style="width: 5rem">@_lang["service_date_list"]</th>
+                        <th style="width: 4rem">@_lang["operating_hours_list"]</th>
+                        <th style="width: 20rem">@_lang["organization_name_list"]</th>
+                        <th style="width: 10rem">@_lang["charge_office_list"]</th>
+                        <th style="width: 10rem">@_lang["admissions_office_list"]</th>
+                        <th style="width: 6rem">@_lang["import_unit_price_list"]</th>
+                        <th style="width: 7rem">@_lang["unit_price_list"]</th>
+                        <th style="width: 5rem">@_lang["quantity_list"]</th>
+                        <th style="width: 6rem">@_lang["sale_amount_list"]</th>
+                        <th style="width: 7rem">@_lang["consumption_tax_list"]</th>
+                        <th style="width: 7rem">@_lang["fee_list"]</th>
+                        <th style="width: 10rem">@_lang["fee_classification_list"]</th>
+                        <th style="width: 12rem">@_lang["ancillary_charge_name_list"]</th>
+                        <th style="width: 12rem">@_lang["payment_name_list"]</th>
+                        <th style="width: 12rem">@_lang["customer_name_list"]</th>
+                        <th style="width: 12rem">@_lang["branch_name_list"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (listETC.Count > 0)
+                    {
+                        var count = 1;
+                        @foreach (var item in displayList)
+                        {
+                            <tr @ondblclick="() => OnDbClick(item)" @onclick="@(() => OnSelectRow(item))" class="@(selectedETC == item ? "selected-row" : "")">
+                                <td class="sticky etc-col-sticky text-center">@(pageNum * pageSize + count++)</td>
+                                <td>
+                                    <DxCheckBox Checked="@item.Torikomi"
+                                                CheckedExpression="@(() => @item.Torikomi)"
+                                                CheckedChanged="@(v => OnCheck(item))"
+                                                Enabled="@(item.TensoKbn == 0)"></DxCheckBox>
+                                </td>
+                                <td class="text-left">@(item.TensoKbn == 0 ? string.Empty : _lang["done_label"])</td>
+                                <td class="text-left">@($"{item.SyaRyoCd:00000}")<br />@item.SyaRyoNm</td>
+                                <td class="text-left">
+                                    @(!string.IsNullOrEmpty(item.UnkYmd) ? item.UnkYmd.Insert(4, "/").Insert(7, "/") : string.Empty)
+                                </td>
+                                <td class="text-left">
+
+                                    @(!string.IsNullOrEmpty(item.UnkTime) ? item.UnkTime.Substring(0, item.UnkTime.Length - 2).Insert(2, ":") : string.Empty)
+                                </td>
+                                <td class="text-left">@item.DantaiNm</td>
+                                <td class="text-left">@item.IriDouroNm<br />@item.IriRyokinNm</td>
+                                <td class="text-left">@item.DeDouroNm<br />@item.DeRyokinNm</td>
+                                <td class="text-right">@item.ImportTanka</td>
+                                <td>
+                                    <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="999999" ShowSpinButtons="false"
+                                                CssClass="w-100 number-spin text-right custom-number-spin"
+                                                ValueExpression="() => item.TanKa"
+                                                Value="@item.TanKa"
+                                                ValueChanged="value => OnETCDataChanged(value.ToString(), item, nameof(item.TanKa))"
+                                                ReadOnly="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"></DxSpinEdit>
+                                </td>
+                                <td>
+                                    <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="999" ShowSpinButtons="false"
+                                                CssClass="w-100 number-spin text-right custom-number-spin"
+                                                ValueExpression="() => item.Suryo"
+                                                Value="@item.Suryo"
+                                                ValueChanged="value => OnETCDataChanged(value.ToString(), item, nameof(item.Suryo))"
+                                                ReadOnly="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"></DxSpinEdit>
+                                </td>
+                                <td class="text-right">@item.ZeikomiKin.ToString("N0")</td>
+                                <td class="text-right">@(item.ZeiKbnNm + " " + item.ZeiRitu + "%")<br />@item.SyaRyoSyo.ToString("N0")</td>
+                                <td>
+                                    <div class="w-100 d-flex">
+                                        <DxSpinEdit DisplayFormat="N1" MinValue="0" MaxValue="99.9m" ShowSpinButtons="false"
+                                                    CssClass="number-spin text-right custom-number-spin"
+                                                    ValueExpression="() => item.TesuRitu"
+                                                    Value="@item.TesuRitu"
+                                                    ValueChanged="@(value => OnETCDataChanged(value.ToString("N1"), item, nameof(item.TesuRitu)))"
+                                                    ReadOnly="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"></DxSpinEdit>
+                                        <label class="ml-2 my-auto">%</label>
+                                    </div>
+                                    <div class="text-right">
+                                        @item.SyaRyoTes.ToString("N0")
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TensoKbn == 0)
+                                    {
+                                        <div class="form-check-inline mr-0 w-100">
+                                            <div class="d-inline-block w-50 radio-item">
+                                                <input class="so-radio-icon k-radio" disabled="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"
+                                                       type="radio" name="tesukbn@(count)" checked="@(item.TesuKbn == 0)" @onchange="@(() => OnTesuKbnChanged(0, item))" />
+                                                <label class="so-label-radio ml-0 k-radio-label">@_lang["yes_label"]</label>
+                                            </div>
+                                            <div class="d-inline-block w-50 radio-item">
+                                                <input class="so-radio-icon k-radio" disabled="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"
+                                                       type="radio" name="tesukbn@(count)" checked="@(item.TesuKbn == 1)" @onchange="@(() => OnTesuKbnChanged(1, item))" />
+                                                <label class="so-label-radio ml-0 k-radio-label">@_lang["none_label"]</label>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span>@(searchParam.SelectedTesuKbn.Value == 0 ? _lang["yes_label"] : _lang["none_label"])</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TensoKbn == 0)
+                                    {
+                                        <DxComboBox DropDownDirection="DropDownDirection.Down" Data="listFutai"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    CssClass="w-100"
+                                                    TextFieldName="Text"
+                                                    ReadOnly="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"
+                                                    SelectedItem="item.selectedFutai"
+                                                    SelectedItemExpression="@(() => searchParam.SelectedFutai)"
+                                                    SelectedItemChanged="@(e => OnHandleChanged(e, 0, item))">
+                                        </DxComboBox>
+                                    }
+                                    else
+                                    {
+                                        <span>@(item.FutTumCdSeq != 0 ? item.FutTumNm : searchParam.SelectedFutai.FutaiNm)</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TensoKbn == 0)
+                                    {
+                                        <DxComboBox DropDownDirection="DropDownDirection.Down" Data="listSeisan"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    CssClass="w-100"
+                                                    TextFieldName="Text"
+                                                    SelectedItem="item.selectedSeisan"
+                                                    ReadOnly="@(item.TensoKbn != 0 || !item.Torikomi || selectedETC != item)"
+                                                    SelectedItemExpression="@(() => searchParam.SelectedSeisan)"
+                                                    SelectedItemChanged="@(e => OnHandleChanged(e, 1, item))">
+                                        </DxComboBox>
+                                    }
+                                    else
+                                    {
+                                        <span>@(item.SeisanCdSeq != 0 ? item.SeisanNm : searchParam.SelectedSeisan.SeisanNm)</span>
+                                    }
+                                </td>
+                                <td class="text-left">@item.MstTokuiNm</td>
+                                <td class="text-left">@item.MstSitenNm</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-2">
+        <Pagination TotalCount="listETC.Count" @ref="pagination" ItemPerPage="pageSize" OnChangeItemPerPage="async e => await OnChangeItemPerPage(e)" OnChangePage="async (pageNum) => await PageChanged(pageNum)"></Pagination>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-sm btn-primary mx-2 mw-7rem" @onclick="@(() => isShowTransferDialog = true)">@_lang["btn_transfer"]</button>
+        <button class="btn btn-sm btn-primary mx-2 mw-7rem" @onclick="@(async () => await OnSave())">@_lang["btn_save"]</button>
+    </div>
+</div>
+
+<DxPopup @bind-Visible="isShowDialog" CssClass="custom-popup modal-dialog modal-dialog-centered" Id="delete-confirm">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["popup_confirm_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => isShowDialog = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x mr-3 fa-warning"></i>
+            @_lang["BI_T008"]
+        </div>
+    </ChildContent>
+    <FooterTemplate>
+        <div class="text-right">
+            <button class="btn btn-sm mx-2 width--100 btn-danger" @onclick="@(() => OnToggleConfirmDialog(true))">@_lang["btn_delete"]</button>
+            <button class="btn btn-sm mx-2 width--100 btn-outline-dark" @onclick="@(() => OnToggleConfirmDialog(false))">@_lang["btn_cancel"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+
+@if (isShowTransferDialog)
+{
+    <DxPopup @bind-Visible="isShowTransferDialog" CssClass="custom-popup modal-dialog modal-dialog-centered mw-42rem">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @_lang["info_header"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => isShowTransferDialog = false)"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <div class="d-flex align-items-center">
+                <i class="fa fa-2x fa-info-circle mr-3" aria-hidden="true"></i>
+                @((MarkupString)_lang["BI_T009"].ToString())
+            </div>
+        </ChildContent>
+        <FooterTemplate>
+            <div class="text-right">
+                <button class="btn btn-sm mx-2 width--100 btn-primary" @onclick="@(async () => await OnTransfer())">@_lang["btn_transfer"]</button>
+                <button class="btn btn-sm mx-2 width--100 btn-outline-dark" @onclick="@(() => isShowTransferDialog = false)">@_lang["btn_cancel"]</button>
+            </div>
+        </FooterTemplate>
+    </DxPopup>
+}
+
+<DxPopup @bind-Visible="showInsertForm" CssClass="custom-popup modal-dialog modal-dialog-centered modal-etc-form">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["popup_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="(e) => showInsertForm = false"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <ETCForm @ref="etcForm" @bind-FormValid="isFormValid" FormVisibleChanged="async e => await FormVisibleChanged(e)" ETCData="selectedETC"></ETCForm>
+    </ChildContent>
+    <FooterTemplate>
+        <div class="text-right w-100">
+            <button class="btn btn-sm mx-2 width--100 btn btn-outline-dark mw-7rem" @onclick="@(() => showInsertForm = false)">@_lang["popup_cancel_btn"]</button>
+            <button class="btn btn-sm mx-2 width--100 btn-primary mw-7rem" disabled="@(!isFormValid || (selectedETC != null && selectedETC.TensoKbn == 1))" @onclick="@(() => SaveForm())">@_lang["popup_save_btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm mw-25rem"
+         @bind-Visible="@ShowInfo">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @(infoMsg == _lang["BI_T012"] || infoMsg == _lang["BI_T007"] ? _lang["info_header"] : _lang["error_header"])
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => ShowInfo = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            @if (infoMsg != _lang["BI_T012"] && infoMsg != _lang["BI_T007"])
+            {
+                <i class="fa fa-2x fa fa-times-circle mr-3" style="color: red" aria-hidden="true"></i>
+            }
+            else
+            {
+                <i class="fa fa-2x fa-info-circle mr-3" aria-hidden="true"></i>
+            }
+            @((MarkupString)infoMsg)
+        </div>
+    </Content>
+    <FooterTemplate>
+        <button class="btn btn-primary" @onclick="(e) => ShowInfo = false">@_lang["OkBtn"]</button>
+    </FooterTemplate>
+</DxPopup>

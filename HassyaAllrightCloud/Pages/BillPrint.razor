@@ -1,0 +1,440 @@
+﻿@page "/billprint"
+@inherits BillPrintBase
+@inject CustomNavigation MyNavigationManager
+@using HassyaAllrightCloud.Commons
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mt-2 ml-1 mr-1">
+    <h5 class="mb-0">@Lang["PageTitle"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="e => RefreshBillPrint(billPrint.PrintMode)">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["ClearAll"]
+    </button>
+</div>
+
+@if (iShowPrintedModal)
+{
+    <DxPopup CssClass="modal-dialog modal-dialog-centered modal-lg"
+             @bind-Visible="@iShowPrintedModal"
+             Scrollable="true">
+        <HeaderTemplate>
+            <div class="bg-primary text-white p-2 rounded-top">
+                <span>@Lang["PageTitle"]</span>
+                <a class="close-button text-black float-right mr-2" href="javascript:;" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(e => iShowPrintedModal = false)">✖</a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <p>@Lang["Content"]</p>
+            @if (printedFiles.Any())
+            {
+                <table class="table">
+                    <tbody>
+                        @foreach (var item in printedFiles)
+                        {
+                            <input type="text" id="copy-url-@item.Name" style="position: fixed; top: -1000px;" value="@GetDownloadFileUrl(item.EncryptedId)" />
+                            <tr>
+                                <td>@item.Name</td>
+                                <td><a href="javascript:void(0);" @onclick='e => SetAction("Download", item)'>@Lang["Download"]</a></td>
+                                <td><a href="javascript:void(0);" @onclick='e => SetAction("Copy", item)'>@Lang["URLCopy"]</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </Content>
+    </DxPopup>
+}
+
+<EditForm EditContext="editFormContext" Context="editFormContext">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BillPrintValidator" />
+    <ul class="validation-errors">
+        @if (!string.IsNullOrEmpty(noDataMessage))
+        {
+            <li class="validation-message">@Lang[noDataMessage]</li>
+        }
+    </ul>
+    <div class="mb-2 enterField bill-print-form">
+        <div class="card-body pt-3 pb-3">
+            <div class="row border-component mb-3">
+                <div class="col-md-12">
+                    <div class="form-group form-inline">
+                        <label class="col-form-label"><b>@Lang["OutputSetting"]</b></label>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group form-inline ml-5">
+                        <label class="col-form-label text-left mr-4">@Lang["OutputInst"]</label>
+                        @if (OutSiji == (int)PaymentRequestPrintMode.IndependPrint)
+                        {
+                            <button class="btn-option mx-2 {0} btn-active" type="button">
+                                @Lang["Print2"]
+                            </button>
+                        }
+                        @if (OutSiji == (int)PaymentRequestPrintMode.MultiPrint)
+                        {
+                            <button class="btn-option mx-2 {0} btn-active" type="button">
+                                @Lang["Print3"]
+                            </button>
+                        }
+                        @if (OutSiji == (int)PaymentRequestPrintMode.Print || OutSiji == (int)PaymentRequestPrintMode.BillNumberChosenPrint)
+                        {
+                            <button class="@string.Format("btn-option mx-2 {0}", billPrint.PrintMode == (int) PaymentRequestPrintMode.Print ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(e => RefreshBillPrint((int) PaymentRequestPrintMode.Print))">
+                                @Lang["BatchPrint"]
+                            </button>
+                            <button class="@string.Format("btn-option mx-2 {0}", billPrint.PrintMode == (int) PaymentRequestPrintMode.BillNumberChosenPrint ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(e => RefreshBillPrint((int) PaymentRequestPrintMode.BillNumberChosenPrint))">
+                                @Lang["DesignPrint"]
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group form-inline ml-5">
+                        <label class="col-form-label text-left mr-4">@Lang["FormOutput"]</label>
+                        <button class="@string.Format("btn-option mx-2 {0}", ModeOutput == (int)OutputInstruction.Pdf ? "btn-active" : string.Empty)"
+                                type="button" @onclick="@(e =>  ModeOutput = (int)OutputInstruction.Pdf)">
+                            @Lang["PDF"]
+                        </button>
+                        <button class="@string.Format("btn-option mx-2 {0}", ModeOutput == (int)OutputInstruction.Preview ? "btn-active" : string.Empty)"
+                                type="button" @onclick="@(e =>  ModeOutput = (int)OutputInstruction.Preview)" disabled="@(billPrint.PrintMode == (int) PaymentRequestPrintMode.BillNumberChosenPrint)">
+                            @Lang["Preview"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row border-component mb-3">
+                <div class="col-md-12">
+                    <label class="col-form-label"><b>@Lang["SettingCondition"]</b></label>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["BillNumber"]</label>
+                        <div class="form-row">
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => billPrint.InvoiceOutNum)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxSpinEdit DisplayFormat="D8" MinValue="0" MaxValue="99999999" ShowSpinButtons="false"
+                                            CssClass="width--250 my-text-box ml-1 number-spin"
+                                            ValueExpression="() => billPrint.InvoiceOutNum"
+                                            Value="@billPrint.InvoiceOutNum"
+                                            ValueChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.InvoiceOutNum), newValue))"
+                                            ReadOnly="isDisabled(new int[] {1,2,3})"></DxSpinEdit>
+                            </div>
+                            <label class="pr-2 pl-2">-</label>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => billPrint.InvoiceSerNum)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxSpinEdit DisplayFormat="D4" MinValue="0" MaxValue="9999" ShowSpinButtons="false"
+                                            CssClass="width--110 my-text-box number-spin"
+                                            ValueExpression="() => billPrint.InvoiceSerNum"
+                                            Value="@billPrint.InvoiceSerNum"
+                                            ValueChanged="@(async (newValue) => await UpdateFormValue(nameof(billPrint.InvoiceSerNum), newValue))"
+                                            ReadOnly="isDisabled(new int[] {1,2,3})"></DxSpinEdit>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["InvoiceYm"]</label>
+                        <div class="form-row">
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => billPrint.InvoiceYm)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit Date="@billPrint.InvoiceYm"
+                                            DateExpression="@(() => billPrint.InvoiceYm)"
+                                            DateChanged="@(async (newValue) => await UpdateFormValue(nameof(billPrint.InvoiceYm), newValue))"
+                                            SizeMode="@SizeMode.Small"
+                                            PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker"
+                                            ScrollPickerFormat="@DateTimeFormat.yyyyMMSlash"
+                                            DisplayFormat="@DateTimeFormat.yyyyMMSlash"
+                                            Format="@DateTimeFormat.yyyyMMSlash"
+                                            CssClass="width--150 date-sm ml-1"
+                                            ReadOnly="isDisabled(printOptions)"></DxDateEdit>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["ReceiptNumber"]</label>
+                        <div class="form-row">
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => billPrint.StartRcpNum)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxSpinEdit DisplayFormat="D10" MinValue="(long)0" MaxValue="(long)9999999999" ShowSpinButtons="false"
+                                            CssClass="width--250 ml-1"
+                                            ValueExpression="() => billPrint.StartRcpNum"
+                                            Value="@billPrint.StartRcpNum"
+                                            ValueChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.StartRcpNum), newValue))"
+                                            ReadOnly="isDisabled(printOptions)"></DxSpinEdit>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => billPrint.EndRcpNum)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxSpinEdit DisplayFormat="D10" MinValue="(long)0" MaxValue="(long)9999999999" ShowSpinButtons="false"
+                                            CssClass="width--250 ml-1"
+                                            ValueExpression="() => billPrint.EndRcpNum"
+                                            Value="@billPrint.EndRcpNum"
+                                            ValueChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.EndRcpNum), newValue))"
+                                            ReadOnly="isDisabled(printOptions)"></DxSpinEdit>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["ReservationClassification"]</label>
+                        <div class="form-row">
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@billPrint.StartRsrCatDropDown"
+                                                                                                             SelectedReservationClassChanged="async (newValue) => await UpdateFormValue(nameof(billPrint.StartRsrCatDropDown), newValue)"
+                                                                                                             ReservationClassExpression="@(() => billPrint.StartRsrCatDropDown)"
+                                                                                                             DefaultValue="Convert.ToInt32(billPrint.StartRsrCatDropDown?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                             ReadOnly="isDisabled(printOptions)"
+                                                                                                             CssClass="focus-after-input-code width--250 ml-1" />
+                            <span class="mx-2">～</span>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@billPrint.EndRsrCatDropDown"
+                                                                                                             SelectedReservationClassChanged="async (newValue) => await UpdateFormValue(nameof(billPrint.EndRsrCatDropDown), newValue)"
+                                                                                                             ReservationClassExpression="@(() => billPrint.EndRsrCatDropDown)"
+                                                                                                             DefaultValue="Convert.ToInt32(billPrint.EndRsrCatDropDown?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                             ReadOnly="isDisabled(printOptions)"
+                                                                                                             CssClass="width--250" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["BillingOffice"]</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => billPrint.BillingOfficeDropDown)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="@billingOfficeDatas"
+                                        AllowUserInput="false"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        SelectedItem="billPrint.BillingOfficeDropDown"
+                                        TextFieldName="Text"
+                                        SelectedItemChanged="async (newValue) => await UpdateFormValue(nameof(billPrint.BillingOfficeDropDown), newValue)"
+                                        SelectedItemExpression="@(() => billPrint.BillingOfficeDropDown )"
+                                        CssClass="width--250"
+                                        NullText="@Lang["BillingOfficeNullText"]"
+                                        ReadOnly="isDisabled(printOptions)"></DxComboBox>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["SpecifyBillingAddress"]</label>
+                        <DxComboBox Data="@specifyBillingAddresses"
+                                    AllowUserInput="false"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    SelectedItem="billPrint.BillingAddressDropDown"
+                                    TextFieldName="Text"
+                                    SelectedItemChanged="async (newValue) => await UpdateFormValue(nameof(billPrint.BillingAddressDropDown), newValue)"
+                                    SelectedItemExpression="@(() => billPrint.BillingAddressDropDown )"
+                                    CssClass="width--250"
+                                    ReadOnly="isDisabled(new int[] {3,4})"></DxComboBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["BillingAddress"]</label>
+                        <div class="form-row">
+                            <div class="ml-1">
+                                <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(billPrint.startCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                         SelectedGyosya="billPrint.startCustomerComponentGyosyaData"
+                                                                                                         GyosyaExpression="() => billPrint.startCustomerComponentGyosyaData"
+                                                                                                         SelectedGyosyaChanged="(e) => UpdateFormValue(nameof(billPrint.startCustomerComponentGyosyaData), e)"
+                                                                                                         DefaultTokisk="@(Convert.ToInt32(billPrint.startCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                         SelectedTokisk="billPrint.startCustomerComponentTokiskData"
+                                                                                                         TokiskExpression="() => billPrint.startCustomerComponentTokiskData"
+                                                                                                         SelectedTokiskChanged="(e) => UpdateFormValue(nameof(billPrint.startCustomerComponentTokiskData), e)"
+                                                                                                         DefaultTokiSt="@(Convert.ToInt32(billPrint.startCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                         SelectedTokiSt="billPrint.startCustomerComponentTokiStData"
+                                                                                                         SelectedTokiStChanged="(e) => UpdateFormValue(nameof(billPrint.startCustomerComponentTokiStData), e)"
+                                                                                                         TokiStExpression="() => billPrint.startCustomerComponentTokiStData"
+                                                                                                         LangDic="LangDic"
+                                                                                                         GyosyaCssClass="width--250"
+                                                                                                         TokiskCssClass="width--250"
+                                                                                                         TokiStCssClass="width--250"
+                                                                                                         isGyosyaAddNull="true"
+                                                                                                         isTokiskAddNull="true"
+                                                                                                         isTokiStAddNull="true"
+                                                                                                         @ref="startCustomerComponent"
+                                                                                                         ReadOnlyGyosya="isDisabled(printOptions)"
+                                                                                                         ReadOnlyTokisk="isDisabled(printOptions)"
+                                                                                                         ReadOnlyTokiSt="isDisabled(printOptions)" />
+                            </div>
+                            <div class="form-group d-flex flex-nowrap mt-2 mb-0 ml-1">
+                                <span class="ml-n4 mx-2">～</span>
+                                <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(billPrint.endCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                         SelectedGyosya="billPrint.endCustomerComponentGyosyaData"
+                                                                                                         GyosyaExpression="() => billPrint.endCustomerComponentGyosyaData"
+                                                                                                         SelectedGyosyaChanged="(e) => UpdateFormValue(nameof(billPrint.endCustomerComponentGyosyaData), e)"
+                                                                                                         DefaultTokisk="@(Convert.ToInt32(billPrint.endCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                         SelectedTokisk="billPrint.endCustomerComponentTokiskData"
+                                                                                                         TokiskExpression="() => billPrint.endCustomerComponentTokiskData"
+                                                                                                         SelectedTokiskChanged="(e) => UpdateFormValue(nameof(billPrint.endCustomerComponentTokiskData), e)"
+                                                                                                         DefaultTokiSt="@(Convert.ToInt32(billPrint.endCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                         SelectedTokiSt="billPrint.endCustomerComponentTokiStData"
+                                                                                                         SelectedTokiStChanged="(e) => UpdateFormValue(nameof(billPrint.endCustomerComponentTokiStData), e)"
+                                                                                                         TokiStExpression="() => billPrint.endCustomerComponentTokiStData"
+                                                                                                         LangDic="LangDic"
+                                                                                                         GyosyaCssClass="width--250"
+                                                                                                         TokiskCssClass="width--250"
+                                                                                                         TokiStCssClass="width--250"
+                                                                                                         isGyosyaAddNull="true"
+                                                                                                         isTokiskAddNull="true"
+                                                                                                         isTokiStAddNull="true"
+                                                                                                         @ref="@endCustomerComponent"
+                                                                                                         ReadOnlyGyosya="isDisabled(printOptions)"
+                                                                                                         ReadOnlyTokisk="isDisabled(printOptions)"
+                                                                                                         ReadOnlyTokiSt="isDisabled(printOptions)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["ClosingDate"]</label>
+                        <DxSpinEdit MinValue="0" MaxValue="31" ShowSpinButtons="false"
+                                    CssClass="width--250 number-spin"
+                                    ValueExpression="() => billPrint.ClosingDate"
+                                    Value="@billPrint.ClosingDate"
+                                    ValueChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.ClosingDate), newValue))"
+                                    ReadOnly="isDisabled(printOptions)"></DxSpinEdit>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["IssueYmd"]</label>
+                        <HassyaAllrightCloud.Pages.Components.CommonComponents.DateInputComponent SelectedDate="billPrint.IssueYmd"
+                                                                                                  DateInputExpression="() => billPrint.IssueYmd"
+                                                                                                  Format="yyyy/MM/dd"
+                                                                                                  SelectedDateChanged="async(newValue) => await UpdateFormValue(nameof(billPrint.IssueYmd), newValue)"
+                                                                                                  CssClass="width--150 date-sm"
+                                                                                                  ReadOnly="isDisabled(printOptions2)"
+                                                                                                  LangDic="LangDic"
+                                                                                                  @ref="dateInputComponent" />
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["HandlingCharPrt"]</label>
+                        <DxComboBox Data="@handlingCharPrts"
+                                    AllowUserInput="false"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    SelectedItem="billPrint.HandlingCharPrtDropDown"
+                                    TextFieldName="Text"
+                                    SelectedItemChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.HandlingCharPrtDropDown), newValue))"
+                                    SelectedItemExpression="@(() => billPrint.HandlingCharPrtDropDown )"
+                                    CssClass="width--250"
+                                    ReadOnly="isDisabled(printOptions2)"></DxComboBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["BillingType"]</label>
+                        @foreach (var item in billPrint.checkBoxFilters)
+                        {
+                            <div class="form-check form-check-inline">
+                                <div class="ml-1 dx-checkbox custom-control custom-checkbox valid label-font-weight-normal">
+                                    <InputCheckbox class="custom-control-input" id="@item.Id"
+                                                   @bind-Value="@item.IsChecked"
+                                                   @onclick='e => FilterChanged(item)'
+                                                   disabled="@isDisabled(new int[] {3, 4})" />
+                                    <label for="@item.Id" class="custom-control-label" style="user-select:none">@item.Name</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row border-component mb-3" style="margin-bottom: 50px !important;">
+                <div class="col-md-12">
+                    <label class="col-form-label"><b>@Lang["BillingAddressLabel"]</b></label>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["ZipCode"]</label>
+                        <DxTextBox TextExpression="() => billPrint.ZipCode"
+                                   Text="@billPrint.ZipCode"
+                                   TextChanged="@(async (newValue) => await UpdateFormValue(nameof(billPrint.ZipCode), newValue))"
+                                   ReadOnly="@isDisabled(printOptions3)"
+                                   CssClass="width--250"
+                                   maxlength="12"></DxTextBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["Address1"]</label>
+                        <DxTextBox TextExpression="() => billPrint.Address1"
+                                   Text="@billPrint.Address1"
+                                   TextChanged="@(async (newValue) => await UpdateFormValue(nameof(billPrint.Address1), newValue))"
+                                   ReadOnly="@isDisabled(printOptions3)" CssClass="width--250"
+                                   maxlength="60"></DxTextBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["Address2"]</label>
+                        <DxTextBox TextExpression="() => billPrint.Address2"
+                                   Text="@billPrint.Address2"
+                                   TextChanged="@(async (newValue) => await UpdateFormValue(nameof(billPrint.Address2), newValue))"
+                                   ReadOnly="@isDisabled(printOptions3)" CssClass="width--250 length60"></DxTextBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["CustomerNm"]</label>
+                        <DxTextBox TextExpression="() => billPrint.CustomerNm"
+                                   Text="@billPrint.CustomerNm"
+                                   TextChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.CustomerNm), newValue))"
+                                   ReadOnly="@isDisabled(printOptions3)" CssClass="width--250 length60"></DxTextBox>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label condition-label-custom text-left">@Lang["CustomerBrchNm"]</label>
+                        <DxTextBox TextExpression="() => billPrint.CustomerBrchNm"
+                                   Text="@billPrint.CustomerBrchNm"
+                                   TextChanged="@(async(newValue) => await UpdateFormValue(nameof(billPrint.CustomerBrchNm), newValue))"
+                                   ReadOnly="@isDisabled(printOptions3)" CssClass="width--250 length60"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="row border-component d-flex justify-content-center mt-2 mb-2">
+                <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn width--130 mt-2 mb-2" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                          Text="@Lang["Start"]" Click="async e => await BtnStart()" />
+            </div>
+        </div>
+    </div>
+</EditForm>

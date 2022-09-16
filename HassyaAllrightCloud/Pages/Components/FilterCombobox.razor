@@ -1,0 +1,201 @@
+﻿@using static HassyaAllrightCloud.Commons.Extensions.EditContextExtensionHelper
+@using Microsoft.Extensions.DependencyInjection
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inherits OwningComponentBase
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Index> Lang
+@inject CustomNavigation NavManager
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowEditPopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100 justify-content-center">
+            フィルタの名前を変更
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex form-group">
+            フィルタ名:
+            <DxTextBox @bind-Text="@FilterName"></DxTextBox>
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton Text="保存する" Click="async (e) => await UpdateFilterItem()"></DxButton>
+        <DxButton Text="キャンセル" Click="(e) => { IsShowEditPopup = false; FilterName = string.Empty; SelectedFilterForModification = null; }"></DxButton>
+    </FooterTemplate>
+</DxPopup>
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowCreatePopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100 justify-content-center">
+            検索条件を保存
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex form-group">
+            フィルタ名:
+            <DxTextBox @bind-Text="@FilterName"></DxTextBox>
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton Text="保存する" Click="async (e) => await CreateFilterItem()"></DxButton>
+        <DxButton Text="キャンセル" RenderStyle="ButtonRenderStyle.Secondary" Click="(e) => { IsShowCreatePopup = false; FilterName = string.Empty; }"></DxButton>
+    </FooterTemplate>
+</DxPopup>
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowDeletePopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100 justify-content-center">
+            フィルタを削除
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex form-group">
+            フィルタを削除しますか?
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton Text="削除" Click="async (e) => await DeleteFilterItem()"></DxButton>
+        <DxButton Text="キャンセル" Click="(e) => { IsShowDeletePopup = false; SelectedFilterForModification = null; }"></DxButton>
+    </FooterTemplate>
+</DxPopup>
+<div class="filter-dropdown" @onclick="Toggle" @onfocusout="FocusOut">
+    <div class="d-flex">
+        <div class="dx-texteditor-input-container">
+            <DxTextBox NullText="選択してください。" @bind-Text="@SelectedFilterText"></DxTextBox>
+        </div>
+        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle"></button>
+        </div>
+    </div>
+    <div class=@("filter-dropdown-content rounded" + (IsShowCombobox ? " filter-show" : ""))>
+        <div class="text-left">
+            <div class="filter-scroll">
+                @if (ItemList != null && ItemList.Count() != 0)
+                {
+                    @foreach (var item in ItemList)
+                    {
+                        <div class=@("px-2 filter-item dropdown-item dxbs-clickable d-flex w-100 justify-content-between" + (SelectedFilterId == item.FilterId ? " active" : "")) @onclick="() => OnItemSelected(item)">
+                            <div>
+                                <label>@item.FilterName</label>
+                            </div>
+                            <div>
+                                <button class="custom-hyper filter-update enabled" @onclick="() => OnEditSelected(item)">名前を変更</button>
+                                |
+                                <button class="custom-hyper text-danger enabled" @onclick="() => OnDeleteSelected(item)">削除</button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div>データがありません。</div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pl-2">
+    <DxButton Text="フィルタを保存" Click="(e) => IsShowCreatePopup = true"></DxButton>
+</div>
+
+@code {
+    [Parameter] public string FormName { get; set; } = "KJ5000F";
+    [Parameter] public Func<Dictionary<string, string>> OnCreateFilter { get; set; }
+    [Parameter] public EventCallback<Dictionary<string, string>> OnApplyFilter { get; set; }
+    [Parameter] public int SyainCdSeq { get; set; }
+    //public List<string> ItemList { get; set; } = new List<string> { "aaaaaa", "bbbbbb" };
+    private string FilterName { get; set; }
+    private List<CustomFilerModel> ItemList { get; set; }
+    private bool IsShowCombobox { get; set; } = false;
+    private string SelectedFilterText { get; set; } = string.Empty;
+    private int SelectedFilterId { get; set; } = 0;
+    private bool IsShowEditPopup { get; set; } = false;
+    private bool IsShowDeletePopup { get; set; } = false;
+    private bool IsShowCreatePopup { get; set; } = false;
+    private CustomFilerModel SelectedFilterForModification { get; set; }
+    private IFilterCondition FilterCondition;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FilterCondition = ScopedServices.GetRequiredService<IFilterCondition>();
+        await LoadCustomFilter();
+    }
+
+    private async Task LoadCustomFilter()
+    {
+        ItemList = await FilterCondition.GetCustomFilters(SyainCdSeq, FormName);
+        SelectedFilterText = ItemList.SingleOrDefault(i => i.FilterId == SelectedFilterId)?.FilterName ?? string.Empty;
+    }
+
+    private async Task FocusOut()
+    {
+        await Task.Delay(500);
+        IsShowCombobox = false;
+    }
+
+    private void Toggle()
+    {
+        IsShowCombobox = !IsShowCombobox;
+    }
+
+    private async Task OnItemSelected(CustomFilerModel value)
+    {
+        if (!IsShowEditPopup && !IsShowDeletePopup)
+        {
+            SelectedFilterText = value.FilterName;
+            SelectedFilterId = value.FilterId;
+            var inpCons = await FilterCondition.GetFilterCondition(value.FormName, value.FilterId, SyainCdSeq);
+            var dic = inpCons.ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+            await OnApplyFilter.InvokeAsync(dic);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnEditSelected(CustomFilerModel value)
+    {
+        IsShowEditPopup = true;
+        SelectedFilterForModification = value;
+        FilterName = value.FilterName;
+        StateHasChanged();
+    }
+
+    private void OnDeleteSelected(CustomFilerModel value)
+    {
+        IsShowDeletePopup = true;
+        SelectedFilterForModification = value;
+        StateHasChanged();
+    }
+
+    private async Task CreateFilterItem()
+    {
+        var maxFilterId = await FilterCondition.GetMaxCustomFilerId(FormName, SyainCdSeq);
+        var isCreateSuccess = await FilterCondition.SaveCustomFiler(SyainCdSeq, maxFilterId + 1, FormName, FilterName);
+        if (isCreateSuccess)
+        {
+            var dic = OnCreateFilter?.Invoke();
+            var success = await FilterCondition.SaveFilterCondtion(dic, FormName, maxFilterId + 1, SyainCdSeq);
+        }
+        IsShowCreatePopup = false;
+        await LoadCustomFilter();
+    }
+
+    private async Task UpdateFilterItem()
+    {
+        if (SelectedFilterForModification != null)
+        {
+            await FilterCondition.SaveCustomFiler(SyainCdSeq, SelectedFilterForModification.FilterId, SelectedFilterForModification.FormName, FilterName);
+        }
+        IsShowEditPopup = false;
+        await LoadCustomFilter();
+    }
+
+    private async Task DeleteFilterItem()
+    {
+        if (SelectedFilterForModification != null)
+        {
+            await FilterCondition.DeleteCustomFilter(SyainCdSeq, SelectedFilterForModification.FilterId, SelectedFilterForModification.FormName, SelectedFilterForModification.FilterName);
+        }
+        IsShowDeletePopup = false;
+        await LoadCustomFilter();
+    }
+}

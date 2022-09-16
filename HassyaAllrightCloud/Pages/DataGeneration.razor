@@ -1,0 +1,313 @@
+﻿@page "/datageneration"
+@inject IStringLocalizer<DataGeneration> Lang
+@inject ITPM_CodeKbListService TPM_CodeKbnService
+@inject IGeneralOutPutService GeneralOutPutService
+@using System.Data
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>@Lang["page_title"]</h5>
+</div>
+
+<div class="main-top mb-2">
+    <EditForm EditContext="@formContext">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="DataGenerationValidator" />
+        <div class="express-condition mb-2">
+            <div class="card">
+                <div class="card-body py-3">
+                    <div class="d-flex">
+                        <div class="form-group d-flex flex-nowrap mr-4">
+                            <label class="col-form-label-sm width--56 mr-3">@Lang["OutPutUseType"]</label>
+                            <DxComboBox Data="CodeKbList"
+                                        AllowUserInput="false"
+                                        TextFieldName="RyakuNm"
+                                        SelectedItem="data.CodeKbnItem"
+                                        SelectedItemChanged="OnCodeKbnChanged"
+                                        SelectedItemExpression="@(() => data.CodeKbnItem)">
+                            </DxComboBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["OutputType"]</label>
+                            <DxComboBox Data="OutPutUseTypeList"
+                                        AllowUserInput="false"
+                                        TextFieldName="OutPutNm"
+                                        SelectedItem="data.OutPutUseType"
+                                        SelectedItemChanged="OnOutPutUseTypeChanged"
+                                        SelectedItemExpression="@(() => data.OutPutUseType)"
+                                        ReadOnly="@IsDisabled">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    @if (data.OutPutWhereItem != null)
+                    {
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["OutputConditions"]</label>
+                            <div class="list-outputwhere">
+                                @foreach (var item in data.OutPutWhereItem)
+                                {
+                                    <OutputConditions FieldConfigs="@item"></OutputConditions>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group d-flex flex-nowrap align-items-center">
+                        <label class="col-form-label-sm mr-3">@Lang["OutputFormat"]</label>
+                        <div class="border p-2 d-flex">
+                            <div class="d-flex flex-nowrap mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["HeadingOutput"]</label>
+                                <DxComboBox Data="HeadingOutputList"
+                                            AllowUserInput="false"
+                                            SelectedItem="data.HeadingOutput"
+                                            SelectedItemChanged="OnHeadingOutputChanged"
+                                            SelectedItemExpression="@(() => data.HeadingOutput)"
+                                            CssClass="width--160">
+                                </DxComboBox>
+                            </div>
+                            <div class="d-flex flex-nowrap mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["Separator"]</label>
+                                <DxTextBox Text="@data.Separator"
+                                           TextChanged="OnSeparatorChanged"
+                                           TextExpression="@(() => data.Separator)"
+                                           CssClass="width--90">
+                                </DxTextBox>
+                            </div>
+                            <div class="d-flex flex-nowrap mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["GroupType"]</label>
+                                <DxComboBox Data="GroupTypeList"
+                                            AllowUserInput="false"
+                                            SelectedItem="data.GroupType"
+                                            SelectedItemChanged="OnGroupTypeChanged"
+                                            SelectedItemExpression="@(() => data.GroupType)"
+                                            CssClass="width--160">
+                                </DxComboBox>
+                            </div>
+                            <div class="d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["EnclosedCharacters"]</label>
+                                <DxTextBox Text="@data.EnclosedCharacters"
+                                           TextChanged="OnEnclosedCharactersChanged"
+                                           TextExpression="@(() => data.EnclosedCharacters)"
+                                           CssClass="width--90">
+                                </DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100" @onclick="() => Display()" Text="@Lang["Display"]" Enabled="@IsEnabled"></DxButton>
+                        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--120 ml-3" @onclick="() => Export()" Text="@Lang["Export"]"  Enabled="@IsEnabled"></DxButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@if (ResultsData.Rows.Count > 0)
+{
+    <div class="text-righ">
+        <HassyaAllrightCloud.Pages.Components.Pagination TotalPage="@TotalPage" OnChangePage="(page) => OnPaginationChanged(page)"></HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+    <div class="table-responsive mb-3">
+        <table class='table table-border table-sm'>
+            <thead class='thead-light'>
+                <tr>
+                    <th width="30px">
+                        <DxCheckBox Checked="@IsCheckedAll" CheckedChanged="@((bool value) => OnCheckedAllChanged(value))"></DxCheckBox>
+                    </th>
+                    @for (int i = 0; i < ResultsData.Columns.Count; i++)
+                    {
+                        <th>@ResultsData.Columns[i].ColumnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow row in ResultsData.Rows)
+                {
+                    <tr>
+                        <td class="text-center">
+                            <DxCheckBox Checked="@list[ResultsData.Rows.IndexOf(row)]" CheckedChanged="(bool isChecked) => OnItemCheckedChanged(isChecked, row)"></DxCheckBox>
+                        </td>
+                        @foreach (DataColumn column in ResultsData.Columns)
+                        {
+                            <td>@ResultsData.Rows[ResultsData.Rows.IndexOf(row)][ResultsData.Columns.IndexOf(column)].ToString()</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="text-right">
+        <HassyaAllrightCloud.Pages.Components.Pagination TotalPage="@TotalPage" OnChangePage="(page) => OnPaginationChanged(page)"></HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+}
+
+
+
+@code {
+    private EditContext formContext;
+    DataGenerationData data = new DataGenerationData();
+    private List<TPM_CodeKbCodeSyuData> CodeKbList = new List<TPM_CodeKbCodeSyuData>();
+    private List<TPM_GeneralOutPutData> OutPutUseTypeList = new List<TPM_GeneralOutPutData>();
+    private List<TPM_GeneralOutPutWhereData> OutPutWhereList = new List<TPM_GeneralOutPutWhereData>();
+    private List<string> HeadingOutputList = new List<string>();
+    private List<string> GroupTypeList = new List<string>();
+    private int CurrentPage = 1;
+    private int RecordsPerPage = 10;
+    private int TotalPage = 1;
+    private DataTable ResultsData = new DataTable();
+    private bool IsCheckedAll = false;
+    private List<bool> list = new List<bool>();
+    private bool IsDisabled { get; set; } = true;
+    private bool IsEnabled { get; set; } = false;
+
+    #region Component Lifecycle
+    protected override async Task OnInitializedAsync()
+    {
+        formContext = new EditContext(data);
+        LoadStaticData();
+        CodeKbList = await TPM_CodeKbnService.GetDataByCodeSyu("OUTPUTUSETYPE", new ClaimModel().TenantID);
+    }
+    #endregion
+
+    #region Load Data
+    private void LoadStaticData()
+    {
+        OutPutUseTypeList = new List<TPM_GeneralOutPutData>(){
+            new TPM_GeneralOutPutData{ OutPutCd = 1, OutPutUseType = 1, OutPutNm = "【サンプル】社員一覧", OutPutSQL ="SELECT TOP (10) * FROM [HOC_Master].[dbo].[TPM_Syain]" },
+        };
+        OutPutWhereList = new List<TPM_GeneralOutPutWhereData>(){
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 1, WhereNm = "社員コード", WhereControl = 1, WhereType = 1},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 2, WhereNm = "社員コード", WhereControl = 1, WhereType = 2},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 3, WhereNm = "社員コード", WhereControl = 1, WhereType = 3},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 4, WhereNm = "社員コード", WhereControl = 1, WhereType = 4},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 5, WhereNm = "社員コード", WhereControl = 1, WhereType = 5},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 6, WhereNm = "社員コード", WhereControl = 1, WhereType = 6},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 7, WhereNm = "社員コード", WhereControl = 2, WhereType = 1},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 8, WhereNm = "社員コード", WhereControl = 2, WhereType = 2},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 9, WhereNm = "社員コード", WhereControl = 2, WhereType = 3},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 10, WhereNm = "社員コード", WhereControl = 2, WhereType = 4},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 11, WhereNm = "社員コード", WhereControl = 2, WhereType = 5},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 12, WhereNm = "社員コード", WhereControl = 2, WhereType = 6},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 13, WhereNm = "社員コード", WhereControl = 3, WhereType = 1},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 14, WhereNm = "社員コード", WhereControl = 3, WhereType = 2},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 15, WhereNm = "社員コード", WhereControl = 3, WhereType = 3},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 16, WhereNm = "社員コード", WhereControl = 3, WhereType = 4},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 17, WhereNm = "社員コード", WhereControl = 3, WhereType = 5},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 18, WhereNm = "社員コード", WhereControl = 3, WhereType = 6},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 19, WhereNm = "社員コード", WhereControl = 4, WhereType = 1},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 20, WhereNm = "社員コード", WhereControl = 4, WhereType = 2},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 21, WhereNm = "社員コード", WhereControl = 4, WhereType = 3},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 22, WhereNm = "社員コード", WhereControl = 4, WhereType = 4},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 23, WhereNm = "社員コード", WhereControl = 4, WhereType = 5},
+            new TPM_GeneralOutPutWhereData { OutPutCd = 1, OutWhereNo = 24, WhereNm = "社員コード", WhereControl = 4, WhereType = 6},
+        };
+        HeadingOutputList = new List<string>() {
+            "出力する",
+            "出力しない"
+        };
+        data.HeadingOutput = HeadingOutputList.FirstOrDefault();
+        GroupTypeList = new List<string>() {
+            "文字列のみ対応",
+            "全て対応",
+            "しない"
+        };
+        data.GroupType = GroupTypeList.FirstOrDefault();
+    }
+    #endregion
+
+    #region Value Changed Method
+    private void OnCodeKbnChanged(TPM_CodeKbCodeSyuData newValue)
+    {
+        data.CodeKbnItem = newValue;
+        OutPutUseTypeList = OutPutUseTypeList.FindAll(t => t.OutPutUseType == int.Parse(data.CodeKbnItem.CodeKbn));
+        IsDisabled = false;
+        StateHasChanged();
+    }
+
+    private void OnOutPutUseTypeChanged(TPM_GeneralOutPutData newValue)
+    {
+        data.OutPutUseType = newValue;
+        data.OutPutWhereItem = OutPutWhereList.FindAll(t => t.OutPutCd == data.OutPutUseType.OutPutCd);
+        IsEnabled = true;
+        StateHasChanged();
+    }
+
+    private void OnHeadingOutputChanged(string value)
+    {
+        data.HeadingOutput = value;
+        StateHasChanged();
+    }
+
+    private void OnSeparatorChanged(string value)
+    {
+        data.Separator = value;
+        StateHasChanged();
+    }
+
+    private void OnGroupTypeChanged(string value)
+    {
+        data.GroupType = value;
+        StateHasChanged();
+    }
+
+    private void OnEnclosedCharactersChanged(string value)
+    {
+        data.EnclosedCharacters = value;
+        StateHasChanged();
+    }
+
+    private void OnPaginationChanged(int page)
+    {
+        CurrentPage = page + 1;
+        // to do
+        StateHasChanged();
+    }
+
+    private void OnCheckedAllChanged(bool isChecked)
+    {
+        IsCheckedAll = isChecked;
+        for(var i = 0; i < list.Count(); i++)
+        {
+            list[i] = isChecked;
+        }
+        StateHasChanged();
+    }
+
+    private void OnItemCheckedChanged(bool isChecked, DataRow row)
+    {
+        list[ResultsData.Rows.IndexOf(row)] = isChecked;
+        if(IsCheckedAll == true && list.Count(x => x == true) < list.Count())
+        {
+            IsCheckedAll = false;
+        }
+        else if(IsCheckedAll == false && list.Count(x => x == true) == list.Count())
+        {
+            IsCheckedAll = true;
+        }
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Action
+    /// <summary>
+    ///
+    /// </summary>
+    async Task Display()
+    {
+        ResultsData = await GeneralOutPutService.GetDataTable(data.OutPutUseType.OutPutSQL);
+        for(var i = 0; i < ResultsData.Rows.Count; i++)
+        {
+            list.Add(false);
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Export()
+    {
+        // to do
+    }
+    #endregion
+}

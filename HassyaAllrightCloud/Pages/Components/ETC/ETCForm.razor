@@ -1,0 +1,392 @@
+﻿@inherits ETCFormBase
+@using HassyaAllrightCloud.Commons
+@using HassyaAllrightCloud.Commons.Extensions
+<div class="etc-form">
+    <div class="etc-form-body pb-2">
+        <ul class="validation-errors mt-2">
+            @if (isError)
+            {
+                <li class="validation-message">@errorContent</li>
+            }
+        </ul>
+        <div class="body-up">
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["vehicle_label"]</p>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-5">
+                            @if (formType == ETCFormTypeEnum.Update || formType == ETCFormTypeEnum.View)
+                            {
+                                <DxTextBox ReadOnly="true" CssClass="width-10rem"
+                                           Text="@($"{Model.SyaRyo?.SyaRyoCd:00000}")"></DxTextBox>
+                            }
+                            else
+                            {
+                                <div class="has-tooltip-error">
+                                    @if (isSyaRyoError != null && isSyaRyoError.Value)
+                                    {
+                                        <Tooltip Text="@_lang["BI_T001_1"]" Position="PositionTooltip.top"></Tooltip>
+                                    }
+                                    <DxComboBox CssClass="@GetValidateClass(isSyaRyoError)"
+                                                ReadOnly="formType == ETCFormTypeEnum.Update || formType == ETCFormTypeEnum.View || (formType == ETCFormTypeEnum.Create && isCreateValid)" Data="listSyaRyo"
+                                                ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                TextFieldName="@nameof(Model.SyaRyo.Text)"
+                                                FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                SelectedItem="Model.SyaRyo"
+                                                SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.SyaRyo), v)"
+                                                SelectedItemExpression="() => Model.SyaRyo"
+                                                NullText="@_lang["vehicle_nulltext"]"></DxComboBox>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 text-right">
+                    <button class="btn btn-sm btn-danger mw-6rem" @onclick="() => Clear()">
+                        <i class="fa fa-refresh mr-1" aria-hidden="true"></i>
+                        @_lang["popup_init_btn"]
+                    </button>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["operating_day_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="has-tooltip-error">
+                                @if (isUnkYmdError != null && isUnkYmdError.Value)
+                                {
+                                    <Tooltip Text="@_lang["BI_T001_2"]" Position="PositionTooltip.top"></Tooltip>
+                                }
+                                <DxDateEdit CssClass="@GetValidateClass(isUnkYmdError)"
+                                            ReadOnly="formType == ETCFormTypeEnum.Update || formType == ETCFormTypeEnum.View || (formType == ETCFormTypeEnum.Create && isCreateValid)" Date="@Model.UnkYmd"
+                                            DateChanged="async v => await UpdateFormModel(nameof(Model.UnkYmd), v)"
+                                            DateExpression="() => Model.UnkYmd"
+                                            ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                            DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                            Format="@DateTimeFormat.yyyyMMddSlash"
+                                            NullText="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="my-2">
+        <div class="body-down">
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["operating_hours_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxTextBox ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View" CssClass="w-38 time"
+                                       NullText="--:--:--"
+                                       maxlength="6"
+                                       Text="@Model.UnkTime"
+                                       TextExpression="@(() => Model.UnkTime)"
+                                       TextChanged="@(async v => await UpdateFormModel(nameof(Model.UnkTime), v))"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["incidental_charges_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="has-tooltip-error">
+                                @if (isFutaiError != null && isFutaiError.Value)
+                                {
+                                    <Tooltip Text="@_lang["BI_T001_3"]" Position="PositionTooltip.top"></Tooltip>
+                                }
+                                <DxComboBox CssClass="@GetValidateClass(isFutaiError)"
+                                            ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View" Data="listFutai"
+                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                            TextFieldName="@nameof(Model.Futai.Text)"
+                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                            SelectedItem="Model.Futai"
+                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.Futai), v)"
+                                            SelectedItemExpression="() => Model.Futai"
+                                            NullText="@_lang["incidental_charges_nulltext"]"></DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["fee_station_in_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxComboBox ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View" Data="listRyokin"
+                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                        TextFieldName="@nameof(Model.IriRyaku.DisplayName)"
+                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                        SelectedItem="Model.IriRyaku"
+                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.IriRyaku), v)"
+                                        SelectedItemExpression="() => Model.IriRyaku"
+                                        NullText="@_lang["fee_station_nulltext"]"
+                                        ListRenderMode="ListRenderMode.Virtual"></DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["fee_station_out_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxComboBox ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View" Data="listRyokin"
+                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                        TextFieldName="@nameof(Model.DeRyaku.DisplayName)"
+                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                        SelectedItem="Model.DeRyaku"
+                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.DeRyaku), v)"
+                                        SelectedItemExpression="() => Model.DeRyaku"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        NullText="@_lang["fee_station_nulltext"]"></DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["liquidation_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="has-tooltip-error">
+                                @if (isSeisanError != null && isSeisanError.Value)
+                                {
+                                    <Tooltip Text="@_lang["BI_T001_4"]" Position="PositionTooltip.top"></Tooltip>
+                                }
+                                <DxComboBox CssClass="@GetValidateClass(isSeisanError)"
+                                            ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View" Data="listSeisan"
+                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                            TextFieldName="@nameof(Model.Seisan.Text)"
+                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                            SelectedItem="Model.Seisan"
+                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.Seisan), v)"
+                                            SelectedItemExpression="() => Model.Seisan"
+                                            NullText="@_lang["liquidation_nulltext"]"></DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2"></div>
+                <div class="col-10">
+                    <div class="form-check-inline mr-0 w-100">
+                        <div class="d-inline-block radio-item mr-3">
+                            <input class="so-radio-icon k-radio" disabled="@((formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View)"
+                                   type="radio" name="process" id="process" checked="@(Model.SeisanWay == 1)" @onchange="@(() => UpdateFormModel(nameof(Model.SeisanWay), 1))" />
+                            <label for="process" class="so-label-radio ml-0 k-radio-label">@_lang["process_label"]</label>
+                        </div>
+                        <div class="d-inline-block radio-item">
+                            <input class="so-radio-icon k-radio" disabled="@((formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View)"
+                                   type="radio" name="donotprocess" id="donotprocess" checked="@(Model.SeisanWay == 2)" @onchange="@(() => UpdateFormModel(nameof(Model.SeisanWay), 2))" />
+                            <label for="donotprocess" class="so-label-radio ml-0 k-radio-label">@_lang["donotprocess_label"]</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["amount_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="d-flex">
+                        <div class="width-5rem">
+                            <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="999" ShowSpinButtons="false"
+                                        CssClass="w-100 number-spin text-right custom-number-spin"
+                                        ValueExpression="() => Model.Suryo"
+                                        Value="@Model.Suryo"
+                                        ValueChanged="async v => await UpdateFormModel(nameof(Model.Suryo), v)"
+                                        ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View"></DxSpinEdit>
+                        </div>
+                        <div class="width-3rem text-center">✕</div>
+                        <div class="width-5rem">
+                            <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="999999" ShowSpinButtons="false"
+                                        CssClass="w-100 number-spin text-right custom-number-spin"
+                                        ValueExpression="() => Model.Tanka"
+                                        Value="@Model.Tanka"
+                                        ValueChanged="async v => await UpdateFormModel(nameof(Model.Tanka), v)"
+                                        ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View"></DxSpinEdit>
+                        </div>
+                        <div class="width-3rem text-center">=</div>
+                        <div class="width-8rem">
+                            <DxTextBox ReadOnly="true"
+                                       TextExpression="() => Model.UriGakKin.ToString()"
+                                       Text="@Model.UriGakKin.AddCommas()"
+                                       CssClass="number text-right" maxlength="8"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["consumption_tax_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="d-flex">
+                        <div class="width-5rem mw-5rem">
+                            <p class="etc-custom-text">@Model.ZeiKbnNm</p>
+                        </div>
+                        <div class="width-3rem text-center">
+                        </div>
+                        <div class="width-5rem text-right">
+                            <p class="etc-custom-text">@Model.ZeiRitu.ToString("N1")</p>
+                        </div>
+                        <div class="width-3rem text-center">
+                            <p class="etc-custom-text">%</p>
+                        </div>
+                        <div class="width-8rem text-right">
+                            <p class="etc-custom-text">@Model.SyaRyoSyo.ToString("N0")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["fee_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="d-flex">
+                        <div class="width-5rem mw-5rem">
+                        </div>
+                        <div class="width-3rem text-center">
+                        </div>
+                        <div class="width-5rem">
+                            <DxSpinEdit DisplayFormat="N1" MinValue="0" MaxValue="99.9m" ShowSpinButtons="false"
+                                        CssClass="w-100 number-spin text-right custom-number-spin"
+                                        ValueExpression="() => Model.TesuRitu"
+                                        Value="Model.TesuRitu"
+                                        ValueChanged="async v => await UpdateFormModel(nameof(Model.TesuRitu), v)"
+                                        ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View"></DxSpinEdit>
+                        </div>
+                        <div class="width-3rem text-center etc-custom-text">
+                            <p class="etc-custom-text">%</p>
+                        </div>
+                        <div class="width-8rem">
+                            <DxTextBox ReadOnly="true"
+                                       TextExpression="() => Model.SyaRyoTes.ToString()"
+                                       Text="@Model.SyaRyoTes.AddCommas()"
+                                       CssClass="number text-right" maxlength="9"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["billing_remarks_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxTextBox ReadOnly="(formType != ETCFormTypeEnum.Update && !isCreateValid) || formType == ETCFormTypeEnum.View"
+                                       ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                       TextExpression="() => Model.BikoNm"
+                                       Text="@Model.BikoNm"
+                                       TextChanged="async v => await UpdateFormModel(nameof(Model.BikoNm), v)"
+                                       maxlength="50"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["receipt_number_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxTextBox ReadOnly="true" TextChanged="async v => await UpdateFormModel(nameof(Model.UkeNo), v)"
+                                       TextExpression="() => Model.UkeNo"
+                                       Text="@Model.UkeNo"
+                                       CssClass="number" maxlength="10"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-2 my-auto">
+                    <p class="etc-custom-text">@_lang["group_name_label"]</p>
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-5">
+                            <DxTextBox ReadOnly="true" TextChanged="async v => await UpdateFormModel(nameof(Model.DanNm), v)"
+                                       TextExpression="() => Model.DanNm"
+                                       Text="@Model.DanNm"
+                                       CssClass="number" maxlength="10"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="etc-form-footer">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["receipt_number_col"]</th>
+                    <th class="text-center mw-15rem vertical-align-middle">@_lang["group_name_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["ancillary_count_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["ancillary_detail_count_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["operating_day_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["vehicle_code_col"]</th>
+                    <th class="text-center mw-6rem vertical-align-middle">@_lang["vehicle_name_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["goods_issue_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["return_home_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@((MarkupString)(_lang["billing_customer_fee_classification_col"].ToString()))</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@((MarkupString)(_lang["billing_customer_commimission_rate_col"].ToString()))</th>
+                    <th class="text-center mw-15rem vertical-align-middle">@_lang["customer_name_col"]</th>
+                    <th class="text-center mw-10rem vertical-align-middle">@_lang["branch_name_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["vehicle_dispatch_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["arrival_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["service_delivery_col"]</th>
+                    <th class="text-center mw-7rem vertical-align-middle">@_lang["return_to_service_col"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listYoyaku)
+                {
+                    <tr @onclick="(e) => ChangeSelectedRow(item)"
+                        class="@(Model.ETCYoyaku == item ? "selected-row" : string.Empty)">
+                        <td class="text-center">@item.UkeNo</td>
+                        <td>@item.DanTaNm</td>
+                        <td class="text-right">@item.CountFutai</td>
+                        <td class="text-right">@item.CountMFutu</td>
+                        <td>@item.UnkYmd.AddSlash2YYYYMMDD()</td>
+                        <td class="text-right">@item.SyaRyoCd</td>
+                        <td>@item.SyaRyoNm</td>
+                        <td>@item.SyuKoYmd.AddSlash2YYYYMMDD()</td>
+                        <td>@item.KikYmd.AddSlash2YYYYMMDD()</td>
+                        <td class="text-right">@item.SeikyuTesKbnFut</td>
+                        <td class="text-right">@item.TesuRituFut</td>
+                        <td>@item.TokuiNm</td>
+                        <td>@item.SitenNm</td>
+                        <td>@item.HaiSYmd.AddSlash2YYYYMMDD()</td>
+                        <td>@item.TouYmd.AddSlash2YYYYMMDD()</td>
+                        <td>@item.UnkSyuKoYmd.AddSlash2YYYYMMDD()</td>
+                        <td>@item.UnkKikYmd.AddSlash2YYYYMMDD()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

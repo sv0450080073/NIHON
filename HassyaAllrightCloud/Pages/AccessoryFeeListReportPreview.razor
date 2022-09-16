@@ -1,0 +1,25 @@
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@using HassyaAllrightCloud.IService.CommonComponents
+@inject IReservationClassComponentService _service 
+
+<DxDocumentViewer ReportUrl="@($"{nameof(IAccessoryFeeListReportService)}?" + searchString)" Height="1000px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code {
+    [Parameter] public string searchString { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        //var bookingTypes = await _service.GetListReservationClass();
+        //var param = EncryptHelper.Decrypt<AccessoryFeeListReportSearchParams>(searchString);
+        //param.SearchCondition.BookingTypes = bookingTypes;
+        //if (param.SearchCondition.BookingTypeStart != null)
+        //    param.SearchCondition.BookingTypes = param.SearchCondition.BookingTypes.Where(_ => _.YoyaKbn >= param.SearchCondition.BookingTypeStart.YoyaKbn).ToList();
+        //if (param.SearchCondition.BookingTypeEnd != null)
+        //    param.SearchCondition.BookingTypes = param.SearchCondition.BookingTypes.Where(_ => _.YoyaKbn <= param.SearchCondition.BookingTypeEnd.YoyaKbn).ToList();
+        //searchString = EncryptHelper.EncryptToUrl(param);
+
+        await base.OnInitializedAsync();
+    }
+}

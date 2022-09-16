@@ -1,0 +1,268 @@
+﻿@inherits ListDataBase
+
+<div class="mb-2 mt-2" style="display: flex; flex: 1; flex-direction: column">
+    <div class="row mb-2">
+        <div class="col-12">
+            <div class="row ml-0 mr-0 mt-2">
+                <div class="div-inline">
+                    <label class="col-form-label pr-3 pl-3">@_lang["saleoffice_label"]</label>
+                    <DxComboBox Data="listEigyo"
+                                FilteringMode="@DataGridFilteringMode.Contains"
+                                AllowUserInput="false"
+                                CssClass="width--250"
+                                TextFieldName="Text"
+                                SelectedItem="searchParams.selectedEigyo"
+                                SelectedItemExpression="@(() => searchParams.selectedEigyo)"
+                                SelectedItemChanged="@(async e => await OnEigyoChanged(e))">
+                    </DxComboBox>
+                    <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="@(() => OnChangedItem(0))" disabled="@OnCheckDisable(0)">
+                        <i class="fa fa-chevron-circle-left m-auto" style="font-size: 1.5rem; position: relative; top: -0.2rem"></i>
+                    </button>
+                    <button class="btn btn-sm d-flex p-0" @onclick="@(() => OnChangedItem(1))" disabled="@OnCheckDisable(1)">
+                        <i class="fa fa-chevron-circle-right m-auto" style="font-size: 1.5rem; position: relative; top: -0.2rem"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row m-0 pl-2 pr-2" style="display: flex; flex: 1; flex-direction: column">
+        <div id="table-container" class="mb-2 w-100 overflow-auto grid-@fontSize"
+             style="display: flex; flex: 1; flex-direction: column;">
+            @*@if (Header != null && Body != null)
+            {
+                <KoboSimpleGrid Header="Header" Body="Body" DataItems="listDataDisplay" CssClass="@(string.Format("grid-flex-1 kobo-grid-size-{0}", (int)fontSize))"></KoboSimpleGrid>
+            }*@
+            <table class="table normal-table table-sm vehicle-table fixed-header mb-0 table-layout"
+                   style="table-layout: fixed; border-collapse: separate; border-spacing: 0">
+                <thead>
+                    <tr>
+                        <th style="width: 3.5rem" class="sticky header-sticky">@_lang["no_list"]</th>
+                        <th style="width: 10rem; z-index: 1">@_lang["carnumber_list"]</th>
+                        <th style="width: 3.5rem; z-index: 1">@_lang["capacity_list"]</th>
+                        <th style="width: 10rem; z-index: 1">@_lang["customer_list"]</th>
+                        <th style="width: 20rem; z-index: 1">@_lang["organizationname_list"]<br />@_lang["destinationname_list"]</th>
+                        <th style="width: 3.5rem; z-index: 1">@_lang["dayandnight_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["issue_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["return_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["fare_list"]<br />@_lang["fee_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["netincome_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["boardingpersonnel_list"]<br />@_lang["pluspersonnel_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["actualkm_list"]<br />@_lang["general_highspeed_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["forwardingkm_list"]<br />@_lang["general_highspeed_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["otherkm_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["totalkm_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["fuel1_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["fuel2_list"]</th>
+                        <th style="width: 7rem; z-index: 1">@_lang["fuel3_list"]</th>
+                        <th style="width: 15rem; z-index: 1">@_lang["crewname_list"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (listDataDisplay.Count > 0)
+                    {
+                        var count = 0;
+                        @foreach (var item in listDataDisplay)
+                        {
+                            count++;
+                            <tr>
+                                <td class="text-center sticky col-sticky">@(count + itemPerPage * currentPage)</td>
+                                <td class="text-left">@item.SyaRyoNm</td>
+                                <td class="text-right">@item.TeiCnt</td>
+                                <td class="text-left">@item.Tokui_RyakuNm<br />@item.Siten_RyakuNm</td>
+                                <td class="text-left overflow-hidden">@(item.DanTaNm + item.DanTaNm2)<br />@item.IkNm</td>
+                                <td class="text-center">@item.Hihaku</td>
+                                <td class="text-left">
+                                    @{
+                                        var displaySyuKo = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(item.SyuKoYmd))
+                                        {
+                                            var dayOfWeekSyuKo = DateTime.ParseExact(item.SyuKoYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture);
+                                            displaySyuKo = dayOfWeekSyuKo.ToString(CommonConstants.Format2YMDWithDOW);
+                                        }
+                                    }
+                                    @displaySyuKo
+                                    <br />
+                                    @item.SyuKoTime.Insert(2, ":")
+                                </td>
+                                <td class="text-left">
+                                    @{
+                                        var displayKik = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(item.KikYmd))
+                                        {
+                                            var dayOfWeekKik = DateTime.ParseExact(item.KikYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture);
+                                            displayKik = dayOfWeekKik.ToString(CommonConstants.Format2YMDWithDOW);
+                                        }
+                                    }
+                                    @displayKik
+                                    <br />
+                                    @item.KikTime.Insert(2, ":")
+                                </td>
+                                <td class="text-right">
+                                    @item.SyaRyoUnc.ToString("N0")<br />@item.SyaRyoTes.ToString("N0")
+                                </td>
+                                <td class="text-right">
+                                    @((item.SyaRyoUnc - item.SyaRyoTes).ToString("N0"))
+                                </td>
+                                <td class="text-right">
+                                    @item.JyoSyaJin<br />@item.PlusJin
+                                </td>
+                                <td class="text-right">@(decimal.Parse(item.Total_JisaIPKm).ToString("N2"))<br />@(decimal.Parse(item.Total_JisaKSKm).ToString("N2"))</td>
+                                <td class="text-right">@(decimal.Parse(item.Total_KisoIPKm).ToString("N2"))<br /> @(decimal.Parse(item.Total_KisoKSKm).ToString("N2")) </td>
+                                <td class="text-right">@(decimal.Parse(item.Total_OthKm).ToString("N2"))</td>
+                                <td class="text-right">@(decimal.Parse(item.Total_TotalKm).ToString("N2"))</td>
+                                <td class="text-right">@item.Nenryo1RyakuNm<br />@(decimal.Parse(item.Nenryo1).ToString("N2"))</td>
+                                <td class="text-right">@item.Nenryo2RyakuNm<br />@(decimal.Parse(item.Nenryo2).ToString("N2"))</td>
+                                <td class="text-right">@item.Nenryo3RyakuNm<br />@(decimal.Parse(item.Nenryo3).ToString("N2"))</td>
+                                <td class="text-left">@item.SyainNm1 @item.SyainNm2 @item.SyainNm3 @item.SyainNm4 @item.SyainNm5</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="18">@_lang["tablehasnorows"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-2 mt-2">
+            <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                                TotalCount="totalCount" @ref="paging">
+            </HassyaAllrightCloud.Pages.Components.Pagination>
+        </div>
+
+        @if (searchParams.TotalType == 0)
+        {
+            @*<div class="right-table">
+                @if (HeaderTotal1 != null && BodyTotal1 != null)
+                {
+                    <KoboSimpleGrid Header="HeaderTotal1" Body="BodyTotal1" DataItems="totalData" CssClass="@(string.Format("kobo-grid-size-{0}", (int)fontSize))"></KoboSimpleGrid>
+                }
+            </div>*@
+            <div class="grid-@fontSize">
+                <table class="table table-sm vehicle-table w-85 mb-2 table-layout">
+                    <thead>
+                        <tr>
+                            <th style="width: 3rem">@_lang["total_childlist_1"]</th>
+                            <th style="width: 7rem">@_lang["fare_childlist_1"]</th>
+                            <th style="width: 5rem">@_lang["fee_list"]</th>
+                            <th style="width: 5rem">@_lang["netincome_list"]</th>
+                            <th style="width: 5rem">@_lang["boardingpersonnel_list"]<br />@_lang["pluspersonnel_list"]</th>
+                            <th style="width: 5rem">@_lang["actualkm_list"]<br />@_lang["general_highspeed_list"]</th>
+                            <th style="width: 5rem">@_lang["forwardingkm_list"]<br />@_lang["general_highspeed_list"]</th>
+                            <th style="width: 5rem">@_lang["otherkm_list"]</th>
+                            <th style="width: 5rem">@_lang["totalkm_list"]</th>
+                            <th style="width: 5rem">@_lang["fuel1_list"]</th>
+                            <th style="width: 5rem">@_lang["fuel2_list"]</th>
+                            <th style="width: 5rem">@_lang["fuel3_list"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (total != null)
+                        {
+                            <tr>
+                                <td class="text-center"><div style="min-height: 16px">合計</div></td>
+                                <td class="text-center">@int.Parse(total.SumSyaRyoUnc).ToString("N0")</td>
+                                <td class="text-right">@int.Parse(total.SumSyaRyoTes).ToString("N0")</td>
+                                <td class="text-right">@((int.Parse(total.SumSyaRyoUnc) - int.Parse(total.SumSyaRyoTes)).ToString("N0")) </td>
+                                <td class="text-right">@int.Parse(total.SumJyoSyaJin).ToString("N0")<br />@int.Parse(total.SumPlusJin).ToString("N0")</td>
+                                <td class="text-right">@decimal.Parse(total.SumJisaIPKm).ToString("N2")<br />@decimal.Parse(total.SumJisaKSKm).ToString("N2")</td>
+                                <td class="text-right">@decimal.Parse(total.SumKisoIPKm).ToString("N2")<br />@decimal.Parse(total.SumKisoKOKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.SumOthKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.SumTotalKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.SumNenryo1).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.SumNenryo2).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.SumNenryo3).ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><div style="min-height: 16px">当月分</div></td>
+                                <td class="text-center">@int.Parse(total.CurMonthSyaRyoUnc).ToString("N0")</td>
+                                <td class="text-right">@int.Parse(total.CurMonthSyaRyoTes).ToString("N0")</td>
+                                <td class="text-right">@((int.Parse(total.CurMonthSyaRyoUnc) - int.Parse(total.CurMonthSyaRyoTes)).ToString("N0")) </td>
+                                <td class="text-right">@int.Parse(total.CurMonthJyoSyaJin).ToString("N0")<br />@int.Parse(total.CurMonthPlusJin).ToString("N0")</td>
+                                <td class="text-right">@decimal.Parse(total.CurMonthJisaIPKm).ToString("N2")<br />@decimal.Parse(total.CurMonthJisaKSKm).ToString("N2")</td>
+                                <td class="text-right">@decimal.Parse(total.CurMonthKisoIPKm).ToString("N2")<br />@decimal.Parse(total.CurMonthKisoKOKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.CurMonthOthKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.CurMonthTotalKm).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.CurMonthNenryo1).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.CurMonthNenryo2).ToString("N2")</td>
+                                <td class="text-center">@decimal.Parse(total.CurMonthNenryo3).ToString("N2")</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="13">@_lang["tablehasnorows"]</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (searchParams.TotalType == 1)
+        {
+            @*<div class="right-table">
+                @if (HeaderTotal2 != null && BodyTotal2 != null)
+                {
+                    <KoboSimpleGrid Header="HeaderTotal2" Body="BodyTotal2" DataItems="totalData" CssClass="@(string.Format("kobo-grid-size-{0}", (int)fontSize))"></KoboSimpleGrid>
+                }
+            </div>*@
+            <div class="grid-@fontSize">
+                <table class="table table-sm vehicle-table mb-2 table-layout" style="width: calc(85% - 3rem)">
+                    <thead>
+                        <tr>
+                            <th colspan="5">@_lang["numberofvehicle_childlist_2"]</th>
+                            <th colspan="3">@_lang["groupbreakdown_childlist_2"]</th>
+                            <th colspan="3">@_lang["numberofservice_childlist_2"]</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 7rem" rowspan="2">@_lang["reality_childlist_2"]<br />@_lang["numberofvehicle_childlist_2"]</th>
+                            <th colspan="2">@_lang["numberofactualvehicle_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["tempincrease_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["vehicle_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["numberofgroup_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["home_childlist_2"]<br />@_lang["headoffice_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["home_childlist_2"]<br />@_lang["mediator_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["numberoftrip_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["home_childlist_2"]<br />@_lang["headoffice_childlist_2"]</th>
+                            <th style="width: 5rem" rowspan="2">@_lang["home_childlist_2"]<br />@_lang["mediator_childlist_2"]</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 5rem">@(searchParams.OutputCategory == 1 ? _lang["outgoing_childlist_2"] : _lang["returnamount_childlist_2"])</th>
+                            <th style="width: 5rem">@_lang["night_childlist_2"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (total != null)
+                        {
+                            <tr>
+                                <td class="text-right"><div style="min-height: 16px">@total.TotalActualSyaryo @_lang["both_label"]</div></td>
+                                <td class="text-right">@total.TotalWorkStock @_lang["both_label"]</td>
+                                <td class="text-right">@total.TotalWorkNight @_lang["both_label"]</td>
+                                <td class="text-right">@total.TempIncrease @_lang["both_label"]</td>
+                                <td class="text-right">
+                                    @((decimal.Parse(total.TotalActualSyaryo) - decimal.Parse(total.TotalWorkStock)
+                                    - decimal.Parse(total.TotalWorkNight) + decimal.Parse(total.TempIncrease))) @_lang["both_label"]
+                                </td>
+                                <td class="text-right">@((decimal.Parse(total.TotalDantaiHeadOffice) + decimal.Parse(total.TotalDantaiMediator))) @_lang["case_label"]</td>
+                                <td class="text-right">@total.TotalDantaiHeadOffice @_lang["case_label"]</td>
+                                <td class="text-right">@total.TotalDantaiMediator @_lang["case_label"]</td>
+                                <td class="text-right">@((decimal.Parse(total.TotalUnkoHeadOffice) + decimal.Parse(total.TotalUnkoMediator))) @_lang["time_label"]</td>
+                                <td class="text-right">@total.TotalUnkoHeadOffice @_lang["time_label"]</td>
+                                <td class="text-right">@total.TotalUnkoMediator @_lang["time_label"]</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="13">@_lang["tablehasnorows"]</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

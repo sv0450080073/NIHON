@@ -1,0 +1,18 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="schedule-wrapper">
+    <HassyaAllrightCloud.Pages.Components.StaffScheduleContent IsHomePage="false"></HassyaAllrightCloud.Pages.Components.StaffScheduleContent>
+</div>
+
+@code {
+
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("loadPageScript", "staffSchedulePage");
+        base.OnParametersSet();
+    }
+
+}

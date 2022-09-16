@@ -1,0 +1,623 @@
+﻿@inherits ReceivableListBase
+
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex align-items-center">
+        <h5 class="mb-0">@Lang["Title"]</h5>
+    </div>
+    <div class="d-flex">
+        <div id="div-color-deposit" class="d-flex col-auto flex-wrap align-items-center">
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-1">@Lang["deposited"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-2">@Lang["coupon"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-3">@Lang["some"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-4">@Lang["partiallyincluded"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-5">@Lang["overpayment"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-6">@Lang["notpay"]</span>
+        </div>
+        <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            @Lang["EraseAll"]
+        </button>
+    </div>
+
+</div>
+<EditForm Context="editContext" EditContext="searchForm">
+    <div class="title-section mb-2 supermenu-title-section">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+    </div>
+    <div class="express-condition mb-2" style="display: none">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["FilterCondition1"]"></DxTab>
+            <DxTab Text="@Lang["FilterCondition2"]"></DxTab>
+            <DxTab Text="@Lang["DisplaySetting"]"></DxTab>
+            <DxTab Text="@Lang["OutputSetting"]"></DxTab>
+        </DxTabs>
+        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+            <div class="card-body supermenu-hyper-form">
+
+                <DataAnnotationsValidator />
+                <FluentValidator TValidator="ReceivableListValidator" />
+                <ul class="validation-errors">
+                    @foreach (var item in Errors.Distinct())
+                    {
+                        <li class="validation-message">@Lang[item]</li>
+                    }
+                </ul>
+                <div class="form-row" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["Company"]</label>
+                            <div class="item-inline ml-2 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.CompanyData)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@CompanyDatas" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="@ReceivableFilterModel.CompanyData"
+                                            SelectedItemExpression="@(() => ReceivableFilterModel.CompanyData)"
+                                            SelectedItemChanged="@( async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.CompanyData), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["SaleBranch"]</label>
+                            <div class="has-tooltip-error item-inline ml-2">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.StartSaleBranchList)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@SaleBranchs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            NullText="@Lang["NullTextSaleOffice"]"
+                                            TextFieldName="Text"
+                                            SelectedItem="@ReceivableFilterModel.StartSaleBranchList"
+                                            SelectedItemExpression="@(() => ReceivableFilterModel.StartSaleBranchList)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(ReceivableFilterModel.StartSaleBranchList), newValue))">
+                                </DxComboBox>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.EndSaleBranchList)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@SaleBranchs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            NullText="@Lang["NullTextSaleOffice"]"
+                                            TextFieldName="Text"
+                                            SelectedItem="@ReceivableFilterModel.EndSaleBranchList"
+                                            SelectedItemExpression="@(() => ReceivableFilterModel.EndSaleBranchList)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(ReceivableFilterModel.EndSaleBranchList), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["SaleBranchType"]</label>
+                            <div class="item-inline ml-2 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.SaleOfficeType)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@SaleBranchTypes" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="@ReceivableFilterModel.SaleOfficeType"
+                                            SelectedItemExpression="@(() => ReceivableFilterModel.SaleOfficeType)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.SaleOfficeType), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label w--100">@Lang["PaymentDate"]</label>
+                            <div class="item-inline ml-2 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.StartPaymentDate)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="filter-inline date-sm" Date="@ReceivableFilterModel.StartPaymentDate" DateExpression="@(() => ReceivableFilterModel.StartPaymentDate)" Format=@dateFormat DateChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.StartPaymentDate), newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.EndPaymentDate)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="filter-inline date-sm" Date="@ReceivableFilterModel.EndPaymentDate" DateExpression="@(() => ReceivableFilterModel.EndPaymentDate)" Format=@dateFormat DateChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.EndPaymentDate), newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["BillingAddress"]</label>
+                                <div style="margin-left:5px">
+                                    <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(ReceivableFilterModel.startCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                             SelectedGyosya="ReceivableFilterModel.startCustomerComponentGyosyaData"
+                                                                                                             GyosyaExpression="() => ReceivableFilterModel.startCustomerComponentGyosyaData"
+                                                                                                             SelectedGyosyaChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.startCustomerComponentGyosyaData), e)"
+                                                                                                             DefaultTokisk="@(Convert.ToInt32(ReceivableFilterModel.startCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                             SelectedTokisk="ReceivableFilterModel.startCustomerComponentTokiskData"
+                                                                                                             TokiskExpression="() => ReceivableFilterModel.startCustomerComponentTokiskData"
+                                                                                                             SelectedTokiskChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.startCustomerComponentTokiskData), e)"
+                                                                                                             DefaultTokiSt="@(Convert.ToInt32(ReceivableFilterModel.startCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                             SelectedTokiSt="ReceivableFilterModel.startCustomerComponentTokiStData"
+                                                                                                             SelectedTokiStChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.startCustomerComponentTokiStData), e)"
+                                                                                                             TokiStExpression="() => ReceivableFilterModel.startCustomerComponentTokiStData"
+                                                                                                             LangDic="LangDic"
+                                                                                                             DefaultTokiskNullText="@Lang["DefaultNullTokisk"]"
+                                                                                                             GyosyaCssClass="w-100"
+                                                                                                             TokiskCssClass="w-100"
+                                                                                                             isGyosyaAddNull="true"
+                                                                                                             isTokiskAddNull="true"
+                                                                                                             isTokiStAddNull="true"
+                                                                                                             @ref="startCustomerComponent" />
+                                </div>
+                                
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label condition-label-custom pl-5" style="margin-left:-15px">～</label>
+                                <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(ReceivableFilterModel.endCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                         SelectedGyosya="ReceivableFilterModel.endCustomerComponentGyosyaData"
+                                                                                                         GyosyaExpression="() => ReceivableFilterModel.endCustomerComponentGyosyaData"
+                                                                                                         SelectedGyosyaChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.endCustomerComponentGyosyaData), e)"
+                                                                                                         DefaultTokisk="@(Convert.ToInt32(ReceivableFilterModel.endCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                         SelectedTokisk="ReceivableFilterModel.endCustomerComponentTokiskData"
+                                                                                                         TokiskExpression="() => ReceivableFilterModel.endCustomerComponentTokiskData"
+                                                                                                         SelectedTokiskChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.endCustomerComponentTokiskData), e)"
+                                                                                                         DefaultTokiSt="@(Convert.ToInt32(ReceivableFilterModel.endCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                         SelectedTokiSt="ReceivableFilterModel.endCustomerComponentTokiStData"
+                                                                                                         SelectedTokiStChanged="(e) => ChangeValueForm(nameof(ReceivableFilterModel.endCustomerComponentTokiStData), e)"
+                                                                                                         TokiStExpression="() => ReceivableFilterModel.endCustomerComponentTokiStData"
+                                                                                                         LangDic="LangDic"
+                                                                                                         DefaultTokiskNullText="@Lang["DefaultNullTokisk"]"
+                                                                                                         GyosyaCssClass="w-100"
+                                                                                                         TokiskCssClass="w-100"
+                                                                                                         TokiStCssClass="w-100"
+                                                                                                         isGyosyaAddNull="true"
+                                                                                                         isTokiskAddNull="true"
+                                                                                                         isTokiStAddNull="true"
+                                                                                                         @ref="endCustomerComponent" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["ReceiptNumber"]</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.StartReceiptNumber)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox CssClass="filter-inline invoice-number" Text="@ReceivableFilterModel.StartReceiptNumber" TextExpression="@(() => ReceivableFilterModel.StartReceiptNumber)" TextChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.StartReceiptNumber), newValue))" maxlength="10"></DxTextBox>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => ReceivableFilterModel.EndReceiptNumber)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox CssClass="filter-inline invoice-number" Text="@ReceivableFilterModel.EndReceiptNumber" TextExpression="@(() => ReceivableFilterModel.EndReceiptNumber)" TextChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.EndReceiptNumber), newValue))" maxlength="10"></DxTextBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["ReservationType"]</label>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@ReceivableFilterModel.StartReservationClassification"
+                                                                                                             SelectedReservationClassChanged="@(async (e) => await ChangeValueForm(nameof(ReceivableFilterModel.StartReservationClassification), e))"
+                                                                                                             ReservationClassExpression="@(() => ReceivableFilterModel.StartReservationClassification)"
+                                                                                                             DefaultValue="Convert.ToInt32(ReceivableFilterModel.StartReservationClassification?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            <label class="col-form-label from-to">～</label>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@ReceivableFilterModel.EndReservationClassification"
+                                                                                                             SelectedReservationClassChanged="@(async (e) => await ChangeValueForm(nameof(ReceivableFilterModel.EndReservationClassification), e))"
+                                                                                                             ReservationClassExpression="@(() => ReceivableFilterModel.EndReservationClassification)"
+                                                                                                             DefaultValue="Convert.ToInt32(ReceivableFilterModel.EndReservationClassification?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                        </div>
+                        
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["TransferBanking"]</label>
+                            <div class="item-inline ml-2">
+                                <DxComboBox Data="@ReceivableUnpaidList.ReceivableUnpaids" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="StringValue"
+                                            SelectedItem="@ReceivableFilterModel.UnpaidSelection"
+                                            SelectedItemExpression="@(() => ReceivableFilterModel.UnpaidSelection)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.UnpaidSelection), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label">@Lang["DatePayment"]</label>
+                            <div class="item-inline ml-2">
+                                <DxDateEdit CssClass="filter-inline date-sm number" Date="@ReceivableFilterModel.PaymentDate" DateExpression="@(() => ReceivableFilterModel.PaymentDate)" Format=@dateFormat DateChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.PaymentDate), newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group d-sm-flex">
+                            <div>
+                                <label class="col-form-label condition-label">@Lang["InciChecks"]</label>
+                            </div>
+                            <div class="mt-1">
+                                @foreach (var item in checkBoxBillingTypes)
+                                {
+                                    <div id="checkBoxBilling" class="form-check form-check-inline">
+                                        <div class="ml-1 dx-checkbox custom-control custom-checkbox valid label-font-weight-normal">
+                                            <InputCheckbox class="custom-control-input" id="@item.Id"
+                                                           @bind-Value="@item.IsChecked"
+                                                           @onclick='e => FilterChanged(item)' />
+                                            <label for="@item.Id" class="custom-control-label" style="user-select:none">@item.Name</label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="@(ActiveTabIndex != 2 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["DisplayGridType"]</label>
+                            <nav class="nav nav-pills">
+                                <a href="javascript:void(0)" class="nav-link @(GridModeActiveV == (int)ReceiableGridMode.Detail ? "active" : null)" @onclick="@(e => ClickGridMode(e, (int)ReceiableGridMode.Detail))">@Lang["GridDetails"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(GridModeActiveV == (int)ReceiableGridMode.BusinessPlan ? "active" : null)" @onclick="@(e => ClickGridMode(e, (int)ReceiableGridMode.BusinessPlan))">@Lang["GridBusinessPlan"]</a>
+                            </nav>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["WidthChange"]</label>
+                            <nav class="nav nav-pills">
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="@(ActiveTabIndex != 3 ? "display: none;" : "")">
+                    <div class="report-check-list-tab col-11">
+                        <div class="row">
+                            <div class="col-1">
+                                @Lang["OutputChoise"]
+                            </div>
+                            <div class="col-9">
+                                <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", ReceivableFilterModel.OutputType == OutputReportType.Preview ? "active":string.Empty))"
+                                        @onclick="(e) => ActiveButtonReport = OutputReportType.Preview">
+                                    @Lang["Btn_preview"]
+                                </button>
+                                <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", ReceivableFilterModel.OutputType == OutputReportType.ExportPdf ? "active":string.Empty))"
+                                        @onclick="(e) => ActiveButtonReport = OutputReportType.ExportPdf">
+                                    @Lang["Btn_pdf"]
+                                </button>
+                                <button type="button" class="@(string.Format("nav-btn-clrp mw-7rem {0}", ReceivableFilterModel.OutputType == OutputReportType.CSV ? "active":string.Empty))"
+                                        @onclick="(e) => ActiveButtonReport = OutputReportType.CSV">
+                                    @Lang["Btn_csv"]
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-1 pt-3">
+                                @Lang["PageSizeTitle"]
+                            </div>
+                            <div class="col-5">
+                                <div class="csv-group-btns-clrp">
+                                    <div class="row">
+                                        <div class="col-12 d-flex">
+                                            <div class="mw-6rem">@Lang["PageSize"]</div>
+                                            <DxComboBox ReadOnly="ReceivableFilterModel.OutputType == OutputReportType.CSV"
+                                                        Data="@BillTypePagePrintData"
+                                                        TextFieldName="@nameof(ReceivableFilterModel.ReportPageSize.StringValue)"
+                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                        SelectedItem="ReceivableFilterModel.ReportPageSize"
+                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(ReceivableFilterModel.ReportPageSize), v)"
+                                                        SelectedItemExpression="() => ReceivableFilterModel.ReportPageSize"
+                                                        CssClass="ml-3"></DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3 csv-group-clrp">
+                            <div class="ml-2 mr-5 pt-3">
+                                @Lang["CSVGroupControlsTitle"]
+                            </div>
+                            <div class="col-11">
+                                <div class="csv-group-btns-clrp ml-1">
+                                    <div class="row">
+                                        <div class="col-4 d-flex">
+                                            <div class="mw-5rem">
+                                                @Lang["ShowHeaderTitle"]
+                                            </div>
+                                            <DxComboBox ReadOnly="@(ReceivableFilterModel.OutputType != OutputReportType.CSV)"
+                                                        Data="@ShowHeaderOptions.ShowHeaderOptionData"
+                                                        TextFieldName="@nameof(ReceivableFilterModel.ActiveHeaderOption.StringValue)"
+                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                        SelectedItem="ReceivableFilterModel.ActiveHeaderOption"
+                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(ReceivableFilterModel.ActiveHeaderOption), v)"
+                                                        SelectedItemExpression="() => ReceivableFilterModel.ActiveHeaderOption"
+                                                        CssClass="cmb-first-clrp">
+                                            </DxComboBox>
+                                        </div>
+                                        <div class="col-4 d-flex">
+                                            <div class="mw-5rem">
+                                                @Lang["EncloseTitle"]
+                                            </div>
+                                            <DxComboBox ReadOnly="ReceivableFilterModel.OutputType != OutputReportType.CSV"
+                                                        Data="@GroupTypes.GroupTypeData"
+                                                        TextFieldName="@nameof(ReceivableFilterModel.GroupType.StringValue)"
+                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                        SelectedItem="ReceivableFilterModel.GroupType"
+                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(ReceivableFilterModel.GroupType), v)"
+                                                        SelectedItemExpression="() => ReceivableFilterModel.GroupType"
+                                                        CssClass="ml-3">
+                                            </DxComboBox>
+                                        </div>
+                                        <div class="col-4 d-flex">
+                                            <div class="mw-9rem">
+                                                @Lang["SeparatorTitle"]
+                                            </div>
+                                            <DxComboBox ReadOnly="ReceivableFilterModel.OutputType != OutputReportType.CSV"
+                                                        Data="@DelimiterTypeData"
+                                                        TextFieldName="@nameof(ReceivableFilterModel.DelimiterType.StringValue)"
+                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                        SelectedItem="ReceivableFilterModel.DelimiterType"
+                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(ReceivableFilterModel.DelimiterType), v)"
+                                                        SelectedItemExpression="() => ReceivableFilterModel.DelimiterType"
+                                                        CssClass="ml-3">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3 text-center mb-3">
+                            <div class="col-12">
+                                <DxButton Enabled="@btnReportActive" CssClass="btn btn-primary width-7rem"
+                                          Text="@Lang["StartBtn"]" Click="(e) => ExportBtnClicked()" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</EditForm>
+<div class="form-row">
+    <div class="col-sm-6">
+        <div class="form-group d-sm-flex flex-nowrap">
+            <label class="col-form-label min-width-label condition-label">@Lang["SaleBranchPayment"]</label>
+            <div class="mr-1">
+                <DxButton Click="@((e) => SelectPreviousSaleOffice())" Enabled="@EnablePreSaleBranch" CssClass="btn btn-sm fa fa-chevron-circle-left navigate-button"></DxButton>
+            </div>
+            <div class="item-inline">
+                <DxComboBox Data="@SelectedSaleBranchPayments" CssClass="filter-inline date-sm custom-combo-box"
+                            FilteringMode="@DataGridFilteringMode.Contains"
+                            AllowUserInput="false"
+                            TextFieldName="Text"
+                            SelectedItem="@ReceivableFilterModel.SelectedSaleBranchPayment"
+                            SelectedItemExpression="@(() => ReceivableFilterModel.SelectedSaleBranchPayment)"
+                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.SelectedSaleBranchPayment), newValue))">
+                </DxComboBox>
+            </div>
+            <div class="ml-1">
+                <DxButton Click="@((e) => SelectNextSaleOffice())" Enabled="@EnableNextSaleBranch" CssClass="btn btn-sm fa fa-chevron-circle-right navigate-button"></DxButton>
+            </div>
+        </div>
+    </div>
+    @if (GridModeActiveV == (int)ReceiableGridMode.Detail)
+    {
+        <div class="col-sm-6">
+            <div class="form-group d-sm-flex flex-nowrap">
+                <label class="col-form-label min-width-label condition-label">@Lang["BillingAddress"]</label>
+                <div class="mr-1 ml-2">
+                    <DxButton Click="@((e) => SelectPreviousBillingPaymentAddress())" Enabled="@EnablePreBillingPayment" CssClass="btn btn-sm fa fa-chevron-circle-left navigate-button"></DxButton>
+                </div>
+                <div class="item-inline">
+                    <DxComboBox Data="@SelectedBillingAddressPaymentList" CssClass="filter-inline date-sm custom-combo-box"
+                                FilteringMode="@DataGridFilteringMode.Contains"
+                                AllowUserInput="false"
+                                TextFieldName="Name"
+                                SelectedItem="@ReceivableFilterModel.SelectedBillingAddressPayment"
+                                SelectedItemExpression="@(() => ReceivableFilterModel.SelectedBillingAddressPayment)"
+                                SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(ReceivableFilterModel.SelectedBillingAddressPayment), newValue))">
+                    </DxComboBox>
+                </div>
+                <div class="ml-1">
+                    <DxButton Click="@((e) => SelectNextBillingPaymentAddress())" Enabled="@EnableNextBillingPayment" CssClass="btn btn-sm fa fa-chevron-circle-right navigate-button"></DxButton>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@if (GridModeActiveV == (int)ReceiableGridMode.Detail)
+{
+    <div>
+        <div class="coupon-payment-grid mt-2">
+            <div class="coupon-payment-grid-body overflow-auto">
+                <KoboSimpleGrid Header="Header" Body="Body" DataItems="DataItems" OnRowClick="async e => await RowClick(e)" CssClass="@(string.Format("kobo-grid-size-{0}", (int)gridSizeClass ))"></KoboSimpleGrid>
+            </div>
+
+            <div>
+                <Pagination TotalCount="TotalRow" ItemPerPage="ItemPerPage" @ref="pagination" OnChangeItemPerPage="OnChangeItemPerPage" OnChangePage="async (pageNum) => await PageChanged(pageNum)"></Pagination>
+            </div>
+
+
+            <div class="coupon-payment-summary">
+                <table class="table table-sm table-bordered w--100">
+                    <thead>
+                        <tr style="background-color: #1AB394; color: white">
+                            <th class="text-center have-border-bottom" style="width:12.5%"></th>
+                            <th class="text-center have-border-bottom" style="width:12.5%">@Lang["SalesAmountGrid"]</th>
+                            <th class="text-center have-border-bottom" style="width:12.5%">@Lang["TaxAmountGrid"]</th>
+                            <th class="text-center  have-border-bottom" style="width:12.5%">@Lang["FeeAmountGrid"]</th>
+                            <th class="text-center  have-border-bottom" style="width:12.5%">@Lang["BillingAmountGrid"]</th>
+                            <th class="text-center  have-border-bottom" style="width:12.5%">@Lang["DepositAmountGrid"]</th>
+                            <th class="text-center  have-border-bottom" style="width:12.5%">@Lang["UnpaidAmountGrid"]</th>
+                            <th class="text-center  have-border-bottom" style="width:12.5%">@Lang["CouponAmountGrid"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center have-border" style="background-color: #1AB394; color: white">@Lang["cumulative"]</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageSaleAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageBillingAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageUnpaidAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalPageCouponAmount.ToString("#,##0")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center have-border" style="background-color: #1AB394; color: white">@Lang["total"]</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllSaleAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllBillingAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllUnpaidAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@Summary.TotalAllCouponAmount.ToString("#,##0")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        <div class="coupon-payment-grid mt-2">
+            <div class="coupon-payment-grid-body overflow-auto">
+                <KoboSimpleGrid Header="HeaderBP" Body="BodyBP" DataItems="DataItemsBP" CssClass="@(string.Format("kobo-grid-size-{0}", (int)gridSizeClass ))"></KoboSimpleGrid>
+            </div>
+
+            <div>
+                <Pagination TotalCount="TotalRowBP" ItemPerPage="ItemPerPageBP" @ref="paginationBP" OnChangeItemPerPage="OnChangeItemPerPageBP" OnChangePage="async (pageNum) => await PageChangedBP(pageNum)"></Pagination>
+            </div>
+
+            <div class="coupon-payment-summary overflow-auto">
+                <table class="table-sm table-bordered-receivable w--100" style="width:3150px;">
+                    <thead>
+                        <tr style="background-color: #1AB394; color: white">
+                            <th rowspan="2" class="width--150 have-border-bottom">
+                            </th>
+                            <th colspan="5" class="text-center">
+                                @Lang["TicketPriceBP"]
+                            </th>
+                            <th colspan="5" class="text-center">
+                                @Lang["GuideFeeBP"]
+                            </th>
+                            <th colspan="5" class="text-center">
+                                @Lang["OtherBP"]
+                            </th>
+                            <th colspan="4" class="text-center">
+                                @Lang["CancelBP"]
+                            </th>
+                            <th rowspan="2" class="text-center have-border-bottom">
+                                @Lang["SubTotalBP"]
+                            </th>
+                        </tr>
+                        <tr style="background-color: #1AB394; color: white">
+                            <th class="text-center width--150 have-border-bottom">@Lang["AmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["TaxAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["FeeAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["DepositAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["UnpaidAmountBP"]</th>
+
+                            <th class="text-center width--150 have-border-bottom">@Lang["SaleAmount"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["TaxAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["FeeAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["DepositAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["UnpaidAmountBP"]</th>
+
+                            <th class="text-center width--150 have-border-bottom">@Lang["SaleAmount"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["TaxAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["FeeAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["DepositAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["UnpaidAmountBP"]</th>
+
+                            <th class="text-center width--150 have-border-bottom">@Lang["AmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["TaxAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["DepositAmountBP"]</th>
+                            <th class="text-center width--150 have-border-bottom">@Lang["UnpaidAmountBP"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center have-border" style="background-color: #1AB394; color: white">@Lang["cumulative"]</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageFareSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageFareTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageFareFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageFareDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageFareUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageOtherSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageOtherTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageOtherFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageOtherDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageGuideUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageCancelSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageCancelTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageCancelFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageCancelUnpaidAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.PageUnpaidSubTotal.ToString("#,##0")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center have-border" style="background-color: #1AB394; color: white">@Lang["total"]</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalFareSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalFareTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalFareFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalFareDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalFareUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalOtherSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalOtherTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalOtherFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalOtherDepositAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalGuideUnpaidAmount.ToString("#,##0")</td>
+
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalCancelSalesAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalCancelTaxAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalCancelFeeAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalCancelUnpaidAmount.ToString("#,##0")</td>
+                            <td class="text-right have-border have-background">@BusinessPlanSummary.TotalUnpaidSubTotal.ToString("#,##0")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+<ContextMenu Id="gridRowClickMenu2Item" CssClass="contextmenu">
+    <Item Id="booking-input-edit" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ReservationEdit"]</Item>
+    <Item Id="check-bus" OnClick="ItemClick"><i class="fa fa-bus" aria-hidden="true"></i> @Lang["CheckBus"]</Item>
+</ContextMenu>
+
+<ContextMenu Id="gridRowClickMenu1Item" CssClass="contextmenu">
+    <Item Id="booking-input-edit" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ReservationEdit"]</Item>
+</ContextMenu>
+
+@if (isOpenCharterInquiryPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.CharterInquiry @bind-isOpenCharterInquiryPopUp="isOpenCharterInquiryPopUp" outDataTable="outDataTable">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.CharterInquiry>
+}

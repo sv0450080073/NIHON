@@ -1,0 +1,96 @@
+﻿@page "/homemobile"
+@inherits HomeMobileBase
+@layout SPLayout
+
+<style>
+    body {
+        line-height: unset;
+    }
+</style>
+
+<div class="title-main">
+    @Lang["Notice"]
+</div>
+
+<div id="page-container-home">
+    <div style="margin: 10px;">
+        @if (noticesDisplay.Any())
+        {
+            @foreach (var item in noticesDisplay)
+            {
+                @if (item.UpdSyainCd == SyainCd)
+                {
+                    @if (item.isEdit)
+                    {
+                        <ul class="validation-errors">
+                            @if (string.IsNullOrWhiteSpace(item.NoticeContent))
+                            {
+                                <li class="validation-message">@Lang["BI_T001"]</li>
+
+                            }
+                        </ul>
+                        <div class="dialog-box" style="display: flex; background-color: #b3b6b7;">
+                            <div class="noti-user"></div>
+                            <div class="w-100">
+                                <div class="content-left">
+                                    <strong>@item.SyainNm:</strong>
+                                </div>
+                                <div class="content-right">
+                                    @item.UpdYmd @item.UpdTime
+                                </div>
+                                <div class="block-with-text">git merge
+                                    <textarea class="home-textarea"
+                                              style="@(item.isEdit ? "background-color:#b3b6b7;" : string.Empty)" 
+                                              @oninput="e => UpdateFormValue(item, nameof(item.NoticeContent), e)" value="@item.NoticeContent" cols="40"></textarea>
+                                </div>
+                                <div class="text-right">
+                                    <DxButton SizeMode="SizeMode.Medium" CssClass="mx-2 ct-btn bc-white" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                                              Text="@Lang["Cancel"]" @onclick="e => Edit(false, item)" />
+                                    <DxButton SizeMode="SizeMode.Medium" CssClass="margin-0 ct-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                                              Text="@Lang["Save"]" @onclick="async () => await SaveNotice(item)" Enabled="!string.IsNullOrWhiteSpace(item.NoticeContent)" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dialog-box" style="display: flex" @onclick="e => Edit(true, item)">
+                            <div class="noti-user"></div>
+                            <div class="w-100">
+                                <div class="content-left">
+                                    <strong>@item.SyainNm:</strong>
+                                </div>
+                                <div class="content-right">
+                                    @item.UpdYmd @item.UpdTime
+                                </div>
+                                <div class="block-with-text">
+                                    <p>@item.NoticeContent</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dialog-box">
+                        <div class="content-left">
+                            <strong>@item.SyainNm:</strong>
+                        </div>
+                        <div class="content-right">
+                            @item.UpdYmd @item.UpdTime
+                        </div>
+                        <div class="block-with-text">
+                            <p>@item.NoticeContent</p>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        @if (notices.Count() > 10 && notices.Count() > noticesDisplay.Count())
+        {
+            <div class="text-right">
+                <span class="see-more" @onclick="e => noticesDisplay.AddRange(notices.Skip(noticesDisplay.Count()).Take(NextPageQuantity).ToList())">@Lang["SeeMore"]</span>
+            </div>
+        }
+    </div>
+</div>

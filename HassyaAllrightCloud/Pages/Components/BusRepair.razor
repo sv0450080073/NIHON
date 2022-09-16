@@ -1,0 +1,41 @@
+﻿<div class="busrepair-bar">
+    <h5 style="width: 100%;text-align: center;margin-top: 9px;">修理項目</h5>
+    @inject ITPM_CodeKbListService TPM_CodeKbnService
+    @if (CodeKbnlst.Count() != 0)
+    {
+    <DxListBox Data="@CodeKbnlst"
+               ListRenderMode="ListRenderMode.Entire"
+               TextFieldName="Text"
+               SelectedItems="codeKbDataselect"
+               SelectedItemsChanged="@(e => OnSelectedChanged(e))"
+               CssClass="demo-listbox"
+               style="max-height: 400px;">
+    </DxListBox>
+    }
+</div>
+
+@code {
+    IEnumerable<VPM_RepairData> CodeKbnlst { get; set; }
+    IEnumerable<VPM_RepairData> codeKbDataselect { get; set; }
+    [Parameter] public EventCallback<VPM_RepairData> OnCallBackIdCode { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CodeKbnlst = new List<VPM_RepairData>();
+        CodeKbnlst = await TPM_CodeKbnService.GetDataBusRepairType(new ClaimModel().TenantID);
+        if (CodeKbnlst.Count() > 0)
+        {
+
+            codeKbDataselect = Enumerable.Empty<VPM_RepairData>();
+            codeKbDataselect = CodeKbnlst.Take(1);
+            await OnCallBackIdCode.InvokeAsync(CodeKbnlst.ToList().First());
+        }
+    }
+
+    public async Task OnSelectedChanged(IEnumerable<VPM_RepairData> e)
+    {
+        codeKbDataselect = Enumerable.Empty<VPM_RepairData>();
+        codeKbDataselect = e.Take(1);
+        await OnCallBackIdCode.InvokeAsync(e.ToList().First());
+    }
+}

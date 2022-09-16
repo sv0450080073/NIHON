@@ -1,0 +1,522 @@
+﻿@page "/depositcoupon"
+@inherits DepositCouponBase
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+@if (isOpenCharterInquiryPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.CharterInquiry @bind-isOpenCharterInquiryPopUp="isOpenCharterInquiryPopUp" outDataTable="outDataTable">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.CharterInquiry>
+}
+
+@if (isOpenLumpPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.Lump @bind-isOpenLumpPopUp="isOpenLumpPopUp"
+                                                             @bind-isUpdated="isUpdated"
+                                                             statiticsDeposit="@depositCouponItemTotal.StatiticsDeposit"
+                                                             gridCheckDatas="GridCheckDatas">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.Lump>
+}
+
+@if (isOpenDepositPaymentPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.DepositPayment @bind-isOpenDepositPaymentPopUp="isOpenDepositPaymentPopUp"
+                                                                       @bind-isUpdated="isUpdated"
+                                                                       depositCouponFilter="depositCouponFilter"
+                                                                       depositCouponGrid="LastRowCheckDatas"
+                                                                       @ref="depositPayment">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.DepositPayment>
+}
+
+@if (isOpenCouponBalancePopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.CouponBalance @bind-isOpenCouponBalancePopUp="isOpenCouponBalancePopUp">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.CouponBalance>
+}
+
+@if (isOpenCouponPopUp)
+{
+    <HassyaAllrightCloud.Pages.Components.DepositCoupon.Coupon @bind-isOpenCouponPopUp="isOpenCouponPopUp" outDataTable="outDataTable">
+    </HassyaAllrightCloud.Pages.Components.DepositCoupon.Coupon>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="col-md-7">
+        <h5 class="mb-0">@Lang["Title"]</h5>
+    </div>
+    <div id="div-color-deposit" class="d-flex col-auto flex-wrap align-items-center">
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-1">@Lang["Deposited"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-2">@Lang["Coupon"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-3">@Lang["Some"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-4">@Lang["OneEntry"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-5">@Lang["OverDeposit"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-6">@Lang["Unpaid"]</span>
+    </div>
+    <div class="col-auto float-right pr-0">
+        <button class="btn btn-sm btn-danger btnclear" @onclick="async e => await OnReset()">
+            <i class="fa fa-refresh" aria-hidden="true"></i>@Lang["EraseAll"]
+        </button>
+    </div>
+</div>
+
+<EditForm EditContext="formContext" Context="formContext" id="bills-check-list-form">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="DepositCouponValidator" />
+    <ul class="validation-errors">
+        @if (IsNoData)
+        {
+            <li class="validation-message">@Lang[Constants.ErrorMessage.InvalidDepositCouponNoData]</li>
+        }
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <li class="validation-message">@Lang[errorMessage]</li>
+        }
+    </ul>
+    <div id="control-tab" class="title-section border busrepair-accordion-header">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+    </div>
+    <div class="express-condition mb-2 tab-border-form focus-form" style="display: none">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["FilterCondition"]"></DxTab>
+            <DxTab Text="@Lang["TabTitle1"]"></DxTab>
+        </DxTabs>
+        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0 enterField">
+            <div class="card-body">
+                <div class="form-row" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["BillPeriod"]</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => depositCouponFilter.BillPeriodFrom)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="filter-inline date-sm"
+                                            Date="@depositCouponFilter.BillPeriodFrom"
+                                            DateExpression="@(() => depositCouponFilter.BillPeriodFrom)"
+                                            Format=@dateFormat
+                                            DateChanged="@(async (newValue) => await ChangeValueForm(nameof(depositCouponFilter.BillPeriodFrom), newValue))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+
+                                </DxDateEdit>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => depositCouponFilter.BillPeriodTo)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="filter-inline date-sm"
+                                            Date="@depositCouponFilter.BillPeriodTo"
+                                            DateExpression="@(() => depositCouponFilter.BillPeriodTo)"
+                                            Format=@dateFormat
+                                            DateChanged="@(async (newValue) => await ChangeValueForm(nameof(depositCouponFilter.BillPeriodTo), newValue))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                                </DxDateEdit>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["ReservationClassification"]</label>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@depositCouponFilter.StartReservationClassification"
+                                                                                                             SelectedReservationClassChanged="@(async (e) => await ChangeValueForm(nameof(depositCouponFilter.StartReservationClassification), e))"
+                                                                                                             ReservationClassExpression="@(() => depositCouponFilter.StartReservationClassification)"
+                                                                                                             DefaultValue="Convert.ToInt32(depositCouponFilter.StartReservationClassification?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            <label class="col-form-label from-to">～</label>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@depositCouponFilter.EndReservationClassification"
+                                                                                                             SelectedReservationClassChanged="@(async (e) => await ChangeValueForm(nameof(depositCouponFilter.EndReservationClassification), e))"
+                                                                                                             ReservationClassExpression="@(() => depositCouponFilter.EndReservationClassification)"
+                                                                                                             DefaultValue="Convert.ToInt32(depositCouponFilter.EndReservationClassification?.YoyaKbnSeq)"
+                                                                                                             LangDic="@LangDic"
+                                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["BillAddress"]</label>
+                            <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(depositCouponFilter.startCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                     SelectedGyosya="depositCouponFilter.startCustomerComponentGyosyaData"
+                                                                                                     GyosyaExpression="() => depositCouponFilter.startCustomerComponentGyosyaData"
+                                                                                                     SelectedGyosyaChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.startCustomerComponentGyosyaData), e)"
+                                                                                                     DefaultTokisk="@(Convert.ToInt32(depositCouponFilter.startCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                     SelectedTokisk="depositCouponFilter.startCustomerComponentTokiskData"
+                                                                                                     TokiskExpression="() => depositCouponFilter.startCustomerComponentTokiskData"
+                                                                                                     SelectedTokiskChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.startCustomerComponentTokiskData), e)"
+                                                                                                     DefaultTokiSt="@(Convert.ToInt32(depositCouponFilter.startCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                     SelectedTokiSt="depositCouponFilter.startCustomerComponentTokiStData"
+                                                                                                     SelectedTokiStChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.startCustomerComponentTokiStData), e)"
+                                                                                                     TokiStExpression="() => depositCouponFilter.startCustomerComponentTokiStData"
+                                                                                                     LangDic="LangDic"
+                                                                                                     GyosyaCssClass="w-100"
+                                                                                                     TokiskCssClass="w-100"
+                                                                                                     isGyosyaAddNull="true"
+                                                                                                     isTokiskAddNull="true"
+                                                                                                     isTokiStAddNull="true"
+                                                                                                     @ref="startCustomerComponent"
+                                                                                                     DefaultTokiskNullText="@Lang["TokiskNullText"]" />
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["BillOffice"]</label>
+                            <div>
+                                <DxComboBox Data="@billOfficeList"
+                                            CssClass="filter-inline date-sm custom-bill-combo-box"
+                                            NullText="@Lang["BillOfficeNullText"]"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="@depositCouponFilter.BillOffice"
+                                            SelectedItemExpression="@(() => depositCouponFilter.BillOffice)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(depositCouponFilter.BillOffice), newValue))"
+                                            ListRenderMode="ListRenderMode.Virtual">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group d-flex flex-nowrap col-6">
+                        <label class="col-form-label condition-label-custom pl-5">～</label>
+                        <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(depositCouponFilter.endCustomerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                                 SelectedGyosya="depositCouponFilter.endCustomerComponentGyosyaData"
+                                                                                                 GyosyaExpression="() => depositCouponFilter.endCustomerComponentGyosyaData"
+                                                                                                 SelectedGyosyaChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.endCustomerComponentGyosyaData), e)"
+                                                                                                 DefaultTokisk="@(Convert.ToInt32(depositCouponFilter.endCustomerComponentTokiskData?.TokuiSeq))"
+                                                                                                 SelectedTokisk="depositCouponFilter.endCustomerComponentTokiskData"
+                                                                                                 TokiskExpression="() => depositCouponFilter.endCustomerComponentTokiskData"
+                                                                                                 SelectedTokiskChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.endCustomerComponentTokiskData), e)"
+                                                                                                 DefaultTokiSt="@(Convert.ToInt32(depositCouponFilter.endCustomerComponentTokiStData?.SitenCdSeq))"
+                                                                                                 SelectedTokiSt="depositCouponFilter.endCustomerComponentTokiStData"
+                                                                                                 SelectedTokiStChanged="(e) => ChangeValueForm(nameof(depositCouponFilter.endCustomerComponentTokiStData), e)"
+                                                                                                 TokiStExpression="() => depositCouponFilter.endCustomerComponentTokiStData"
+                                                                                                 LangDic="LangDic"
+                                                                                                 GyosyaCssClass="w-100"
+                                                                                                 TokiskCssClass="w-100"
+                                                                                                 TokiStCssClass="w-100"
+                                                                                                 isGyosyaAddNull="true"
+                                                                                                 isTokiskAddNull="true"
+                                                                                                 isTokiStAddNull="true"
+                                                                                                 @ref="endCustomerComponent"
+                                                                                                 DefaultTokiskNullText="@Lang["TokiskNullText"]" />
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["DepositOutputClassification"]</label>
+                            <div>
+                                <DxComboBox Data="@depositOutputClassifications"
+                                            NullText=""
+                                            CssClass="filter-inline date-sm custom-bill-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName=""
+                                            SelectedItem="@depositCouponFilter.DepositOutputClassification"
+                                            SelectedItemExpression="@(() => depositCouponFilter.DepositOutputClassification)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(depositCouponFilter.DepositOutputClassification), newValue))"
+                                            ListRenderMode="ListRenderMode.Virtual">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <div class="form-group d-sm-flex flex-nowrap align-items-center">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["BillTypes"] </label>
+                            <div class="my-checkbox d-flex flex-nowrap align-items-center">
+                                <DxCheckBox Checked="@depositCouponFilter.itemFare" CheckedExpression="@(() => depositCouponFilter.itemFare)" CheckedChanged="@(async (value)=> await CheckedValueChanged(nameof( depositCouponFilter.itemFare), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemFare"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemIncidental" CheckedExpression="@(() => depositCouponFilter.itemIncidental)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemIncidental), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemIncidental"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemTollFee" CheckedExpression="@(() => depositCouponFilter.itemTollFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemTollFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemTollFee"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemArrangementFee" CheckedExpression="@(() => depositCouponFilter.itemArrangementFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemArrangementFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemArrangementFee"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemGuideFee" CheckedExpression="@(() => depositCouponFilter.itemGuideFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemGuideFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemGuideFee"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemLoaded" CheckedExpression="@(() => depositCouponFilter.itemLoaded)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemLoaded), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal grid-bill-color-blue">@Lang["ItemLoaded"] </DxCheckBox>
+                                <DxCheckBox Checked="@depositCouponFilter.itemCancellationCharge" CheckedExpression="@(() => depositCouponFilter.itemCancellationCharge)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(depositCouponFilter.itemCancellationCharge), value))" CssClass="mr-1 width--110 d-inline-block label-font-weight-normal grid-bill-color-blue">@Lang["ItemCancellation"] </DxCheckBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                    <div class="col-sm-12">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["WidthChange"]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            <button class="@string.Format("btn-option mx-2 {0}", depositCouponFilter.ActiveV == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(async e => { depositCouponFilter.ActiveV = (int)ViewMode.Large; await SaveFilterCondtionAsync(); })">
+                                @Lang["WidthLarge"]
+                            </button>
+                            <button class="@string.Format("btn-option mx-2 {0}", depositCouponFilter.ActiveV == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                    @onclick="@(async e => { depositCouponFilter.ActiveV = (int)ViewMode.Medium; await SaveFilterCondtionAsync(); })">
+                                @Lang["WidthMedium"]
+                            </button>
+                            <button class="@string.Format("btn-option ml-2 {0}", depositCouponFilter.ActiveV == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                    @onclick="@(async e => { depositCouponFilter.ActiveV = (int)ViewMode.Small; await SaveFilterCondtionAsync(); })">
+                                @Lang["WidthSmall"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+<div class="form-group d-flex flex-nowrap align-items-center mb-2">
+    <div class="pl-0 col-5">
+        <div class="row">
+            <div class="col-12">
+                <div>
+                    <label class="col-form-label text-left">@Lang["Inquiry"]</label>
+                    <DxButton SizeMode="SizeMode.Medium" CssClass="width--130 ml-2rem" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                              Text="@Lang["CouponBalance"]" Click='async e => await OpenPopUp("CouponBalance")' />
+                    <DxButton SizeMode="SizeMode.Medium" CssClass="width--110 ml-2" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                              Text="@Lang["Coupon"]" Enabled="@(!string.IsNullOrWhiteSpace(LastRowCheckDatas.LastCouNo))" Click='async e => await OpenPopUp("Coupon")' />
+                    <DxButton SizeMode="SizeMode.Medium" CssClass="width--110 ml-2" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                              Text="@Lang["CommissionCar"]" Click='async e => await OpenPopUp("CharterInquiry")' Enabled="!string.IsNullOrWhiteSpace(LastRowCheckDatas.UkeNo)" />
+                </div>
+                <div class="mt-2">
+                    <label class="col-form-label text-left">@Lang["DepositInput"]</label>
+                    <DxButton SizeMode="SizeMode.Medium" CssClass="width--130" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                              Text="@Lang["Individual"]" Click='async e => await OpenPopUp("Individual")' Enabled="@(LastRowCheckDatas != null)" />
+                    <DxButton SizeMode="SizeMode.Medium" CssClass="width--110 ml-2" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                              Enabled='!(depositCouponItemTotal.StatiticsDeposit == "0" && depositCouponItemTotal.ItemFare == "0" && depositCouponItemTotal.ItemIncidental == "0"
+                               && depositCouponItemTotal.ItemTollFee == "0" && depositCouponItemTotal.ItemArrangementFee == "0" && depositCouponItemTotal.ItemGuideFee == "0"
+                               && depositCouponItemTotal.ItemLoaded == "0" && depositCouponItemTotal.ItemCancellation == "0" && depositCouponItemTotal.Total == "0")'
+                              Text="@Lang["Lump"]" Click='async e => await OpenPopUp("Lump")' />
+                </div>
+            </div>
+            <div class="col-12 d-flex mt-2 item-inline flex-nowrap align-items-center">
+                <label class="col-form-label text-left mr-2">@Lang["BillAddress"]</label>
+                <DxComboBox Data="@codeList" CssClass="filter-inline date-sm custom-bill-combo-box width--250 mr-2 mt-1 ml-2"
+                            FilteringMode="@DataGridFilteringMode.Contains"
+                            AllowUserInput="false"
+                            SelectedItem="@depositCouponFilter.Code"
+                            SelectedItemExpression="@(() => depositCouponFilter.Code)"
+                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(depositCouponFilter.Code), newValue))"
+                            ListRenderMode="ListRenderMode.Virtual">
+                </DxComboBox>
+                <DxButton Click="@((e) => OnClickButtonPre())" Enabled="@(depositCouponFilter.Code != codeList.FirstOrDefault())" CssClass="btn btn-sm fa fa-chevron-circle-left mr-1"></DxButton>
+                <DxButton Click="@((e) => OnClickButtonNext())" Enabled="@(depositCouponFilter.Code != codeList.LastOrDefault())" CssClass="btn btn-sm fa fa-chevron-circle-right"></DxButton>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-7 p-0">
+        <div class="express-condition mb-2 w-100">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100 text-left">@Lang["StatiticsDepositColon"]</label>
+                            <DxTextBox CssClass="width--110 statiticsDepositColon text-right"
+                                       TextExpression="() => depositCouponItemTotal.StatiticsDeposit"
+                                       Text="@depositCouponItemTotal.StatiticsDeposit"
+                                       TextChanged="@((newValue) => UpdateValue(nameof(depositCouponItemTotal.StatiticsDeposit), newValue))"
+                                       BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100 text-left">@Lang["ItemFareColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemFare"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--80 text-left">@Lang["ItemIncidentalColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemIncidental"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100  text-left">@Lang["ItemTollFeeColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemTollFee"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100  text-left">@Lang["ItemArrangementFeeColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemArrangementFee"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--80  text-left">@Lang["ItemGuideFeeColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemGuideFee"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100  text-left">@Lang["ItemLoadedColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemLoaded"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--100  text-left">@Lang["ItemCancellationColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.ItemCancellation"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap col-4">
+                            <label class="col-form-label-sm width--80 text-left">@Lang["TotalColon"]</label>
+                            <DxTextBox CssClass="width--110 text-right"
+                                       @bind-Text="depositCouponItemTotal.Total"
+                                       ReadOnly="true"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-bill-wrapper grid-@depositCouponFilter.ActiveV" id="table-bill-wrapper">
+    <table class="table-bill-layout table-layout">
+        <thead>
+            <tr class="header-row">
+                <th class="check-box align-items-center">
+                    <div class="align-items-center ">
+                        <DxCheckBox Checked="@itemCheckAll" CheckedExpression="@(() => itemCheckAll)"
+                                    CheckedChanged="@((value)=> CheckedItemAllChanged(value))"
+                                    CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                    </div>
+                </th>
+                <th class="bill-no">@Lang["GridNo"]</th>
+                <th class="bill-date">@Lang["GridBillDate"]</th>
+                <th class="bill-office">@Lang["GridOffice"]</th>
+                <th class="bill-customer">@Lang["GridCustomer"]</th>
+                <th class="bill-receipt">@Lang["GridReceiptNumber"]</th>
+                <th class="bill-receipt">@Lang["GridReservationClassification"]</th>
+                <th class="bill-name">
+                    <div>@Lang["GridGroupName"]</div>
+                    <div>@Lang["GridDestinationName"]</div>
+                </th>
+                <th class="bill-date-da">
+                    <div>@Lang["GridDispatchDate"]</div>
+                    <div>@Lang["GridArrivalDate"]</div>
+                </th>
+                <th class="bill-incident">@Lang["GridBillIncidentTypeName"]</th>
+                <th class="incident-load">@Lang["GridIncidentLoadingGoodsName"]</th>
+                <th class="sale-amount">@Lang["GridSalesAmount"]</th>
+                <th class="tax-amount">@Lang["GridTaxAmount"]</th>
+                <th class="tax-included">@Lang["GridTaxIncluded"]</th>
+                <th class="commission-amount">@Lang["GridCommissionAmount"]</th>
+                <th class="bill-amount">@Lang["GridBillAmount"]</th>
+                <th class="deposit-date">@Lang["GridLastDepositDate"]</th>
+                <th class="deposit-amount">@Lang["GridCumulativeDeposit"]</th>
+                <th class="unpaid-amount">@Lang["GridUnpaidAmount"]</th>
+                <th class="sales-amount">@Lang["GridLastCouponNo"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (depositCouponResult.depositCouponGrids != null)
+            {
+                @foreach (var data in depositCouponResult.depositCouponGrids.Select((value, i) => new { i, value }))
+                {
+                    <tr class="body-bill-row-1 @((data.value.UkeNo == LastRowCheckDatas.UkeNo && data.value.MisyuRen == LastRowCheckDatas.MisyuRen) ? "selected-row " : " ")grid-bill-color-@GetColorPattern(data.value)">
+                        <td class="row-2 check-box align-items-center sticky-col first-sticky-col">
+                            <div class="align-items-center ">
+                                <DxCheckBox Checked="@data.value.Checked" CheckedExpression="@(() => data.value.Checked)"
+                                            CheckedChanged="@((value)=> CheckedValueGridChanged(data.value, value, false))"
+                                            CssClass="mr-1 d-inline-block label-font-weight-normal"
+                                            Enabled="data.value.NyuKinKbn != 2"></DxCheckBox>
+                            </div>
+                        </td>
+                        <td class="row-2 bill-no sticky-col second-sticky-col" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">
+                            @(CurrentPage * itemPerPage + data.i + 1)
+                            @if(!(data.value.YouKbn != (byte)2 || data.value.SeiFutSyu != (byte)1)) {
+                                <br/>
+                                <span>傭</span>
+                            }
+                        </td>
+                        <td class="row-2 bill-date" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">
+                            @(string.IsNullOrWhiteSpace(data.value.SeiTaiYmd) ? string.Empty
+                        : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.SeiTaiYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))
+                        </td>
+                        <td class="row-2 bill-office" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@(data.value.UkeRyakuNm)</td>
+                        <td class="row-2 bill-customer" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@(data.value.TokRyakuNm + data.value.SitRyakuNm)</td>
+                        <td class="bill-receipt" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@((!string.IsNullOrWhiteSpace(data.value.UkeNo) && data.value.UkeNo.Length > 5) ? data.value.UkeNo.Substring(5) : string.Empty)</td>
+                        <td class="bill-reservation" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@(data.value.YoyaKbnNm)</td>
+                        <td class="row-2 bill-name" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">
+                            <div>@(data.value.DanTaNm)</div>
+                            <div>@(data.value.IkNm)</div>
+                        </td>
+                        <td class="row-2 bill-date-da" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">
+                            <div>@(string.IsNullOrWhiteSpace(data.value.HaiSYmd) ? string.Empty : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.HaiSYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))</div>
+                            <div>@(string.IsNullOrWhiteSpace(data.value.TouYmd) ? string.Empty : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.TouYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))</div>
+                        </td>
+                        <td class="row-2 bill-incident" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@(data.value.SeiFutSyuNm)</td>
+                        <td class="row-2 incident-load" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@(data.value.FutTumNm)</td>
+                        <td class="row-2 sale-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.UriGakKin)</td>
+                        <td class="row-2 tax-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.SyaRyoSyo)</td>
+                        <td class="row-2 tax-included" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.UriGakKin + data.value.SyaRyoSyo)</td>
+                        <td class="row-2 commission-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.SyaRyoTes)</td>
+                        <td class="row-2 bill-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.SeiKin)</td>
+                        <td class="row-2 deposit-date" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">
+                            @(string.IsNullOrWhiteSpace(data.value.LastNyuYmd) ? string.Empty
+                        : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.LastNyuYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))
+                        </td>
+                        <td class="row-2 deposit-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.NyuKinRui)</td>
+                        <td class="row-2 unpaid-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.SeiKin - data.value.NyuKinRui)</td>
+                        <td class="row-2 sales-amount" @ondblclick="e => OpenPayDepositPopUp(data.value)" @onclick="async e => { LastRowCheckDatas = data.value; await HandleMouseDown(e); }">@string.Format("{0:#,0}", data.value.LastCouNo)</td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+@if (NumberOfPage > itemPerPage)
+{
+    <div class="mt-3 mb-3">
+        <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                         TotalCount="NumberOfPage" @ref="paging">
+        </HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+}
+<div id="total-bill-area" class="total-bill-table">
+    <table>
+        <tr>
+            <th></th>
+            <th class="sale-amount">@Lang["TotalPageSalesAmount"]</th>
+            <th class="tax-amount">@Lang["TotalPageTaxAmount"]</th>
+            <th class="tax-included">@Lang["TotalPageTaxIncluded"]</th>
+            <th class="commission-amount">@Lang["TotalPageCommissionAmount"]</th>
+            <th class="bill-amount">@Lang["TotalPageBillAmount"]</th>
+            <th class="commission-amount">@Lang["TotalPageCumulativeDeposit"]</th>
+            <th class="unpaid-amount">@Lang["TotalPageUnpaidAmount"]</th>
+        </tr>
+        <tr class="tr-child">
+            <td class="text-center"><div>@Lang["PageCount"]</div></td>
+            <td class="sale-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageSalesAmount))</div></td>
+            <td class="tax-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageTaxAmount))</div></td>
+            <td class="tax-included"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageTaxIncluded))</div></td>
+            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageCommissionAmount))</div></td>
+            <td class="bill-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageBillAmount))</div></td>
+            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageCumulativeDeposit))</div></td>
+            <td class="unpaid-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalPageUnpaidAmount))</div></td>
+        </tr>
+        <tr class="tr-child">
+            <td class="text-center"><div>@Lang["GrandTotal"]</div></td>
+            <td class="sale-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllSalesAmount))</div></td>
+            <td class="tax-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllTaxAmount))</div></td>
+            <td class="tax-included"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllTaxIncluded))</div></td>
+            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllCommissionAmount))</div></td>
+            <td class="bill-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllBillAmount))</div></td>
+            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllCumulativeDeposit))</div></td>
+            <td class="unpaid-amount"><div>@(string.Format("{0:#,0}", depositCouponTotal.TotalAllUnpaidAmount))</div></td>
+        </tr>
+    </table>
+</div>
+<ContextMenu Id="gridRowClickMenu1" CssClass="zindex99999">
+    <Item OnClick='@(async e => await OpenPopUp("CharterInquiry"))'>@Lang["CarInquiryMenu"]</Item>
+    <Item OnClick='@(async e => await OpenPopUp("Coupon"))' Enabled="!string.IsNullOrWhiteSpace(LastRowCheckDatas.LastCouNo)">@Lang["CouponInquiryMenu"]</Item>
+</ContextMenu>
+
+

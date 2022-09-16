@@ -1,0 +1,32 @@
+﻿@inherits CalendarMobileTypeSettingBase
+<div>
+    <div class="group-schedule-MB-title-section">@Lang["ScheduleCustomTitle"]</div>
+    <div>
+        @foreach (var item in CalendarSets)
+        {
+            @if (item.CalendarName != new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)
+            {
+                <div class="group-schedule-MB">
+                    <DxCheckBox CssClass="width--150 form-group d-flex label-font-weight-normal" Checked="@SelectedCalendarDict[item.CalendarSeq]" CheckedChanged="@((value) => CheckCalendar(value, item))">@item.CalendarName</DxCheckBox>
+                </div>
+            }
+        }
+    </div>
+    <div class="group-schedule-MB-title-section title-sub-sfmb">
+        <i aria-hidden="true"></i> @Lang["BirthdayTitle"]
+    </div>
+    <div>
+        <div class="group-schedule-MB form-group group">
+            <DxCheckBox CssClass="width--150 form-group d-flex label-font-weight-normal" Checked="@SelectedBirthdayCommentDict[1]" CheckedChanged="@((value) => CheckDateCommnet(value, 1))">@Lang["DateComment"]</DxCheckBox>
+        </div>
+        <div class="group-schedule-MB">
+            <DxCheckBox CssClass="width--150 form-group d-flex label-font-weight-normal" Checked="@SelectedBirthdayCommentDict[2]" CheckedChanged="@((value) => CheckDateCommnet(value, 2))">@Lang["DriverBirthday"]</DxCheckBox>
+        </div>
+        <div class="group-schedule-MB">
+            <DxCheckBox CssClass="width--150 form-group d-flex label-font-weight-normal" Checked="@SelectedBirthdayCommentDict[3]" CheckedChanged="@((value) => CheckDateCommnet(value, 3))">@Lang["GuideBirthday"]</DxCheckBox>
+        </div>
+        <div class="group-schedule-MB">
+            <DxCheckBox CssClass="width--150 form-group d-flex label-font-weight-normal" Checked="@SelectedBirthdayCommentDict[4]" CheckedChanged="@((value) => CheckDateCommnet(value, 4))">@Lang["OfficeBirthday"]</DxCheckBox>
+        </div>
+    </div>
+</div>

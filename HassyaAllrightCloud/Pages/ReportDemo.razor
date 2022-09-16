@@ -1,0 +1,31 @@
+﻿<h3>ReportDemo</h3>
+<DxPopup CssClass="modal-xl" @bind-Visible="@isOpenReport">
+    @if (isOpenReport)
+    {
+        <DevExpress.Blazor.Reporting.DxDocumentViewer 
+ ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.ReportExample)}?MaxUkeCd={max}&MinUkeCd={min}")" 
+Height="700px" Width="100"></DevExpress.Blazor.Reporting.DxDocumentViewer>
+    }
+</DxPopup>
+<DxTextBox @bind-Text="@max"></DxTextBox>
+<DxTextBox @bind-Text="@min"></DxTextBox>
+<DxButton Text="Open Report" Click="(e) => isOpenReport = true"></DxButton>
+<DxComboBox Data="comboItems" SelectedItem="selectedItem" SelectedItemExpression="() => selectedItem" SelectedItemChanged="ChangeItem"></DxComboBox>
+<DxButton Text="Add Items" Click="(e) => AddItem()"></DxButton>
+@code {
+    private string max { get; set; } = "7800";
+    private string min { get; set; } = "7750";
+    private bool isOpenReport { get; set; } = false;
+    private List<string> comboItems { get; set; } = new List<string>();
+    public string selectedItem { get; set; }
+    void ChangeItem(string newValue)
+    {
+
+    }
+
+    void AddItem()
+    {
+        comboItems.Add("new Item");
+        StateHasChanged();
+    }
+}

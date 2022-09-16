@@ -1,0 +1,66 @@
+﻿
+
+@inject CustomNavigation NavManager
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+
+@if (!string.IsNullOrEmpty(reportUrl) && !string.IsNullOrWhiteSpace(reportUrl))
+{
+    <DxDocumentViewer ReportUrl="@reportUrl" Height="800px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+@code {
+    List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+    RepairListDataUri RepairListDataUri = new RepairListDataUri();
+    private string reportUrl { get; set; }
+    [Parameter] public string SearchString { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(SearchString) && !String.IsNullOrWhiteSpace(SearchString))
+        {
+            await LoadCompanyData();
+            RepairListDataUri = EncryptHelper.Decrypt<RepairListDataUri>(SearchString);
+            SearchString = EncryptHelper.EncryptToUrl(SetValueUri(RepairListDataUri));
+            reportUrl = $"{nameof(IRepairListReportService)}?{SearchString}";
+            NavManager.NavigateTo("/RepairListPreview", false);
+        }
+    }
+    private async Task LoadCompanyData()
+    {
+        companychartlst = await TPM_CompnyDataService.GetCompanyListBox(new ClaimModel().TenantID);
+        if (companychartlst == null)
+        {
+            companychartlst = new List<CompanyChartData>();
+        }
+        else
+        {
+            companychartlst.Insert(0, new CompanyChartData());
+        }
+    }
+    private List<CompanyChartData> CutSpecialCharactersCompanyList(string strValue)
+    {
+        string[] strValueArr = strValue.Split('-');
+        var result = companychartlst.Where(x => strValueArr.Contains(x.CompanyCdSeq.ToString())).ToList();
+        return result;
+    }
+    private RepairListData SetValueUri(RepairListDataUri data)
+    {
+        var result = new RepairListData();
+        result.StartDate = data.StartDate;
+        result.EndDate = data.EndDate;
+        result.CompanyChartData = CutSpecialCharactersCompanyList(data.CompanyChartDataID);
+        result.BranchFrom = data.BranchFrom;
+        result.BranchTo = data.BranchTo;
+        result.VehicleFrom = data.VehicleFrom;
+        result.VehicleTo = data.VehicleTo;
+        result.RepairFrom = data.RepairFrom;
+        result.RepairTo = data.RepairTo;
+        result.OutputOrder = data.OutputOrder;
+        result.PaperSize = data.PaperSize;
+        result.OutputSetting = data.OutputSetting;
+        result.TenantCdSeq = data.TenantCdSeq;
+        result.SyainNmItem = data.SyainNmItem;
+        return result;
+    }
+}

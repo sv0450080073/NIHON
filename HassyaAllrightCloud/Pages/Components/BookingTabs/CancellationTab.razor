@@ -1,0 +1,201 @@
+﻿@inherits CancellationTabBase
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <EditForm EditContext="FormContext">
+
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BookingFormValidator" />
+
+        <div class="@(BookingData.IsDisableEdit ? "disabled-content" : "")">
+            @if (BookingData.CancelTickedData.Status == 1)
+            {
+                <div class="form-group d-flex flex-nowrap align-items-center">
+                    <label class="col-form-label-sm mr-3">@Lang["cancel"]</label>
+
+                    <DxCheckBox CheckedExpression="() => BookingData.CancelTickedData.CancelStatus"
+                                Checked="@BookingData.CancelTickedData.CancelStatus"
+                                Enabled="!BookingData.IsDisableEdit"
+                                CheckedChanged="@CheckedCancelChanged" />
+                </div>
+            }
+            else
+            {
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="form-check mr-4">
+                        <input class="form-check-input" type="radio" name="exampleRadios" id="reuse" value="true"
+                               checked="@(BookingData.CancelTickedData.ReusedStatus)"
+                               @onchange="ReusedStatusChanged">
+                        <label class="form-check-label" for="reuse">
+                            @Lang["reused"]
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="exampleRadios" id="cancel" value="false"
+                               checked="@(!BookingData.CancelTickedData.ReusedStatus)"
+                               @onchange="ReusedStatusChanged">
+                        <label class="form-check-label" for="cancel">
+                            @Lang["cancel"]
+                        </label>
+                    </div>
+                </div>
+            }
+            <div class="row @((!BookingData.CancelTickedData.ReusedStatus && BookingData.CancelTickedData.CancelStatus) ? "": "disabled-content")">
+                <div class="col-6 pr-0">
+                    <div class="d-flex justify-content-between">
+                        <div class="form-group d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-3 width--56">@Lang["Fares with tax"]</label>
+                            <span class="text-primary"><strong>@BookingData.CancelTickedData.BusPriceIncludeTaxFee</strong></span>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-3">@Lang["CancellationFee"]</label>
+                            <span class="text-primary"><strong>@BookingData.CancelTickedData.CancelTotalFee</strong></span>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--56">@Lang["Person in charge"]</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => BookingData.CancelTickedData.CanceledSettingStaffData)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox NullText="社員コード:社員名"
+                                        CssClass="flex-grow-1"
+                                        Data="SettingStaffList"
+                                        TextFieldName="Text"
+                                        AllowUserInput="false"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SelectedItem="BookingData.CancelTickedData.CanceledSettingStaffData"
+                                        SelectedItemChanged="SelectedCanceledSettingStaffDataChanged"
+                                        SelectedItemExpression="() => BookingData.CancelTickedData.CanceledSettingStaffData" />
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--56">@Lang["Date"]</label>
+                        <div class="d-flex align-items-center flex-nowrap">
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BookingData.CancelTickedData.CancelDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="width--130"
+                                            DateExpression="@(() => BookingData.CancelTickedData.CancelDate)"
+                                            Date="@BookingData.CancelTickedData.CancelDate"
+                                            DateChanged="@((newValue) => CanceledDateChanged(newValue))"
+                                            Format="yyyy/MM/dd"
+                                            DropDownDirection="DropDownDirection.Down" />
+                            </div>
+                            <p class="mb-0 @BookingData.CancelTickedData.CancelDate.DayOfWeek.ToString("G").ToLower()">
+                                <strong>（@BookingData.CancelTickedData.CancelDate.ToString("ddd", CurrentCulture)）</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm">@Lang["CancellationFee"]</label>
+                        <div class="d-flex align-items-center justify-content-end flex-grow-1">
+                            <InputRate CssClass="width--56 text-right ml-2 rate"
+                                       RateValue="@BookingData.CancelTickedData.CancelFeeRate.ToString()"
+                                       RateChanged="(rate)=>CancelFeeRateChanged(rate)">
+                            </InputRate>
+                            <span class="mx-2">%</span>
+                            <DxTextBox Text="@(BookingData.CancelTickedData.CancelFee)"
+                                       TextExpression="() => BookingData.CancelTickedData.CancelFee"
+                                       TextChanged="CancelFeeChanged"
+                                       CssClass="text-right width--90"
+                                       DisplayFormat="#,0" maxlength="10" />
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap align-items-start">
+                        <label class="col-form-label-sm mr-3">@Lang["Sale Tax"]</label>
+                        <div class="flex-column justify-content-end flex-grow-1">
+                            <div class="form-group d-flex mb-2 justify-content-between flex-nowrap">
+                                <DxComboBox NullText="外税"
+                                            Data="TaxTypeListData.taxTypeList"
+                                            TextFieldName="StringValue"
+                                            SelectedItem="BookingData.CancelTickedData.CancelTaxType"
+                                            SelectedItemExpression="() => BookingData.CancelTickedData.CancelTaxType"
+                                            SelectedItemChanged="CancelTaxTypeChanged"
+                                            AllowUserInput="false"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            DropDownDirection="DropDownDirection.Down" />
+                                <InputRate CssClass="width--56 text-right ml-2 rate"
+                                           RateValue="@BookingData.CancelTickedData.CancelTaxRate"
+                                           RateChanged="(rate)=>CancelTaxRateChanged(rate)">
+                                </InputRate>
+                                <span class="mx-2">%</span>
+                                <DxTextBox Text="@BookingData.CancelTickedData.CancelTaxFee"
+                                           TextExpression="() => BookingData.CancelTickedData.CancelTaxFee"
+                                           TextChanged="CancelTaxFeeChanged"
+                                           CssClass="text-right width--90"
+                                           DisplayFormat="#,0" maxlength="10" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label class="col-form-label-sm mr-3 width--56">@Lang["Reason"]</label>
+                        <InputTextArea AdditionalAttributes="@(new Dictionary<string, object>() { { "rows", 4 }, { "class", "form-control w-100" }, {"maxlength", 50} })"
+                                       Value="@BookingData.CancelTickedData.CancelReason"
+                                       ValueChanged="CancelReasonChanged"
+                                       ValueExpression="() => BookingData.CancelTickedData.CancelReason" />
+                    </div>
+                </div>
+            </div>
+            @if (BookingData.CancelTickedData.Status != 1)
+            {
+                <div class="@(BookingData.CancelTickedData.ReusedStatus == false ? "disabled-content": "")">
+                    <hr class="mt-0" />
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group d-flex">
+                                <label class="col-form-label-sm mr-3">@Lang["resurrection_date"]</label>
+                                <DxDateEdit CssClass="width--130"
+                                            DateExpression="@(() => BookingData.CancelTickedData.ReusedDate)"
+                                            Date="@BookingData.CancelTickedData.ReusedDate"
+                                            DateChanged="@((newValue) => ReusedDateChanged(newValue))"
+                                            Format="yy/MM/dd"
+                                            DropDownDirection="DropDownDirection.Down" />
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["responsible_person"] <span class="text-danger">*</span></label>
+                                <div class="has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => BookingData.CancelTickedData.ReusedSettingStaffData)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="SettingStaffList"
+                                                TextFieldName="Text"
+                                                CssClass="flex-grow-1"
+                                                NullText="社員コード:社員名"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="BookingData.CancelTickedData.ReusedSettingStaffData"
+                                                SelectedItemChanged="SelectedReusedSettingStaffDataChanged"
+                                                SelectedItemExpression="() => BookingData.CancelTickedData.ReusedSettingStaffData"
+                                                DropDownDirection="DropDownDirection.Down" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="col-form-label-sm mr-3">@Lang["reason_for_resurrection"]</label>
+                                <InputTextArea AdditionalAttributes="@(new Dictionary<string, object>() { { "rows", 2 }, { "class", "form-control w-100" }, {"maxlength", 50} })"
+                                       Value="@BookingData.CancelTickedData.ReusedReason"
+                                       ValueChanged="ReusedReasonChanged"
+                                       ValueExpression="() => BookingData.CancelTickedData.ReusedReason" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="text-center mt-2 mb-2">
+                <DxButton CssClass="width--100 btnbookingform"
+                          SubmitFormOnClick="false"
+                          Text="@LangDic["SubmitCancelButtonText"]"
+                          IconCssClass="fa fa-check"
+                          @onclick="async () => await HandleSaveCancelData()"
+                          RenderStyle="@ButtonRenderStyle.Primary"
+                          Enabled="IsEnableSubmitCancel()">
+                </DxButton>
+            </div>
+        </div>
+    </EditForm>
+}

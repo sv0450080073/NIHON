@@ -1,0 +1,19 @@
+﻿@if (ClaimModel != null)
+{
+    <FolderExplorer TenantCode="ClaimModel.TenantID" UpdSyainCd="ClaimModel.SyainCdSeq" OnError="OnError"></FolderExplorer>
+}
+
+
+
+
+@code {
+    [CascadingParameter(Name = "ClaimModel")] protected ClaimModel ClaimModel { get; set; }
+    [Inject] protected IErrorHandlerService _errService { get; set; }
+    protected override void OnInitialized()
+    {
+    }
+    private void OnError(Exception ex)
+    {
+        _errService.HandleError(ex);
+    }
+}

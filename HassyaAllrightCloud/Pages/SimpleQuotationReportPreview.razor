@@ -1,0 +1,8 @@
+﻿
+<DxDocumentViewer ReportUrl="@($"{nameof(ISimpleQuotationService)}?" + searchString)" Height="1000px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code {
+    [Parameter] public string searchString { get; set; }
+}

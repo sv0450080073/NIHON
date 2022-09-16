@@ -1,0 +1,571 @@
+﻿@inject IStringLocalizer<YatoiSha> Lang
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient HttpClient
+@inject IJSRuntime JSRuntime
+
+<EditForm EditContext="FormContext" id="futaiForm">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="LoadYFutTuValidator" />
+
+    <div class="d-flex">
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["schedule"]</label>
+            <DxComboBox Data="FutaiScheduleList"
+                        TextFieldName="Text"
+                        SelectedItem="LoadYFutTuModel.ScheduleDate"
+                        SelectedItemChanged="value => HandleSelectedScheduleChanged(value)"
+                        SelectedItemExpression="() => LoadYFutTuModel.ScheduleDate"
+                        CssClass="width--205"
+                        ListRenderMode="ListRenderMode.Virtual" />
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["date_of_occurrence"]</label>
+            <DxTextBox Text="@LoadYFutTuModel.ScheduleDate.GetDateString()"
+                       TextExpression="() => TempStr"
+                       ReadOnly="true"
+                       CssClass="width--130" />
+        </div>
+        <div class="form-group d-flex flex-nowrap">
+            @if (CurrentViewMode == IncidentalViewMode.Futai)
+            {
+                <label class="col-form-label-sm mr-2">@Lang["ancillary_charge_code"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SelectedLoadYFutai)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxComboBox Data="LoadYFutaiList"
+                                NullText="@Lang["NullTextYFutai"]"
+                                TextFieldName="Text"
+                                SelectedItem="LoadYFutTuModel.SelectedLoadYFutai"
+                                SelectedItemChanged="value => HandleSelectedYFutaiChanged(value)"
+                                SelectedItemExpression="() => LoadYFutTuModel.SelectedLoadYFutai"
+                                CssClass="width--190 mr-2"
+                                ListRenderMode="ListRenderMode.Virtual" />
+                </div>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.YFutTuNm)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxTextBox Text="@LoadYFutTuModel.YFutTuNm"
+                               CssClass="withtabindex"
+                               NullText="@Lang["NullTextYFutTuNm"]"
+                               TextChanged="value => HandleLoadYFutTuNmChanged(value)"
+                               TextExpression="() => LoadYFutTuModel.YFutTuNm"
+                               maxlength="30" />
+                </div>
+            }
+            else
+            {
+                <label class="col-form-label-sm mr-2">@Lang["loading_code"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SelectedLoadYTsumi)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxComboBox Data="LoadYTsumiList"
+                                NullText="@Lang["NullTextYFutai2"]"
+                                TextFieldName="Text"
+                                SelectedItem="LoadYFutTuModel.SelectedLoadYTsumi"
+                                SelectedItemChanged="value => HandleSelectedTsumiCodeChanged(value)"
+                                SelectedItemExpression="() => LoadYFutTuModel.SelectedLoadYTsumi"
+                                CssClass="width--190 mr-2"
+                                ListRenderMode="ListRenderMode.Virtual" />
+                </div>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.YFutTuNm)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxTextBox Text="@LoadYFutTuModel.YFutTuNm"
+                               CssClass="withtabindex"
+                               NullText="@Lang["NullTextYFutTuNm2"]"
+                               TextChanged="value => HandleLoadYFutTuNmChanged(value)"
+                               TextExpression="() => LoadYFutTuModel.YFutTuNm"
+                               maxlength="30" />
+                </div>
+            }
+        </div>
+    </div>
+    @if (CurrentViewMode == IncidentalViewMode.Futai)
+    {
+        <div class="d-flex">
+            <div class="form-group d-flex flex-nowrap">
+                <label class="col-form-label-sm mr-2">@Lang["tollbooth"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SelectedLoadYRyoKin)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxComboBox Data="GetLoadYRyokinList()"
+                                NullText="@Lang["NullTextYRyokin"]"
+                                TextFieldName="Text"
+                                SelectedItem="LoadYFutTuModel.SelectedLoadYRyoKin"
+                                SelectedItemChanged="value => HandleSelectedLoadYRyokinChanged(value)"
+                                SelectedItemExpression="() => LoadYFutTuModel.SelectedLoadYRyoKin"
+                                CssClass="mr-2 width--190"
+                                ListRenderMode="ListRenderMode.Virtual" />
+                </div>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.RyokinNm)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxTextBox Text="@LoadYFutTuModel.RyokinNm"
+                               NullText="@Lang["NullTextRyokinNm"]"
+                               TextChanged="value => HandleSelectedYRyokinNmChanged(value)"
+                               TextExpression="() => LoadYFutTuModel.RyokinNm"
+                               maxlength="10"
+                               CssClass="width--290 withtabindex" />
+                </div>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="form-group d-flex flex-nowrap">
+                <label class="col-form-label-sm mr-2">@Lang["tollbooth2"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SelectedLoadYShuRyoKin)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxComboBox Data="GetLoadYRyokinList2()"
+                                NullText="@Lang["NullTextYRyokinList2"]"
+                                TextFieldName="Text"
+                                SelectedItem="LoadYFutTuModel.SelectedLoadYShuRyoKin"
+                                SelectedItemChanged="value => HandleSelectedYShuRyokinChanged(value)"
+                                SelectedItemExpression="() => LoadYFutTuModel.SelectedLoadYShuRyoKin"
+                                CssClass="mr-2 width--190"
+                                ListRenderMode="ListRenderMode.Virtual" />
+                </div>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => LoadYFutTuModel.ShuRyokinNm)" Lang="@LangDic"
+                             Text="" Position="PositionTooltip.top">
+                    </Tooltip>
+                    <DxTextBox Text="@LoadYFutTuModel.ShuRyokinNm"
+                               NullText="@Lang["NullTextShuRyokinNm"]"
+                               TextChanged="value => HandleSelectedShuRyokinNmChanged(value)"
+                               TextExpression="() => LoadYFutTuModel.ShuRyokinNm"
+                               maxlength="10"
+                               CssClass="width--290 withtabindex" />
+                </div>
+            </div>
+        </div>
+    }
+    <div class="d-flex">
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["settlementcode"]</label>
+            <div class="has-tooltip-error">
+                <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SelectedLoadYSeisan)" Lang="@LangDic"
+                         Text="" Position="PositionTooltip.top">
+                </Tooltip>
+                <DxComboBox Data="LoadYSeisanList"
+                            NullText="@Lang["NullTextSettlementCode"]"
+                            TextFieldName="Text"
+                            SelectedItem="LoadYFutTuModel.SelectedLoadYSeisan"
+                            SelectedItemChanged="value => HandleSelectedYSeisanChanged(value)"
+                            SelectedItemExpression="() => LoadYFutTuModel.SelectedLoadYSeisan"
+                            CssClass="width--190 mr-2"
+                            ListRenderMode="ListRenderMode.Virtual" />
+            </div>
+            <div class="has-tooltip-error">
+                <Tooltip ValueExpressions="@(() => LoadYFutTuModel.SeisanNm)" Lang="@LangDic"
+                         Text="" Position="PositionTooltip.top">
+                </Tooltip>
+                <DxTextBox Text="@LoadYFutTuModel.SeisanNm"
+                           CssClass="withtabindex"
+                           NullText="@Lang["NullTextSettlementName"]"
+                           TextChanged="value => HandleSelectedYSeisanNmChanged(value)"
+                           TextExpression="() => LoadYFutTuModel.SeisanNm"
+                           maxlength="50" />
+            </div>
+        </div>
+        <div class="form-group d-flex flex-nowrap">
+            <label class="col-form-label-sm mr-2">@Lang["settlementclasssification"]</label>
+            <DxComboBox Data="SaveTypeList"
+                        TextFieldName="Text"
+                        SelectedItem="LoadYFutTuModel.SaveType"
+                        SelectedItemChanged="value => HandleSelectedSaveTypeChanged(value)"
+                        SelectedItemExpression="() => LoadYFutTuModel.SaveType"
+                        CssClass="width--130"
+                        ListRenderMode="ListRenderMode.Virtual" />
+        </div>
+    </div>
+    <div class="d-flex">
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["quantity"]</label>
+            <DxTextBox Text="@LoadYFutTuModel.Suryo"
+                       TextChanged="value => HandleSuryoChanged(value)"
+                       TextExpression="() => LoadYFutTuModel.Suryo"
+                       maxlength="3"
+                       CssClass="width--56 text-center withtabindex number forcus" />
+            <span class="mx-2">ｘ</span>
+            <label class="col-form-label-sm mr-2">@Lang["unit_price"]</label>
+            <DxTextBox Text="@CommonUtil.CurencyFormat(LoadYFutTuModel.Tanka)"
+                       TextChanged="value => HandleTankaChanged(value)"
+                       TextExpression="() => LoadYFutTuModel.Tanka"
+                       maxlength="6"
+                       CssClass="width--75 text-right mr-2 withtabindex number" />
+            <DxTextBox Text="@CommonUtil.CurencyFormat(LoadYFutTuModel.Goukei)"
+                       TextExpression="() => TempStr"
+                       maxlength="8"
+                       ReadOnly="true"
+                       CssClass="width--90 text-right" />
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["consumption_tax"]</label>
+            <DxComboBox Data="TaxTypeDataList"
+                        TextFieldName="StringValue"
+                        SelectedItem="LoadYFutTuModel.TaxType"
+                        SelectedItemChanged="value => HandleTaxTypeChanged(value)"
+                        SelectedItemExpression="() => LoadYFutTuModel.TaxType"
+                        CssClass="width--90 mr-2"
+                        ListRenderMode="ListRenderMode.Virtual">
+            </DxComboBox>
+            <InputRate RateValue="@LoadYFutTuModel.Zeiritsu"
+                       RateChanged="value => HandleZeiritSuChanged(value)"
+                       ReadOnly="@(LoadYFutTuModel.TaxType.IdValue == Constants.NoTax.IdValue)"
+                       CssClass="width--56 text-center rate withtabindex" />
+            <span class="mx-2">%</span>
+            <DxTextBox Text="@CommonUtil.CurencyFormat(LoadYFutTuModel.SyaRyoSyo)"
+                       TextExpression="() => TempStr"
+                       ReadOnly="true"
+                       maxlength="8"
+                       CssClass="width--90 text-right" />
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["tax_included"]</label>
+            <DxTextBox Text="@CommonUtil.CurencyFormat(LoadYFutTuModel.ZeikomiKin)"
+                       TextExpression="() => TempStr"
+                       ReadOnly="true"
+                       CssClass="width--90 text-right number" />
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-5">
+            <label class="col-form-label-sm mr-2">@Lang["fee"]</label>
+            <InputRate RateValue="@LoadYFutTuModel.TesuRitu"
+                       RateChanged="value => HandleTesuRituChanged(value)"
+                       CssClass="width--56 text-center rate withtabindex" />
+            <span class="mx-2">%</span>
+            <DxTextBox Text="@CommonUtil.CurencyFormat(LoadYFutTuModel.SyaRyoTes)"
+                       TextExpression="() => TempStr"
+                       maxlength="8"
+                       ReadOnly="true"
+                       CssClass="width--90 text-right" />
+        </div>
+    </div>
+    @if (ShowSettingQuantity)
+    {
+        <div class="total-table mt-2 @(ShowSettingQuantity ? "" : "d-none")">
+            <table class="table-sm text-center w-50">
+                <thead class="thead-primary">
+                    <tr>
+                        <th scope="col" width="50px">No.</th>
+                        <th scope="col" width="100px">@Lang["car"]</th>
+                        <th scope="col" width="100px">@Lang["quantity"]</th>
+                        <th scope="col">@Lang["mercenary"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in LoadYFutTuModel.SettingQuantityList)
+                    {
+                        <tr>
+                            <td scope="row" style="text-align: center;">
+                                @(LoadYFutTuModel.SettingQuantityList.IndexOf(item) + 1)
+                            </td>
+                            <td style="text-align: center;">@item.GosyaDisplay</td>
+                            <td>
+                                <div class="has-tooltip-error">
+                                    @if ((FormContext.GetCustomCss(() => item.Suryo) == "custom-invalid"))
+                                    {
+                                        <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => item.Suryo)"
+                                                                                      Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                                        </HassyaAllrightCloud.Pages.Components.Tooltip>
+                                    }
+                                    <DxTextBox Text="@item.Suryo"
+                                               TextChanged="value => HandleSettingQuantityChanged(value, item)"
+                                               TextExpression="() => item.Suryo"
+                                               maxlength="3"
+                                               CssClass="@("text-right withtabindex " + ((FormContext.GetCustomCss(() => item.Suryo) == "custom-invalid") ? "custom-invalid" : ""))" />
+                                </div>
+                            </td>
+                            <td>@item.YouSha</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="mt-2 text-right btnFutaiForm">
+        <DxButton class="btn btn-sm btn-primary"
+                  @onclick="() => HandleChangeStateSettingQuantity()"
+                  Text="@Lang["advanced_setting"]" />
+        <DxButton class="btn btn-sm btn-primary width--90"
+                  Enabled="IsEnableSaveButton()"
+                  @onclick="() => HandleAddFuttum()"
+                  Text="@Lang["save"]" />
+        <DxButton class="btn btn-sm btn-outline-dark"
+                  @onclick="() => HandleCancelFuttum()"
+                  Text="@Lang["cancel"]" />
+
+    </div>
+</EditForm>
+@code {
+    [Parameter] public IncidentalViewMode CurrentViewMode { get; set; }
+    [Parameter] public LoadYFutTu LoadYFutTuOrigin { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
+
+    [Parameter] public List<ScheduleSelectorModel> FutaiScheduleList { get; set; }
+    [Parameter] public List<LoadYFutai> LoadYFutaiList { get; set; }
+    [Parameter] public List<LoadYTsumi> LoadYTsumiList { get; set; }
+    [Parameter] public List<LoadYRyokin> LoadYRyokinList { get; set; }
+    [Parameter] public List<LoadYSeisan> LoadYSeisanList { get; set; }
+    [Parameter] public List<YouShaSaveType> SaveTypeList { get; set; }
+    [Parameter] public List<TaxTypeList> TaxTypeDataList { get; set; }
+    [Parameter] public List<SettingQuantity> SettingQuantityList { get; set; }
+    [Parameter] public SettingTaxRate SettingTaxRate { get; set; }
+
+    [Parameter] public EventCallback<int> OnSubmit { get; set; }
+    [Parameter] public EventCallback<int> OnCancel { get; set; }
+
+    protected EditContext FormContext { get; set; }
+    protected LoadYFutTu LoadYFutTuModel { get; set; }
+    protected bool ShowSettingQuantity { get; set; }
+    protected string TempStr { get; set; }
+    protected Dictionary<string, string> LangDic { get; set; }
+
+    protected override void OnInitialized()
+    {
+        LangDic = Lang.GetAllStrings().ToDictionary(l => l.Name, l => l.Value);
+        if (IsEditMode)
+        {
+            LoadYFutTuOrigin.FirstLoad = true;
+            var json = JsonConvert.SerializeObject(LoadYFutTuOrigin);
+            LoadYFutTuModel = JsonConvert.DeserializeObject<LoadYFutTu>(json);
+            LoadSelectedDataCombobox(LoadYFutTuModel);
+            LoadYFutTuModel.FirstLoad = false;
+        }
+        else
+        {
+            LoadYFutTuModel = LoadYFutTuOrigin;
+        }
+        FormContext = new EditContext(LoadYFutTuModel);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+        JSRuntime.InvokeAsync<string>("loadPageScript", "bookingInputPage", "futaiEnterKey");
+        JSRuntime.InvokeAsync<string>("loadPageScript", "bookingInputPage", "futaiTabKey");
+    }
+
+    protected bool IsEnableSaveButton()
+    {
+        return FormContext.IsModified() && FormContext.Validate();
+    }
+
+    private void LoadSelectedDataCombobox(LoadYFutTu yfuttu)
+    {
+        if (LoadYSeisanList != null && yfuttu.SelectedLoadYSeisan != null)
+        {
+            yfuttu.SelectedLoadYSeisan =
+                LoadYSeisanList.FirstOrDefault(s => s.SeisanCdSeq == yfuttu.SelectedLoadYSeisan.SeisanCdSeq);
+        }
+        if (yfuttu.FuttumKbnMode == IncidentalViewMode.Futai)
+        {
+            if (LoadYFutaiList != null && yfuttu.SelectedLoadYFutai != null)
+            {
+                yfuttu.SelectedLoadYFutai =
+                    LoadYFutaiList.FirstOrDefault(s => s.FutaiCdSeq == yfuttu.SelectedLoadYFutai.FutaiCdSeq);
+            }
+        }
+        else if (yfuttu.FuttumKbnMode == IncidentalViewMode.Tsumi)
+        {
+            if (LoadYTsumiList != null && yfuttu.SelectedLoadYTsumi != null)
+            {
+                yfuttu.SelectedLoadYTsumi =
+                    LoadYTsumiList.FirstOrDefault(s => s.CodeKbnSeq == yfuttu.SelectedLoadYTsumi.CodeKbnSeq);
+            }
+        }
+        if (LoadYRyokinList != null)
+        {
+            if (yfuttu.SelectedLoadYRyoKin != null)
+            {
+                yfuttu.SelectedLoadYRyoKin =
+                    LoadYRyokinList.FirstOrDefault(s => s.RyoKinTikuCd == yfuttu.SelectedLoadYRyoKin.RyoKinTikuCd && s.RyoKinCd == yfuttu.SelectedLoadYRyoKin.RyoKinCd);
+            }
+            if (yfuttu.SelectedLoadYShuRyoKin != null)
+            {
+                yfuttu.SelectedLoadYShuRyoKin =
+                    LoadYRyokinList.FirstOrDefault(s => s.RyoKinTikuCd == yfuttu.SelectedLoadYShuRyoKin.RyoKinTikuCd && s.RyoKinCd == yfuttu.SelectedLoadYShuRyoKin.RyoKinCd);
+            }
+        }
+        if (SaveTypeList != null)
+        {
+            yfuttu.SaveType = SaveTypeList.FirstOrDefault(x=>x.Id== yfuttu.SaveType.Id);
+        }
+        if (TaxTypeDataList != null && yfuttu.TaxType != null)
+        {
+            yfuttu.TaxType = TaxTypeDataList.FirstOrDefault(s => s.IdValue == yfuttu.TaxType.IdValue);
+        }
+        if (FutaiScheduleList != null && yfuttu.ScheduleDate != null)
+        {
+            yfuttu.ScheduleDate =
+                FutaiScheduleList.FirstOrDefault(s => s.Date == yfuttu.ScheduleDate.Date) ?? yfuttu.ScheduleDate;
+        }
+    }
+
+    protected List<LoadYRyokin> GetLoadYRyokinList()
+    {
+        var result = LoadYRyokinList.Where(c => string.Compare(c.SiyoStaYmd, LoadYFutTuModel.ScheduleDate.Date.ToString("yyyyMMdd")) <= 0
+                                            && string.Compare(c.SiyoEndYmd, LoadYFutTuModel.ScheduleDate.Date.ToString("yyyyMMdd")) >= 0).ToList();
+        return result;
+    }
+
+    protected List<LoadYRyokin> GetLoadYRyokinList2()
+    {
+        var result = LoadYRyokinList.Where(c => string.Compare(c.SiyoStaYmd, LoadYFutTuModel.ScheduleDate.Date.ToString("yyyyMMdd")) <= 0
+                                            && string.Compare(c.SiyoEndYmd, LoadYFutTuModel.ScheduleDate.Date.ToString("yyyyMMdd")) >= 0).ToList();
+        return result;
+    }
+
+    #region Handle value change
+
+    protected void HandleSelectedScheduleChanged(ScheduleSelectorModel newValue)
+    {
+        LoadYFutTuModel.ScheduleDate = newValue;
+        var newSettingList = SettingQuantityList
+            .Where(s => LoadYFutTuModel.ScheduleDate.Date.IsInRange(s.GarageLeaveDate, s.GarageReturnDate))
+            .Select(setting => CommonHelper.SimpleCloneModel<SettingQuantity>(setting))
+            .ToList();
+
+        Func<SettingQuantity, object> keySelecter = s => new { s.TeiDanNo, s.UnkRen, s.BunkRen };
+        var addedSettingList = newSettingList.Except(LoadYFutTuModel.SettingQuantityList, new SettingQuantityComparer()).ToList();
+
+        LoadYFutTuModel.SettingQuantityList = newSettingList;
+
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedYFutaiChanged(LoadYFutai newValue)
+    {
+        LoadYFutTuModel.SelectedLoadYFutai = newValue;
+        LoadYFutTuModel.YFutTuNm = newValue.FutaiNm;
+
+        StateHasChanged();
+    }
+
+    protected void HandleLoadYFutTuNmChanged(string newValue)
+    {
+        LoadYFutTuModel.YFutTuNm = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedTsumiCodeChanged(LoadYTsumi newValue)
+    {
+        LoadYFutTuModel.SelectedLoadYTsumi = newValue;
+        LoadYFutTuModel.YFutTuNm = newValue.CodeKbnNm;
+
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedYSeisanChanged(LoadYSeisan newValue)
+    {
+        LoadYFutTuModel.SelectedLoadYSeisan = newValue;
+        LoadYFutTuModel.SeisanNm = newValue.SeisanNm;
+
+        LoadYFutTuModel.SaveType = SaveTypeList.SingleOrDefault(s => s.Id == newValue.SeisanKbn);
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedYSeisanNmChanged(string newValue)
+    {
+        LoadYFutTuModel.SeisanNm = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedSaveTypeChanged(YouShaSaveType newValue)
+    {
+        LoadYFutTuModel.SaveType = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedLoadYRyokinChanged(LoadYRyokin newValue)
+    {
+        LoadYFutTuModel.SelectedLoadYRyoKin = newValue;
+        LoadYFutTuModel.RyokinNm = newValue.RyoKinNm;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedYRyokinNmChanged(string newValue)
+    {
+        LoadYFutTuModel.RyokinNm = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedYShuRyokinChanged(LoadYRyokin newValue)
+    {
+        LoadYFutTuModel.SelectedLoadYShuRyoKin = newValue;
+        LoadYFutTuModel.ShuRyokinNm = newValue.RyoKinNm;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedShuRyokinNmChanged(string newValue)
+    {
+        LoadYFutTuModel.ShuRyokinNm = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSuryoChanged(string newValue)
+    {
+        LoadYFutTuModel.Suryo = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleTankaChanged(string newValue)
+    {
+        LoadYFutTuModel.Tanka = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleTaxTypeChanged(TaxTypeList newValue)
+    {
+        LoadYFutTuModel.TaxType = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleZeiritSuChanged(string newValue)
+    {
+        if (LoadYFutTuModel.TaxType.IdValue != Constants.NoTax.IdValue)
+        {
+            LoadYFutTuModel.Zeiritsu = newValue;
+        }
+        StateHasChanged();
+    }
+
+    protected void HandleTesuRituChanged(string newValue)
+    {
+        LoadYFutTuModel.TesuRitu = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSettingQuantityChanged(string newValue, SettingQuantity settingQuantity)
+    {
+        settingQuantity.Suryo = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleChangeStateSettingQuantity()
+    {
+        ShowSettingQuantity = !ShowSettingQuantity;
+    }
+
+    #endregion
+
+    protected void HandleAddFuttum()
+    {
+        if (IsEditMode)
+        {
+            LoadYFutTuOrigin.SimpleCloneProperties(LoadYFutTuModel);
+        }
+        OnSubmit.InvokeAsync(LoadYFutTuOrigin.YouFutTumRen);
+    }
+
+    protected void HandleCancelFuttum()
+    {
+        OnCancel.InvokeAsync(LoadYFutTuOrigin.YouFutTumRen);
+    }
+}

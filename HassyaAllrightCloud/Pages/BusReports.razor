@@ -1,0 +1,1157 @@
+﻿@page "/busreports"
+@using DevExpress.Blazor.Reporting
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<BusReports> Lang
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CodeKbListService TPM_CodeKbnService
+@inject CustomNavigation NavManager
+@inject IBusReportService BusReportService
+@inject IFilterCondition FilterServices
+@inject AppSettingsService AppSettingsService
+@inject IFilterCondition FilterServices
+@inject IReportLayoutSettingService _reportLayoutSettingService
+@using System.Threading
+@using MediatR;
+@using HassyaAllrightCloud.Application.ReportLayout.Queries;
+
+@*Popup Preview*@
+<DxPopup CssClass="custom-popup modal-xl" @bind-Visible="@OpenPopPreview" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @TitlePopupViewer
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => OpenPopPreview = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        @*<p>@reportCondition.Uri</p>*@
+        <DxDocumentViewer ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.BusReport)}?"+reportCondition.Uri)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    </Content>
+</DxPopup>
+
+@*Popup Check Data*@
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupCheckData" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @TitlePopupInfo
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => PopupCheckData = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>@MessageCheckDataExist
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => PopupCheckData = false)" Text="OK" />
+    </FooterTemplate>
+</DxPopup>
+<div class="d-flex justify-content-between align-items-center pb-2">
+    <h5 class="mb-0">@PageTitleReport</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["Clear"]
+    </button>
+</div>
+@if (isExporting)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<EditForm EditContext="@formContext" OnSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BusReportValidator" />
+
+    <div class="express-condition mb-3 border-dotted">
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputSettings"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@Lang["OutputInstruction"]</label>
+                        <nav class="nav nav-pills">
+                            <a href="javascript:void(0)" class="nav-link @(reportCondition.OutputSetting == OutputInstruction.Preview ? "active" : null)" @onclick="@(e => reportCondition.OutputSetting = OutputInstruction.Preview)">@Lang["PreviewButton"]</a>
+                            <a href="javascript:void(0)" class="nav-link @(reportCondition.OutputSetting == OutputInstruction.Pdf ? "active" : null)" @onclick="@(e => reportCondition.OutputSetting = OutputInstruction.Pdf)">@Lang["PDF"]</a>
+                        </nav>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@SizeOfPaper</label>
+                        <DxComboBox Data="@sizeofpaperlst"
+                                    AllowUserInput="false"
+                                    SelectedItem="@reportCondition.SizeOfPaper"
+                                    SelectedItemChanged="@OnSizeOfPaperChanged"
+                                    SelectedItemExpression="@(() => reportCondition.SizeOfPaper)"
+                                    CssClass="width--90">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="express-condition mb-3 border-dotted ">
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputConditions"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@OperationDate</label>
+                        <DxDateEdit Date="@operationDate"
+                                    Format="yyyy/MM/dd"
+                                    DateChanged="@((newValue) => OnOperationDateChanged(newValue))"
+                                    DateExpression="@(() => reportCondition.OperationDate)"
+                                    CssClass="width--120"></DxDateEdit>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@Company</label>
+                        <div class="dropdown dropdown-listbox ">
+                            <div class=@("has-tooltip-error custom-listbox-invalid " + (CompanyEmpty ? " invalid" : "" ))>
+                                @if (CompanyEmpty)
+                                {
+                                    <Tooltip ValueExpressions="@(() =>SelectedCompanyItems.FirstOrDefault())" Lang="@LangDic" Text="@(Lang["BI_T002"])" Position="PositionTooltip.top"></Tooltip>
+                                }
+                                <div class="input-group input-group-sm dx-listbox width--290 multi-combobox dropdown-toggle" id="lstcompany" data-toggle="dropdown">
+                                    <p class="form-control form-control-sm text-overflow">@GetSelectedCompanyText()</p>
+                                    <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                                        <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                                    <DxListBox Data="@companychartlst"
+                                               TextFieldName="TextReport"
+                                               ListRenderMode="ListRenderMode.Entire"
+                                               SelectionMode="ListBoxSelectionMode.Multiple"
+                                               SelectedItems="@SelectedCompanyItems"
+                                               SelectedItemsChanged="@OnSelectedCompanyItemsChanged"
+                                               SelectedItemsExpression="@(() => reportCondition.CompanyChartData)"
+                                               ShowCheckboxes="true"
+                                               CssClass="width--290 custom-dx-listbox">
+                                    </DxListBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@VehicleDispatchOffice</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => reportCondition.VehicleDispatchOffice2)" Lang="@LangDic" Text="@(BranchEmpty?emptyItemMessage[nameof(EmptyBranchMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="@vehicledispatchofficelst"
+                                        NullText="@Lang["BranchCodeName"]"
+                                        TextFieldName="Text"
+                                        AllowUserInput="false"
+                                        SelectedItem="@reportCondition.VehicleDispatchOffice1"
+                                        SelectedItemChanged="@OnVehicleDispatchOffice1Changed"
+                                        SelectedItemExpression="@(() => reportCondition.VehicleDispatchOffice2)"
+                                        CssClass="width--290 custom-combo-box"></DxComboBox>
+                        </div>
+                        <span class="mx-2">～</span>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => reportCondition.VehicleDispatchOffice2)" Lang="@LangDic" Text="@(BranchEmpty?emptyItemMessage[nameof(EmptyBranchMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="@vehicledispatchofficelst"
+                                        NullText="@Lang["BranchCodeName"]"
+                                        TextFieldName="Text"
+                                        AllowUserInput="false"
+                                        SelectedItem="@reportCondition.VehicleDispatchOffice2"
+                                        SelectedItemChanged="@OnVehicleDispatchOffice2Changed"
+                                        SelectedItemExpression="@(() => reportCondition.VehicleDispatchOffice2)"
+                                        CssClass="width--290 custom-combo-box"></DxComboBox>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@ReservationCategory</label>
+                            @*<div class="dropdown dropdown-listbox  ">
+                    <div class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => reportCondition.ReservationList)" Lang="@LangDic" Text="@(BookingEmpty?emptyItemMessage[nameof(EmptyBookingTypeMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    </div>
+                    <div class="input-group input-group-sm dx-listbox width--290 multi-combobox dropdown-toggle" id="lstreservation" data-toggle="dropdown">
+                        <p class="form-control form-control-sm text-overflow">@GetSelectedReservationText()</p>
+                        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstreservation">
+                        <DxListBox Data="@reservationlst"
+                                   TextFieldName="Text"
+                                   ListRenderMode="ListRenderMode.Entire"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   SelectedItems="SelectedReservations"
+                                   SelectedItemsChanged="@OnSelectedReservationsChanged"
+                                   SelectedItemsExpression="() => reportCondition.ReservationList"
+                                   ShowCheckboxes="true"
+                                   CssClass="width--290">
+                        </DxListBox>
+                    </div>
+                </div>*@
+                            <div class="@("has-tooltip-error")">
+                                <Tooltip ValueExpressions="@(() => reportCondition.BookingFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@reservationlst"
+                                            NullText="@Lang["BookingTypeNullText"]"
+                                            TextFieldName="YoyaCodeName"
+                                            AllowUserInput="false"
+                                            SelectedItem="@reportCondition.BookingFrom"
+                                            SelectedItemChanged="@((e) => OnBookingFromSelectedChanged(e))"
+                                            SelectedItemExpression="@(() => reportCondition.BookingFrom)"
+                                            CssClass="width--290 custom-combo-box">
+                                </DxComboBox>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class="@("has-tooltip-error")">
+                                <Tooltip ValueExpressions="@(() => reportCondition.BookingFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@reservationlst"
+                                            NullText="@Lang["BookingTypeNullText"]"
+                                            TextFieldName="YoyaCodeName"
+                                            AllowUserInput="false"
+                                            SelectedItem="@reportCondition.BookingTo"
+                                            SelectedItemChanged="@((e) => OnBookingToSelectedChanged(e))"
+                                            SelectedItemExpression="@(() => reportCondition.BookingFrom)"
+                                            CssClass="width--290 custom-combo-box">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-nowrap">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@Undelivered</label>
+                            <DxComboBox Data="@undeliveredlst"
+                                        AllowUserInput="false"
+                                        SelectedItem="@reportCondition.Undelivered"
+                                        SelectedItemChanged="@OnUndeliveredChanged"
+                                        SelectedItemExpression="@(() => reportCondition.Undelivered)"
+                                        CssClass="width--120"></DxComboBox>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-nowrap">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@OutputOrder</label>
+                            <DxComboBox Data="@outputorderlst"
+                                        TextFieldName="StringValue"
+                                        AllowUserInput="false"
+                                        SelectedItem="@reportCondition.OutputOrder"
+                                        SelectedItemChanged="@OnOutputOrderChanged"
+                                        SelectedItemExpression="@(() => reportCondition.OutputOrder)"
+                                        CssClass="width--190"></DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="border-dotted button-fixed-bottom">
+        <DxButton Text="@Lang["Output"]"
+                  RenderStyle="@ButtonRenderStyle.Primary"
+                  CssClass="width--100"
+                  disabled="@((formContext.GetValidationMessages().Distinct().Count() > 0 || checkNullItem )  )"
+                  @onclick="() => BtnSubmitClick()">
+        </DxButton>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public string Option { get; set; }
+    [Parameter] public string Date { get; set; }
+    [Inject] public IMediator _mediator { get; set; }
+
+    EditContext formContext;
+    BusReportData reportCondition = new BusReportData();
+    DateTime operationDate = DateTime.Today;
+    List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+    IEnumerable<CompanyChartData> SelectedCompanyItems { get; set; } = new List<CompanyChartData>();
+    //IEnumerable<ReservationData> SelectedReservations = new List<ReservationData>();
+    List<DepartureOfficeData> vehicledispatchofficelst = new List<DepartureOfficeData>();
+    List<ReservationData> reservationlst = new List<ReservationData>();
+    List<OutputOrderData> outputorderlst = new List<OutputOrderData>();
+    Dictionary<string, string> emptyItemMessage = new Dictionary<string, string>();
+    List<string> undeliveredlst = new List<string>();
+    List<string> temporarycarlst = new List<string>();
+    List<string> sizeofpaperlst = new List<string>();
+    CompanyChartData allcompany = new CompanyChartData();
+    DepartureOfficeData allbranch = new DepartureOfficeData();
+    ReservationData allreservation = new ReservationData();
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    VpmSyain SyainNmItem = new VpmSyain();
+    int activeTabIndex = 0;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; StateHasChanged(); } }
+    string showSelectedCompany = "";
+    string EmptyCompanyMessage = "";
+    string EmptyBranchMessage = "";
+    string EmptyBookingTypeMessage = "";
+    string MessageCheckDataExist = "";
+    bool checkCompanyAll { get; set; } = true;
+    bool CheckSelectedVehicleDispatchToAll = true;
+    bool CheckSelectedReservationEndAll = true;
+    bool checkNullItem = false;
+    bool OpenPopPreview = false;
+    bool PopupCheckData { get; set; } = false;
+    bool IsFilterApply { get; set; }
+    bool isSelectAllReservation = true;
+    bool CompanyEmpty = false;
+    bool BranchEmpty = false;
+    bool BookingEmpty = false;
+    bool CompanyError = false;
+    bool BranchError = false;
+    string MessageCompanyError;
+    string MessageBranchError;
+    string filterConditionFormName = "KU4600";
+    #region string LocalizationInit
+    string PageTitleReport;
+    string FormTitle;
+    string OperationDate;
+    string Company;
+    string VehicleDispatchOffice;
+    string ReservationCategory;
+    string Undelivered;
+    string TemporaryCarNumber;
+    string OutputOrder;
+    string SizeOfPaper;
+    string Preview;
+    string Export;
+    string TitlePopupViewer;
+    string TitlePopupInfo;
+    string searchString = "";
+    public string StrUri { get; set; } = "";
+    BusReportDataUri BusReportDataUri { get; set; } = new BusReportDataUri();
+    bool isExporting;
+    /// <summary>str
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        PageTitleReport = Lang["PageTitle"];
+        FormTitle = Lang["FormTitle"];
+        OperationDate = Lang["OperationDate"];
+        Company = Lang["Company"];
+        VehicleDispatchOffice = Lang["VehicleDispatchOffice"];
+        ReservationCategory = Lang["ReservationCategory"];
+        Undelivered = Lang["Undelivered"];
+        TemporaryCarNumber = Lang["TemporaryCarNumber"];
+        OutputOrder = Lang["OutputOrder"];
+        SizeOfPaper = Lang["SizeOfPaper"];
+        Preview = Lang["PreviewButton"];
+        Export = Lang["ExportButton"];
+        TitlePopupViewer = Lang["TitlePopupViewer"];
+        TitlePopupInfo = Lang["TitlePopupInfo"];
+        EmptyCompanyMessage = Lang["BI_T002"];
+        EmptyBranchMessage = Lang["BI_T006"];
+        EmptyBookingTypeMessage = Lang["BI_T007"];
+        MessageCheckDataExist = Lang["BI_T005"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        formContext = new EditContext(reportCondition);
+        await LoadCompanyData();
+        vehicledispatchofficelst = await TPM_EigyosDataService.GetAllBranchData(new ClaimModel().TenantID);
+        if (vehicledispatchofficelst == null)
+        {
+            vehicledispatchofficelst = new List<DepartureOfficeData>();
+            //vehicledispatchofficelst.Add(new DepartureOfficeData { EigyoCdSeq = -1 });
+        }
+        else
+        {
+            vehicledispatchofficelst.Insert(0, allbranch);
+        }
+        reservationlst = await TPM_YoyKbnDataService.GetYoyKbn();
+        if (reservationlst == null)
+        {
+            reservationlst = new List<ReservationData>();
+            // reservationlst.Add(new ReservationData {YoyaKbnSeq=-1 });
+        }
+        else
+        {
+            reservationlst.Insert(0, allreservation);
+        }
+
+        undeliveredlst = new List<string>(){
+            "出力",
+            "未出力",
+        };
+        temporarycarlst = new List<string>(){
+            "出力",
+            "未出力",
+        };
+        outputorderlst = new List<OutputOrderData>();
+        outputorderlst = OutputOrderListData.OutputOrderlst;
+
+        sizeofpaperlst = new List<string>(){
+            "A3",
+            "A4",
+            "B4",
+        };
+
+        reportCondition.OutputSetting = OutputInstruction.Preview;
+
+        SyainNmItem = await TPM_CompnyDataService.GetSyainNmBySyainCdSeq(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+
+        CheckDataNullFromService();
+        /* await Load().ContinueWith(async t =>
+         {
+             await ApplyFilter();
+         });*/
+        await Task.Run(() =>
+        {
+            Load().Wait();
+        });
+        await ApplyFilter();
+    }
+    private async Task LoadCompanyData()
+    {
+        companychartlst = await TPM_CompnyDataService.GetCompanyListBox(new ClaimModel().TenantID);
+        if (companychartlst == null)
+        {
+            companychartlst = new List<CompanyChartData>();
+        }
+        else
+        {
+            companychartlst.Insert(0, allcompany);
+            SelectedCompanyItems = companychartlst;
+        }
+    }
+    /// <summary>
+    /// check data null
+    /// </summary>
+    void CheckDataNullFromService()
+    {
+        if (companychartlst == null || companychartlst.Count == 0)
+        {
+            emptyItemMessage[nameof(EmptyCompanyMessage)] = EmptyCompanyMessage;
+        }
+        if (vehicledispatchofficelst.Count == 0 || vehicledispatchofficelst == null)
+        {
+            emptyItemMessage[nameof(EmptyBranchMessage)] = EmptyBranchMessage;
+        }
+        if (reservationlst.Count == 0 || reservationlst == null)
+        {
+            emptyItemMessage[nameof(EmptyBookingTypeMessage)] = EmptyBookingTypeMessage;
+        }
+    }
+    /// <summary>
+    /// Load data
+    /// </summary>
+    /// <returns></returns>
+    async Task Load()
+    {
+        if (emptyItemMessage.Count > 0) checkNullItem = true;
+        reportCondition.OperationDate = DateTime.Today;
+        if (companychartlst?.Count >= 1)
+        {
+            reportCondition.CompanyChartData = SelectedCompanyItems.ToList();
+        }
+        else
+        {
+            CompanyEmpty = true;
+        }
+        if (vehicledispatchofficelst.Count >= 1)
+        {
+            reportCondition.VehicleDispatchOffice1 = vehicledispatchofficelst.First();
+            reportCondition.VehicleDispatchOffice2 = vehicledispatchofficelst.First();
+        }
+        else
+        {
+            BranchEmpty = true;
+        }
+        //if (reservationlst.Count >= 1)
+        //{
+        //    SelectedReservations = reservationlst;
+        //    reportCondition.ReservationList = SelectedReservations.ToList();
+        //}
+        //else
+        //{
+        //    BookingEmpty = true;
+        //}
+        reportCondition.Undelivered = undeliveredlst.First();
+        reportCondition.TemporaryCar = temporarycarlst.First();
+        reportCondition.OutputOrder = outputorderlst.First();
+        reportCondition.SizeOfPaper = sizeofpaperlst.First();
+        reportCondition.TenantCdSeq = new ClaimModel().TenantID;
+        reportCondition.SyainNm = SyainNmItem.SyainNm == null ? "" : SyainNmItem.SyainNm;
+        reportCondition.SyainCd = SyainNmItem.SyainCd == null ? "" : SyainNmItem.SyainCd;
+        /*CHECK PARAM*/
+        if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(Date) && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()))
+        {
+            DateTime dateTimeConvert;
+            try
+            {
+                dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                reportCondition.OperationDate = dateTimeConvert;
+                operationDate = dateTimeConvert;
+                LoadReservationList();
+                NavManager.NavigateTo("/busreports", false);
+                bool checkDataExist = false;
+                checkDataExist = await checkDataExistInDb(reportCondition);
+                if (checkDataExist)
+                {
+                    if (Option == OptionReport.Preview.ToString())//preview
+                    {
+                        string baseUrl = AppSettingsService.GetBaseUrl();
+                        BusReportDataUri.Uri = await GetUri();
+                        searchString = EncryptHelper.EncryptToUrl(BusReportDataUri);
+                        string url = baseUrl + "/BusReportsPreview";
+                        url = url + string.Format("/?SearchString={0}", searchString);
+                        JSRuntime.InvokeVoidAsync("open", url, "_blank");
+                    }
+                    else //download
+                    {
+                        reportCondition.OutputSetting = OutputInstruction.Pdf;
+                        StrUri = await GetUri();
+                        await ExportReportAsPdf(1, $"{nameof(HassyaAllrightCloud.Reports.ReportFactory.BusReport)}?" + StrUri);
+                    }
+                }
+                else
+                {
+                    PopupCheckData = true;
+                }
+                await SaveCurrentFilter();
+            }
+            catch
+            {
+                PopupCheckData = true;
+            }
+        }
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("loadPageScript", "busReportPage");
+    }
+    #endregion
+
+    #region method value changed
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newDate"></param>
+    void OnOperationDateChanged(DateTime newDate)
+    {
+        operationDate = newDate;
+        reportCondition.OperationDate = newDate;
+        if (!IsFilterApply) StateHasChanged();
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedCompanyItems"></param>
+    void OnSelectedCompanyItemsChanged(IEnumerable<CompanyChartData> selectedCompanyItems)
+    {
+        SelectedCompanyItems = selectedCompanyItems;
+        if (!IsFilterApply)
+        {
+            if (checkCompanyAll == true)
+            {
+                if (!SelectedCompanyItems.Contains(allcompany))
+                {
+                    SelectedCompanyItems = SelectedCompanyItems.Take(0);
+                    checkCompanyAll = false;
+                }
+                else if (SelectedCompanyItems.Contains(allcompany) && SelectedCompanyItems.Count() < companychartlst.Count())
+                {
+                    SelectedCompanyItems = SelectedCompanyItems.Where(t => t.CompanyCdSeq != allcompany.CompanyCdSeq);
+                    checkCompanyAll = false;
+                }
+            }
+            else
+            {
+                if (SelectedCompanyItems.Contains(allcompany) || (!SelectedCompanyItems.Contains(allcompany) && SelectedCompanyItems.Count() == companychartlst.Count() - 1))
+                {
+                    SelectedCompanyItems = companychartlst;
+                    checkCompanyAll = true;
+                }
+            }
+        }
+
+        /*SelectedCompanyItems = selectedCompanyItems;
+        if (SelectedCompanyItems.Count() == 0)
+        {
+            showSelectedCompany = "選択項目：0";
+        }
+        else if (SelectedCompanyItems.Count() == 1)
+        {
+            foreach (var item in SelectedCompanyItems)
+            {
+                showSelectedCompany = item.Text;
+            }
+        }
+        else if (SelectedCompanyItems.Count() > 1 && SelectedCompanyItems.Count() < companychartlst.Count())
+        {
+            showSelectedCompany = "選択項目：" + SelectedCompanyItems.Count().ToString();
+        }
+        else if (SelectedCompanyItems.Count() == companychartlst.Count())
+        {
+            showSelectedCompany = "すべて";
+        }
+
+        if (!IsFilterApply)
+        {
+            if (checkCompanyAll == true && !SelectedCompanyItems.Contains(allcompany))
+            {
+                SelectedCompanyItems = SelectedCompanyItems.Take(0);
+                checkCompanyAll = false;
+            }
+            if (checkCompanyAll == false && (SelectedCompanyItems.Contains(allcompany) || (!SelectedCompanyItems.Contains(allcompany)
+                && SelectedCompanyItems.Count() == companychartlst.Count() - 1)))
+            {
+                SelectedCompanyItems = companychartlst;
+                checkCompanyAll = true;
+            }
+            if (checkCompanyAll == true && SelectedCompanyItems.Contains(allcompany)
+                && SelectedCompanyItems.Count() < companychartlst.Count())
+            {
+                SelectedCompanyItems = SelectedCompanyItems.Where(t => t.CompanyCdSeq != allcompany.CompanyCdSeq);
+                checkCompanyAll = false;
+            }
+        }*/
+        if (SelectedCompanyItems.Count() == 0)
+        {
+            CompanyEmpty = true;
+        }
+        else
+        {
+            CompanyEmpty = false;
+        }
+        reportCondition.CompanyChartData = SelectedCompanyItems.ToList();
+        vehicledispatchofficelst = TPM_EigyosDataService.GetBranchDataByIdCompany(reportCondition.CompanyChartData, new ClaimModel().TenantID);
+        vehicledispatchofficelst.Insert(0, allbranch);
+        if (!IsFilterApply)
+        {
+            reportCondition.VehicleDispatchOffice1 = vehicledispatchofficelst.First();
+            reportCondition.VehicleDispatchOffice2 = vehicledispatchofficelst.First();
+        }
+        IsFilterApply = false;
+        formContext.Validate();
+        if (!IsFilterApply) StateHasChanged();
+    }
+    /* private void DisplayLstSelectedCompany()
+     {
+         if (SelectedCompanyItems.Count() == 0)
+         {
+             showSelectedCompanies = "選択項目：0";
+         }
+         else if (SelectedCompanyItems.Count() == 1)
+         {
+             foreach (var item in SelectedCompanyItems)
+             {
+                 showSelectedCompanies = item.CompanyNm;
+             }
+         }
+         else if (SelectedCompanyItems.Count() > 1 && SelectedCompanyItems.Count() < tmpcompanychart.Count())
+         {
+             showSelectedCompanies = "選択項目：" + SelectedCompanyItems.Count().ToString();
+         }
+         else if (SelectedCompanyItems.Count() == tmpcompanychart.Count())
+         {
+             showSelectedCompanies = "すべて";
+         }
+     }*/
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="departureOffice"></param>
+    void OnVehicleDispatchOffice1Changed(DepartureOfficeData departureOffice)
+    {
+        if (!IsFilterApply && departureOffice.EigyoCdSeq == 0)
+        {
+            reportCondition.VehicleDispatchOffice1 = departureOffice ?? new DepartureOfficeData();
+            reportCondition.VehicleDispatchOffice2 = departureOffice ?? new DepartureOfficeData();
+            CheckSelectedVehicleDispatchToAll = true;
+        }
+        else
+        {
+            CheckSelectedVehicleDispatchToAll = false;
+            reportCondition.VehicleDispatchOffice1 = departureOffice ?? new DepartureOfficeData();
+        }
+        formContext.Validate();
+        if (!IsFilterApply) StateHasChanged();
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="departureOffice"></param>
+    void OnVehicleDispatchOffice2Changed(DepartureOfficeData departureOffice)
+    {
+        if (!IsFilterApply && departureOffice.EigyoCdSeq == 0)
+        {
+            reportCondition.VehicleDispatchOffice1 = departureOffice ?? new DepartureOfficeData();
+            reportCondition.VehicleDispatchOffice2 = departureOffice ?? new DepartureOfficeData();
+            CheckSelectedVehicleDispatchToAll = true;
+        }
+        else
+        {
+            reportCondition.VehicleDispatchOffice2 = departureOffice ?? new DepartureOfficeData();
+        }
+        formContext.Validate();
+        if (!IsFilterApply) StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnUndeliveredChanged(string newValue)
+    {
+        reportCondition.Undelivered = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnTemporaryCarChanged(string newValue)
+    {
+        reportCondition.TemporaryCar = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="order"></param>
+    void OnOutputOrderChanged(OutputOrderData order)
+    {
+        reportCondition.OutputOrder = order;
+        if (!IsFilterApply) StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnSizeOfPaperChanged(string newValue)
+    {
+        reportCondition.SizeOfPaper = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+    #endregion
+
+    #region Action
+    /// <summary>
+    ///
+    /// </summary>
+    private void HandleValidSubmit()
+    {
+        if (formContext.Validate())
+        {
+            try
+            {
+                var client = new HttpClient();
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    async void OpenPopupPreview()
+    {
+        await SaveCurrentFilter();
+        bool checkDataExist = false;
+        checkDataExist = await checkDataExistInDb(reportCondition);
+        if (checkDataExist)
+        {
+            OpenPopPreview = true;
+        }
+        else
+        {
+            PopupCheckData = true;
+        }
+        StateHasChanged();
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    async Task DownLoadReport()
+    {
+        await SaveCurrentFilter();
+        bool checkDataExist = false;
+        checkDataExist = await checkDataExistInDb(reportCondition);
+        if (checkDataExist)
+        {
+            StrUri = await GetUri();
+            await ExportReportAsPdf(1, $"{nameof(HassyaAllrightCloud.Reports.ReportFactory.BusReport)}?" + StrUri);
+        }
+        else
+        {
+            PopupCheckData = true;
+        }
+        StateHasChanged();
+    }
+    /// <summary>
+    /// check data
+    /// </summary>
+    /// <param name="busReportData"></param>
+    /// <returns></returns>
+    async Task<bool> checkDataExistInDb(BusReportData busReportData)
+    {
+        List<BusReportData> busReportDataList = new List<BusReportData>();
+        busReportDataList = await BusReportService.GetInfoMainReport(busReportData);
+
+        return busReportDataList?.Any() ?? false;
+    }
+    async Task ExportReportAsPdf(int printMode, string uri)
+    {
+        /*var report = await _reportLayoutSettingService.GetCurrentTemplate(ReportIdForSetting.Busreports, BaseNamespace.Busreports, new ClaimModel().TenantID, new ClaimModel().EigyoCdSeq,
+            reportCondition.SizeOfPaper == "A3" ? (byte)2 : reportCondition.SizeOfPaper == "A4" ? (byte)1 : reportCondition.SizeOfPaper == "B4" ? (byte)3 : (byte)0);*/
+        var report = new HassyaAllrightCloud.Reports.ReportFactory.BusReportCreator("BusReport", "Report BusReport").GetReport().
+            CreateByUrl(uri);
+
+        await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+        {
+            string fileType = "";
+            report.CreateDocument();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                switch (printMode)
+                {
+                    case 1:
+                        fileType = "pdf";
+                        report.ExportToPdf(ms);
+                        break;
+                        /*case (int)PrintMode.SaveAsExcel:
+                            fileType = "xlsx";
+                            report.ExportToXlsx(ms);
+                            break;
+                        case (int)PrintMode.Print:
+                            PrintToolBase tool = new PrintToolBase(report.PrintingSystem);
+                            tool.Print();
+                            return;*/
+                }
+                byte[] exportedFileBytes = ms.ToArray();
+                string myExportString = Convert.ToBase64String(exportedFileBytes);
+                JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, fileType, "Haisyahyo");
+            }
+
+        });
+    }
+
+    private async Task SaveCurrentFilter()
+    {
+        await FilterServices.SaveCustomFilterAndConditions(GetFieldValues(), filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+    }
+
+    private Dictionary<string, string> GetFieldValues()
+    {
+        var result = new Dictionary<string, string>();
+        result = BusReportService.GetFieldValues(reportCondition);
+        return result;
+    }
+
+    private async Task ApplyFilter()
+    {
+        var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq)).ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+        if (filterValues.Count > 0)
+        {
+            IsFilterApply = true;
+            if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(Date) && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()))
+            {
+                DateTime dateTimeConvert;
+                try
+                {
+                    dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                    reportCondition.OperationDate = dateTimeConvert;
+                    operationDate = dateTimeConvert;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            else
+            {
+                BusReportService.ApplyFilter(ref reportCondition, filterValues);
+            }
+            var comIdList = reportCondition.CompanyChartData.Select(c => c.CompanyCdSeq).ToList();
+            SelectedCompanyItems = companychartlst.Where(c => comIdList.Contains(c.CompanyCdSeq));
+            reportCondition.CompanyChartData = SelectedCompanyItems.ToList();
+            vehicledispatchofficelst = TPM_EigyosDataService.GetBranchDataByIdCompany(reportCondition.CompanyChartData, new ClaimModel().TenantID);
+            vehicledispatchofficelst.Insert(0, allbranch);
+            checkCompanyAll = reportCondition.CompanyChartData.Count == companychartlst.Count;
+            OnOperationDateChanged(reportCondition.OperationDate);
+            OnVehicleDispatchOffice1Changed(vehicledispatchofficelst.SingleOrDefault(c => c.EigyoCdSeq == reportCondition.VehicleDispatchOffice1.EigyoCdSeq));
+            OnVehicleDispatchOffice2Changed(vehicledispatchofficelst.SingleOrDefault(c => c.EigyoCdSeq == reportCondition.VehicleDispatchOffice2.EigyoCdSeq));
+            //OnSelectedReservationsChanged(reservationlst.Where(c => reportCondition.ReservationList.Select(_ => _.YoyaKbnSeq).Contains(c.YoyaKbnSeq)));
+            //isSelectAllReservation = reportCondition.ReservationList.Count == reservationlst.Count;
+            OnBookingFromSelectedChanged(reservationlst.FirstOrDefault(x => x.YoyaKbnSeq == reportCondition.BookingFrom.YoyaKbnSeq));
+            OnBookingToSelectedChanged(reservationlst.FirstOrDefault(x => x.YoyaKbnSeq == reportCondition.BookingTo.YoyaKbnSeq));
+            OnOutputOrderChanged(outputorderlst.SingleOrDefault(c => c.IdValue == reportCondition.OutputOrder.IdValue));
+            // StateHasChanged() will execute OnSelectedCompanyItemsChanged() => set IsFilterApply = false in that
+
+            StateHasChanged();
+        }
+        IsFilterApply = false;
+    }
+
+    //protected void OnSelectedReservationsChanged(IEnumerable<ReservationData> reservationDatas)
+    //{
+    //    SelectedReservations = reservationDatas;
+    //    Func<ReservationData, bool> reserKeySelectorAll = r => r.YoyaKbnSeq == 0;
+
+    //    if (!IsFilterApply)
+    //    {
+    //        if (isSelectAllReservation == true && !SelectedReservations.Any(reserKeySelectorAll))
+    //        {
+    //            SelectedReservations = SelectedReservations.Take(0);
+    //            isSelectAllReservation = false;
+    //        }
+    //        if (isSelectAllReservation == false && (SelectedReservations.Any(reserKeySelectorAll) || (!SelectedReservations.Any(reserKeySelectorAll)
+    //            && SelectedReservations.Count() == reservationlst.Count() - 1)))
+    //        {
+    //            SelectedReservations = reservationlst;
+    //            isSelectAllReservation = true;
+    //        }
+    //        if (isSelectAllReservation == true && SelectedReservations.Any(reserKeySelectorAll)
+    //            && SelectedReservations.Count() < reservationlst.Count())
+    //        {
+    //            SelectedReservations = SelectedReservations.Where(r => r.YoyaKbnSeq != 0);
+    //            isSelectAllReservation = false;
+    //        }
+    //    }
+    //    reportCondition.ReservationList = SelectedReservations.ToList();
+
+    //    if (!IsFilterApply) StateHasChanged();
+    //}
+
+    //protected string GetSelectedReservationText()
+    //{
+    //    string result = string.Empty;
+    //    if (SelectedReservations.Count() == 1)
+    //    {
+    //        result = SelectedReservations.First().Text;
+    //    }
+    //    else if (SelectedReservations.Count() == reservationlst.Count())
+    //    {
+    //        result = "すべて";
+    //    }
+    //    else
+    //    {
+    //        result = "選択項目：" + SelectedReservations.Count();
+    //    }
+    //    return result;
+    //}
+    //btn submit click
+    private async void BtnSubmitClick()
+    {
+        LoadReservationList();
+        if (formContext.Validate())
+        {
+            isExporting = true;
+            bool checkDataExist = false;
+            checkDataExist = await checkDataExistInDb(reportCondition);
+            if (checkDataExist)
+            {
+                await SaveCurrentFilter();
+                if (reportCondition.OutputSetting == OutputInstruction.Preview)
+                {
+                    string baseUrl = AppSettingsService.GetBaseUrl();
+                    BusReportDataUri.Uri = await GetUri();
+                    searchString = EncryptHelper.EncryptToUrl(BusReportDataUri);
+                    string url = baseUrl + "/BusReportsPreview";
+                    url = url + string.Format("/?SearchString={0}", searchString);
+                    JSRuntime.InvokeVoidAsync("open", url, "_blank");
+                    isExporting = false;
+                }
+                else if (reportCondition.OutputSetting == OutputInstruction.Pdf)
+                {
+                    StrUri = await GetUri();
+                    await ExportReportAsPdf(1, $"{nameof(HassyaAllrightCloud.Reports.ReportFactory.BusReport)}?" + StrUri).ContinueWith(t => isExporting = false);
+                }
+            }
+            else
+            {
+                isExporting = false;
+                PopupCheckData = true;
+            }
+        }
+        StateHasChanged();
+    }
+    private async Task<string> GetUri()
+    {
+        var claimModel = new ClaimModel();
+        int CurrentTemplateId = await _mediator.Send(new GetReportCurrentTemplateQuery { TenantCdSeq = claimModel.TenantID, ReportId = ReportIdForSetting.Busreports, EigyouCdSeq = claimModel.EigyoCdSeq });
+        string ReportClassName = BaseNamespace.Report + BaseNamespace.Busreports + CurrentTemplateId + reportCondition.SizeOfPaper;
+        return String.Format("DateBooking={0}&" +
+                "ListCompany={1}&" +
+                "BranchFrom={2}&" +
+                "BranchTo={3}&" +
+                "BookingTypeList={4}" +
+                "&MihaisyaKbn={5}" +
+                "&Order={6}&" +
+                "TenantCdSeq={7}" +
+                "&SyainNm={8}" +
+                "&DateTimeHeader={9}" +
+                "&DateTimeFooter={10}" +
+                "&SizeOfPaper={11}" +
+                "&SyainCd={12}" +
+                "&ReportTemplate={13}"
+                , reportCondition.OperationDate.ToString("yyyyMMdd"),
+                FormatListStringCompany(reportCondition.CompanyChartData),
+                reportCondition.VehicleDispatchOffice1.EigyoCdSeq.ToString(),
+                reportCondition.VehicleDispatchOffice2.EigyoCdSeq.ToString(),
+                string.Join('-', reportCondition.ReservationList.Select(_ => _.YoyaKbnSeq)),
+                reportCondition.Undelivered,
+                reportCondition.OutputOrder.IdValue.ToString(),
+                reportCondition.TenantCdSeq.ToString(),
+                reportCondition.SyainNm,
+                reportCondition.OperationDate.ToString("yyyy/MM/dd     ddd曜日"),
+                reportCondition.DateTimeFooter,
+                reportCondition.SizeOfPaper,
+                reportCondition.SyainCd,
+                ReportClassName
+                );
+    }
+    public string FormatListStringCompany(List<CompanyChartData> companyChartData)
+    {
+        if (companyChartData == null) return "";
+        if (companyChartData.Count > 1 && companyChartData[0].CompanyCdSeq == 0) return "0";//check all
+        else
+        {
+            string[] strFormatCompanyArr = new string[companyChartData.Count];
+            if (companyChartData.Count > 1)
+            {
+                for (int i = 0; i < companyChartData.Count; i++)
+                {
+                    if (companyChartData[i].CompanyCdSeq > 0)
+                    {
+                        strFormatCompanyArr[i] = companyChartData[i].CompanyCdSeq.ToString();
+                    }
+                }
+                return String.Join("-", strFormatCompanyArr);
+            }
+            else
+            {
+                return companyChartData.First().CompanyCdSeq.ToString();
+            }
+        }
+    }
+    /*public async Task<IEnumerable<CompanyChartData>> GetDataAsync(CancellationToken ct = default)
+    {
+        //List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+        return await Task.FromResult(await TPM_CompnyDataService.GetCompany(new ClaimModel().TenantID));
+    }*/
+
+    async void ResetForm()
+    {
+        if (emptyItemMessage.Count > 0) checkNullItem = true;
+        reportCondition.OutputSetting = OutputInstruction.Preview;
+        reportCondition.SizeOfPaper = sizeofpaperlst.First();
+        operationDate = DateTime.Today;
+        reportCondition.OperationDate = DateTime.Today;
+        if (companychartlst?.Count >= 1)
+        {
+            SelectedCompanyItems = companychartlst;
+            reportCondition.CompanyChartData = SelectedCompanyItems.ToList();
+        }
+        else
+        {
+            CompanyEmpty = true;
+        }
+        if (vehicledispatchofficelst.Count >= 1)
+        {
+            reportCondition.VehicleDispatchOffice1 = vehicledispatchofficelst.First();
+            reportCondition.VehicleDispatchOffice2 = vehicledispatchofficelst.First();
+        }
+        else
+        {
+            BranchEmpty = true;
+        }
+        //if (reservationlst.Count >= 1)
+        //{
+        //    SelectedReservations = reservationlst;
+        //    reportCondition.ReservationList = SelectedReservations.ToList();
+        //}
+        //else
+        //{
+        //    BookingEmpty = true;
+        //}
+        reportCondition.BookingFrom = reservationlst.FirstOrDefault();
+        reportCondition.BookingTo = reservationlst.FirstOrDefault();
+        reportCondition.Undelivered = undeliveredlst.First();
+        reportCondition.TemporaryCar = temporarycarlst.First();
+        reportCondition.OutputOrder = outputorderlst.First();
+        reportCondition.TenantCdSeq = new ClaimModel().TenantID;
+        reportCondition.SyainNm = SyainNmItem.SyainNm == null ? "" : SyainNmItem.SyainNm;
+        reportCondition.SyainCd = SyainNmItem.SyainCd == null ? "" : SyainNmItem.SyainCd;
+        await FilterServices.DeleteCustomFilerCondition(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, 1, filterConditionFormName);
+        formContext = new EditContext(reportCondition);
+        //Save filter
+        //await SaveCurrentFilter();
+        StateHasChanged();
+    }
+    #endregion
+    protected string GetSelectedCompanyText()
+    {
+        string result = string.Empty;
+        if (SelectedCompanyItems.Count() == 1)
+        {
+            result = SelectedCompanyItems.First().Text;
+        }
+        else if (SelectedCompanyItems.Count() == companychartlst.Count())
+        {
+            result = "すべて";
+        }
+        else
+        {
+            result = "選択項目：" + SelectedCompanyItems.Count();
+        }
+        return result;
+    }
+    void OnBookingFromSelectedChanged(ReservationData item)
+    {
+        reportCondition.BookingFrom = item;
+        if (!IsFilterApply) StateHasChanged();
+    }
+
+    void OnBookingToSelectedChanged(ReservationData item)
+    {
+        reportCondition.BookingTo = item;
+        if (!IsFilterApply) StateHasChanged();
+    }
+
+    void LoadReservationList()
+    {
+        ReservationData bookingfrom = new ReservationData();
+        if (reportCondition.BookingFrom.YoyaKbnSeq > 0)
+        {
+            bookingfrom = reportCondition.BookingFrom;
+        }
+        else
+        {
+            bookingfrom = reservationlst.FirstOrDefault();
+        }
+
+        ReservationData bookingto = new ReservationData();
+        if (reportCondition.BookingTo.YoyaKbnSeq > 0)
+        {
+            bookingto = reportCondition.BookingTo;
+        }
+        else
+        {
+            bookingto = reservationlst.LastOrDefault();
+        }
+        reportCondition.ReservationList = YoyKbnHelper.GetListYoyKbnFromTo(bookingfrom, bookingto, reservationlst);
+    }
+}

@@ -1,0 +1,374 @@
+﻿@inherits FareFeeCorrectionBase;
+    <div class="farefeecorrection-form">
+        <EditForm Context="editFormContext" EditContext="editFormContext">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5>@_lang["Header"]</h5>
+            </div>
+            <div>
+                @if (ErrorMessage.Any())
+                {
+                    <ul class="text-danger">
+                        @foreach (var message in ErrorMessage)
+                        {
+                            <li class="validation-message">@_lang[message]</li>
+                        }
+                    </ul>
+                }
+                @if (!IsUkeNoValid)
+                {
+                    <ul class="text-danger">
+                        <li class="validation-message">@_lang[Constants.ErrorMessage.FareFeeCorrection_BI_T008]</li>
+                    </ul>
+                }
+            </div>
+            <div class="main-top mb-2">
+                <div id="control-tab" class="title-section mb-2">
+                    <i class="fa fa-angle-up" aria-hidden="true"></i> @_lang["ConditionSearch"]
+                </div>
+                <div class="express-condition mb-2" style="display: none">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+                        <DxTab Text="@_lang["Tab1"]"></DxTab>
+                        <DxTab Text="@_lang["Tab2"]"></DxTab>
+                        <DxTab Text="@_lang["Tab3"]"></DxTab>
+                    </DxTabs>
+                    <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+                        <div class="card-body mr-5 ml-5">
+                            @switch (ActiveTabIndex)
+                            {
+                                case 0:
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["SyaRyoUnc"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.SyaRyoUnc" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup1"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.SyaRyoUnc), value))"
+                                                                   TextExpression="@(() => formModel.SyaRyoUnc)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["YouUnc"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.YouUnc" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup2"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.YouUnc), value))"
+                                                                   TextExpression="@(() => formModel.YouUnc)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-2 text-right">@_lang["UntKin"]</label>
+                                                <div class="col-3">
+                                                </div>
+                                                <div class="col-2 nopadding">
+                                                </div>
+                                                <label class="col-form-label col-1 text-center"></label>
+                                                <div class="col-3 nopadding">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.UntKin" CssClass="width--100 ml-1 code-number text-right"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="true"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.UntKin), value))"
+                                                                   TextExpression="@(() => formModel.UntKin)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["SyaRyoSyo"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.SyaRyoSyo" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup1"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.SyaRyoSyo), value))"
+                                                                   TextExpression="@(() => formModel.SyaRyoSyo)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["YouZei"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.YouZei" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup2"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.YouZei), value))"
+                                                                   TextExpression="@(() => formModel.YouZei)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-2 text-right">@_lang["ConsumptionTax"]</label>
+                                                <div class="col-3">
+                                                    <DxTextBox Text="@formModel.ZeiKbn" CssClass="width--50"
+                                                               BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="true"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(formModel.ZeiKbn), value))"
+                                                               TextExpression="@(() => formModel.ZeiKbn)">
+                                                    </DxTextBox>
+                                                </div>
+                                                <div class="col-2 nopadding">
+                                                    <DxTextBox Text="@formModel.ZeiRitu" CssClass="width--50 code-number text-right"
+                                                               BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="true"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(formModel.ZeiRitu), value))"
+                                                               TextExpression="@(() => formModel.ZeiRitu)">
+                                                    </DxTextBox>
+                                                </div>
+                                                <label class="col-form-label col-1 text-center mr-1">%</label>
+                                                <div class="col-2 nopadding">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.ZeiRuiGaku" CssClass="width--100 code-number text-right" ReadOnly="true"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.ZeiRuiGaku), value))"
+                                                                   TextExpression="@(() => formModel.ZeiRuiGaku)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["SyaRyoTes"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.SyaRyoTes" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup1"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.SyaRyoTes), value))"
+                                                                   TextExpression="@(() => formModel.SyaRyoTes)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-3 text-left">@_lang["YouTes"]</label>
+                                                <div class="col-8">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.YouTes" CssClass="width--100 code-number text-right" maxlength="9"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="@isDisableGroup2"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.YouTes), value))"
+                                                                   TextExpression="@(() => formModel.YouTes)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row ">
+                                                <label class="col-form-label col-2 text-right">@_lang["Fee"]</label>
+                                                <div class="col-3">
+                                                </div>
+                                                <div class="col-2 nopadding">
+                                                    <DxTextBox Text="@formModel.TesuRyo" CssClass="width--50  code-number text-right"
+                                                               BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="true"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(formModel.TesuRyo), value))"
+                                                               TextExpression="@(() => formModel.TesuRyo)">
+                                                    </DxTextBox>
+                                                </div>
+                                                <label class="col-form-label col-1 text-center mr-1">%</label>
+                                                <div class="col-2 nopadding">
+                                                    <div class="form-group d-flex flex-nowrap">
+                                                        <DxTextBox Text="@formModel.TesuRyoGaku" CssClass="width--100 code-number text-right"
+                                                                   BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus" ReadOnly="true"
+                                                                   TextChanged="@((value) => UpdateFormValue(nameof(formModel.TesuRyoGaku), value))"
+                                                                   TextExpression="@(() => formModel.TesuRyoGaku)">
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    break;
+                                case 1:
+                                    <div class="d-flex">
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label width--100">@_lang["Tab2"]</label>
+                                            <nav class="nav nav-pills">
+                                                <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                                        type="button" @onclick="@(e => ChangeMode(e, (int)ViewMode.Large, (int)ModeChangeV.ViewMode))">
+                                                    @_lang["BigSize"]
+                                                </button>
+                                                <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                                        @onclick="@(e => ChangeMode(e, (int)ViewMode.Medium, (int)ModeChangeV.ViewMode))">
+                                                    @_lang["MediumSize"]
+                                                </button>
+                                                <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                                        @onclick="@(e => ChangeMode(e, (int)ViewMode.Small, (int)ModeChangeV.ViewMode))">
+                                                    @_lang["SmallSize"]
+                                                </button>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                    break;
+                                case 2:
+                                    <div class="form-group d-sm-flex flex-nowrap">
+                                        <button class="@string.Format("btn-option ml-2 {0}", ActiveL == (int)LayoutMode.Save ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="@(e => ChangeMode(e, (int)LayoutMode.Save,(int)ModeChangeV.LayoutMode))">
+                                            @_lang["Preservation"]
+                                        </button>
+                                        <button class="@string.Format("btn-option ml-2 {0}", ActiveL == (int)LayoutMode.Init ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="@(e => ChangeMode(e, (int)LayoutMode.Init, (int)ModeChangeV.LayoutMode) )">
+                                            @_lang["Initialize"]
+                                        </button>
+                                    </div>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2 mb-3 text-center">
+                <div class="col-12">
+                    <DxButton @onclick="e => BtnReflect()" CssClass="btn btn-primary width--90 btn-farefeecorrection-radius lifecycle-btn ml-2 mr-2" Text="@_lang["Reflect"]" Enabled="@(isEnableReflect)" />
+                    <DxButton @onclick="e => BtnSave()" CssClass="btn btn-primary width--90 btn-farefeecorrection-radius lifecycle-btn ml-2 mr-2" Text="@_lang["Save"]" Enabled="@(isEnableSave)" />
+                </div>
+            </div>
+
+        </EditForm>
+    </div>
+
+    <div class="farefeecorrection">
+        <div class="table-scroll grid-@ActiveV">
+            <table id="main-table" class="main-table table-layout">
+                <thead>
+                    <tr class="line-height-thead">
+                        <th class="text-center width--90 sticky" rowspan="2" scope="colgroup">@_lang["Col-1"]</th>
+                        <th class="text-center width--130 sticky" rowspan="2" scope="colgroup">@_lang["Col-2"]</th>
+                        <th class="text-center width--110 sticky" rowspan="2" scope="colgroup">@_lang["Col-3"]</th>
+                        <th class="text-center width--90 sticky" rowspan="2" scope="colgroup">@_lang["Col-4"]</th>
+                        <th class="text-center width--90 sticky" rowspan="2" scope="colgroup">@_lang["Col-5"]</th>
+                        <th class="text-center width--120 sticky" rowspan="2" scope="colgroup">@_lang["Col-6"]</th>
+                        <th class="text-center width--130 sticky" colspan="3" scope="colgroup">@_lang["Col-7"]</th>
+                        <th class="text-center width--130 sticky" colspan="3" scope="colgroup">@_lang["Col-9"]</th>
+                        <th class="text-center width--90 sticky" rowspan="2" scope="colgroup">@_lang["Col-10"]</th>
+                        <th class="text-center width--90 sticky" rowspan="2" scope="colgroup">@_lang["Col-11"]</th>
+                    </tr>
+                    <tr class="line-height-thead">
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-7-1"]</th>
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-7-2"]</th>
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-7-3"]</th>
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-9-1"]</th>
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-9-2"]</th>
+                        <th class="text-center width--80 sticky" scope="col">@_lang["Col-9-3"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (DataSource != null && DataSource?.Count() > 0)
+                    {
+                        @if (DataSource?.Count() >= 9)
+                        {
+                            @foreach (var item in DataSource)
+                            {
+                                <tr @ondblclick="@((e) => OnDblRowClick(item ,e ))" style="line-height: 22px;" @onclick="(e) => OnRowClick(item, e)" class="@(item.No == IndexItem ? "selected-row" : null)">
+                                    <td rowspan="2" class="text-center sticky">@item.No</td>
+                                    <td rowspan="2" class="text-center sticky pl-2">@item.UnkYmd</td>
+                                    <td rowspan="2" class="text-center sticky pl-2">@item.GoSya</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.Eigyo</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.SyaRyo</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.YouSha</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoUnc.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoSyo.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoTes.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouUnc.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouZei.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouTes.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.HaishaYmd</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.TouYmd</td>
+                                </tr>
+                                <tr></tr>
+                            }
+                        }
+                        else
+                        {
+                            @foreach (var item in DataSource)
+                            {
+                                <tr @ondblclick="@((e) => OnDblRowClick(item ,e ))" style="line-height: 22px;" @onclick="(e) => OnRowClick(item, e)" class="@(item.No == IndexItem ? "selected-row" : null)">
+                                    <td rowspan="2" class="text-center sticky">@item.No</td>
+                                    <td rowspan="2" class="text-center sticky pl-2">@item.UnkYmd</td>
+                                    <td rowspan="2" class="text-center sticky pl-2">@item.GoSya</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.Eigyo</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.SyaRyo</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.YouSha</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoUnc.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoSyo.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.SyaRyoTes.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouUnc.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouZei.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-right sticky pr-2">@item.YouTes.ToString("#,##0")</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.HaishaYmd</td>
+                                    <td rowspan="2" class="text-left sticky pl-2">@item.TouYmd</td>
+                                </tr>
+                                <tr></tr>
+                            }
+                            @for (var i = 0; i < 9 - DataSource?.Count; i++)
+                            {
+                                <tr class="active table-active" style="height: 22px;">
+                                    <td class="border-bottom-0 border-top-0 border-right-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-top-0 border-bottom-0 border-left-0"></td>
+                                </tr>
+                                <tr></tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="14" class="text-lg-center font-weight-bold">@_lang["BI_T001"]</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr style="line-height: 22px;" class="font-weight-bold">
+                        <td rowspan="2" class="text-center sticky">@_lang["Sum"]</td>
+                        <td rowspan="2" class="text-center sticky"></td>
+                        <td rowspan="2" class="text-center sticky"></td>
+                        <td rowspan="2" class="text-left sticky"></td>
+                        <td rowspan="2" class="text-left sticky"></td>
+                        <td rowspan="2" class="text-left sticky"></td>
+                        <td rowspan="2" class="text-right sticky pr-2"> @((DataSource?.Sum(x => x.SyaRyoUnc) ?? 0).ToString("#,##0")) </td>
+                        <td rowspan="2" class="text-right sticky pr-2">@((DataSource?.Sum(x => x.SyaRyoSyo) ?? 0).ToString("#,##0"))</td>
+                        <td rowspan="2" class="text-right sticky pr-2">@((DataSource?.Sum(x => x.SyaRyoTes) ?? 0).ToString("#,##0"))</td>
+                        <td rowspan="2" class="text-right sticky pr-2">@((DataSource?.Sum(x => x.YouUnc) ?? 0).ToString("#,##0"))</td>
+                        <td rowspan="2" class="text-right sticky pr-2">@((DataSource?.Sum(x => x.YouZei) ?? 0).ToString("#,##0"))</td>
+                        <td rowspan="2" class="text-right sticky pr-2">@((DataSource?.Sum(x => x.YouTes) ?? 0).ToString("#,##0"))</td>
+                        <td rowspan="2" class="text-left sticky"></td>
+                        <td rowspan="2" class="text-left sticky"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+

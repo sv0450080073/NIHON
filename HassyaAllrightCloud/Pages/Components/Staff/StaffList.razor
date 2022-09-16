@@ -1,0 +1,154 @@
+﻿@inject IStringLocalizer<Pages.Staff> Lang
+
+<div class="custom-scroll">
+    <ul class="list-unstyled scrollbar-outer list mb-0">
+        @if (List.Count() == 0)
+        {
+            <li class="text-center"><small>@Lang["BI_T001"]</small></li>
+        }
+        @foreach (var staff in List)
+        {
+            <li class="dropzone" ondragover="event.preventDefault();" @ondrop="@(()=>HandleDrop(staff))">
+                @if (staff.HolidayID == 0)
+                {
+                    @if (staff.WorkID != 0)
+                    {
+                        <div class="isWork d-block mytooltip" style="color: @GetColor(staff); background-color: @OnGetBackgroundColor(staff)"
+                             @onmouseover="@((e) => ShowToolTip(staff, e))" @onmouseout="@(() => HideToolTip(staff))" @onmousemove="@((e) => UpdateToolTip(staff, e))">
+                            <p class="mb-0">@(staff.SyainCd + "	" + staff.SyainNm + "（	" + staff.WorkNm + "	)")</p>
+                            @if (Container.Params.ShowTime == (int)ShowTime.IsShowTime && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5))
+                            {
+                                <p class="mb-0 time-item">@($"{Lang["showtime_label"]}{Lang["1weak"]}{GetTime(staff.WorkTime)}　{Lang["4weak"]}{GetTime(staff.WorkTime4Week)}")</p>
+                            }
+                            @if (staff.isShowToolTip)
+                            {
+                                <StaffToolTip staff="staff" CssClass="tooltip-text-fixed" clientX="@clientX" clientY="@clientY"></StaffToolTip>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="isWork d-block mytooltip" style="color: @GetColor(staff); background-color: @OnGetBackgroundColor(staff)"
+                             @onmouseover="@((e) => ShowToolTip(staff, e))" @onmouseout="@(() => HideToolTip(staff))" @onmousemove="@((e) => UpdateToolTip(staff, e))">
+                            <p class="mb-0">@(staff.SyainCd + "	" + staff.SyainNm)</p>
+                            @if (Container.Params.ShowTime == (int)ShowTime.IsShowTime && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5))
+                            {
+                                <p class="mb-0 time-item">@($"{Lang["showtime_label"]}{Lang["1weak"]}{GetTime(staff.WorkTime)}　{Lang["4weak"]}{GetTime(staff.WorkTime4Week)}")</p>
+                            }
+                            @if (staff.isShowToolTip)
+                            {
+                                <StaffToolTip staff="staff" CssClass="tooltip-text-fixed" clientX="@clientX" clientY="@clientY"></StaffToolTip>
+                            }
+                        </div>
+                    }
+                }
+                else if (staff.HolidayID != 0)
+                {
+                    <div class="d-block mytooltip" style="color: @GetColor(staff); background-color: @OnGetBackgroundColor(staff)"
+                         @onmouseover="@((e) => ShowToolTip(staff, e))" @onmouseout="@(() => HideToolTip(staff))" @onmousemove="@((e) => UpdateToolTip(staff, e))">
+                        <p class="mb-0">@(staff.HolidayNm + " " + staff.SyainCd + " " + staff.SyainNm)</p>
+                        @if (Container.Params.ShowTime == (int)ShowTime.IsShowTime && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5))
+                        {
+                            <p class="mb-0 time-item">@($"{Lang["showtime_label"]}{Lang["1weak"]}{GetTime(staff.WorkTime)}　{Lang["4weak"]}{GetTime(staff.WorkTime4Week)}")</p>
+                        }
+                        @if (staff.isShowToolTip)
+                        {
+                            <StaffToolTip staff="staff" CssClass="tooltip-text-fixed" clientX="@clientX" clientY="@clientY"></StaffToolTip>
+                        }
+                    </div>
+                }
+
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    [Parameter] public List<StaffData> List { get; set; }
+    [Parameter] public Flag[] AllowedStatuses { get; set; }
+    [Parameter] public double Height { get; set; }
+    [Inject] protected IErrorHandlerService errorModalService { get; set; }
+    int clientX { get; set; }
+    int clientY { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            switch (Container.Params.CrewSort)
+            {
+                case (int)StaffCrewSortOrder.EmployeeCodeOrder:
+                    List = List.OrderBy(x => x.SyainCd).ToList();
+                    break;
+                case (int)StaffCrewSortOrder.PreviousDayEndTime:
+                    List = List.OrderBy(x => x.PreDayEndTime).ToList();
+                    break;
+                case (int)StaffCrewSortOrder.AscendingTimeForOneWeek:
+                    List = List.OrderBy(x => x.WorkTime).ToList();
+                    break;
+                case (int)StaffCrewSortOrder.FourWeeksLessTime:
+                    List = List.OrderBy(x => x.WorkTime4Week).ToList();
+                    break;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    private async Task HandleDrop(StaffData staff)
+    {
+        if (AllowedStatuses != null && !AllowedStatuses.Contains(Container.Payload.AllowStatus))
+        {
+            return;
+        }
+        if (staff.HolidayID != 0) Container.isAssignHoliday = true;
+        await Container.UpdateJobAsync(staff);
+    }
+
+    private string GetColor(StaffData item)
+    {
+        return !string.IsNullOrWhiteSpace(item.ColKinKyu) ? item.ColKinKyu : "#000000";
+    }
+
+    private string GetTime(float time)
+    {
+        return string.Format("{0}:{1}", (int)(time / 60), (int)(time % 60));
+    }
+
+    private void ShowToolTip(StaffData staff, MouseEventArgs agrs)
+    {
+        clientX = Convert.ToInt32(agrs.ClientX) + 7;
+        clientY = Convert.ToInt32(agrs.ClientY) + 7;
+        if (staff.HolidayID != 0)
+        {
+            clientX = clientX - 480;
+        }
+        clientY = clientY - 320;
+        if (!Container.isAssignJob && !Container.isAssignHoliday && !Container.isAHoliday && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5)) staff.isShowToolTip = true;
+    }
+
+    private void HideToolTip(StaffData staff)
+    {
+        staff.isShowToolTip = false;
+    }
+
+    private void UpdateToolTip(StaffData staff, MouseEventArgs args)
+    {
+        clientX = Convert.ToInt32(args.ClientX) + 7;
+        clientY = Convert.ToInt32(args.ClientY) + 7;
+        if (staff.HolidayID != 0)
+        {
+            clientX = clientX - 480;
+        }
+        clientY = clientY - 320;
+    }
+
+    private string OnGetBackgroundColor(StaffData staff)
+    {
+        return Container.listSyain.Contains(staff.SyainCdSeq) ? "pink" : "#ffffff";
+    }
+}

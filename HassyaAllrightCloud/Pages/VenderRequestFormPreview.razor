@@ -1,0 +1,60 @@
+﻿@inject CustomNavigation NavManager
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@using HassyaAllrightCloud.IService.CommonComponents 
+@inject IReservationClassComponentService _service
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+<DxDocumentViewer ReportUrl="@($"{nameof(IVenderRequestService)}?" + reportUrl)" Height="800px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+@code {
+    [Parameter] public string PreviewReportUrl { get; set; }
+    [Parameter] public string IsLoadDefault { get; set; }
+    [Parameter] public string Option { get; set; }
+    [Parameter] public string UkeCd { get; set; }
+    [Parameter] public string UnkRen { get; set; }
+    [Parameter] public string YouTblSeq { get; set; }
+    [Parameter] public string Date { get; set; }
+    public VenderRequestFormData data = new VenderRequestFormData();
+    private List<ReservationClassComponentData> BookingTypes = new List<ReservationClassComponentData>();
+    private IEnumerable<ReservationData> SelectedReservations = new List<ReservationData>();
+    private List<LoadCustomerList> Customers = new List<LoadCustomerList>();
+    private List<LoadSaleBranch> Branches = new List<LoadSaleBranch>();
+    public string reportUrl { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsLoadDefault == "1")
+        {
+            DateTime dateTimeConvert;
+            if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(UkeCd)
+            && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()) && !string.IsNullOrEmpty(UnkRen))
+            {
+                try
+                {
+                    data.BookingTypes = await _service.GetListReservationClass();
+                    dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                    data._ukeCdFrom = int.Parse(UkeCd);
+                    data._ukeCdTo = int.Parse(UkeCd);
+                    data.StartDate = dateTimeConvert;
+                    data.EndDate = dateTimeConvert.AddYears(1);
+                    reportUrl = EncryptHelper.EncryptToUrl(data);
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        else if (!string.IsNullOrEmpty(PreviewReportUrl))
+        {
+            reportUrl = PreviewReportUrl;
+        }
+        NavManager.NavigateTo("/VenderRequestFormPreview", false);
+    }
+    private void InsertSelectAll<T>(List<T> source) where T : class
+    {
+        if (source.Any(item => item is null))
+            return;
+
+        source.Insert(0, null);
+    }
+}

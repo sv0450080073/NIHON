@@ -1,0 +1,860 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="UnkoushijishoBaseReport" Margins="25, 25, 20, 25" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="20.2" DataMember="RP_UnkoushijishoReport" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Description="TenantCdSeq" ValueInfo="1" Name="TenantCdSeq" Type="#Ref-2" />
+    <Item2 Ref="5" Description="SyuKoYmd" ValueInfo="20200922" Name="SyuKoYmd" />
+    <Item3 Ref="6" Description="UkeCdFrom" ValueInfo="1" Name="UkeCdFrom" Type="#Ref-2" />
+    <Item4 Ref="7" Description="UkeCdTo" ValueInfo="111111111" Name="UkeCdTo" Type="#Ref-2" />
+    <Item5 Ref="8" Description="SyuEigCdSeq" ValueInfo="0" Name="SyuEigCdSeq" Type="#Ref-2" />
+    <Item6 Ref="9" Description="TeiDanNo" ValueInfo="1" Name="TeiDanNo" Type="#Ref-2" />
+    <Item7 Ref="10" Description="UnkRen" ValueInfo="1" Name="UnkRen" Type="#Ref-2" />
+    <Item8 Ref="11" Description="BunkRen" ValueInfo="1" Name="BunkRen" Type="#Ref-2" />
+    <Item9 Ref="12" Description="SortOrder" ValueInfo="1" Name="SortOrder" Type="#Ref-2" />
+    <Item10 Ref="13" Description="YoyaKbnSeqList" ValueInfo="1" Name="YoyaKbnSeqList" />
+    <Item11 Ref="14" Visible="false" Description="UkenoList" AllowNull="true" Name="UkenoList" />
+    <Item12 Ref="15" Visible="false" Description="FormOutput" ValueInfo="0" Name="FormOutput" Type="#Ref-2" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="16" ControlType="TopMarginBand" Name="TopMargin" HeightF="19.9999962" />
+    <Item2 Ref="17" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="25" />
+    <Item3 Ref="18" ControlType="DetailBand" Name="Detail" HeightF="18.5">
+      <Controls>
+        <Item1 Ref="19" ControlType="XRSubreport" Name="subreport1" SizeF="777,18.5" LocationFloat="0,0">
+          <ParameterBindings>
+            <Item1 Ref="20" ParameterName="Ukeno" DataMember="RP_UnkoushijishoReport.配車_受付番号Seq" />
+            <Item2 Ref="21" ParameterName="SyuKoYmd" DataMember="RP_UnkoushijishoReport.配車_出庫年月日" />
+            <Item3 Ref="22" ParameterName="TeiDanNo" DataMember="RP_UnkoushijishoReport.配車_悌団番号" />
+            <Item4 Ref="23" ParameterName="UnkRen" DataMember="RP_UnkoushijishoReport.配車_運行日連番" />
+            <Item5 Ref="24" ParameterName="BunkRen" DataMember="RP_UnkoushijishoReport.配車_分割連番" />
+            <Item6 Ref="25" ParameterName="KikYmd" DataMember="RP_UnkoushijishoReport.KikYmd" />
+          </ParameterBindings>
+        </Item1>
+      </Controls>
+    </Item3>
+    <Item4 Ref="26" ControlType="GroupHeaderBand" Name="GroupHeader1" RepeatEveryPage="true" HeightF="385">
+      <GroupFields>
+        <Item1 Ref="27" FieldName="Row_Num" />
+        <Item2 Ref="28" FieldName="配車_受付番号Seq" SortOrder="None" />
+        <Item3 Ref="29" FieldName="配車_悌団番号" SortOrder="None" />
+        <Item4 Ref="30" FieldName="配車_運行日連番" SortOrder="None" />
+        <Item5 Ref="31" FieldName="配車_分割連番" SortOrder="None" />
+      </GroupFields>
+      <Controls>
+        <Item1 Ref="32" ControlType="XRLabel" Name="label3" Multiline="true" CanGrow="false" Text="受付番号：" TextAlignment="MiddleLeft" SizeF="71.03385,17.5998249" LocationFloat="0,6.27755737" Font="MS PGothic, 8pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="33" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="34" ControlType="XRLabel" Name="label4" Multiline="true" CanGrow="false" TextAlignment="MiddleLeft" SizeF="127.230049,17.5998249" LocationFloat="71.03385,6.27755737" Font="MS PGothic, 10pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <Summary Ref="35" Running="Page" />
+          <ExpressionBindings>
+            <Item1 Ref="36" EventName="BeforePrint" PropertyName="Text" Expression="Substring([配車_受付番号Seq], 5,10 )" />
+          </ExpressionBindings>
+          <StylePriority Ref="37" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="38" ControlType="XRTable" Name="table1" KeepTogether="true" LockedInUserDesigner="true" SizeF="777,359.423431" LocationFloat="0,25" Font="MS PGothic, 8.25pt, charSet=0" Padding="2,2,0,0,96" Borders="Left, Right, Bottom">
+          <Rows>
+            <Item1 Ref="39" ControlType="XRTableRow" Name="tableRow1" Weight="0.8" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="40" ControlType="XRTableCell" Name="tableCell1" Weight="1.309647104218441" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="所長" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="All">
+                  <StylePriority Ref="41" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="42" ControlType="XRTableCell" Name="tableCell2" Weight="1.3096470729205503" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="副所長" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="All">
+                  <StylePriority Ref="43" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="44" ControlType="XRTableCell" Name="tableCell3" Weight="1.3096461713189458" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="主任" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="All">
+                  <StylePriority Ref="45" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="46" ControlType="XRTableCell" Name="tableCell4" Weight="1.3096481209758348" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="係長" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="All">
+                  <StylePriority Ref="47" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="48" ControlType="XRTableCell" Name="tableCell5" Weight="6.1717107226842307" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="運行指示書" TextAlignment="TopLeft" Font="MS PGothic, 20pt, style=Bold" ForeColor="Black" Padding="30,0,10,0,100" Borders="All">
+                  <StylePriority Ref="49" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+              </Cells>
+            </Item1>
+            <Item2 Ref="50" ControlType="XRTableRow" Name="tableRow2" Weight="1.5200000000000005" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="51" ControlType="XRTableCell" Name="tableCell6" Weight="1.309647104218441" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="52" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="53" ControlType="XRTableCell" Name="tableCell7" Weight="1.3096470729205503" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="54" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="55" ControlType="XRTableCell" Name="tableCell8" Weight="1.3096461713189458" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="56" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="57" ControlType="XRTableCell" Name="tableCell9" Weight="1.3096481209758348" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="58" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="59" ControlType="XRTableCell" Name="tableCell10" Weight="6.1717107226842307" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell129" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="60" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+              </Cells>
+            </Item2>
+            <Item3 Ref="61" ControlType="XRTableRow" Name="tableRow3" Weight="0.78083679569601361" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="62" ControlType="XRTableCell" Name="tableCell11" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="運行日" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="63" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="64" ControlType="XRTableCell" Name="tableCell12" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="65" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車年月日]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="66" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="67" ControlType="XRTableCell" Name="tableCell13" Weight="0.40633153565402536" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="～" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Bottom">
+                  <StylePriority Ref="68" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="69" ControlType="XRTableCell" Name="tableCell14" Weight="2.9263878960834351" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="2020年07月17日（金）" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="70" EventName="BeforePrint" PropertyName="Text" Expression="[配車_到着年月日]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="71" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="72" ControlType="XRTableCell" Name="tableCell15" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="編成" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="73" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="74" ControlType="XRTableCell" Name="tableCell120" Weight="1.7095305773920524" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="Concat([予約車種_車種台数sum],'台中',[配車_号車],'号車')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="76" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="77" ControlType="XRTableCell" Name="tableCell121" Weight="1.3069718608291427" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="車　両​" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt" ForeColor="Black">
+                  <StylePriority Ref="78" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item3>
+            <Item4 Ref="79" ControlType="XRTableRow" Name="tableRow18" Weight="0.78083678536428791" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="80" ControlType="XRTableCell" Name="tableCell122" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="団体名" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="81" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="82" ControlType="XRTableCell" Name="tableCell123" Weight="5.8662402593007128" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="北海道両行朝食付き５日間" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left">
+                  <ExpressionBindings>
+                    <Item1 Ref="83" EventName="BeforePrint" PropertyName="Text" Expression="[運行日_団体名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="84" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="85" ControlType="XRTableCell" Name="tableCell124" Weight="0.73982443325647651" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="様" TextAlignment="MiddleCenter" Font="MS PGothic, 18pt" ForeColor="Black">
+                  <StylePriority Ref="86" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="87" ControlType="XRTableCell" Name="tableCell135" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="車種" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="88" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="89" ControlType="XRTableCell" Name="tableCell136" Weight="1.7095305773920524" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="90" EventName="BeforePrint" PropertyName="Text" Expression="Iif(IsNull([車種名]),'指定なし' ,[車種名])&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="91" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="92" ControlType="XRTableCell" Name="tableCell137" Weight="1.3069718608291427" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 14pt, style=Bold" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="93" EventName="BeforePrint" PropertyName="Text" Expression="[車両名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="94" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item6>
+              </Cells>
+            </Item4>
+            <Item5 Ref="95" ControlType="XRTableRow" Name="tableRow59" Weight="0.78083678536428791" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="96" ControlType="XRTableCell" Name="tableCell138" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell30" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="97" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="98" ControlType="XRTableCell" Name="tableCell139" Weight="5.8662402593007128" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="99" EventName="BeforePrint" PropertyName="Text" Expression="[配車_団体名2]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="100" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="101" ControlType="XRTableCell" Name="tableCell140" Weight="0.73982443325647651" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell33" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="102" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="103" ControlType="XRTableCell" Name="tableCell141" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" RowSpan="4" Multiline="true" TextTrimming="Word" Text="得&#xD;&#xA;意&#xD;&#xA;先" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" BackColor="WhiteSmoke">
+                  <StylePriority Ref="104" UseFont="false" UseForeColor="false" UseBackColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="105" ControlType="XRTableCell" Name="tableCell142" Weight="3.0165024382211949" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="106" EventName="BeforePrint" PropertyName="Text" Expression="[得意先名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="107" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+              </Cells>
+            </Item5>
+            <Item6 Ref="108" ControlType="XRTableRow" Name="tableRow60" Weight="0.78083677951614161" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="109" ControlType="XRTableCell" Name="tableCell291" Weight="1.0431374902587387" LockedInUserDesigner="true" RowSpan="2" Multiline="true" Text="連絡先" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="110" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="111" ControlType="XRTableCell" Name="tableCell292" Weight="3.6796767964737538" LockedInUserDesigner="true" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left">
+                  <ExpressionBindings>
+                    <Item1 Ref="112" EventName="BeforePrint" PropertyName="Text" Expression="[運行日_幹事住所１]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="113" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="114" ControlType="XRTableCell" Name="tableCell293" Weight="0.93229976933881642" LockedInUserDesigner="true" Multiline="true" Text="TEL：" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="115" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="116" ControlType="XRTableCell" Name="tableCell294" Weight="1.9940881267446187" LockedInUserDesigner="true" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="117" EventName="BeforePrint" PropertyName="Text" Expression="[運行日_幹事電話番号]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="118" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="119" ControlType="XRTableCell" Name="tableCell295" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell41" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="120" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="121" ControlType="XRTableCell" Name="tableCell296" Weight="3.0165024382211949" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="122" EventName="BeforePrint" PropertyName="Text" Expression="[得意先支店名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="123" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+              </Cells>
+            </Item6>
+            <Item7 Ref="124" ControlType="XRTableRow" Name="tableRow61" Weight="0.78083677951614172" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="125" ControlType="XRTableCell" Name="tableCell297" Weight="1.0431374902587387" LockedInUserDesigner="true" Multiline="true" Text="tableCell44" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="126" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="127" ControlType="XRTableCell" Name="tableCell298" Weight="3.6796767964737538" LockedInUserDesigner="true" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="128" EventName="BeforePrint" PropertyName="Text" Expression="[運行日_幹事住所２]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="129" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="130" ControlType="XRTableCell" Name="tableCell299" Weight="0.93229976933881642" LockedInUserDesigner="true" Multiline="true" Text="担当：" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Bottom">
+                  <StylePriority Ref="131" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="132" ControlType="XRTableCell" Name="tableCell300" Weight="1.9940881267446187" LockedInUserDesigner="true" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="133" EventName="BeforePrint" PropertyName="Text" Expression="[運行日_幹事氏名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="134" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="135" ControlType="XRTableCell" Name="tableCell301" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell48" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="136" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="137" ControlType="XRTableCell" Name="tableCell302" Weight="0.93959163102044263" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="　　TEL：" TextAlignment="MiddleRight" Font="MS PGothic, 8pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="138" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="139" ControlType="XRTableCell" Name="tableCell303" Weight="2.0769108072007518" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="10,0,0,0,100" Borders="Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="140" EventName="BeforePrint" PropertyName="Text" Expression="[得意先電話番号]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="141" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item7>
+            <Item8 Ref="142" ControlType="XRTableRow" Name="tableRow62" Weight="0.7808367795161415" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="143" ControlType="XRTableCell" Name="tableCell304" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" RowSpan="3" Multiline="true" Text="配車地" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="144" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="145" ControlType="XRTableCell" Name="tableCell305" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="146" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車地名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="147" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="148" ControlType="XRTableCell" Name="tableCell306" Weight="0.74826317352804272" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="出勤" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="149" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="150" ControlType="XRTableCell" Name="tableCell307" Weight="0.73721862708349739" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="151" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="152" ControlType="XRTableCell" Name="tableCell308" Weight="1.8472376311259202" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="乗車人員" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="153" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="154" ControlType="XRTableCell" Name="tableCell309" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell55" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="155" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="156" ControlType="XRTableCell" Name="tableCell310" Weight="0.93959163102044263" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="　　担当：" TextAlignment="MiddleRight" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="157" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="158" ControlType="XRTableCell" Name="tableCell311" Weight="2.0769108072007518" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="10,0,0,0,100" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="159" EventName="BeforePrint" PropertyName="Text" Expression="[得意先担当者名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="160" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+              </Cells>
+            </Item8>
+            <Item9 Ref="161" ControlType="XRTableRow" Name="tableRow63" Weight="0.7808367795161415" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="162" ControlType="XRTableCell" Name="tableCell312" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell63" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="163" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="164" ControlType="XRTableCell" Name="tableCell313" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="165" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車地住所１]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="166" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="167" ControlType="XRTableCell" Name="tableCell314" Weight="0.7482631735280425" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="出庫" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="168" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="169" ControlType="XRTableCell" Name="tableCell315" Weight="0.73721840300712471" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="170" EventName="BeforePrint" PropertyName="Text" Expression="[配車_出庫時間]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="171" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="172" ControlType="XRTableCell" Name="tableCell316" Weight="0.66876836239722659" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="173" EventName="BeforePrint" PropertyName="Text" Expression="[配車_乗車人員]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="174" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="175" ControlType="XRTableCell" Name="tableCell317" Weight="0.25485056520391991" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text=" + " TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="176" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="177" ControlType="XRTableCell" Name="tableCell318" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="178" EventName="BeforePrint" PropertyName="Text" Expression="[配車_プラス人員]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="179" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="180" ControlType="XRTableCell" Name="tableCell319" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="人" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right">
+                  <StylePriority Ref="181" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="182" ControlType="XRTableCell" Name="tableCell320" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" RowSpan="5" Multiline="true" TextTrimming="Word" Text="乗&#xD;&#xA;務&#xD;&#xA;員" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" BackColor="WhiteSmoke">
+                  <StylePriority Ref="183" UseFont="false" UseForeColor="false" UseBackColor="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="184" ControlType="XRTableCell" Name="tableCell321" Weight="1.8624994563688433" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="185" EventName="BeforePrint" PropertyName="Text" Expression="Replace(Substring([社員名],0 , Iif(CharIndex(',', [社員名], 0)=-1,Len([社員名]),CharIndex(',', [社員名], 0) )), ',', '')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="186" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="187" ControlType="XRTableCell" Name="tableCell322" Weight="1.1540029818523514" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="188" EventName="BeforePrint" PropertyName="Text" Expression="Replace(Substring([社員職務名],0 , Iif(CharIndex(',', [社員職務名], 0)=-1,Len([社員職務名]),CharIndex(',', [社員職務名], 0) )), ',', '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="189" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item11>
+              </Cells>
+            </Item9>
+            <Item10 Ref="190" ControlType="XRTableRow" Name="tableRow64" Weight="0.78083677951614161" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="191" ControlType="XRTableCell" Name="tableCell323" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell39" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="192" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="193" ControlType="XRTableCell" Name="tableCell324" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="194" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車地住所２]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="195" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="196" ControlType="XRTableCell" Name="tableCell325" Weight="1.4854817785779821" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="配車時間" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="197" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="198" ControlType="XRTableCell" Name="tableCell326" Weight="0.66876806792914489" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="199" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="200" ControlType="XRTableCell" Name="tableCell327" Weight="0.25485075865059426" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell119" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="201" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="202" ControlType="XRTableCell" Name="tableCell328" Weight="0.46180941328986957" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+                  <StylePriority Ref="203" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="204" ControlType="XRTableCell" Name="tableCell329" Weight="0.46180941328986957" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Right">
+                  <StylePriority Ref="205" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="206" ControlType="XRTableCell" Name="tableCell330" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell60" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="207" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="208" ControlType="XRTableCell" Name="tableCell331" Weight="1.8624994563688433" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="209" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell321].[Text]='','',Replace(Substring(Remove([社員名],0,Len([reportItems.tableCell321].[Text]))&#xA;,0 , Iif(CharIndex(',', Replace([社員名],[ReportItems.tableCell321].[Text],''), 1)=-1,Len((Remove([社員名],0,Len([reportItems.tableCell321].[Text]))&#xA;)),CharIndex(',', Remove([社員名],0,Len([reportItems.tableCell321].[Text]))&#xA;, 1) )), ',', ''))" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="210" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="211" ControlType="XRTableCell" Name="tableCell332" Weight="1.1540029818523516" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="212" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell321].[Text]='','',Replace(Substring(Remove([社員職務名],0,Len([reportItems.tableCell322].[Text]))&#xA;,0 , Iif(CharIndex(',', Replace([社員職務名],[ReportItems.tableCell322].[Text],''), 1)=-1,Len((Remove([社員職務名],0,Len([reportItems.tableCell322].[Text]))&#xA;)),CharIndex(',', Remove([社員職務名],0,Len([reportItems.tableCell322].[Text]))&#xA;, 1) )), ',', ''))&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="213" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item10>
+              </Cells>
+            </Item10>
+            <Item11 Ref="214" ControlType="XRTableRow" Name="tableRow65" Weight="0.7808367795161415" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="215" ControlType="XRTableCell" Name="tableCell333" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="接続" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="216" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="217" ControlType="XRTableCell" Name="tableCell334" Weight="1.7953193808203223" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="218" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車地交通機関名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="219" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="220" ControlType="XRTableCell" Name="tableCell335" Weight="0.90997906704172438" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="221" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車地便名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="222" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="223" ControlType="XRTableCell" Name="tableCell336" Weight="0.568046812957682" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="224" EventName="BeforePrint" PropertyName="Text" Expression=" Iif([配車_配車地接続時間]='  :  ', '',[配車_配車地接続時間] )" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="225" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="226" ControlType="XRTableCell" Name="tableCell337" Weight="1.4854815545016094" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 14pt, style=Bold" ForeColor="Black" Borders="Right, Bottom" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="227" EventName="BeforePrint" PropertyName="Text" Expression="[配車_配車時間]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="228" UseFont="false" UseForeColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="229" ControlType="XRTableCell" Name="tableCell338" Weight="0.92361893861792554" LockedInUserDesigner="true" CanGrow="false" RowSpan="3" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="230" EventName="BeforePrint" PropertyName="Text" Expression="Concat([その他人員1],NewLine(), [その他人員2])&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="231" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="232" ControlType="XRTableCell" Name="tableCell339" Weight="0.46180946930896277" LockedInUserDesigner="true" CanGrow="false" RowSpan="3" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="233" EventName="BeforePrint" PropertyName="Text" Expression="Concat([配車_その他人員１数],NewLine(), [配車_その他人員２数])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="234" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="235" ControlType="XRTableCell" Name="tableCell340" Weight="0.46180946930896277" LockedInUserDesigner="true" CanGrow="false" RowSpan="3" Multiline="true" Text="人&#xD;&#xA;人" TextAlignment="TopCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <StylePriority Ref="236" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="237" ControlType="XRTableCell" Name="tableCell341" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell72" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="238" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="239" ControlType="XRTableCell" Name="tableCell342" Weight="1.8624994563688433" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="240" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell331].[Text]='','',Replace(Substring(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text]))),0 , Iif(CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text]))), 1)=-1,Len(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text])))),CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text]))), 1) )), ',', ''))&#xA;&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="241" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="242" ControlType="XRTableCell" Name="tableCell343" Weight="1.1540029818523514" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="243" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell332].[Text]='','',Replace(Substring(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text]))),0 , Iif(CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text]))), 1)=-1,Len(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text])))),CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text]))), 1) )), ',', ''))&#xA;&#xA;&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="244" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item11>
+              </Cells>
+            </Item11>
+            <Item12 Ref="245" ControlType="XRTableRow" Name="tableRow66" Weight="0.78083681674934136" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="246" ControlType="XRTableCell" Name="tableCell344" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="目的地" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="247" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="248" ControlType="XRTableCell" Name="tableCell345" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="249" EventName="BeforePrint" PropertyName="Text" Expression="[配車_行き先名]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="250" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="251" ControlType="XRTableCell" Name="tableCell346" Weight="1.4854815765351672" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="252" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="253" ControlType="XRTableCell" Name="tableCell347" Weight="0.9236189276011465" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Bottom">
+                  <StylePriority Ref="254" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="255" ControlType="XRTableCell" Name="tableCell348" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 9pt" ForeColor="Black" Borders="Bottom">
+                  <StylePriority Ref="256" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="257" ControlType="XRTableCell" Name="tableCell349" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Right, Bottom">
+                  <StylePriority Ref="258" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="259" ControlType="XRTableCell" Name="tableCell350" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell79" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="260" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="261" ControlType="XRTableCell" Name="tableCell351" Weight="1.8624994563688433" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="262" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell342].[Text]='','',Replace(Substring(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text]))),0 , Iif(CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text]))), 1)=-1,Len(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text])))),CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text]))), 1) )), ',', ''))&#xA;&#xA;&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="263" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="264" ControlType="XRTableCell" Name="tableCell352" Weight="1.1540029818523514" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="265" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell343].[Text]='','',Replace(Substring(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text]))),0 , Iif(CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text]))), 1)=-1,Len(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text])))),CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text]))), 1) )), ',', ''))&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="266" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item9>
+              </Cells>
+            </Item12>
+            <Item13 Ref="267" ControlType="XRTableRow" Name="tableRow67" Weight="0.78083681674934147" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="268" ControlType="XRTableCell" Name="tableCell353" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="269" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="270" ControlType="XRTableCell" Name="tableCell354" Weight="3.2733452608197284" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="271" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="272" ControlType="XRTableCell" Name="tableCell355" Weight="0.7482631735280425" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="出発" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="273" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="274" ControlType="XRTableCell" Name="tableCell356" Weight="0.73721840300712471" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="275" EventName="BeforePrint" PropertyName="Text" Expression="[配車_出発時間]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="276" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="277" ControlType="XRTableCell" Name="tableCell357" Weight="0.9236189276011465" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="278" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="279" ControlType="XRTableCell" Name="tableCell358" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="280" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="281" ControlType="XRTableCell" Name="tableCell359" Weight="0.46180946380057325" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 10pt" ForeColor="Black">
+                  <StylePriority Ref="282" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="283" ControlType="XRTableCell" Name="tableCell360" Weight="0.74459457108088012" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell86" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <StylePriority Ref="284" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="285" ControlType="XRTableCell" Name="tableCell361" Weight="1.8624994563688433" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="286" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell351].[Text]='','',Replace(Substring(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text],',',[ReportItems.tableCell351].[Text]))),0 , Iif(CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text],',',[ReportItems.tableCell351].[Text]))), 1)=-1,Len(Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text],',',[ReportItems.tableCell351].[Text])))),CharIndex(',', Remove([社員名],0,len(Concat([ReportItems.tableCell321].[Text],',',[ReportItems.tableCell331].[Text],',',[ReportItems.tableCell342].[Text],',',[ReportItems.tableCell351].[Text]))), 1) )), ',', ''))&#xA;&#xA;&#xA;&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="287" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="288" ControlType="XRTableCell" Name="tableCell362" Weight="1.1540029818523514" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black">
+                  <ExpressionBindings>
+                    <Item1 Ref="289" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ReportItems.tableCell352].[Text]='','',Replace(Substring(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text],',',[ReportItems.tableCell352].[Text]))),0 , Iif(CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text],',',[ReportItems.tableCell352].[Text]))), 1)=-1,Len(Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text],',',[ReportItems.tableCell352].[Text])))),CharIndex(',', Remove([社員職務名],0,len(Concat([ReportItems.tableCell322].[Text],',',[ReportItems.tableCell332].[Text],',',[ReportItems.tableCell343].[Text],',',[ReportItems.tableCell352].[Text]))), 1) )), ',', ''))&#xA;&#xA;&#xA;&#xA;&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="290" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                </Item10>
+              </Cells>
+            </Item13>
+            <Item14 Ref="291" ControlType="XRTableRow" Name="tableRow68" Weight="2.5377193295294216" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="292" ControlType="XRTableCell" Name="tableCell363" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="付帯" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" Padding="5,5,5,0,100">
+                  <StylePriority Ref="293" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="294" ControlType="XRTableCell" Name="tableCell364" Weight="1.7952497921606021" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="295" EventName="BeforePrint" PropertyName="Text" Expression="Replace([incidentalDate], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="296" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="297" ControlType="XRTableCell" Name="tableCell365" Weight="2.2263586421871695" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="298" EventName="BeforePrint" PropertyName="Text" Expression="Replace([incidentalSeisanNm], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="299" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="300" ControlType="XRTableCell" Name="tableCell366" Weight="0.73721840300712471" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="301" EventName="BeforePrint" PropertyName="Text" Expression="Replace([incidentalSuryo], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="302" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="303" ControlType="XRTableCell" Name="tableCell367" Weight="0.9236189276011465" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="積込品" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100">
+                  <StylePriority Ref="304" UseFont="false" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="305" ControlType="XRTableCell" Name="tableCell368" Weight="1.6682239449405802" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Left, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="306" EventName="BeforePrint" PropertyName="Text" Expression="Replace([LoadedgoodsDate], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="307" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="308" ControlType="XRTableCell" Name="tableCell369" Weight="2.1903315788247362" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="309" EventName="BeforePrint" PropertyName="Text" Expression="Replace([LoadedgoodsFutTumNm], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="310" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="311" ControlType="XRTableCell" Name="tableCell370" Weight="0.826160413137905" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,0,100" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="312" EventName="BeforePrint" PropertyName="Text" Expression="Replace([LoadedgoodsSuryo], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="313" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+              </Cells>
+            </Item14>
+            <Item15 Ref="314" ControlType="XRTableRow" Name="tableRow69" Weight="0.58562678781416733" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="315" ControlType="XRTableCell" Name="tableCell371" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="月日" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="316" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="317" ControlType="XRTableCell" Name="tableCell372" Weight="6.7529155045514164" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextTrimming="Word" Text="　行 程" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <StylePriority Ref="318" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="319" ControlType="XRTableCell" Name="tableCell373" Weight="3.6142461973078466" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="手　配　先" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <StylePriority Ref="320" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+              </Cells>
+            </Item15>
+          </Rows>
+          <StylePriority Ref="321" UseFont="false" UseBorders="false" />
+        </Item3>
+      </Controls>
+    </Item4>
+    <Item5 Ref="322" ControlType="PageFooterBand" Name="PageFooter" HeightF="184">
+      <Controls>
+        <Item1 Ref="323" ControlType="XRTable" Name="table2" KeepTogether="true" LockedInUserDesigner="true" SizeF="777,183" LocationFloat="0,0" Font="MS PGothic, 8.25pt, charSet=0" Padding="2,2,0,0,96" Borders="Left, Right, Bottom">
+          <Rows>
+            <Item1 Ref="324" ControlType="XRTableRow" Name="tableRow50" Weight="0.97604608609478616" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="325" ControlType="XRTableCell" Name="tableCell230" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="到着地" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="326" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="327" ControlType="XRTableCell" Name="tableCell231" Weight="4.6119758488641409" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,5,100" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="328" EventName="BeforePrint" PropertyName="Text" Expression="Concat([配車_到着地名], NewLine(),[配車_到着地住所１],NewLine(),[配車_到着地住所２])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="329" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="330" ControlType="XRTableCell" Name="tableCell232" Weight="1.0704734529050821" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="到着時間" TextAlignment="MiddleLeft" Font="MS PGothic, 10pt" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                  <StylePriority Ref="331" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="332" ControlType="XRTableCell" Name="tableCell233" Weight="1.0704653064766661" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 14pt, style=Bold" ForeColor="Black" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="333" EventName="BeforePrint" PropertyName="Text" Expression="[配車_到着時間]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="334" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="335" ControlType="XRTableCell" Name="tableCell234" Weight="0.70660514989681655" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="接続" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Right, Bottom">
+                  <StylePriority Ref="336" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="337" ControlType="XRTableCell" Name="tableCell235" Weight="2.9076419437165568" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="338" EventName="BeforePrint" PropertyName="Text" Expression="Concat([配車_到着地交通機関名],NewLine(), [配車_到着地便名],NewLine(),[配車_到着地接続時間])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="339" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+              </Cells>
+            </Item1>
+            <Item2 Ref="340" ControlType="XRTableRow" Name="tableRow51" Weight="0.97604608609478283" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="341" ControlType="XRTableCell" Name="tableCell236" Weight="1.0431374902587387" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell236" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="342" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="343" ControlType="XRTableCell" Name="tableCell237" Weight="4.61197604763706" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left">
+                  <StylePriority Ref="344" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="345" ControlType="XRTableCell" Name="tableCell238" Weight="1.0704715093165753" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="入庫時間" TextAlignment="MiddleLeft" Font="MS PGothic, 10pt" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                  <StylePriority Ref="346" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="347" ControlType="XRTableCell" Name="tableCell239" Weight="1.070467051292255" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 14pt, style=Bold" ForeColor="Black" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="348" EventName="BeforePrint" PropertyName="Text" Expression="[配車_帰庫時間]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="349" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="350" ControlType="XRTableCell" Name="tableCell240" Weight="0.70660514989681666" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell238" TextAlignment="MiddleLeft" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="351" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="352" ControlType="XRTableCell" Name="tableCell241" Weight="2.9076419437165568" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell244" TextAlignment="MiddleLeft" Font="MS PGothic, 10pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="353" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+              </Cells>
+            </Item2>
+            <Item3 Ref="354" ControlType="XRTableRow" Name="tableRow52" Weight="0.74179497405021344" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="355" ControlType="XRTableCell" Name="tableCell242" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="備　考" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" Padding="5,5,0,0,100">
+                  <StylePriority Ref="356" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="357" ControlType="XRTableCell" Name="tableCell243" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" RowSpan="2" Multiline="true" Text="仮眠&#xD;&#xA;施設等" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="358" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="359" ControlType="XRTableCell" Name="tableCell244" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="360" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="361" ControlType="XRTableCell" Name="tableCell245" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="362" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="363" ControlType="XRTableCell" Name="tableCell246" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="364" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="365" ControlType="XRTableCell" Name="tableCell247" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="366" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="367" ControlType="XRTableCell" Name="tableCell248" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="368" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item3>
+            <Item4 Ref="369" ControlType="XRTableRow" Name="tableRow53" Weight="0.7417949740502161" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="370" ControlType="XRTableCell" Name="tableCell249" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" RowSpan="6" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 8pt" ForeColor="Black" Padding="5,5,5,5,100">
+                  <ExpressionBindings>
+                    <Item1 Ref="371" EventName="BeforePrint" PropertyName="Text" Expression="Replace([備考], ',', NewLine())" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="372" UseFont="false" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="373" ControlType="XRTableCell" Name="tableCell250" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="374" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="375" ControlType="XRTableCell" Name="tableCell251" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="376" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="377" ControlType="XRTableCell" Name="tableCell252" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="378" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="379" ControlType="XRTableCell" Name="tableCell253" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="380" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="381" ControlType="XRTableCell" Name="tableCell254" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="382" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="383" ControlType="XRTableCell" Name="tableCell255" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="384" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item4>
+            <Item5 Ref="385" ControlType="XRTableRow" Name="tableRow54" Weight="0.74179497405021211" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="386" ControlType="XRTableCell" Name="tableCell256" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell256" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="387" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="388" ControlType="XRTableCell" Name="tableCell257" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="休憩地点" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="389" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="390" ControlType="XRTableCell" Name="tableCell258" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="①" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="391" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="392" ControlType="XRTableCell" Name="tableCell259" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="②" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="393" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="394" ControlType="XRTableCell" Name="tableCell260" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="③" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="395" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="396" ControlType="XRTableCell" Name="tableCell261" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="④" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="397" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="398" ControlType="XRTableCell" Name="tableCell262" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="⑤" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="399" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item5>
+            <Item6 Ref="400" ControlType="XRTableRow" Name="tableRow55" Weight="0.74179497405021433" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="401" ControlType="XRTableCell" Name="tableCell263" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell263" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="402" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="403" ControlType="XRTableCell" Name="tableCell264" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="休憩時間" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="404" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="405" ControlType="XRTableCell" Name="tableCell265" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="①" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="406" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="407" ControlType="XRTableCell" Name="tableCell266" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="②" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="408" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="409" ControlType="XRTableCell" Name="tableCell267" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="③" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="410" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="411" ControlType="XRTableCell" Name="tableCell268" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="④" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="412" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="413" ControlType="XRTableCell" Name="tableCell269" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="⑤" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="414" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item6>
+            <Item7 Ref="415" ControlType="XRTableRow" Name="tableRow56" Weight="0.74179497405021522" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="416" ControlType="XRTableCell" Name="tableCell270" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell270" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="417" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="418" ControlType="XRTableCell" Name="tableCell271" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="交替地" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="419" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="420" ControlType="XRTableCell" Name="tableCell272" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="421" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="422" ControlType="XRTableCell" Name="tableCell273" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="423" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="424" ControlType="XRTableCell" Name="tableCell274" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="425" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="426" ControlType="XRTableCell" Name="tableCell275" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="427" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="428" ControlType="XRTableCell" Name="tableCell276" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="429" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item7>
+            <Item8 Ref="430" ControlType="XRTableRow" Name="tableRow57" Weight="0.741794974050213" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="431" ControlType="XRTableCell" Name="tableCell277" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell277" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="432" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="433" ControlType="XRTableCell" Name="tableCell278" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="交替者" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="434" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="435" ControlType="XRTableCell" Name="tableCell279" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="436" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="437" ControlType="XRTableCell" Name="tableCell280" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="438" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="439" ControlType="XRTableCell" Name="tableCell281" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="440" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="441" ControlType="XRTableCell" Name="tableCell282" Weight="1.3069711330368965" LockedInUserDesigner="true" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="442" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="443" ControlType="XRTableCell" Name="tableCell283" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="444" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item8>
+            <Item9 Ref="445" ControlType="XRTableRow" Name="tableRow58" Weight="0.74179519744939615" LockedInUserDesigner="true">
+              <Cells>
+                <Item1 Ref="446" ControlType="XRTableCell" Name="tableCell284" Weight="3.5684721742405632" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="tableCell284" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="447" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="448" ControlType="XRTableCell" Name="tableCell285" Weight="1.306971105652311" LockedInUserDesigner="true" CanGrow="false" Multiline="true" Text="交替時間" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="449" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="450" ControlType="XRTableCell" Name="tableCell286" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="451" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="452" ControlType="XRTableCell" Name="tableCell287" Weight="1.306971200538126" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="453" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="454" ControlType="XRTableCell" Name="tableCell288" Weight="1.3069712005381258" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="455" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="456" ControlType="XRTableCell" Name="tableCell289" Weight="1.3069711330368965" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Bottom">
+                  <StylePriority Ref="457" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="458" ControlType="XRTableCell" Name="tableCell290" Weight="1.3069712450750823" LockedInUserDesigner="true" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="459" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+              </Cells>
+            </Item9>
+          </Rows>
+          <StylePriority Ref="460" UseFont="false" UseBorders="false" />
+        </Item1>
+      </Controls>
+    </Item5>
+    <Item6 Ref="461" ControlType="GroupFooterBand" Name="GroupFooter1" PageBreak="AfterBand" HeightF="38.70818">
+      <Controls>
+        <Item1 Ref="462" ControlType="XRSubreport" Name="subreport3" GenerateOwnPages="true" SizeF="777,20.20817" LocationFloat="0,18.50001">
+          <ParameterBindings>
+            <Item1 Ref="463" ParameterName="TeiDanNo" DataMember="RP_UnkoushijishoReport.配車_悌団番号" />
+            <Item2 Ref="464" ParameterName="UnkRen" DataMember="RP_UnkoushijishoReport.配車_運行日連番" />
+            <Item3 Ref="465" ParameterName="BunkRen" DataMember="RP_UnkoushijishoReport.配車_分割連番" />
+            <Item4 Ref="467" ParameterName="TenantCdSeq" Parameter="#Ref-3" />
+            <Item5 Ref="468" ParameterName="SortOrder" Parameter="#Ref-12" />
+            <Item6 Ref="469" ParameterName="UkeCdFrom" Parameter="#Ref-6" />
+            <Item7 Ref="470" ParameterName="UkeCdTo" Parameter="#Ref-7" />
+            <Item8 Ref="471" ParameterName="SyuEigCdSeq" Parameter="#Ref-8" />
+            <Item9 Ref="472" ParameterName="SyuKoYmd" Parameter="#Ref-5" />
+            <Item10 Ref="473" ParameterName="Ukeno" DataMember="RP_UnkoushijishoReport.配車_受付番号Seq" />
+            <Item11 Ref="474" ParameterName="YoyaKbnSeqList" Parameter="#Ref-13" />
+            <Item12 Ref="475" ParameterName="UkenoList" Parameter="#Ref-14" />
+            <Item13 Ref="476" ParameterName="FormOutput" Parameter="#Ref-15" />
+          </ParameterBindings>
+        </Item1>
+        <Item2 Ref="477" ControlType="XRSubreport" Name="subreport2" SizeF="777.000061,18.5" LocationFloat="0,0" />
+      </Controls>
+    </Item6>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.Sql.SqlDataSource,DevExpress.DataAccess.v20.1" Name="sqlDataSource1" Base64="PFNxbERhdGFTb3VyY2UgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxDb25uZWN0aW9uIE5hbWU9IlNxbERiQ29udGV4dCIgRnJvbUFwcENvbmZpZz0idHJ1ZSIgLz48UXVlcnkgVHlwZT0iU3RvcmVkUHJvY1F1ZXJ5IiBOYW1lPSJSUF9VbmtvdXNoaWppc2hvUmVwb3J0Ij48UGFyYW1ldGVyIE5hbWU9IkBUZW5hbnRDZFNlcSIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MzIpKD9UZW5hbnRDZFNlcSk8L1BhcmFtZXRlcj48UGFyYW1ldGVyIE5hbWU9IkBTeXVLb1ltZCIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/U3l1S29ZbWQpPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAVWtlQ2RGcm9tIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQzMikoP1VrZUNkRnJvbSk8L1BhcmFtZXRlcj48UGFyYW1ldGVyIE5hbWU9IkBVa2VDZFRvIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQzMikoP1VrZUNkVG8pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAWW95YUtiblNlcUxpc3QiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLlN0cmluZykoP1lveWFLYm5TZXFMaXN0KTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFN5dUVpZ0NkU2VxIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQzMikoP1N5dUVpZ0NkU2VxKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFRlaURhbk5vIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQxNikoP1RlaURhbk5vKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9VbmtSZW4pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAQnVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9CdW5rUmVuKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFVrZW5vTGlzdCIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/VWtlbm9MaXN0KTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQEZvcm1PdXRwdXQiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLkludDMyKSg/Rm9ybU91dHB1dCk8L1BhcmFtZXRlcj48UGFyYW1ldGVyIE5hbWU9IkBTb3J0T3JkZXIiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLkludDE2KSg/U29ydE9yZGVyKTwvUGFyYW1ldGVyPjxQcm9jTmFtZT5SUF9VbmtvdXNoaWppc2hvUmVwb3J0PC9Qcm9jTmFtZT48L1F1ZXJ5PjxSZXN1bHRTY2hlbWE+PERhdGFTZXQgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxWaWV3IE5hbWU9IlJQX1Vua291c2hpamlzaG9SZXBvcnQiPjxGaWVsZCBOYW1lPSJSb3dfTnVtIiBUeXBlPSJJbnQ2NCIgLz48RmllbGQgTmFtZT0i5Y+X5LuY55Wq5Y+3IiBUeXBlPSJJbnQzMiIgLz48RmllbGQgTmFtZT0i5b6X5oSP5YWI6Zu76Kmx55Wq5Y+3IiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IuW+l+aEj+WFiOaLheW9k+iAheWQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLpgYvooYzml6Vf6YWN6LuK5bm05pyI5pelIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumBi+ihjOaXpV/liLDnnYDlubTmnIjml6UiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YGL6KGM5pelX+Wbo+S9k+WQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLpgYvooYzml6Vf5bm55LqL5L2P5omA77yRIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumBi+ihjOaXpV/lubnkuovkvY/miYDvvJIiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YGL6KGM5pelX+W5ueS6i+mbu+ipseeVquWPtyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLpgYvooYzml6Vf5bm55LqL5rCP5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/lj5fku5jnlarlj7dTZXEiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+mBi+ihjOaXpemAo+eVqiIgVHlwZT0iSW50MTYiIC8+PEZpZWxkIE5hbWU9IumFjei7il/ou4rnqK7pgKPnlaoiIFR5cGU9IkludDE2IiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5oKM5Zuj55Wq5Y+3IiBUeXBlPSJJbnQxNiIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+WIhuWJsumAo+eVqiIgVHlwZT0iSW50MTYiIC8+PEZpZWxkIE5hbWU9IumFjei7il/phY3ou4rlubTmnIjml6UiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+mFjei7iuaZgumWkyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5Yiw552A5bm05pyI5pelIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/liLDnnYDmmYLplpMiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iS2lrWW1kIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/luLDluqvmmYLplpMiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+Wbo+S9k+WQjTIiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+OBneOBruS7luS6uuWToeWMuuWIhuOCs+ODvOODie+8kSIgVHlwZT0iQnl0ZSIgLz48RmllbGQgTmFtZT0i44Gd44Gu5LuW5Lq65ZOhMSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf44Gd44Gu5LuW5Lq65ZOh77yR5pWwIiBUeXBlPSJJbnQxNiIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+OBneOBruS7luS6uuWToeWMuuWIhuOCs+ODvOODie+8kiIgVHlwZT0iQnl0ZSIgLz48RmllbGQgTmFtZT0i44Gd44Gu5LuW5Lq65ZOhMiIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf44Gd44Gu5LuW5Lq65ZOh77yS5pWwIiBUeXBlPSJJbnQxNiIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+mFjei7iuWcsOWQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf6YWN6LuK5Zyw5L2P5omA77yRIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/phY3ou4rlnLDkvY/miYDvvJIiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+mFjei7iuWcsOaOpee2muaZgumWkyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf6KGM44GN5YWI5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/lh7rluqvlubTmnIjml6UiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+WHuuW6q+aZgumWkyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5Ye65bqr5Za25qWt5omAU2VxIiBUeXBlPSJJbnQzMiIgLz48RmllbGQgTmFtZT0i5Ye65bqr5Za25qWt5omA44Kz44O844OJIiBUeXBlPSJJbnQzMiIgLz48RmllbGQgTmFtZT0i5Ye65bqr5Za25qWt5omA5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/lh7rnmbrmmYLplpMiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+S5l+i7iuS6uuWToSIgVHlwZT0iSW50MTYiIC8+PEZpZWxkIE5hbWU9IumFjei7il/jg5fjg6njgrnkurrlk6EiIFR5cGU9IkludDE2IiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5Y+36LuKIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/phY3ou4rlnLDkuqTpgJrmqZ/plqLlkI0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+mFjei7iuWcsOS+v+WQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5Yiw552A5Zyw5Lqk6YCa5qmf6Zai5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/liLDnnYDlnLDkvr/lkI0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+WIsOedgOWcsOaOpee2muaZgumWkyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLphY3ou4pf5Yiw552A5Zyw5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IumFjei7il/liLDnnYDlnLDkvY/miYDvvJEiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i6YWN6LuKX+WIsOedgOWcsOS9j+aJgO+8kiIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLkuojntITou4rnqK5f6LuK56iu5Y+w5pWwIiBUeXBlPSJJbnQxNiIgLz48RmllbGQgTmFtZT0i6LuK56iu5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9Iui7iuS4oeOCs+ODvOODiSIgVHlwZT0iSW50MzIiIC8+PEZpZWxkIE5hbWU9Iui7iuS4oeWQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLou4rkuKHngrnlkbwiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i5Luu6LuK5Lih5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IuW+l+aEj+WFiOWQjSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLlvpfmhI/lhYjmlK/lupflkI0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i5LqI57SE6LuK56iuX+i7iueoruWPsOaVsHN1bSIgVHlwZT0iSW50MzIiIC8+PEZpZWxkIE5hbWU9IuWCmeiAgyIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSLnpL7lk6HlkI0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0i56S+5ZOh6IG35YuZ5ZCNIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9ImluY2lkZW50YWxEYXRlIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9ImluY2lkZW50YWxTZWlzYW5ObSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSJpbmNpZGVudGFsU3VyeW8iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iTG9hZGVkZ29vZHNEYXRlIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IkxvYWRlZGdvb2RzRnV0VHVtTm0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iTG9hZGVkZ29vZHNTZWlzYW5ObSIgVHlwZT0iU3RyaW5nIiAvPjxGaWVsZCBOYW1lPSJMb2FkZWRnb29kc1N1cnlvIiBUeXBlPSJTdHJpbmciIC8+PC9WaWV3PjwvRGF0YVNldD48L1Jlc3VsdFNjaGVtYT48Q29ubmVjdGlvbk9wdGlvbnMgQ2xvc2VDb25uZWN0aW9uPSJ0cnVlIiAvPjwvU3FsRGF0YVNvdXJjZT4=" />
+  </ComponentStorage>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v20.1" Ref="2" Content="System.Int32" Type="System.Type" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

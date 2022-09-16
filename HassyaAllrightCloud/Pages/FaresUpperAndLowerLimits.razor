@@ -1,0 +1,468 @@
+﻿@page "/faresupperandlowerlimits"
+@inherits FaresUpperAndLowerLimitsBase;
+@using HassyaAllrightCloud.Pages.Components
+
+<DxPopup HeaderText="@_lang["PopupHeader"]" @bind-Visible="@PopupVisible" CssClass="modal-lg modal-center popup-faresupperandlowerlimits">
+    <Content>
+        <div class="container container-fluid">
+            @foreach (var item in lstCauses)
+            {
+                <div class="row mb-2">
+                    <input checked="@(causeReason == item.CodeKbn)"
+                           @onchange="@(() => causeReason = item.CodeKbn)"
+                           value="@(item.CodeKbn)" type="radio" name="ReEstimateRequired" class="k-radio">
+                    <label class="form-check-label k-radio-label" for="ReEstimateRequired">@item.CodeKbnNm</label>
+                </div>
+            }
+            <div class="row mb-2">
+                <div class="col-md-12 ml-3">
+                    <textarea name="OtherReasonInput" rows="4" disabled="@(causeReason != 6)" cols="70" maxlength="200" @bind="otherReasonInput" @onfocusout="@(async () => await OnUpdateOtherReason(otherReasonInput))"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-group d-sm-flex flex-nowrap">
+            <div class="col-6 pl-0">
+                <button class="btn mx-2 width--100 btn-danger" @onclick="@(async () => await OnTogglePopup(false))">@_lang["Delete"]</button>
+            </div>
+            <div class="col-6 pr-0">
+                <button class="btn mx-2 width--100 btn-primary float-right" @onclick="async () => await OnSaveOrUpdateCause(true)">@_lang["Save"]</button>
+                <button class="btn mx-2 border btn--light float-right" @onclick="@(() => PopupVisible = false)">@_lang["Cancel"]</button>
+            </div>
+        </div>
+    </Content>
+</DxPopup>
+
+<DeleteConfirm IsShowPopup="PopupDeleteVisible" OnTogglePopup="OnTogglePopup" Message="@_lang["DeleteMessage"]" Header="@_lang["DeleteHeader"]">
+</DeleteConfirm>
+
+<EditForm Context="editFormContext" EditContext="editFormContext">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="FaresUpperAndLowerLimitSearchValidator" />
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5>@_lang["Title"]</h5>
+        <button hidden>
+        </button>
+        <button class="btn btn-sm btn-danger btnclear" @onclick="e => ClearFormSeach()">
+            <i class="fa fa-refresh" aria-hidden="true"></i>@_lang["BtnClear"]
+        </button>
+    </div>
+    <div>
+        <ul class="text-danger">
+            @if (isDataNotFound)
+            {
+                <li class="validation-message">@_lang["BI_T004"]</li>
+            }
+        </ul>
+    </div>
+    <div class="main-top mb-2 focus-form tab-border-form">
+        <div id="control-tab" class="title-section mb-2">
+            <i class="fa fa-angle-up" aria-hidden="true"></i> @_lang["ConditionSearch"]
+        </div>
+        <div class="express-condition mb-2" style="display: none">
+            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" @onclick="async () => await LoadJS()">
+                <DxTab Text="@_lang["Tab1"]"></DxTab>
+                <DxTab Text="@_lang["Tab2"]"></DxTab>
+                <DxTab Text="@_lang["Tab3"]"></DxTab>
+                <DxTab Text="@_lang["Tab4"]"></DxTab>
+            </DxTabs>
+            <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+                <div class="card-body ml-3">
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-2 text-left">@_lang["DateType"]</label>
+                                        <div class="col-10">
+                                            <button class="@string.Format("btn-option mx-2 {0}", searchModel.DateClassification == DateClassification.BackToGarageDate ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="@((value) => UpdateFormValue(nameof(searchModel.DateClassification), (int)DateClassification.BackToGarageDate))">
+                                                @_lang["ReturnDate"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", searchModel.DateClassification == DateClassification.DipatchDate ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.DateClassification), (int)DateClassification.DipatchDate))">
+                                                @_lang["VehicleDispatchDate"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", searchModel.DateClassification == DateClassification.ArrivalDate ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.DateClassification), (int)DateClassification.ArrivalDate))">
+                                                @_lang["ArrivalDate"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["OutputDate"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.OutputStartDate)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="searchModel.OutputStartDate"
+                                                                Format="yyyy/MM/dd"
+                                                                DateChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.OutputStartDate), value))"
+                                                                DateExpression="@(() => searchModel.OutputStartDate)"
+                                                                CssClass="width--160 ml-3"></DxDateEdit>
+                                                </div>
+                                                <span class="mx-3 mt-1">～</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.OutputEndDate)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="searchModel.OutputEndDate"
+                                                                Format="yyyy/MM/dd"
+                                                                DateChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.OutputEndDate), value))"
+                                                                DateExpression="@(() => searchModel.OutputEndDate)"
+                                                                CssClass="width--160"></DxDateEdit>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row"></div>
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["ReceiptNumber"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.ReservationNumberStart)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.ReservationNumberStart"
+                                                               TextChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.ReservationNumberStart),value))"
+                                                               CssClass="code-number-ser" maxlength="10"
+                                                               TextExpression="@(() => searchModel.ReservationNumberStart)"></DxTextBox>
+                                                </div>
+                                                <span class="mx-3 mt-1">～</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.ReservationNumberEnd)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.ReservationNumberEnd"
+                                                               CssClass="code-number-ser" maxlength="10"
+                                                               TextChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.ReservationNumberEnd),value))"
+                                                               TextExpression="@(() => searchModel.ReservationNumberEnd)"></DxTextBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["SalsesOffices"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap ml-3">
+                                                <DxComboBox SelectedItem="searchModel.SaleOffice"
+                                                            SelectedItemExpression="@(() => searchModel.SaleOffice)"
+                                                            Data="@saleOffice"
+                                                            TextFieldName="Text"
+                                                            AllowUserInput="false"
+                                                            NullText="営業所コード：営業所名"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.SaleOffice),value))">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row"></div>
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["SalesRepresentative"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <DxComboBox SelectedItem="searchModel.SalePersonInCharge"
+                                                            SelectedItemExpression="@(() => searchModel.SalePersonInCharge)"
+                                                            Data="@salePersonInCharge"
+                                                            TextFieldName="Text"
+                                                            AllowUserInput="false"
+                                                            NullText="社員コード：社員名"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.SalePersonInCharge),value))">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["PlanningScope"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap ml-3">
+                                                <div class="form-check form-check-inline">
+                                                    <input checked="@(searchModel?.Range == (int)PlanningScope.OutOfRange)"
+                                                           @onchange="async eventArgs => {await UpdateFormValue(nameof(searchModel.Range), (int)PlanningScope.OutOfRange); }"
+                                                           value="@((int)PlanningScope.OutOfRange)" type="radio" name="OutOfRange" class="k-radio">
+                                                    <label class="form-check-label k-radio-label" for="OutOfRange">@_lang["Outside"]</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input checked="@(searchModel?.Range == (int)PlanningScope.InRange)"
+                                                           @onchange="async eventArgs => {await UpdateFormValue(nameof(searchModel.Range), (int)PlanningScope.InRange); }"
+                                                           value="@((int)PlanningScope.InRange)" type="radio" name="InRange" class="k-radio">
+                                                    <label class="form-check-label k-radio-label" for="InRange">@_lang["Inside"]</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row"></div>
+                                    <div class="row mb-3">
+                                        <label class="col-form-label col-2 text-left">@_lang["CauseInput"]</label>
+                                        <div class="col-8">
+                                            <div class="form-group d-flex flex-nowrap mr-0">
+                                                <div class="form-check form-check-inline">
+                                                    <input checked="@(searchModel?.CauseInput == (int)CauseInput.Input)"
+                                                           @onchange="async eventArgs => {await UpdateFormValue(nameof(searchModel.CauseInput), (int)CauseInput.Input); }"
+                                                           value="@((int)CauseInput.Input)" type="radio" name="Input" class="k-radio">
+                                                    <label class="form-check-label k-radio-label" for="Input">@_lang["Yes"]</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input checked="@(searchModel?.CauseInput == (int)CauseInput.NotInput)"
+                                                           @onchange="async eventArgs => {await UpdateFormValue(nameof(searchModel.CauseInput), (int)CauseInput.NotInput); }"
+                                                           value="@((int)CauseInput.NotInput)" type="radio" name="NotInput" class="k-radio">
+                                                    <label class="form-check-label k-radio-label" for="NotInput">@_lang["No"]</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-2 text-left mt-3">@_lang["OutOfRangeItems"]</label>
+                                        <div class="col-8-5 ml-4  outofrangeitems">
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ItemOutOfRange == ItemOutOfRange.BothOfItem && searchModel?.Range == (int)PlanningScope.OutOfRange) ? "btn-active" : string.Empty)"
+                                                    disabled=@(searchModel?.Range == (int)PlanningScope.InRange)
+                                                    type="button" @onclick="@((value) => UpdateFormValue(nameof(searchModel.ItemOutOfRange), (int)ItemOutOfRange.BothOfItem))">
+                                                @_lang["Both"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ItemOutOfRange == ItemOutOfRange.RunningKilomet  && searchModel?.Range == (int)PlanningScope.OutOfRange) ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.ItemOutOfRange), (int)ItemOutOfRange.RunningKilomet))" disabled=@(searchModel?.Range == (int)PlanningScope.InRange)>
+                                                @_lang["TravelingKilometers"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ItemOutOfRange == ItemOutOfRange.TotalTime && searchModel?.Range == (int)PlanningScope.OutOfRange) ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.ItemOutOfRange), (int)ItemOutOfRange.TotalTime))" disabled=@(searchModel?.Range == (int)PlanningScope.InRange)>
+                                                @_lang["Time"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row mb-3">
+                                        <label class="col-2 text-left mt-3">@_lang["CauseSelection"]</label>
+                                        <div class="col-8-5 ml-3  outofrangeitems">
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ChooseCause == ChooseCause.AllOfCause && searchModel?.CauseInput == (int)CauseInput.Input) ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="@((value) => UpdateFormValue(nameof(searchModel.ChooseCause), (int)ChooseCause.AllOfCause))" disabled=@(searchModel?.CauseInput == (int)CauseInput.NotInput)>
+                                                @_lang["All"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ChooseCause == ChooseCause.NeedEstimateAgain && searchModel?.CauseInput == (int)CauseInput.Input) ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.ChooseCause), (int)ChooseCause.NeedEstimateAgain))" disabled=@(searchModel?.CauseInput == (int)CauseInput.NotInput)>
+                                                @_lang["ReEstimateRequired"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", (searchModel.ChooseCause == ChooseCause.OtherCause && searchModel?.CauseInput == (int)CauseInput.Input) ? "btn-active" : string.Empty) width--140" type="button"
+                                                    @onclick="@((value) => UpdateFormValue(nameof(searchModel.ChooseCause), (int)ChooseCause.OtherCause))" disabled=@(searchModel?.CauseInput == (int)CauseInput.NotInput)>
+                                                @_lang["OtherReasonsDelay"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            break;
+                        case 1:
+                            <div class="d-flex">
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label width--100">@_lang["Tab2Title"]</label>
+                                    <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(e => ChangeMode(e, (int)ViewMode.Large, (int)ModeChangeV.ViewMode, 0))">
+                                        @_lang["Big"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)ViewMode.Medium, (int)ModeChangeV.ViewMode, 0))">
+                                        @_lang["Medium"]
+                                    </button>
+                                    <button class="@string.Format("btn-option ml-2 {0}", ActiveV == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)ViewMode.Small , (int)ModeChangeV.ViewMode, 0))">
+                                        @_lang["Small"]
+                                    </button>
+                                </div>
+                            </div>
+                            break;
+                        case 2:
+                            <div class="row mb-3">
+                                <label class="col-1 text-left">@_lang["OutputInstruction"]</label>
+                                <div class="col-10">
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchModel.OutputSetting == OutputInstruction.Preview ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(e => ChangeMode(e, (int)ViewMode.Small , (int)ModeChangeV.OutputInstruction, (int)OutputInstruction.Preview))">
+                                        @_lang["Preview"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchModel.OutputSetting == OutputInstruction.Pdf ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)ViewMode.Small , (int)ModeChangeV.OutputInstruction, (int)OutputInstruction.Pdf))">
+                                        @_lang["PDF"]
+                                    </button>
+                                    <button class="@string.Format("btn-option ml-2 {0}", searchModel.OutputSetting == OutputInstruction.Csv ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)ViewMode.Small , (int)ModeChangeV.OutputInstruction, (int)OutputInstruction.Csv))">
+                                        @_lang["CSV"]
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-1 mt-4 text-left">@_lang["FormSetting"]</label>
+                                <div class="col-8-5 ml-3  outofrangeitems">
+                                    <div class="form-group d-flex flex-nowrap ml-3 mt-2">
+                                        <label class="col-form-label col-3 text-right">@_lang["SizeOfPaper"]</label>
+                                        <div class="col-6">
+                                            <DxComboBox SelectedItem="searchModel.FormSetting"
+                                                        SelectedItemExpression="@(() => searchModel.FormSetting)"
+                                                        Data="@formSetting"
+                                                        ReadOnly="searchModel.OutputSetting != OutputInstruction.Csv ? false : true"
+                                                        AllowUserInput="false"
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.FormSetting),value))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-1 mt-3 text-left">@_lang["CsvSettings"]</label>
+                                <div class="col-10 ml-3  outofrangeitems">
+                                    <div class="form-group d-flex flex-nowrap mt-2">
+                                        <label class="col-form-label ml-3 col-2-5 text-right">@_lang["HeadingOutput"]</label>
+                                        <div class="col-3 ml-2">
+                                            <DxComboBox SelectedItem="searchModel.OutputWithHeader"
+                                                        SelectedItemExpression="@(() => searchModel.OutputWithHeader)"
+                                                        Data="@outputWithHeader"
+                                                        ReadOnly="searchModel.OutputSetting != OutputInstruction.Csv ? true : false"
+                                                        AllowUserInput="false"
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.OutputWithHeader),value))">
+                                            </DxComboBox>
+                                        </div>
+                                        <label class="col-form-label ml-3 col-2-5 text-right">@_lang["GroupClassification"]</label>
+                                        <div class="col-3">
+                                            <DxComboBox SelectedItem="searchModel.KukuriKbn"
+                                                        SelectedItemExpression="@(() => searchModel.KukuriKbn)"
+                                                        Data="@kukuriKbn"
+                                                        ReadOnly="searchModel.OutputSetting != OutputInstruction.Csv ? true : false"
+                                                        AllowUserInput="false"
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.KukuriKbn),value))">
+                                            </DxComboBox>
+                                        </div>
+                                        <label class="col-form-label ml-3 col-2-5 text-right">@_lang["DelimiterType"]</label>
+                                        <div class="col-3">
+                                            <DxComboBox SelectedItem="searchModel.KugiriCharType"
+                                                        SelectedItemExpression="@(() => searchModel.KugiriCharType)"
+                                                        Data="@kugiriCharType"
+                                                        ReadOnly="searchModel.OutputSetting != OutputInstruction.Csv ? true : false"
+                                                        AllowUserInput="false"
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        SelectedItemChanged="@(async (value) => await UpdateFormValue(nameof(searchModel.KugiriCharType),value))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3 mb-3 text-center">
+                                <div class="col-12">
+                                    <DxButton @onclick="e => BtnStart()" CssClass="btn btn-primary width--90" Text="@_lang["Output"]" />
+                                </div>
+                            </div>
+                            break;
+                        case 3:
+                            <div class="d-flex">
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <button class="@string.Format("btn-option ml-2 {0}", ActiveL == (int)LayoutMode.Save ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)LayoutMode.Save,(int)ModeChangeV.LayoutMode, 0))">
+                                        @_lang["Save"]
+                                    </button>
+                                    <button class="@string.Format("btn-option ml-2 {0}", ActiveL == (int)LayoutMode.Init ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(e => ChangeMode(e, (int)LayoutMode.Init, (int)ModeChangeV.LayoutMode, 0) )">
+                                        @_lang["Initialize"]
+                                    </button>
+                                </div>
+                            </div>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+<div class="faresupperandlowerlimits grid-@ActiveV" id="faresupperandlowerlimits">
+    <table border='1' class="table-scroll table-layout">
+        <thead>
+            <tr class="line-height-thead">
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["No."]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["ReservationNumber"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["ServiceDate"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["VehicleName"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["Classification"]</th>
+                <th class="text-center" colspan="3" scope="colgroup">@_lang["Amount"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["Cause"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["TravelingKilometersGrid"]</th>
+                <th class="text-center" rowspan="2" scope="colgroup">@_lang["TimeGrid"]</th>
+                <th class="text-center" colspan="2" scope="colgroup">@_lang["Option"]</th>
+                <th class="text-center" colspan="2" scope="colgroup">@_lang["Discount"]</th>
+            </tr>
+            <tr class="line-height-thead">
+                <th class="text-center" scope="col">@_lang["LowerLimit"]</th>
+                <th class="text-center" scope="col">@_lang["UpperLimit"]</th>
+                <th class="text-center" scope="col">@_lang["BillingAmount"]</th>
+                <th class="text-center" scope="col">@_lang["AlternateDriver"]</th>
+                <th class="text-center" scope="col">@_lang["SpecialVehicle"]</th>
+                <th class="text-center" scope="col">@_lang["PersonsWithDisabilities"]</th>
+                <th class="text-center" scope="col">@_lang["School"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (DataSource.Count() > 0)
+            {
+                @foreach (var item in DataSourcePaging)
+                {
+                    <tr @onclick="(e) => IndexItem = item.GridNo" @ondblclick="@(async () => await OnRowDoubleClick(item))" style="cursor: pointer;" class="@(item.GridNo == IndexItem ? "active" : null) @(item.GridNo == IndexItem ? " table-active":"")">
+                        <td rowspan="2" class="text-center sticky">@item.GridNo</td>
+                        <td rowspan="2" class="text-right sticky">@item.GridReservationNumber</td>
+                        <td rowspan="2" class="text-left sticky">@item.GridOperationYmd</td>
+                        <td rowspan="2" class="text-left sticky">@item.GridVehicleName</td>
+                        <td class="text-center sticky">@item.GridPlan</td>
+                        <td class="text-right sticky">@item.GridPlanMinAmount</td>
+                        <td class="text-right sticky">@item.GridPlanMaxAmount</td>
+                        <td rowspan="2" class="text-right sticky"><i style="font-size: 20px;" class="@item.CssClass"></i>@item.GridBillingAmount</td>
+                        <td rowspan="2" class="text-left sticky">@item.GridCause</td>
+                        <td class="text-right sticky">@item.GridPlanRunningKilomet</td>
+                        <td class="text-right sticky">@item.GridPlanTotalTime</td>
+                        <td rowspan="2" class="text-center sticky">@item.GridChangedDriver</td>
+                        <td rowspan="2" class="text-center sticky">@item.GridSpecialVehicle</td>
+                        <td rowspan="2" class="text-center sticky">@item.GridDisabledPersonDiscount</td>
+                        <td rowspan="2" class="text-center sticky">@item.GridSchoolDiscount</td>
+                    </tr>
+                    <tr style="cursor: pointer;" class="@(item.GridNo == IndexItem ? "active" : null) @(item.GridNo == IndexItem ? " table-active":"")">
+                        <td class="text-center sticky">@item.GridActualResult</td>
+                        <td class="text-right sticky">@item.GridActualMinAmount</td>
+                        <td class="text-right sticky">@item.GridActualMaxAmount</td>
+                        <td class="text-right sticky">@item.GridActualRunningKilomet</td>
+                        <td class="text-right sticky">@item.GridActualTotalTime</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="15" class="text-lg-center font-weight-bold">@_lang["BI_T004"]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="mb-2 mt-3">
+    <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="(e => itemPerPage = e)"
+                                                     TotalCount="DataSource.Count" @ref="paging">
+    </HassyaAllrightCloud.Pages.Components.Pagination>
+</div>

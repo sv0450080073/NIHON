@@ -1,0 +1,24 @@
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService CompanyDataService
+@using HassyaAllrightCloud.Domain.Dto.SubContractorStatus
+
+<DxDocumentViewer ReportUrl="@($"{nameof(ISubContractorStatusReportService)}?" + searchString)" Height="1000px" Width="100%">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code {
+    [Parameter] public string searchString { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var bookingTypes = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+        var param = EncryptHelper.Decrypt<SubContractorStatusReportSearchParams>(searchString);
+        //param.SearchCondition.BookingTypes = YoyKbnHelper.GetListYoyKbnFromTo(param.SearchCondition.BookingTypeStart, param.SearchCondition.BookingTypeEnd, bookingTypes);
+        param.SearchCondition.RegistrationTypeFrom = param.SearchCondition.RegistrationTypeFrom;
+        param.SearchCondition.RegistrationTypeTo = param.SearchCondition.RegistrationTypeTo;
+        param.SearchCondition.Companies = param.SearchCondition.CompanyIds.Select(_ => new CompanyData { CompanyCdSeq = _ }).ToList();
+        searchString = EncryptHelper.EncryptToUrl(param);
+
+        await base.OnInitializedAsync();
+    }
+}

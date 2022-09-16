@@ -1,0 +1,659 @@
+﻿@inject IStringLocalizer<YatoiSha> Lang
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient HttpClient
+@inject CustomNavigation NavManager
+@using HassyaAllrightCloud.Pages.Components.Popup;
+@using HassyaAllrightCloud.Commons.Extensions;
+
+<MyPopup Model="MyPopup" OnClose="HandleClosePopup" />
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <EditForm EditContext="FormContext" OnSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="LoanBookingIncidentalValidator" />
+
+        @if (SelectedLoadYFutTuItem != null)
+        {
+            <div class="mb-3">
+                <div class="form-group d-flex flex-nowrap">
+                    <label class="col-form-label-sm mr-2">@Lang["mercenary"]</label>
+                    <DxTextBox Text="@LoanBookingIncidental.TokuiSiten"
+                               TextExpression="() => TempStr"
+                               ReadOnly="true"
+                               CssClass="width--290" />
+                </div>
+            </div>
+        }
+        <div class="total-table">
+            <table class="table-sm mb-3">
+                <thead class="thead-primary">
+                    <tr>
+                        <th scope="col" class="text-center" width="50px">Ｎｏ．</th>
+                        <th scope="col" class="text-center">@Lang["schedule"]</th>
+                        @if (CurrentViewMode == IncidentalViewMode.Futai)
+                        {
+                            <th scope="col" class="text-center">@Lang["incidental_name"]</th>
+                        }
+                        else
+                        {
+                            <th scope="col" class="text-center" width="80px">@Lang["loadedproductname"]</th>
+                        }
+                        <th scope="col" class="text-center">@Lang["settlementname"]</th>
+                        <th scope="col" class="text-center">@Lang["settlementclassification"]</th>
+                        @if (CurrentViewMode == IncidentalViewMode.Futai)
+                        {
+                            <th scope="col" class="text-center">@Lang["tollbooth"]</th>
+                            <th scope="col" class="text-center">@Lang["tollbooth2"]</th>
+                        }
+                        <th scope="col" class="text-center">@Lang["quantity"]</th>
+                        <th scope="col" class="text-center">@Lang["unit_price"]</th>
+                        <th scope="col" class="text-center">@Lang["incurred_amount"]</th>
+                        <th scope="col" class="text-center">@Lang["tax_included"]</th>
+                        <th scope="col" class="text-center">@Lang["consumption_tax_rate"]</th>
+                        <th scope="col" class="text-center">@Lang["FeeTaxRate/Tax"]</th>
+                        <th scope="col" class="text-center">@Lang["accrual_date"]</th>
+                        <th scope="col" class="text-center btn-add" colspan="2">
+                            <a href="javascript:void(0)" @onclick="HandleCreateFuttum" class="@(IsDisableEdit || ShowFormCreateFuttum ? "disabled" : "")">@Lang["addnew"]</a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ShowFormCreateFuttum)
+                    {
+                        <tr>
+                            <td colspan="16" class="p-2">
+                                <EditYatoiShaBooking CurrentViewMode="CurrentViewMode"
+                                                    SettingQuantityList="LoanBookingIncidental.SettingQuantityList"
+                                                    SaveTypeList="SaveTypeList"
+                                                    LoadYSeisanList="LoadYSeisanList"
+                                                    LoadYFutaiList="LoadYFutaiList"
+                                                    LoadYTsumiList="LoadYTsumiList"
+                                                    LoadYRyokinList="LoadYRyokinList"
+                                                    FutaiScheduleList="FutaiScheduleList"
+                                                    LoadYFutTuOrigin="SelectedLoadYFutTuItem"
+                                                    SettingTaxRate="SettingTaxRate"
+                                                    TaxTypeDataList="TaxTypeDataList"
+                                                    OnSubmit="HandleAddFuttum"
+                                                    OnCancel="HandleCancelCreateFuttum"
+                                                    IsEditMode="false" />
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var (yfuttuItem, index) in YFutTuListNotDeleted.WithIndex())
+                    {
+                        <tr>
+                            @if (yfuttuItem.Editing)
+                            {
+                                <td colspan="16" class="p-2">
+                                    <EditYatoiShaBooking CurrentViewMode="CurrentViewMode"
+                                                        SettingQuantityList="LoanBookingIncidental.SettingQuantityList"
+                                                        SaveTypeList="SaveTypeList"
+                                                        LoadYSeisanList="LoadYSeisanList"
+                                                        LoadYFutaiList="LoadYFutaiList"
+                                                        LoadYTsumiList="LoadYTsumiList"
+                                                        LoadYRyokinList="LoadYRyokinList"
+                                                        FutaiScheduleList="FutaiScheduleList"
+                                                        LoadYFutTuOrigin="yfuttuItem"
+                                                        SettingTaxRate="SettingTaxRate"
+                                                        TaxTypeDataList="TaxTypeDataList"
+                                                        OnSubmit="HandleSaveEditFuttum"
+                                                        OnCancel="HandleCancelEditFuttum"
+                                                        IsEditMode="true" />
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center @CssHelper.GetFormEditStateCss(yfuttuItem.EditState)">@(index + 1)</td>
+                                <td class="text-center">
+                                    @yfuttuItem.ScheduleDate.GetPrefixString()
+                                    <br />
+                                    @yfuttuItem.ScheduleDate.GetDateString()
+                                </td>
+                                <td class="text-center">@yfuttuItem.YFutTuNm</td>
+                                <td class="text-center">@yfuttuItem.SeisanNm</td>
+                                <td class="text-center">@yfuttuItem.SaveType?.Name</td>
+                                @if (CurrentViewMode == IncidentalViewMode.Futai)
+                                {
+                                    <td class="text-center">@yfuttuItem.RyokinNm</td>
+                                    <td class="text-center">@yfuttuItem.ShuRyokinNm</td>
+                                }
+                                <td class="text-center">@CommonUtil.CurencyFormat(yfuttuItem.Suryo)</td>
+                                <td class="text-center">@CommonUtil.CurencyFormat(yfuttuItem.Tanka)</td>
+                                <td class="text-center">@CommonUtil.CurencyFormat(yfuttuItem.GoukeiWithoutTax)</td>
+                                <td class="text-center">@CommonUtil.CurencyFormat(yfuttuItem.ZeikomiKin)</td>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        <span>@CommonUtil.TaxRateFormat(yfuttuItem.Zeiritsu)％</span>
+                                        <span>@CommonUtil.CurencyFormat(yfuttuItem.SyaRyoSyo)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        <span>@CommonUtil.TaxRateFormat(yfuttuItem.TesuRitu)％</span>
+                                        <span>@CommonUtil.CurencyFormat(yfuttuItem.SyaRyoTes)</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">@yfuttuItem.ScheduleDate.Date.ToString("yyyy/MM/dd")</td>
+                                <td class="text-center">
+                                    <button class="custom-hyper font-weight-bold btn-addrow @(IsDisableEdit ? "disabled" : "enabled")"
+                                            type="button"
+                                            @onclick="() => HandleEditFuttum(yfuttuItem.YouFutTumRen)">
+                                        @Lang["edit"]
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="custom-hyper font-weight-bold btn-addrow text-danger @(IsDisableEdit ? "disabled" : "enabled")"
+                                            type="button"
+                                            @onclick="() => HandleDeleteFuttum(yfuttuItem.YouFutTumRen)">
+                                        @Lang["delete"]
+                                    </button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h5>@Lang["cumulative_clearing"]</h5>
+        <div class="total-table">
+            <table class="table-sm text-center w-50">
+                <thead class="thead-primary">
+                    <tr>
+                        <th scope="col">@Lang["type"]</th>
+                        <th scope="col">@Lang["sales_amount"]</th>
+                        <th scope="col">@Lang["consumption_tax"]</th>
+                        <th scope="col">@Lang["fee"]</th>
+                        <th scope="col">@Lang["incidental_charges"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @if (CurrentViewMode == IncidentalViewMode.Futai)
+                        {
+                            <th scope="row" class="bg-primary text-white">@Lang["futai"]</th>
+                        }
+                        else
+                        {
+                            <th scope="row" class="bg-primary text-white">@Lang["tsumi"]</th>
+                        }
+                        <td>@((YFutTuListNotDeleted?.Sum(f => f.GoukeiWithoutTax) ?? 0).ToString("C", CurrentCulture))</td>
+                        <td>@((YFutTuListNotDeleted?.Sum(f => f.SyaRyoSyo) ?? 0).ToString("C", CurrentCulture))</td>
+                        <td>@((YFutTuListNotDeleted?.Sum(f => f.SyaRyoTes) ?? 0).ToString("C", CurrentCulture))</td>
+                        <td>@((YFutTuListNotDeleted?.Sum(f => f.ZeikomiKin) ?? 0).ToString("C", CurrentCulture))</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary"
+                      Text="@Lang["save"]"
+                      SubmitFormOnClick="true"
+                      Enabled="IsEnableSubmitButton()"
+                      CssClass="width--90" />
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public IncidentalViewMode CurrentViewMode { get; set; }
+    [Parameter] public string UkeNo { get; set; }
+    [Parameter] public short UnkRen { get; set; }
+    [Parameter] public int YouTblSeq { get; set; }
+
+    protected List<ScheduleSelectorModel> FutaiScheduleList { get; set; }
+    protected List<LoadYFutai> LoadYFutaiList { get; set; }
+    protected List<LoadYTsumi> LoadYTsumiList { get; set; }
+    protected List<LoadYRyokin> LoadYRyokinList { get; set; }
+    protected List<LoadYSeisan> LoadYSeisanList { get; set; }
+    protected List<YouShaSaveType> SaveTypeList { get; set; }
+    protected List<TaxTypeList> TaxTypeDataList { get; set; }
+    protected SettingTaxRate SettingTaxRate { get; set; }
+
+    protected LoanBookingIncidentalData LoanBookingIncidental { get; set; }
+    protected List<LoadYFutTu> YFutTuListNotDeleted { get => LoanBookingIncidental.LoadYFutTuList.Where(f => f.EditState != FormEditState.Deleted).ToList(); }
+    protected LoadYFutTu SelectedLoadYFutTuItem { get; set; }
+    protected EditContext FormContext { get; set; }
+
+    protected string TempStr { get; set; }
+
+    protected bool IsLoading { get; set; } = true;
+    protected bool ShowFormCreateFuttum { get; set; }
+    protected bool IsDisableEdit { get; set; }
+
+    protected CultureInfo CurrentCulture { get; set; }
+    protected MyPopupModel MyPopup { get; set; }
+
+    private int youFutRenToDelete;
+    private string baseUrl;
+
+    #region Localization string
+    string Ok;
+    string Yes;
+    string No;
+    string PopupTitleInfo;
+    string PopupTitleError;
+    string UpdateFuttumSucces;
+    string PopupConfirmDeleteTitle;
+    string PopupConfirmDeleteContent;
+    string UpdateFail;
+    string PopupConfirmSaveMishumFuttumContent;
+    private void LocalizationInit()
+    {
+        Ok = Lang["Ok"];
+        Yes = Lang["Yes"];
+        No = Lang["No"];
+        PopupTitleInfo = Lang["PopupTitleInfo"];
+        PopupTitleError = Lang["PopupTitleError"];
+
+        PopupConfirmDeleteTitle = Lang["VerificationDelete"];
+        PopupConfirmDeleteContent = Lang["BI_T004"];
+        PopupConfirmSaveMishumFuttumContent = Lang["BI_T003"];
+
+        UpdateFuttumSucces = Lang["UpdateSuccess"];
+        UpdateFail = Lang["UpdateFail"];
+    }
+    #endregion
+
+    #region Component Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        MyPopup = new MyPopupModel();
+        baseUrl = AppSettingsService.GetBaseUrl();
+        CurrentCulture = new CultureInfo("ja-JP");
+        SelectedLoadYFutTuItem = new LoadYFutTu();
+        SelectedLoadYFutTuItem.FirstLoad = false;
+
+        await LoadAllDataComboboxAsync();
+        var loadnIncidentalDb = await LoadLoanBookingIncidentalDataAsync();
+        if (loadnIncidentalDb != null)
+        {
+            LoanBookingIncidental = loadnIncidentalDb;
+            FutaiScheduleList = GetFutaiScheduleList(LoanBookingIncidental);
+            LoadSelectedDataCombobox();
+
+            // enable auto calculate
+            LoanBookingIncidental.LoadYFutTuList.ForEach(f => f.FirstLoad = false);
+
+            FormContext = new EditContext(LoanBookingIncidental);
+        }
+        else
+        {
+            NavManager.NavigateTo(string.Format("/partnerbookinginput?UkeCd={0}&UnkRen={1}", UkeNo.Substring(5), UnkRen), true);
+            return;
+        }
+
+        await base.OnInitializedAsync().ContinueWith((t) => { IsLoading = false; });
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Common methods
+    private async Task LoadAllDataComboboxAsync()
+    {
+        if (CurrentViewMode == IncidentalViewMode.Futai)
+        {
+            LoadYFutaiList = await HttpClient.GetJsonAsync<List<LoadYFutai>>(baseUrl + "/api/LoanBookingIncidental/LoadYFutai?tenantId=" + new ClaimModel().TenantID);
+        }
+        else if (CurrentViewMode == IncidentalViewMode.Tsumi)
+        {
+            LoadYTsumiList = await HttpClient.GetJsonAsync<List<LoadYTsumi>>(baseUrl + "/api/LoanBookingIncidental/LoadYTsumi");
+        }
+        LoadYRyokinList = await HttpClient.GetJsonAsync<List<LoadYRyokin>>(baseUrl + "/api/LoanBookingIncidental/LoadYRyokin");
+        LoadYSeisanList = await HttpClient.GetJsonAsync<List<LoadYSeisan>>(baseUrl + "/api/LoanBookingIncidental/LoadYSeisan?tenantId=" + new ClaimModel().TenantID);
+        SaveTypeList = LoadYSeisanList.Select(c => new YouShaSaveType() { Id = c.SeisanKbn, Name = c.CodeKbRyakuNm }).GroupBy(c => c.Id).Select(c => c.First()).ToList();
+        TaxTypeDataList = await HttpClient.GetJsonAsync<List<TaxTypeList>>(baseUrl + "/api/LoanBookingIncidental/TaxTypeList?tenantId=" + new ClaimModel().TenantID);
+        SettingTaxRate = await HttpClient.GetJsonAsync<SettingTaxRate>(baseUrl + "/api/BookingIncidental/SettingTaxRate");
+    }
+
+    private List<ScheduleSelectorModel> GetFutaiScheduleList(LoanBookingIncidentalData incidental)
+    {
+        return ScheduleHelper.GetScheduleSelectorList(incidental.HaiSYmd, incidental.TouYmd, incidental.IsPreviousDay, incidental.IsAfterDay);
+    }
+
+    private void LoadSelectedDataCombobox()
+    {
+        if (LoadYSeisanList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.SelectedLoadYSeisan =
+                    LoadYSeisanList.SingleOrDefault(s => s.SeisanCdSeq == yfuttu.SelectedLoadYSeisan.SeisanCdSeq);
+            }
+        }
+        if (CurrentViewMode == IncidentalViewMode.Futai && LoadYFutaiList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.SelectedLoadYFutai =
+                    LoadYFutaiList.SingleOrDefault(s => s.FutaiCdSeq == yfuttu.SelectedLoadYFutai.FutaiCdSeq);
+            }
+        }
+        else if (CurrentViewMode == IncidentalViewMode.Tsumi && LoadYTsumiList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.SelectedLoadYTsumi =
+                    LoadYTsumiList.SingleOrDefault(s => s.CodeKbnSeq == yfuttu.SelectedLoadYTsumi.CodeKbnSeq);
+            }
+        }
+        if (LoadYRyokinList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.SelectedLoadYRyoKin =
+                    LoadYRyokinList.SingleOrDefault(s => s.RyoKinTikuCd == yfuttu.SelectedLoadYRyoKin.RyoKinTikuCd
+                                                    && s.RyoKinCd == yfuttu.SelectedLoadYRyoKin.RyoKinCd);
+                yfuttu.SelectedLoadYShuRyoKin =
+                    LoadYRyokinList.SingleOrDefault(s => s.RyoKinTikuCd == yfuttu.SelectedLoadYShuRyoKin.RyoKinTikuCd && s.RyoKinCd == yfuttu.SelectedLoadYShuRyoKin.RyoKinCd);
+            }
+        }
+        if (SaveTypeList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.SaveType = SaveTypeList.SingleOrDefault(i => i.Id == yfuttu.SaveType.Id);
+            }
+        }
+        if (TaxTypeDataList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.TaxType =
+                    TaxTypeDataList.SingleOrDefault(s => s.IdValue == yfuttu.TaxType.IdValue);
+            }
+        }
+        if (FutaiScheduleList != null)
+        {
+            for (int youFutRen = 0; youFutRen < LoanBookingIncidental.LoadYFutTuList.Count; youFutRen++)
+            {
+                var yfuttu = LoanBookingIncidental.LoadYFutTuList[youFutRen];
+                yfuttu.ScheduleDate =
+                    FutaiScheduleList.SingleOrDefault(s => s.Date == yfuttu.ScheduleDate.Date) ?? yfuttu.ScheduleDate;
+            }
+        }
+    }
+
+    protected bool IsEnableSubmitButton()
+    {
+        if (IsDisableEdit)
+        {
+            return false;
+        }
+        if (ShowFormCreateFuttum || LoanBookingIncidental.LoadYFutTuList.Any(f => f.Editing))
+        {
+            return false;
+        }
+        var result = FormContext.IsModified() && FormContext.Validate();
+        return result;
+    }
+
+    private void HandleClosePopup()
+    {
+        MyPopup.Hide();
+        StateHasChanged();
+    }
+
+    private async Task<LoanBookingIncidentalData> LoadLoanBookingIncidentalDataAsync()
+    {
+        try
+        {
+            string getLoanIncidentalUrl = string.Format("{0}/api/LoanBookingIncidental?tenantId={1}&ukeNo={2}&unkRen={3}&youTblSeq={4}&viewMode={5}"
+                , baseUrl, new ClaimModel().TenantID, UkeNo, UnkRen, YouTblSeq, CurrentViewMode);
+            var response = await HttpClient.GetAsync(getLoanIncidentalUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<LoanBookingIncidentalData>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private async Task<List<BookingDisableEditState>> LoadBookingEditableStateAsync(string ukeNo)
+    {
+        try
+        {
+            string uri = string.Format("{0}/api/BookingInput/DisabledBookingStateList?ukeNo={1}", baseUrl, ukeNo);
+            var response = await HttpClient.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<BookingDisableEditState>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region Popup methods
+
+    private void ShowPopupSaveSuccess()
+    {
+        MyPopup.Build()
+            .WithTitle(PopupTitleInfo)
+            .WithBody(UpdateFuttumSucces)
+            .WithIcon(MyPopupIconType.Info)
+            .AddButton(new MyPopupFooterButton(Ok, HandleClosePopup))
+            .Show();
+    }
+
+    private void ShowPopupSaveError()
+    {
+        MyPopup.Build()
+            .WithTitle(PopupTitleInfo)
+            .WithBody(UpdateFail)
+            .WithIcon(MyPopupIconType.Error)
+            .AddButton(new MyPopupFooterButton(Ok, HandleClosePopup))
+            .Show();
+    }
+
+    private void ShowPopupConfirmDelete()
+    {
+        MyPopup.Build()
+            .WithTitle(PopupConfirmDeleteTitle)
+            .WithBody(PopupConfirmDeleteContent)
+            .WithIcon(MyPopupIconType.Warning)
+            .AddButton(new MyPopupFooterButton(Yes, ButtonRenderStyle.Danger, HandleConfirmDelete))
+            .AddButton(new MyPopupFooterButton(No, ButtonRenderStyle.Secondary, HandleClosePopup))
+            .Show();
+    }
+
+    #endregion
+
+    #region Handle event
+
+    protected void HandleCreateFuttum()
+    {
+        if (IsDisableEdit == false && ShowFormCreateFuttum == false)
+        {
+            LoanBookingIncidental.LoadYFutTuList.ForEach(f => f.Editing = false);
+
+            SelectedLoadYFutTuItem = new LoadYFutTu();
+            SelectedLoadYFutTuItem.FirstLoad = false;
+            SelectedLoadYFutTuItem.YouFutTumRen = ++LoanBookingIncidental.YouFutTumRenMax;
+            SelectedLoadYFutTuItem.FuttumKbnMode = CurrentViewMode;
+
+            SelectedLoadYFutTuItem.TaxType = TaxTypeDataList.SingleOrDefault(t => t.IdValue == Constants.ForeignTax.IdValue);
+
+            SelectedLoadYFutTuItem.ScheduleDate = FutaiScheduleList.FirstOrDefault();
+            SelectedLoadYFutTuItem.SettingQuantityList = LoanBookingIncidental.SettingQuantityList
+                .Where(s => SelectedLoadYFutTuItem.ScheduleDate.Date.IsInRange(s.GarageLeaveDate, s.GarageReturnDate))
+                .Select(setting => CommonHelper.SimpleCloneModel<SettingQuantity>(setting))
+                .ToList();
+
+            SelectedLoadYFutTuItem.DefaultTaxRate = SettingTaxRate.GetTaxRate(LoanBookingIncidental.HaiSYmd);
+            SelectedLoadYFutTuItem.Zeiritsu = SelectedLoadYFutTuItem.DefaultTaxRate.ToString();
+            SelectedLoadYFutTuItem.TesuRitu = LoanBookingIncidental.DefaultFutaiChargeRate.ToString();
+            SelectedLoadYFutTuItem.RoundType = LoanBookingIncidental.RoundType;
+            SelectedLoadYFutTuItem.SaveType = SaveTypeList.FirstOrDefault(
+                i => i.Id == (CurrentViewMode == IncidentalViewMode.Futai ? 1 : 2)
+            );
+
+            ShowFormCreateFuttum = true;
+        }
+    }
+
+    protected void HandleAddFuttum()
+    {
+        LoanBookingIncidental.LoadYFutTuList.Add(SelectedLoadYFutTuItem);
+        SelectedLoadYFutTuItem.EditState = FormEditState.Added;
+        FormContext.NotifyFieldChanged(() => LoanBookingIncidental.LoadYFutTuList);
+        ShowFormCreateFuttum = false;
+        StateHasChanged();
+    }
+
+    protected void HandleCancelCreateFuttum(int youFutRen)
+    {
+        ShowFormCreateFuttum = false;
+        StateHasChanged();
+    }
+
+    protected void HandleEditFuttum(int youFutRen)
+    {
+        if (IsDisableEdit == false)
+        {
+            LoanBookingIncidental.LoadYFutTuList.ForEach(f => f.Editing = false);
+            HandleCancelCreateFuttum(youFutRen);
+
+            var selectedFuttum = LoanBookingIncidental.LoadYFutTuList.SingleOrDefault(f => f.YouFutTumRen == youFutRen);
+            selectedFuttum.DefaultTaxRate = SettingTaxRate.GetTaxRate(LoanBookingIncidental.HaiSYmd);
+            selectedFuttum.Editing = true;
+            StateHasChanged();
+        }
+    }
+
+    protected void HandleSaveEditFuttum(int youFutRen)
+    {
+        var selectedFuttum = LoanBookingIncidental.LoadYFutTuList.SingleOrDefault(f => f.YouFutTumRen == youFutRen);
+        selectedFuttum.Editing = false;
+        selectedFuttum.EditState = selectedFuttum.EditState == FormEditState.Added ? FormEditState.Added : FormEditState.Edited;
+        FormContext.NotifyFieldChanged(() => LoanBookingIncidental.LoadYFutTuList);
+        StateHasChanged();
+    }
+
+    protected void HandleCancelEditFuttum(int youFutRen)
+    {
+        var selectedFuttum = LoanBookingIncidental.LoadYFutTuList.SingleOrDefault(f => f.YouFutTumRen == youFutRen);
+        selectedFuttum.Editing = false;
+        StateHasChanged();
+    }
+
+    protected void HandleDeleteFuttum(int youFutRen)
+    {
+        if (IsDisableEdit == false)
+        {
+            var selectedFuttum = LoanBookingIncidental.LoadYFutTuList.SingleOrDefault(f => f.YouFutTumRen == youFutRenToDelete);
+            youFutRenToDelete = youFutRen;
+            ShowPopupConfirmDelete();
+            StateHasChanged();
+        }
+    }
+
+    protected void HandleConfirmDelete()
+    {
+        var selectedFuttum = LoanBookingIncidental.LoadYFutTuList.SingleOrDefault(f => f.YouFutTumRen == youFutRenToDelete);
+
+        // check if create new then delete
+        if (selectedFuttum.EditState == FormEditState.Added)
+        {
+            LoanBookingIncidental.YouFutTumRenMax -= 1;
+            LoanBookingIncidental.LoadYFutTuList.Remove(selectedFuttum);
+        }
+        else
+        {
+            selectedFuttum.EditState = FormEditState.Deleted;
+        }
+
+        FormContext.NotifyFieldChanged(() => LoanBookingIncidental.LoadYFutTuList);
+        MyPopup.Hide();
+        StateHasChanged();
+    }
+
+    protected void HandleConfirmSaveMishumFuttum()
+    {
+        LoanBookingIncidental.IsSaveMishumFuttum = true;
+    }
+
+    protected async Task HandleSaveData()
+    {
+        HttpResponseMessage response = new HttpResponseMessage();
+        var requstUri = string.Format("{0}/api/LoanBookingIncidental", baseUrl);
+        response = await HttpClient.PutJsonAsync(requstUri, LoanBookingIncidental);
+
+        if (response.IsSuccessStatusCode)
+        {
+            ShowPopupSaveSuccess();
+        }
+        else
+        {
+            ShowPopupSaveError();
+        }
+        var loadnIncidentalDb = await LoadLoanBookingIncidentalDataAsync();
+        if (loadnIncidentalDb != null)
+        {
+            LoanBookingIncidental = loadnIncidentalDb;
+            FutaiScheduleList = GetFutaiScheduleList(LoanBookingIncidental);
+            LoadSelectedDataCombobox();
+
+            // enable auto calculate
+            LoanBookingIncidental.LoadYFutTuList.ForEach(f => f.FirstLoad = false);
+
+            FormContext = new EditContext(LoanBookingIncidental);
+        }
+        else
+        {
+            NavManager.NavigateTo(string.Format("/partnerbookinginput?UkeCd={0}&UnkRen={1}", UkeNo.Substring(5), UnkRen), true);
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void HandleValidSubmit()
+    {
+        if (FormContext.Validate())
+        {
+            MyPopup.Build()
+                .WithTitle(PopupTitleInfo)
+                .WithBody(PopupConfirmSaveMishumFuttumContent)
+                .WithIcon(MyPopupIconType.Info)
+                .AddButton(new MyPopupFooterButton(Yes, ButtonRenderStyle.Danger, async () =>
+                {
+                    LoanBookingIncidental.IsSaveMishumFuttum = true;
+                    await HandleSaveData();
+                }))
+                .AddButton(new MyPopupFooterButton(No, ButtonRenderStyle.Secondary, async () => await HandleSaveData()))
+                .Show();
+        }
+    }
+
+    #endregion
+}

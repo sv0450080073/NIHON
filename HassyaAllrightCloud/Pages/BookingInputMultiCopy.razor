@@ -1,0 +1,1246 @@
+﻿@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inherits OwningComponentBase
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<BookingInputMultiCopy> Lang
+@inject CustomNavigation NavManager
+@inject BusScheduleHelper BusScheduleHelper
+@using HassyaAllrightCloud.Pages.Components
+@using System.Threading
+@using static HassyaAllrightCloud.Commons.Extensions.EditContextExtensionHelper
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsShowPopupInfo" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @PopupTitle
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="() => OnClosePopupInfo()"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        @((MarkupString)OnGetContentPopupInfo())
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                  @onclick="() => OnClosePopupInfo()" Text="@Ok" />
+    </FooterTemplate>
+</DxPopup>
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    @if (IsDiableForm)
+    {
+        <div class="loader">
+            <div class="loader-icon"></div>
+        </div>
+    }
+    <EditForm EditContext="@FormContext" OnSubmit="async () => await OnValidSubmitAsync()">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BookingMultiCopyValidator" />
+
+        <div class="form-group d-flex flex-nowrap align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <h5>@PageTitle</h5>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger btnclear" disabled="@IsDisableClearButton()" @onclick="@(async () => await HandleEarseClicked())">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                @EraseAll
+            </button>
+        </div>
+        <div class="border p-2 border-primary">
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@CopyCategoryLabel</label>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" id="customRadio1"
+                           name="customRadioPopupSignup"
+                           class="custom-control-input"
+                           checked="@(BookingMultiData.CopyType == BookingMultiCopyType.Reservation)"
+                           @onchange="OnCopyTypeChanged"
+                           value="@BookingMultiCopyType.Reservation">
+                    <label class="custom-control-label" for="customRadio1">@ReservationFormLabel</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="customRadio2"
+                           name="customRadioPopupSignup"
+                           class="custom-control-input"
+                           checked="@(BookingMultiData.CopyType == BookingMultiCopyType.Vehicle)"
+                           @onchange="OnCopyTypeChanged"
+                           value="@BookingMultiCopyType.Vehicle">
+                    <label class="custom-control-label" for="customRadio2">@VehicleRadio</label>
+                </div>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75 wid">@OrganizationLabel</label>
+                <DxTextBox NullText="@Lang["NullTextOrganization"]"
+                           TextExpression="() => BookingMultiData.BookingDataToCopy.TextOrganizationName"
+                           Text=@BookingMultiData.BookingDataToCopy.TextOrganizationName
+                           TextChanged="(newValue) => OnTextOrganizationNameChanged(newValue)"
+                           CssClass="width--664 length50">
+                </DxTextBox>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@CustomerListLabel</label>
+                @*<div class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() =>BookingMultiData.BookingDataToCopy.SelectedCustomer)" Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                        </Tooltip>
+                        <DxComboBox DataAsync="LoadCustomerListAsync"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    AllowUserInput="false"
+                                    TextFieldName="Text"
+                                    SelectedItem=@BookingMultiData.BookingDataToCopy.SelectedCustomer
+                                    SelectedItemChanged="(e) => OnCustomerComboboxChanged(e)"
+                                    SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.SelectedCustomer"
+                                    CssClass="width--664">
+                        </DxComboBox>
+                    </div>*@
+                <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="Convert.ToInt32(BookingMultiData.BookingDataToCopy.customerComponentGyosyaData?.GyosyaCdSeq)"
+                                                                                         SelectedGyosya="BookingMultiData.BookingDataToCopy.customerComponentGyosyaData"
+                                                                                         GyosyaExpression="() => BookingMultiData.BookingDataToCopy.customerComponentGyosyaData"
+                                                                                         SelectedGyosyaChanged="e => OnCustomerComboboxChanged(nameof(BookingMultiData.BookingDataToCopy.customerComponentGyosyaData), e)"
+                                                                                         DefaultTokisk="Convert.ToInt32(BookingMultiData.BookingDataToCopy.customerComponentTokiskData?.TokuiSeq)"
+                                                                                         SelectedTokisk="BookingMultiData.BookingDataToCopy.customerComponentTokiskData"
+                                                                                         TokiskExpression="() => BookingMultiData.BookingDataToCopy.customerComponentTokiskData"
+                                                                                         SelectedTokiskChanged="e => OnCustomerComboboxChanged(nameof(BookingMultiData.BookingDataToCopy.customerComponentTokiskData), e)"
+                                                                                         DefaultTokiSt="Convert.ToInt32(BookingMultiData.BookingDataToCopy.customerComponentTokiStData?.SitenCdSeq)"
+                                                                                         SelectedTokiSt="BookingMultiData.BookingDataToCopy.customerComponentTokiStData"
+                                                                                         TokiStExpression="() => BookingMultiData.BookingDataToCopy.customerComponentTokiStData"
+                                                                                         SelectedTokiStChanged="e => OnCustomerComboboxChanged(nameof(BookingMultiData.BookingDataToCopy.customerComponentTokiStData), e)"
+                                                                                         LangDic="LangDic"
+                                                                                         @ref="CustomerComponent"
+                                                                                         isTokiskAddNull="true"
+                                                                                         isTokiStAddNull="true"/>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@DestinationLabel</label>
+                <div class="has-tooltip-error">
+                    @*<Tooltip ValueExpressions="@(() =>BookingMultiData.BookingDataToCopy.ReservationTabData.Destination)"
+                                Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                        </Tooltip>
+                            CssClass="@(FormContext.GetCustomCss(() => BookingMultiData.BookingDataToCopy.ReservationTabData.Destination))"*@
+                    <DxComboBox NullText="@Lang["NullTextDestination"]"
+                                Data="DestinationDataList"
+                                TextFieldName="Text"
+                                AllowUserInput="true"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                SelectedItem="BookingMultiData.BookingDataToCopy.ReservationTabData.Destination"
+                                SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.Destination"
+                                CssClass="custom-combo-box"
+                                SelectedItemChanged="OnSelectedDestinationChanged">
+                    </DxComboBox>
+                </div>
+                <DxTextBox Text="@BookingMultiData.BookingDataToCopy.ReservationTabData.IkNm"
+                           TextExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.IkNm"
+                           TextChanged="(newValue) => OnTextDestinationChanged(newValue)"
+                           CssClass="ml-2 length50">
+                </DxTextBox>
+                <a href="https://www.google.com/maps" target="_blank" class="ml-2 btn btn-sm btn-link">@ResidenceIndicationLink</a>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@DepotLabel</label>
+                <div class="has-tooltip-error">
+                    @*<Tooltip ValueExpressions="@(() =>BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace)"
+                                Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                        </Tooltip>
+                            CssClass="@(FormContext.GetCustomCss(() => BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace))"*@
+                    <DxComboBox NullText="@Lang["NullTextDespatchingPlace"]"
+                                Data="PlaceDataList"
+                                TextFieldName="Text"
+                                AllowUserInput="true"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                SelectedItem="BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace"
+                                SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace"
+                                CssClass="custom-combo-box"
+                                SelectedItemChanged="OnSelectedDespatchingPlaceChanged">
+                    </DxComboBox>
+                </div>
+                <DxTextBox Text="@BookingMultiData.BookingDataToCopy.ReservationTabData.HaiSNm"
+                           TextExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.HaiSNm"
+                           TextChanged="(newValue) => OnTextDespatchingPlaceNameChanged(newValue)"
+                           CssClass="ml-2 length50">
+                </DxTextBox>
+                <a href="https://www.google.com/maps" target="_blank" class="ml-2 btn btn-sm btn-link">@ResidenceIndicationLink</a>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@ArrivalLabel</label>
+                <div class="has-tooltip-error">
+                    @*<Tooltip ValueExpressions="@(() =>BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace)"
+                                Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                        </Tooltip>
+                        CssClass="@(FormContext.GetCustomCss(() => BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace))"*@
+                    <DxComboBox NullText="@Lang["NullTextArrivePlace"]"
+                                Data="PlaceDataList"
+                                TextFieldName="Text"
+                                AllowUserInput="true"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                SelectedItem="BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace"
+                                SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace"
+                                CssClass="custom-combo-box"
+                                SelectedItemChanged="(e) => OnSelectedArrivePlaceChanged(e)">
+                    </DxComboBox>
+                </div>
+                <DxTextBox Text="@BookingMultiData.BookingDataToCopy.ReservationTabData.TouNm"
+                           TextExpression="() => BookingMultiData.BookingDataToCopy.ReservationTabData.TouNm"
+                           TextChanged="(newValue) => OnTextArrivePlaceNameChanged(newValue)"
+                           CssClass="ml-2 length50">
+                </DxTextBox>
+                <a href="https://www.google.com/maps" target="_blank" class="ml-2 btn btn-sm btn-link">@ResidenceIndicationLink</a>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center">
+                <label class="col-form-label-sm mr-2 width--75">@CopyItemLabel</label>
+                <DxCheckBox Checked="@BookingMultiData.IsCopyBusRoute"
+                            CheckedChanged="OnCopyBusRouteChanged"
+                            CheckedExpression="() => BookingMultiData.IsCopyBusRoute"
+                            CssClass="mr-4">@ProcessLabel</DxCheckBox>
+                            <DxCheckBox Checked="@BookingMultiData.IsCopyArrangement"
+                                        CheckedChanged="OnCopyArrangementChanged"
+                                        CheckedExpression="() => BookingMultiData.IsCopyArrangement"
+                                        CssClass="mr-4">@ArrangeLabel</DxCheckBox>
+                                        <DxCheckBox Checked="@BookingMultiData.IsCopyIncludedGoods"
+                                                    CheckedChanged="OnCopyIncludedGoodsChanged"
+                                                    CheckedExpression="() => BookingMultiData.IsCopyIncludedGoods"
+                                                    CssClass="mr-4">@LoadingItemsLabel</DxCheckBox>
+                                                    <DxCheckBox Checked="@BookingMultiData.IsCopyIncludedServices"
+                                                                CheckedChanged="OnCopyIncludedServicesChanged"
+                                                                CheckedExpression="() => BookingMultiData.IsCopyIncludedServices"
+                                                                CssClass="mr-4">@IncidentalLabel</DxCheckBox>
+                                                            </div>
+                                                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                                                <label class="col-form-label-sm mr-2 width--75">@StartDateTimeLabel</label>
+                                                                <div class="width--664 d-flex">
+                                                                    <div class="position-relative mr-5">
+                                                                        <a href="javascript:void(0)" class="ShowCalendar">
+                                                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                                        </a>
+                                                                        <div class="calendar hide-clear-btn">
+                                                                            <DxCalendar SelectedDatesChanged="OnSelectedDatesChanged" DateExpression="@(() => DateTimeValue)">
+                                                                                <DayCellTemplate Context="calendarContext">
+                                                                                    <a class="@GetCssClassNames(calendarContext)">@calendarContext.Day.ToString()</a>
+                                                                                </DayCellTemplate>
+                                                                            </DxCalendar>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="d-flex flex-nowrap mr-5">
+                                                                        <label class="col-form-label-sm mr-2 width--75">@DispatchTimeLabel</label>
+                                                                        <InputTime Time="BookingMultiData.DispatchTime"
+                                                                                   ReadOnly="true"
+                                                                                   TimeChanged="OnDispatchTimeChanged"
+                                                                                   CssClass="customTime length4 width--100 text-center disabled-content" />
+                                                                    </div>
+                                                                    <div class="d-flex flex-nowrap mr-5">
+                                                                        <label class="col-form-label-sm mr-2 width--75">@ArrivalTimeLabel</label>
+                                                                        <div class="has-tooltip-error">
+                                                                            <Tooltip ValueExpressions="@(() =>BookingMultiData.ArrivalTime.Str)" Lang="@LangDic"
+                                                                                     Text="" Position="PositionTooltip.top">
+                                                                            </Tooltip>
+                                                                            <InputTime Time="BookingMultiData.ArrivalTime"
+                                                                                       TimeChanged="OnArrivalTimeChanged"
+                                                                                       ReadOnly="true"
+                                                                                       MaxHour="47"
+                                                                                       CssClass="customTime length4 width--100 text-center disabled-content" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <table class="table table-sm text-center my-4 bg-white" style="table-layout: fixed">
+                                                                <thead class="thead-primary">
+                                                                    <tr>
+                                                                        <th scope="col">@DispatchDateTimeLabel</th>
+                                                                        <th scope="col">@ArrivalDateTimeLabel</th>
+                                                                        <th scope="col" width="8%">@DriverNumCol</th>
+                                                                        <th scope="col" width="9%">@UnitBusPriceCol</th>
+                                                                        <th scope="col" width="9%">@UnitBusFeeCol</th>
+                                                                        <th scope="col" width="9%">@UnitPriceCol</th>
+                                                                        <th scope="col" width="9%">@BusPriceCol</th>
+                                                                        <th scope="col" width="6%">@GuiderNumCol</th>
+                                                                        <th scope="col" width="9%">@UnitGuiderFeeCol</th>
+                                                                        <th scope="col" width="9%">@GuiderFeeCol</th>
+                                                                        <th scope="col" width="3%"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var busItem in BookingMultiData.BookingDataChangedList)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>
+                                                                                <div class="d-flex flex-nowrap text-nowrap align-items-center justify-content-center">
+                                                                                    @busItem.StartDate.ToString("yyyy/MM/dd（ddd）", CurrentCulture)
+                                                                                    <InputTime Time="busItem.StartTime"
+                                                                                               TimeChanged="(newValue) => OnGridDispatchTimeChanged(newValue, busItem.Index)"
+                                                                                               ReadOnly="true"
+                                                                                               CssClass="customTime length4 width--65 text-center disabled-content" />
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="d-flex flex-nowrap text-nowrap align-items-center justify-content-center">
+                                                                                    @busItem.EndDate.ToString("yyyy/MM/dd（ddd）", CurrentCulture)
+                                                                                    <div class="has-tooltip-error">
+                                                                                        <Tooltip ValueExpressions="@(() =>busItem.EndTime.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top">
+                                                                                        </Tooltip>
+                                                                                        <InputTime Time="busItem.EndTime"
+                                                                                                   TimeChanged="(newValue) => OnGridArrivalTimeChanged(newValue, busItem.Index)"
+                                                                                                   MaxHour="47"
+                                                                                                   ReadOnly="true"
+                                                                                                   CssClass=@("customTime length4 width--65 text-center disabled-content " + (FormContext.GetCustomCss(() => busItem.EndTime.Str))) />
+
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => int.Parse(t.BusNum)))/@CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => int.Parse(t.DriverNum)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.UnitBusPrice)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.UnitBusFee)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.UnitPrice)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.BusPrice)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => int.Parse(t.GuiderNum)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.UnitGuiderFee)))
+                                                                            </td>
+                                                                            <td class="text-right">
+                                                                                @CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.VehicleGridDataList.Sum(t => long.Parse(t.GuiderFee)))
+                                                                            </td>
+                                                                            <td>
+                                                                                <a class="text-danger"><i class="fa fa-times" @onclick="() => ConfirmDelete(busItem.Index)" aria-hidden="true"></i></a>
+                                                                            </td>
+                                                                        </tr>
+
+                                                                    }
+                                                                </tbody>
+                                                                <tfoot>
+                                                                    <tr class="no-border">
+                                                                        <td colspan="4"></td>
+                                                                        <td>
+                                                                            <div class="d-flex align-items-center justify-content-end">
+                                                                                <label class="col-form-label-sm mr-3">@TaxRateLabel</label>
+                                                                                <HassyaAllrightCloud.Pages.Components.InputRate RateValue="@BookingMultiData.BookingDataToCopy.TaxRate"
+                                                                                                                                CssClass="width--56 text-center ml-2 rate"
+                                                                                                                                RateChanged="@((rate)=>OnBusTaxRateChanged(rate))">
+                                                                                </HassyaAllrightCloud.Pages.Components.InputRate>
+                                                                                <span class="ml-1">%</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <DxComboBox Data="TaxTypeListData.taxTypeList"
+                                                                                        TextFieldName="StringValue"
+                                                                                        AllowUserInput="true"
+                                                                                        SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.TaxTypeforBus"
+                                                                                        SelectedItem="@BookingMultiData.BookingDataToCopy.TaxTypeforBus"
+                                                                                        SelectedItemChanged="OnSelectedTaxTypeForBusChanged">
+                                                                            </DxComboBox>
+                                                                        </td>
+                                                                        <td>
+                                                                            <DxTextBox CssClass="text-right notabindex"
+                                                                                       TextExpression="() => BookingMultiData.BookingDataToCopy.TaxBus"
+                                                                                       Text="@(CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.TaxBus))"
+                                                                                       ReadOnly="true">
+                                                                            </DxTextBox>
+                                                                        </td>
+                                                                        <td></td>
+                                                                        <td>
+                                                                            <DxComboBox Data="TaxTypeListData.taxTypeList"
+                                                                                        TextFieldName="StringValue"
+                                                                                        AllowUserInput="true"
+                                                                                        SelectedItemExpression="() => BookingMultiData.BookingDataToCopy.TaxTypeforGuider"
+                                                                                        SelectedItem="@BookingMultiData.BookingDataToCopy.TaxTypeforGuider"
+                                                                                        SelectedItemChanged="OnSelectedTaxTypeForGuiderChanged">
+                                                                            </DxComboBox>
+                                                                        </td>
+                                                                        <td>
+                                                                            <DxTextBox CssClass="text-right notabindex"
+                                                                                       TextExpression="() => BookingMultiData.BookingDataToCopy.TaxGuider"
+                                                                                       Text=@CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.TaxGuider)
+                                                                                       ReadOnly="true">
+                                                                            </DxTextBox>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr class="no-border disabled-content">
+                                                                        <td colspan="5"></td>
+                                                                        <td>
+                                                                            <div class="d-flex align-items-center justify-content-end">
+                                                                                <label class="col-form-label-sm mr-3">@BusFeeRateLabel</label>
+                                                                                <HassyaAllrightCloud.Pages.Components.InputRate RateValue="@BookingMultiData.BookingDataToCopy.FeeBusRate"
+                                                                                                                                CssClass="width--56 text-center rate"
+                                                                                                                                RateChanged="@((rate)=>OnBusFeeTaxRateChanged(rate))">
+                                                                                </HassyaAllrightCloud.Pages.Components.InputRate>
+                                                                                <span class="ml-1">%</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <DxTextBox CssClass="text-right notabindex"
+                                                                                       TextExpression="() => BookingMultiData.BookingDataToCopy.FeeBus"
+                                                                                       Text=@CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.FeeBus)
+                                                                                       ReadOnly="true">
+                                                                            </DxTextBox>
+                                                                        </td>
+                                                                        <td></td>
+                                                                        <td>
+                                                                            <div class="d-flex align-items-center justify-content-end">
+                                                                                <HassyaAllrightCloud.Pages.Components.InputRate RateValue="@BookingMultiData.BookingDataToCopy.FeeGuiderRate"
+                                                                                                                                CssClass="width--56 text-center rate"
+                                                                                                                                RateChanged="@((rate)=>OnGuiderFeeTaxRateChanged(rate))">
+                                                                                </HassyaAllrightCloud.Pages.Components.InputRate>
+                                                                                <span class="ml-1">%</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <DxTextBox CssClass="text-right notabindex"
+                                                                                       TextExpression="() => BookingMultiData.BookingDataToCopy.FeeGuider"
+                                                                                       Text=@CommonUtil.CurencyFormat(BookingMultiData.BookingDataToCopy.FeeGuider)
+                                                                                       ReadOnly="true">
+                                                                            </DxTextBox>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tfoot>
+                                                            </table>
+                                                            <div class="text-center">
+                                                                <DxButton Text="@SubmitText"
+                                                                          RenderStyle="ButtonRenderStyle.Primary"
+                                                                          Enabled="CheckEnableSubmitButton()"
+                                                                          SubmitFormOnClick="true"
+                                                                          SizeMode="SizeMode.Medium">
+                                                                </DxButton>
+                                                            </div>
+                                                        </div>
+                                                    </EditForm>
+                                                }
+
+@code {
+    [Parameter] public string UkeCd { get; set; }
+    protected CultureInfo CurrentCulture { get; set; }
+    protected EditContext FormContext { get; set; }
+
+    string baseUrl = string.Empty;
+    short uriKbn;
+    protected string PageTitle { get; set; } = string.Empty;
+    protected string PopupTitle { get; set; } = string.Empty;
+
+    protected bool DisableAll { get; set; } = false;
+    protected bool IsLoading { get; set; } = true;
+    protected bool IsLoadingCopyData { get; set; }
+    protected bool IsShowPopupInfo { get; set; }
+    protected bool IsDiableForm { get; set; }
+
+    protected List<LoadCustomerList> CustomerList { get; set; }
+    protected List<DestinationData> DestinationDataList { get; set; }
+    protected List<PlaceData> PlaceDataList { get; set; }
+    protected List<DateTime> SelectedDateList { get; set; } = new List<DateTime>();
+    protected BusBookingMultiCopyData BookingMultiData { get; set; }
+    public HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent CustomerComponent { get; set; }
+= new HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent();
+
+    protected Action OnClosePopupInfo { get; set; }
+    protected Func<string> OnGetContentPopupInfo { get; set; }
+    DateTime DateTimeValue { get; set; }
+    #region Localization string
+    string PageTitleCopy;
+    string OrganizationLabel;
+    string CustomerListLabel;
+    string DestinationLabel;
+    string DepotLabel;
+    string ArrivalLabel;
+    string ResidenceIndicationLink;
+    string CopyItemLabel;
+    string DispatchTimeLabel;
+    string ArrivalTimeLabel;
+    string StartDateTimeLabel;
+    string CollectiveSettingCheckbox;
+    string ReservationFormLabel;
+    string OperatingDayLabel;
+    string BoardingPlaceLabel;
+    string ProcessLabel;
+    string ArrangeLabel;
+    string LoadingItemsLabel;
+    string IncidentalLabel;
+    string SubmitText;
+    string DispatchDateTimeLabel;
+    string ArrivalDateTimeLabel;
+    string DriverNumCol;
+    string UnitBusPriceCol;
+    string UnitBusFeeCol;
+    string UnitPriceCol;
+    string BusPriceCol;
+    string GuiderNumCol;
+    string UnitGuiderFeeCol;
+    string GuiderFeeCol;
+    string TaxRateLabel;
+    string BusFeeRateLabel;
+    string VehicleRadio;
+    string CultureInfoStr;
+    string CopyCategoryLabel;
+    string Ok;
+    string CreateResultScuccessMessageContent;
+    string PopupTitleInfo;
+    string PopupTitleError;
+    string EraseAll;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        PageTitleCopy = Lang["PageTitleCopy"];
+        OrganizationLabel = Lang["OrganizationLabel"];
+        CustomerListLabel = Lang["CustomerListLabel"];
+        DestinationLabel = @Lang["DestinationLabel"];
+        DepotLabel = @Lang["DepotLabel"];
+        ArrivalLabel = @Lang["ArrivalLabel"];
+        ResidenceIndicationLink = @Lang["ResidenceIndicationLink"];
+        CopyItemLabel = @Lang["CopyItemLabel"];
+        DispatchTimeLabel = @Lang["DispatchTimeLabel"];
+        ArrivalTimeLabel = @Lang["ArrivalTimeLabel"];
+        StartDateTimeLabel = @Lang["StartDateTimeLabel"];
+        CollectiveSettingCheckbox = @Lang["CollectiveSettingCheckbox"];
+        ReservationFormLabel = @Lang["ReservationFormLabel"];
+        OperatingDayLabel = @Lang["OperatingDayLabel"];
+        BoardingPlaceLabel = @Lang["BoardingPlaceLabel"];
+        ProcessLabel = @Lang["ProcessLabel"];
+        ArrangeLabel = @Lang["ArrangeLabel"];
+        LoadingItemsLabel = @Lang["LoadingItemsLabel"];
+        IncidentalLabel = @Lang["IncidentalLabel"];
+        SubmitText = @Lang["CopyButton"];
+        DispatchDateTimeLabel = @Lang["DispatchDateTimeLabel"];
+        ArrivalDateTimeLabel = @Lang["ArrivalDateTimeLabel"];
+        DriverNumCol = @Lang["DriverNumCol"];
+        UnitBusPriceCol = @Lang["UnitBusPriceCol"];
+        UnitBusFeeCol = @Lang["UnitBusFeeCol"];
+        UnitPriceCol = @Lang["UnitPriceCol"];
+        BusPriceCol = @Lang["BusPriceCol"];
+        GuiderNumCol = @Lang["GuiderNumCol"];
+        UnitGuiderFeeCol = @Lang["UnitGuiderFeeCol"];
+        GuiderFeeCol = @Lang["GuiderFeeCol"];
+        TaxRateLabel = Lang["TaxRateLabel"];
+        BusFeeRateLabel = Lang["BusFeeRateLabel"];
+        VehicleRadio = @Lang["VehicleRadio"];
+        CultureInfoStr = Lang["CultureInfo"];
+        CopyCategoryLabel = Lang["CopyCategoryLabel"];
+        Ok = Lang["Ok"];
+        CreateResultScuccessMessageContent = Lang["CreateResultScuccessMessageContent"];
+        PopupTitleInfo = Lang["PopupTitleInfo"];
+        PopupTitleError = Lang["PopupTitleError"];
+        EraseAll = Lang["EraseAll"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+
+    /// <summary>
+    /// Validate length for ukeCd exact 10
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        try
+        {
+            if (parameters.TryGetValue("UkeCd", out string ukeCd) == false || ukeCd.Length != 10)
+            {
+                NavManager.NavigateTo("/");
+                return null;
+            }
+            return base.SetParametersAsync(parameters);
+        }
+        catch (Exception)
+        {
+            NavManager.NavigateTo("/");
+            return null;
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JSRuntime.InvokeVoidAsync("setEventforTimeInput");
+        JSRuntime.InvokeVoidAsync("addMaxLength", "length", 4);
+        JSRuntime.InvokeVoidAsync("addMaxLength", "length", 50);
+        JSRuntime.InvokeVoidAsync("clearToDayBtnCalendar");
+        base.OnAfterRender(firstRender);
+
+        if (firstRender == false)
+        {
+            JSRuntime.InvokeVoidAsync("loadPageScript", "bookingInputMultiCopyPage");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        CurrentCulture = new CultureInfo(CultureInfoStr);
+        BookingMultiData = new BusBookingMultiCopyData();
+        baseUrl = AppSettingsService.GetBaseUrl();
+        PageTitle = string.Format(PageTitleCopy, UkeCd);
+
+        TkmKasSet tkmKasSet = await Http.GetJsonAsync<TkmKasSet>(baseUrl + "/api/TkmKasSet/" + new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+        uriKbn = tkmKasSet.UriKbn;
+
+        await LoadAllDataComboboxAsync();
+        var bookingDb = await LoadBookingDataAsync();
+        if (bookingDb != null)
+        {
+            await LoadSelectedDataCombobox(bookingDb, bookingDb);
+            BookingMultiData.BookingDataToCopy.SetBookingFromData(bookingDb);
+
+            BookingMultiData.DispatchTime.Str = BookingMultiData.BookingDataToCopy.BusStartTime.Str;
+            BookingMultiData.ArrivalTime.Str = BookingMultiData.BookingDataToCopy.BusEndTime.Str;
+        }
+        else
+        {
+            NavManager.NavigateTo("/", true);
+        }
+
+        //BookingMultiData.BookingDataToCopy = BookingData;
+        FormContext = new EditContext(BookingMultiData);
+        await base.OnInitializedAsync().ContinueWith((t) => { IsLoading = false; });
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender == false && IsLoading == false && IsLoadingCopyData == false)
+        {
+            IsLoadingCopyData = true;
+            await LoadCopyDataTableAsync(BookingMultiData).ContinueWith((t) =>
+            {
+                InvokeAsync(StateHasChanged);
+            });
+        }
+    }
+
+    #endregion
+
+    #region Common Methods
+
+    private async Task LoadCopyDataTableAsync(BusBookingMultiCopyData multiCopyData)
+    {
+        // https://localhost:5001/BookingInputMultiCopy/{0}?ukeNo=000010000007915
+        // ex: https://localhost:5001/BookingInputMultiCopy/unkobi?ukeNo=000010000007915
+        string uriFormat = string.Format("{0}/api/BookingInputMultiCopy/{1}?ukeNo={2:D5}{3}", baseUrl, "{0}", new ClaimModel().TenantID, UkeCd);
+
+        multiCopyData.YykshoCopyData = await Http.GetJsonAsync<TkdYyksho>(string.Format(uriFormat, "yyksho"));
+        multiCopyData.UnkobiCopyData = await Http.GetJsonAsync<TkdUnkobi>(string.Format(uriFormat, "unkobi"));
+        multiCopyData.MishumCopyDataList = await Http.GetJsonAsync<List<TkdMishum>>(string.Format(uriFormat, "mishumList"));
+        multiCopyData.YykSyuCopyDataList = await Http.GetJsonAsync<List<TkdYykSyu>>(string.Format(uriFormat, "yykSyuList"));
+        multiCopyData.HaishaCopyDataList = await Http.GetJsonAsync<List<TkdHaisha>>(string.Format(uriFormat, "haishaList"));
+        multiCopyData.BookingFareFeeCopyDataList =
+            await Http.GetJsonAsync<List<TkdBookingMaxMinFareFeeCalc>>(string.Format(uriFormat, "bookingMaxMinFareFeeCalsList"));
+        multiCopyData.BookingFareFeeMeisaiCopyDataList =
+            await Http.GetJsonAsync<List<TkdBookingMaxMinFareFeeCalcMeisai>>(string.Format(uriFormat, "bookingMaxMinFareFeeCalcMeisaiList"));
+        multiCopyData.KoteiList = await Http.GetJsonAsync<List<TkdKotei>>(string.Format(uriFormat, "koteiList"));
+        multiCopyData.KoteiKList = await Http.GetJsonAsync<List<TkdKoteik>>(string.Format(uriFormat, "koteiKList"));
+        multiCopyData.TehaiList = await Http.GetJsonAsync<List<TkdTehai>>(string.Format(uriFormat, "tehaiList"));
+        multiCopyData.FutaiList = await Http.GetJsonAsync<List<TkdFutTum>>(string.Format(uriFormat, "futumList") + "&futumKbn=1");
+        multiCopyData.MFutaiList = await Http.GetJsonAsync<List<TkdMfutTu>>(string.Format(uriFormat, "mfutuList") + "&futumKbn=1");
+        multiCopyData.TsumiList = await Http.GetJsonAsync<List<TkdFutTum>>(string.Format(uriFormat, "futumList") + "&futumKbn=2");
+        multiCopyData.MTsumiList = await Http.GetJsonAsync<List<TkdMfutTu>>(string.Format(uriFormat, "mfutuList") + "&futumKbn=2");
+    }
+
+    private async Task LoadAllDataComboboxAsync()
+    {
+        CustomerList = (await LoadCustomerListAsync()).ToList();
+        DestinationDataList = (await LoadDestinationListAsync()).ToList();
+        PlaceDataList = (await LoadPlaceListAsync()).ToList();
+        if (DestinationDataList.Any())
+        {
+            DestinationDataList.Insert(0, new DestinationData());
+        }
+        if (PlaceDataList.Any())
+        {
+            PlaceDataList.Insert(0, new PlaceData());
+        }
+    }
+
+    private async Task<BookingFormData> LoadBookingDataAsync()
+    {
+        var bookingDataDb = await Http.GetJsonAsync<BookingFormData>(string.Format("{0}/api/BookingInput/{1:D5}{2}", baseUrl, new ClaimModel().TenantID, UkeCd));
+        return bookingDataDb;
+    }
+
+    /// <summary>
+    /// Set selected data of combobox
+    /// </summary>
+    /// <param name="bookingDest">Booking data to reference to combobox data list</param>
+    /// <param name="bookingSource">Booking data contain selected data of combobox</param>
+    private async Task LoadSelectedDataCombobox(BookingFormData bookingDest, BookingFormData bookingSource)
+    {
+        try
+        {
+            CustomerComponent.DefaultGyosya = null;
+            CustomerComponent.DefaultTokisk = Convert.ToInt32(bookingSource.customerComponentTokiskData?.TokuiSeq);
+            CustomerComponent.DefaultTokisk = Convert.ToInt32(bookingSource.customerComponentTokiStData?.SitenCdSeq);
+            await CustomerComponent.RenderByTokiskTokist();
+            //if (CustomerList != null)
+            //{
+            //    if (bookingSource?.customerComponentTokiStData != null)
+            //    {
+            //        var customer = CustomerList.FirstOrDefault(e => e.TokuiSeq == bookingSource.customerComponentTokiStData.TokuiSeq && e.SitenCdSeq == bookingSource.customerComponentTokiStData.SitenCdSeq);
+            //        bookingDest.customerComponentTokiStData = new Domain.Dto.CommonComponents.CustomerComponentTokiStData()
+            //        {
+            //            RyakuNm = customer.RyakuNm,
+            //            SitenCd = (short)customer.SitenCd,
+            //            SitenCdSeq = customer.SitenCdSeq,
+            //            TokuiSeq = customer.TokuiSeq,
+            //            SimeD = (byte)customer.SimeD,
+            //            TesKbn = customer.TesKbn,
+            //            TesuRitu = customer.TesuRitu,
+            //            TesuRituGui = customer.TesuRituGui
+            //        };
+            //    }
+            //    else
+            //    {
+            //        bookingDest.customerComponentTokiStData = null;
+            //    }
+
+            //    if (bookingSource?.customerComponentTokiskData != null)
+            //    {
+            //        var customer = CustomerList.FirstOrDefault(e => e.TokuiSeq == bookingSource.customerComponentTokiskData.TokuiSeq);
+            //        bookingDest.customerComponentTokiskData = new Domain.Dto.CommonComponents.CustomerComponentTokiskData()
+            //        {
+            //            RyakuNm = customer.RyakuNm,
+            //            TokuiSeq = customer.TokuiSeq,
+            //            GyosyaCdSeq = customer.GyoSysSeq,
+            //            TokuiCd = (short)customer.TokuiCd
+            //        };
+            //    }
+            //    else
+            //    {
+            //        bookingDest.customerComponentTokiskData = null;
+            //    }
+
+            //    if (bookingSource?.customerComponentGyosyaData != null)
+            //    {
+            //        var customer = CustomerList.FirstOrDefault(e => e.GyoSysSeq == bookingSource.customerComponentGyosyaData.GyosyaCdSeq);
+            //        bookingDest.customerComponentGyosyaData = new Domain.Dto.CommonComponents.CustomerComponentGyosyaData()
+            //        {
+            //            GyosyaCd = (short)customer.GyoSyaCd,
+            //            GyosyaCdSeq = customer.GyoSysSeq,
+            //            GyosyaKbn = customer.GyosyaKbn,
+            //            GyosyaNm = customer.GyoSyaNm
+            //        };
+            //    }
+            //    else
+            //    {
+            //        bookingDest.customerComponentGyosyaData = null;
+            //    }
+            //}
+            if (DestinationDataList != null)
+            {
+                if (bookingSource?.ReservationTabData?.Destination != null)
+                {
+                    int basyoMapCdSeq = bookingSource.ReservationTabData.Destination.BasyoMapCdSeq;
+                    bookingDest.ReservationTabData.Destination = DestinationDataList.SingleOrDefault(d => d.BasyoMapCdSeq == basyoMapCdSeq);
+                }
+                else
+                {
+                    bookingDest.ReservationTabData.Destination = null;
+                }
+            }
+            if (PlaceDataList != null)
+            {
+                if (bookingSource?.ReservationTabData?.DespatchingPlace != null)
+                {
+                    int haiSCdSeq = bookingSource.ReservationTabData.DespatchingPlace.HaiSCdSeq;
+                    bookingDest.ReservationTabData.DespatchingPlace = PlaceDataList.SingleOrDefault(d => d.HaiSCdSeq == haiSCdSeq);
+                }
+                else
+                {
+                    bookingDest.ReservationTabData.DespatchingPlace = null;
+                }
+
+                if (bookingSource?.ReservationTabData?.ArrivePlace != null)
+                {
+                    int haiSCdSeq = bookingSource.ReservationTabData.ArrivePlace.HaiSCdSeq;
+                    bookingDest.ReservationTabData.ArrivePlace = PlaceDataList.SingleOrDefault(d => d.HaiSCdSeq == haiSCdSeq);
+                }
+                else
+                {
+                    bookingDest.ReservationTabData.ArrivePlace = null;
+                }
+            }
+            if (bookingSource.TaxTypeforBus != null)
+            {
+                var type = TaxTypeListData.taxTypeList.Single(e => e.IdValue == bookingSource.TaxTypeforBus.IdValue);
+                bookingDest.TaxTypeforBus = type;
+            }
+            if (bookingSource.TaxTypeforGuider != null)
+            {
+                var type = TaxTypeListData.taxTypeList.Single(e => e.IdValue == bookingSource.TaxTypeforGuider.IdValue);
+                bookingDest.TaxTypeforGuider = type;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            // temporary log to console
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private bool DaysEqual(DateTime date1, DateTime date2)
+    {
+        return (date1.Year == date2.Year && date1.DayOfYear == date2.DayOfYear);
+    }
+
+    private void ChangeInvoiceDate(MultiCopyDataGrid bookingRow)
+    {
+        var expectDate = bookingRow.InvoiceDate;
+        var dateNum = Convert.ToInt32(BookingMultiData.BookingDataToCopy.customerComponentTokiStData?.SimeD) == 0 ? BookingMultiData.BookingDataToCopy.InvoiceDate.Day
+            : Convert.ToInt32(BookingMultiData.BookingDataToCopy.customerComponentTokiStData?.SimeD);
+        if (expectDate.Day > dateNum)
+        {
+            expectDate = expectDate.AddMonths(1);
+        }
+        bookingRow.InvoiceMonth = expectDate;
+    }
+
+    protected bool CheckEnableSubmitButton()
+    {
+        if (BookingMultiData.IsDoneLoadCopyData == false)
+        {
+            return false;
+        }
+        if (BookingMultiData.BookingDataChangedList.Count == 0)
+        {
+            return false;
+        }
+        return FormContext.IsModified() && FormContext.Validate();
+    }
+
+    private void HandleClosePopupInfoAfterSubmit()
+    {
+        IsShowPopupInfo = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleEarseClicked()
+    {
+        IsDiableForm = true;
+        await BackToInitData().ContinueWith(t => IsDiableForm = false);
+    }
+
+    /// <summary>
+    /// set all data about copy booking to init state
+    /// </summary>
+    protected async Task BackToInitData()
+    {
+        var bookingDb = await LoadBookingDataAsync();
+        if (bookingDb != null)
+        {
+            await LoadSelectedDataCombobox(bookingDb, bookingDb);
+            BookingMultiData.BookingDataToCopy.SetBookingFromData(bookingDb);
+
+            BookingMultiData.BookingDataChangedList.Clear();
+            SelectedDateList.Clear();
+            BookingMultiData.DispatchTime.Str = BookingMultiData.BookingDataToCopy.BusStartTime.Str;
+            BookingMultiData.ArrivalTime.Str = BookingMultiData.BookingDataToCopy.BusEndTime.Str;
+            BookingMultiData.IsApplyAll = false;
+            BookingMultiData.CopyType = BookingMultiCopyType.Reservation;
+            BookingMultiData.IsCopyBusRoute = false;
+            BookingMultiData.IsCopyArrangement = false;
+            BookingMultiData.IsCopyIncludedGoods = false;
+            BookingMultiData.IsCopyIncludedServices = false;
+            FormContext.MarkAsUnmodified();
+        }
+        else
+        {
+            NavManager.NavigateTo("/bookinginputmulticopy?UkeCd=" + UkeCd, true);
+        }
+    }
+
+    #endregion
+
+    #region Form value changed methods
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    protected void OnTextOrganizationNameChanged(string newValue)
+    {
+        BookingMultiData.BookingDataToCopy.TextOrganizationName = newValue;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    protected void OnCustomerComboboxChanged(string propertyName, dynamic value)
+    {
+        var propertyInfo = BookingMultiData.BookingDataToCopy.GetType().GetProperty(propertyName);
+        propertyInfo.SetValue(BookingMultiData.BookingDataToCopy, value, null);
+        BookingMultiData.BookingDataToCopy.FeeBusRate = Convert.ToDecimal(BookingMultiData.BookingDataToCopy.customerComponentTokiStData?.TesuRitu).ToString("F1");
+        BookingMultiData.BookingDataToCopy.FeeGuiderRate = Convert.ToDecimal(BookingMultiData.BookingDataToCopy.customerComponentTokiStData?.TesuRituGui).ToString("F1");
+        for (int index = 0; index < BookingMultiData.BookingDataChangedList.Count; index++)
+        {
+            ChangeInvoiceDate(BookingMultiData.BookingDataChangedList[index]);
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    protected void OnTextDestinationChanged(string newValue)
+    {
+        BookingMultiData.BookingDataToCopy.ReservationTabData.IkNm = newValue;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newData"></param>
+    protected void OnSelectedDestinationChanged(DestinationData newData)
+    {
+        if (newData != null)
+        {
+            BookingMultiData.BookingDataToCopy.ReservationTabData.Destination = newData;
+            BookingMultiData.BookingDataToCopy.ReservationTabData.IkNm = BookingMultiData.BookingDataToCopy.ReservationTabData.Destination.VpmBasyoRyakuNm;
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    protected void OnTextDespatchingPlaceNameChanged(string newValue)
+    {
+        BookingMultiData.BookingDataToCopy.ReservationTabData.HaiSNm = newValue;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newData"></param>
+    protected void OnSelectedDespatchingPlaceChanged(PlaceData newData)
+    {
+        if (newData != null)
+        {
+            BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace = newData;
+            BookingMultiData.BookingDataToCopy.ReservationTabData.HaiSNm = BookingMultiData.BookingDataToCopy.ReservationTabData.DespatchingPlace.VpmHaichiRyakuNm;
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newData"></param>
+    protected void OnSelectedArrivePlaceChanged(PlaceData newData)
+    {
+        if (newData != null)
+        {
+            BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace = newData;
+            BookingMultiData.BookingDataToCopy.ReservationTabData.TouNm = BookingMultiData.BookingDataToCopy.ReservationTabData.ArrivePlace.VpmHaichiRyakuNm;
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    protected void OnTextArrivePlaceNameChanged(string newValue)
+    {
+        BookingMultiData.BookingDataToCopy.ReservationTabData.TouNm = newValue;
+        StateHasChanged();
+    }
+
+    protected string GetCssClassNames(DateTime date)
+    {
+        string result = string.Empty;
+
+        if (SelectedDateList.Exists(d => DaysEqual(d, date)))
+        {
+            result = "day-selected font-weight-bold text-success";
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedDates"></param>
+    protected void OnSelectedDatesChanged(IEnumerable<DateTime> dateTimes)
+    {
+        if (dateTimes.ToList().Count != 0)
+        {
+            if (SelectedDateList.Exists(d => DaysEqual(d, dateTimes.First())))
+            {
+                SelectedDateList.RemoveAll(d => DaysEqual(d, dateTimes.First()));
+                var itemToRemove = BookingMultiData.BookingDataChangedList.Single(r => r.StartDate == dateTimes.First());
+                BookingMultiData.BookingDataChangedList.Remove(itemToRemove);
+            }
+            else
+            {
+                var dateIndex = BookingMultiData.BookingDataChangedList.DefaultIfEmpty(null).Max(e => e?.Index ?? 0) + 1;
+                double journeyDays = (BookingMultiData.BookingDataToCopy.BusEndDate - BookingMultiData.BookingDataToCopy.BusStartDate).TotalDays;
+                SelectedDateList.Add(dateTimes.First());
+                var newBookingCopyData = new MultiCopyDataGrid()
+                {
+                    Index = dateIndex,
+                    StartDate = dateTimes.First(),
+                    EndDate = dateTimes.First().AddDays(journeyDays),
+                    StartTime = BookingMultiData.DispatchTime,
+                    EndTime = BookingMultiData.ArrivalTime,
+                    // uriKbn == 2 => update by endDate
+                    InvoiceDate = uriKbn == 2 ? dateTimes.First().AddDays(journeyDays) : dateTimes.First(),
+                    InvoiceMonth = uriKbn == 2 ? dateTimes.First().AddDays(journeyDays) : dateTimes.First(),
+                };
+                ChangeInvoiceDate(newBookingCopyData);
+                BookingMultiData.BookingDataChangedList.Add(newBookingCopyData);
+            }
+        }
+
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.BookingDataChangedList));
+        StateHasChanged();
+    }
+
+    protected void OnDispatchTimeChanged(BookingInputHelper.MyTime newValue)
+    {
+    }
+
+    protected void OnArrivalTimeChanged(BookingInputHelper.MyTime newValue)
+    {
+    }
+
+    protected void OnCopyBusRouteChanged(bool value)
+    {
+        BookingMultiData.IsCopyBusRoute = value;
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.IsCopyBusRoute));
+        StateHasChanged();
+    }
+
+    protected void OnCopyArrangementChanged(bool value)
+    {
+        BookingMultiData.IsCopyArrangement = value;
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.IsCopyArrangement));
+        StateHasChanged();
+    }
+
+    protected void OnCopyIncludedGoodsChanged(bool value)
+    {
+        BookingMultiData.IsCopyIncludedGoods = value;
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.IsCopyIncludedGoods));
+        StateHasChanged();
+    }
+
+    protected void OnCopyIncludedServicesChanged(bool value)
+    {
+        BookingMultiData.IsCopyIncludedServices = value;
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.IsCopyIncludedServices));
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    protected void OnApplyAllChanged(bool value)
+    {
+        BookingMultiData.IsApplyAll = value;
+        OnDispatchTimeChanged(BookingMultiData.DispatchTime);
+        OnArrivalTimeChanged(BookingMultiData.ArrivalTime);
+        DisableAll = !DisableAll;
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.IsApplyAll));
+        StateHasChanged();
+    }
+
+    protected void OnCopyTypeChanged(ChangeEventArgs arg)
+    {
+        if (Enum.TryParse(arg.Value.ToString(), out BookingMultiCopyType newType))
+        {
+            BookingMultiData.CopyType = newType;
+            FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.CopyType));
+        }
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Grid value changed methods
+
+    protected void OnGridDispatchTimeChanged(BookingInputHelper.MyTime newValue, int index)
+    {
+    }
+
+    protected void OnGridArrivalTimeChanged(BookingInputHelper.MyTime newValue, int index)
+    {
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    protected void OnBusTaxRateChanged(string value)
+    {
+        float rate = float.Parse(value);
+        BookingMultiData.BookingDataToCopy.TaxRate = (rate < 0 ? 0 : rate > (float)99.9 ? (float)99.9 : rate).ToString("F1");
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    protected void OnSelectedTaxTypeForBusChanged(TaxTypeList e)
+    {
+        if (e != null)
+        {
+            BookingMultiData.BookingDataToCopy.TaxTypeforBus = e;
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    protected void OnSelectedTaxTypeForGuiderChanged(TaxTypeList e)
+    {
+        if (e != null)
+        {
+            BookingMultiData.BookingDataToCopy.TaxTypeforGuider = e;
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    protected void OnBusFeeTaxRateChanged(string value)
+    {
+        float rate = float.Parse(value);
+        BookingMultiData.BookingDataToCopy.FeeBusRate = (rate < 0 ? 0 : rate > (float)99.9 ? (float)99.9 : rate).ToString("F1");
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    protected void OnGuiderFeeTaxRateChanged(string value)
+    {
+        float rate = float.Parse(value);
+        BookingMultiData.BookingDataToCopy.FeeGuiderRate = (rate < 0 ? 0 : rate > (float)99.9 ? (float)99.9 : rate).ToString("F1");
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    protected void ConfirmDelete(int index)
+    {
+        var itemToRemove = BookingMultiData.BookingDataChangedList.Single(r => r.Index == index);
+        BookingMultiData.BookingDataChangedList.Remove(itemToRemove);
+        if (SelectedDateList.Exists(d => DaysEqual(d, itemToRemove.StartDate)))
+        {
+            SelectedDateList.RemoveAll(d => DaysEqual(d, itemToRemove.StartDate));
+        }
+        FormContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingMultiData.BookingDataChangedList));
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Load combobox async
+
+    protected async Task<IEnumerable<LoadCustomerList>> LoadCustomerListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<LoadCustomerList>>(baseUrl + "/api/Customer/get");
+    }
+
+    protected async Task<IEnumerable<DestinationData>> LoadDestinationListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<DestinationData>>(baseUrl + "/api/BookingInput/Reservation/Destination");
+    }
+
+    protected async Task<IEnumerable<PlaceData>> LoadPlaceListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<PlaceData>>(baseUrl + "/api/BookingInput/Reservation/Place");
+    }
+
+    protected bool IsDisableClearButton()
+    {
+        return !FormContext.IsModified();
+    }
+
+    #endregion
+
+    /// <summary>
+    ///
+    /// </summary>
+    protected async Task OnValidSubmitAsync()
+    {
+        IsDiableForm = true;
+        var postData = Http.getStringContentFromObject(BookingMultiData);
+        string postUri = string.Format("{0}/api/BookingInputMultiCopy/{1:D5}{2}", baseUrl, new ClaimModel().TenantID, UkeCd);
+        HttpResponseMessage response = await Http.PostAsync(postUri, postData);
+
+        if (response.IsSuccessStatusCode)
+        {
+            string dataAsString = await response.Content.ReadAsStringAsync();
+            var ukeCdList = JsonConvert.DeserializeObject<List<string>>(dataAsString);
+
+            IsShowPopupInfo = true;
+            string stringDisplay = string.Empty;
+
+            // render string content
+            stringDisplay += $"<p>{Lang["CopySuccess"]}</p>";
+            foreach (var ukeCd in ukeCdList)
+            {
+                string message = string.Format(CreateResultScuccessMessageContent, ukeCd);
+                stringDisplay += $"<a class='btn-link' href='{baseUrl}/bookinginput?UkeCd={ukeCd}' target='_blank'>{message}</a></br>";
+            }
+
+            OnGetContentPopupInfo = () => stringDisplay;
+            PopupTitle = PopupTitleInfo;
+
+            // back to init
+            var bookingDb = await LoadBookingDataAsync();
+            if (bookingDb != null)
+            {
+                await LoadSelectedDataCombobox(bookingDb, bookingDb);
+                BookingMultiData.BookingDataToCopy.SetBookingFromData(bookingDb);
+
+                await BackToInitData();
+            }
+            else
+            {
+                NavManager.NavigateTo("/bookinginputmulticopy?UkeCd=" + UkeCd, true);
+            }
+        }
+        else
+        {
+            IsShowPopupInfo = true;
+            OnGetContentPopupInfo = () => LangDic["CopyFail"];
+            PopupTitle = PopupTitleError;
+        }
+
+        OnClosePopupInfo = HandleClosePopupInfoAfterSubmit;
+        await InvokeAsync(StateHasChanged).ContinueWith(t => IsDiableForm = false);
+    }
+}

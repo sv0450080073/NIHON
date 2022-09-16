@@ -1,0 +1,42 @@
+﻿@if (IsShow)
+{
+    <DxPopup @bind-Visible="IsShow" CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm message-box-width">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @(Type == MessageBoxType.Info ? _lang["info_header"] : 
+                  Type == MessageBoxType.Error ? _lang["error_header"] : 
+                  Type == MessageBoxType.Warning || Type == MessageBoxType.Confirm ? _lang["warning_header"] : string.Empty)
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => await EventCallback.InvokeAsync(false))"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="d-flex align-items-center">
+                <i class="@string.Format(@"fa fa-2x {0} mr-3 custom-icon", 
+                           Type == MessageBoxType.Info ? "fa-info-circle info" : 
+                           Type == MessageBoxType.Error ? "fa-times-circle error" : 
+                           Type == MessageBoxType.Warning || Type == MessageBoxType.Confirm ? "fa-exclamation-circle warning" : string.Empty)" aria-hidden="true"></i>
+                @((MarkupString)Message)
+            </div>
+        </Content>
+        <FooterTemplate>
+            @if (Type == MessageBoxType.Confirm)
+            {
+                <button class="btn btn-primary" @onclick="@(async () => await EventCallback.InvokeAsync(true))">@_lang["execute_btn"]</button>
+                <button class="btn btn-danger" @onclick="@(async () => await EventCallback.InvokeAsync(false))">@_lang["cancel_btn"]</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick="@(async () => await EventCallback.InvokeAsync(false))">@_lang["ok_btn"]</button>
+            }
+        </FooterTemplate>
+    </DxPopup>
+}
+
+@code {
+    [Parameter] public MessageBoxType Type { get; set; }
+    [Parameter] public bool IsShow { get; set; }
+    [Parameter] public string Message { get; set; }
+    [Parameter] public EventCallback<bool> EventCallback { get; set; }
+
+    [Inject] IStringLocalizer<MessageBox> _lang { get; set; }
+}

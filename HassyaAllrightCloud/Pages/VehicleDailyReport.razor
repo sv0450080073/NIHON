@@ -1,0 +1,386 @@
+﻿@inherits VehicleDailyReportBase
+@using HassyaAllrightCloud.Pages.Components.CommonComponents
+
+<div class="tranportation-summary">
+    <div class="mb-3 search-panel">
+        <div class="row mb-2">
+            <div class="col-6">
+                <h5>@_lang["page_title"]</h5>
+            </div>
+            <div class="col-6 text-right">
+                <button class="btn btn-sm btn-danger" @onclick="@(async () => await OnResetSearchData())">
+                    <i class="fa fa-refresh" aria-hidden="true"></i> &nbsp;&nbsp;@_lang["deleteall_btn"]
+                </button>
+            </div>
+        </div>
+        <div>
+            <ul class="validation-errors mt-2">
+                @*@foreach (var item in searchForm.GetValidationMessages().Distinct())
+                {
+                    <li class="validation-message">@_lang[item]</li>
+                }*@
+                @if (isDataNotFound)
+                {
+                    <li class="validation-message">@_lang["BI_T006"]</li>
+                }
+            </ul>
+        </div>
+        <div id="control-tab" class="title-section border busrepair-accordion-header">
+            <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["SearchConditionTitle"]
+        </div>
+        <EditForm EditContext="@searchForm" style="display: none">
+            <FluentValidator TValidator="VehicleDailyReportSearchValidator" />
+            <DxTabs CssClass="vehicle-tab" ActiveTabIndexChanged="(index) => OnTabChanged()">
+                <DxTabPage Text="@_lang["tab_title_1"]">
+                    <div class="row border-green m-0 pt-3 focus-form" style="margin-top:-1px">
+                        <div class="col-6">
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="row">
+                                        <label class="col-form-label col-3">@_lang["company_label"]</label>
+                                        <div class="col-6 pl-0 has-tooltip-error">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.Company)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxComboBox Data="listCompany"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        CssClass="w-50"
+                                                        ReadOnly="true"
+                                                        @bind-SelectedItem="searchParams.Company">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-form-label col-3">@_lang["scheduledate_label"]</label>
+                                <div class="col-9">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-25">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.ScheduleYmdStart)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxDateEdit Date="searchParams.ScheduleYmdStart"
+                                                        DateExpression="@(() => searchParams.ScheduleYmdStart)"
+                                                        DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParams.ScheduleYmdStart)))"
+                                                        DisplayFormat="yyyy/MM/dd"></DxDateEdit>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-25">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.ScheduleYmdEnd)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxDateEdit Date="searchParams.ScheduleYmdEnd"
+                                                        DateExpression="@(() => searchParams.ScheduleYmdEnd)"
+                                                        DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParams.ScheduleYmdEnd)))"
+                                                        DisplayFormat="yyyy/MM/dd"></DxDateEdit>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-form-label col-3">@_lang["vehiclesaleoffice_label"]</label>
+                                <div class="col-9">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-46">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.selectedBusSaleStart)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxComboBox Data="listBusSaleBranch"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        NullText="@_lang["vehiclesaleoffice_nulltext"]"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="searchParams.selectedBusSaleStart"
+                                                        SelectedItemExpression="@(() => searchParams.selectedBusSaleStart)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedBusSaleStart)))">
+                                            </DxComboBox>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-46">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.selectedBusSaleEnd)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxComboBox Data="listBusSaleBranch"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        NullText="@_lang["vehiclesaleoffice_nulltext"]"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="searchParams.selectedBusSaleEnd"
+                                                        SelectedItemExpression="@(() => searchParams.selectedBusSaleEnd)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedBusSaleEnd)))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-form-label col-3">@_lang["vehicle_label"]</label>
+                                <div class="col-9">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-46">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.selectedBusCodeStart)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxComboBox Data="listBusCode"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        NullText="@_lang["vehicle_nulltext"]"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="searchParams.selectedBusCodeStart"
+                                                        SelectedItemExpression="@(() => searchParams.selectedBusCodeStart)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedBusCodeStart)))">
+                                            </DxComboBox>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-46">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.selectedBusCodeEnd)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxComboBox Data="listBusCode"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        NullText="@_lang["vehicle_nulltext"]"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="searchParams.selectedBusCodeEnd"
+                                                        SelectedItemExpression="@(() => searchParams.selectedBusCodeEnd)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedBusCodeEnd)))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row mb-3">
+                                <label class="col-form-label col-3">@_lang["receiptnumber_label"]</label>
+                                <div class="col-9">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-25">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.ReceptionStart)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxTextBox CssClass="code-number"
+                                                       maxlength="10"
+                                                       Text="@searchParams.ReceptionStart"
+                                                       TextExpression="@(() => searchParams.ReceptionStart)"
+                                                       TextChanged="@(async v => await OnHandleChanged(v, nameof(searchParams.ReceptionStart)))"></DxTextBox>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-25">
+                                            <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.ReceptionEnd)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                            <DxTextBox CssClass="code-number"
+                                                       maxlength="10"
+                                                       Text="@searchParams.ReceptionEnd"
+                                                       TextExpression="@(() => searchParams.ReceptionEnd)"
+                                                       TextChanged="@(async v => await OnHandleChanged(v, nameof(searchParams.ReceptionEnd)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-form-label col-3">@_lang["reservation_label"]</label>
+                                <div class="col-9">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    LangDic="LangDic"
+                                                                    SelectedReservationClass="searchParams.selectedReservationStart"
+                                                                    ReservationClassExpression="() => searchParams.selectedReservationStart"
+                                                                    SelectedReservationClassChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedReservationStart)))"
+                                                                    @ref="component">
+                                            </ReservationClassComponent>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                        LangDic="LangDic"
+                                                                        SelectedReservationClass="searchParams.selectedReservationEnd"
+                                                                        ReservationClassExpression="() => searchParams.selectedReservationEnd"
+                                                                        SelectedReservationClassChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedReservationEnd)))">
+                                            </ReservationClassComponent>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-form-label col-3">@_lang["outputcategory_label"]</label>
+                                <div class="col-9">
+                                    <div class="row has-tooltip-error w-25">
+                                        <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.OutputKbn)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                        <DxComboBox Data="listOutputKbn"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="Text"
+                                                    SelectedItem="searchParams.OutputKbn"
+                                                    SelectedItemExpression="@(() => searchParams.OutputKbn)"
+                                                    SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.OutputKbn)))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </DxTabPage>
+                <DxTabPage Text="@_lang["tab_title_2"]">
+                    <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                        <div class="col-12">
+                            <div class="row mb-3">
+                                <label class="col-1">@_lang["size_setting"]</label>
+                                <div class="col-9">
+                                    <button class="@string.Format("btn-option mx-2 w-4rem {0}", searchParams.fontSize == (byte)ViewMode.Large ? "btn-active" : "")"
+                                            type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Large))">
+                                        @_lang["large_size"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 w-4rem {0}", searchParams.fontSize == (byte)ViewMode.Medium ? "btn-active" : "")"
+                                            type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Medium))">
+                                        @_lang["medium_size"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 w-4rem {0}", searchParams.fontSize == (byte)ViewMode.Small ? "btn-active" : "")"
+                                            type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Small))">
+                                        @_lang["small_size"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </DxTabPage>
+                <DxTabPage Text="@_lang["tab_title_3"]">
+                    <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                        <div class="col-12">
+                            <div class="row mb-3">
+                                <label class="col-1">@_lang["output_setting"]</label>
+                                <div class="col-7 p-0">
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 1 ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(() => OnSetOutputSetting(1))">
+                                        @_lang["btn_preview"]
+                                    </button>
+                                    @*<button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 2 ? "btn-active" : string.Empty)" type="button"
+                                    @onclick="@(() => OnSetOutputSetting(2))">
+                                @_lang["btn_print"]
+                            </button>*@
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 3 ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(() => OnSetOutputSetting(3))">
+                                        @_lang["btn_pdf"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 4 ? "btn-active" : string.Empty)" type="button"
+                                            @onclick="@(() => OnSetOutputSetting(4))">
+                                        @_lang["btn_csv"]
+                                    </button>
+                                </div>
+                            </div>
+                            @*<div class="row mb-3">
+                        <label class="col-form-label col-1 text-right">@_lang["paperSize"]</label>
+                        <div class="col-9 pl-0">
+                            <button class="@string.Format("btn-option mx-2 {0}", searchParams.PaperSize?.Value == (byte) PaperSize.A4 ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(() => OnPaperSizeSetting((byte) PaperSize.A4))">
+                                @_lang["A4"]
+                            </button>
+                            <button class="@string.Format("btn-option mx-2 {0}", searchParams.PaperSize?.Value == (byte) PaperSize.A3 ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(() => OnPaperSizeSetting((byte) PaperSize.A3))">
+                                @_lang["A3"]
+                            </button>
+                            <button class="@string.Format("btn-option mx-2 {0}", searchParams.PaperSize?.Value == (byte) PaperSize.B4 ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(() => OnPaperSizeSetting((byte) PaperSize.B4))">
+                                @_lang["B4"]
+                            </button>
+                        </div>
+                    </div>*@
+                        </div>
+                        <div class="col-12">
+                            <div class="row mb-3">
+                                <label class="col-1">@_lang["csvsetting_label"]</label>
+                                <div class="col-10">
+                                    <div class="row border-dotted m-0">
+                                        <div class="col-4">
+                                            <div class="row">
+                                                <label class="col-form-label col-4">@_lang["headingoutput_label"]</label>
+                                                <div class="col-8 has-tooltip-error w-75">
+                                                    <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.OutputWithHeader)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                                    <DxComboBox Data="listOutputWithHeader"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                ReadOnly="isDisableCsv"
+                                                                @bind-SelectedItem="searchParams.OutputWithHeader">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row">
+                                                <label class="col-form-label col-4">@_lang["grouping_label"]</label>
+                                                <div class="col-8 has-tooltip-error w-75">
+                                                    <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.KukuriKbn)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                                    <DxComboBox Data="listKukuriKbn"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                ReadOnly="isDisableCsv"
+                                                                @bind-SelectedItem="searchParams.KukuriKbn">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row">
+                                                <label class="col-form-label col-4">@_lang["delimitertype_label"]</label>
+                                                <div class="col-8 has-tooltip-error w-75">
+                                                    <HassyaAllrightCloud.Pages.Components.Tooltip ValueExpressions="@(() => searchParams.KugiriCharType)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></HassyaAllrightCloud.Pages.Components.Tooltip>
+                                                    <DxComboBox Data="listKugiriCharType"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                ReadOnly="isDisableCsv"
+                                                                @bind-SelectedItem="searchParams.KugiriCharType">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center mb-3">
+                            <button class="@(isDisableButton == false ? "btn btn-sm width--100 btn-primary" : "btn btn-sm width--100 btn-secondary")"
+                                    @onclick="OnNavigate" disabled="@isDisableButton">
+                                @_lang["start_btn"]
+                            </button>
+                        </div>
+                    </div>
+                </DxTabPage>
+                <DxTabPage Text="@_lang["tab_title_4"]">
+                    <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                        <div class="col-12">
+                            <div class="row m-0 mb-3">
+                                <button class="btn btn-sm width--100 btn-primary mx-2"
+                                        type="button" @onclick="@(() => OnClickLayoutSetting(0))">
+                                    @_lang["init_layout_btn"]
+                                </button>
+                                <button class="btn btn-sm width--100 btn-primary mx-2"
+                                        type="button" @onclick="@(() => OnClickLayoutSetting(1))">
+                                    @_lang["save_layout_btn"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </DxTabPage>
+            </DxTabs>
+        </EditForm>
+    </div>
+    <div class="border-green mb-2" style="display: flex; flex: 1; flex-direction: column">
+        @if (isInitFinished)
+        {
+            <VehicleDailyReportList searchParams="searchParams" fontSize="searchParams.fontSize" DataNotFound="DataNotFound" @ref="list"></VehicleDailyReportList>
+        }
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}

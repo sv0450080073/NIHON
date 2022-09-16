@@ -1,0 +1,345 @@
+﻿@inherits TransportDailyReportBase
+
+<div class="tranportation-summary">
+    @if (searchForm == null)
+    {
+
+    }
+    else
+    {
+        @if (isLoading)
+        {
+            <div class="loader" style="background-color: white; opacity: 0.5">
+                <div class="loader-icon"></div>
+            </div>
+        }
+        <div class="mb-3 search-panel">
+            <div class="row mb-2">
+                <div class="col-6">
+                    <h5>@_lang["page_title"]</h5>
+                </div>
+                <div class="col-6 text-right">
+                    <button class="btn btn-sm btn-danger" @onclick="@(async () => await OnInitSearchData())">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> &nbsp;&nbsp;@_lang["clear_btn"]
+                    </button>
+                </div>
+            </div>
+            <div>
+                @if (searchForm != null)
+                {
+                    <ul class="validation-errors mt-2">
+                        @*@foreach (var item in searchForm.GetValidationMessages().Distinct())
+                        {
+                            <li class="validation-message">@_lang[item]</li>
+                        }*@
+                        @if (isDataNotFound)
+                        {
+                            <li class="validation-message">@_lang["BI_T004"]</li>
+                        }
+                    </ul>
+                }
+            </div>
+            <div id="control-tab" class="title-section border busrepair-accordion-header">
+                <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["page_header"]
+            </div>
+            <EditForm EditContext="@searchForm" style="display: none">
+                <FluentValidator TValidator="TransportDailyReportSearchValidator" />
+                <DxTabs CssClass="vehicle-tab">
+                    <DxTabPage Text="@_lang["tab_title_1"]">
+                        <div class="row border-green m-0 pt-3 focus-form" style="margin-top:-1px">
+                            <div class="col-6">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <label class="col-form-label col-3">@_lang["output_category_label"]</label>
+                                            <div class="col-8 pl-0">
+                                                <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputCategory == 1 ? "btn-active" : "")"
+                                                        style="margin-left: 0 !important" type="button" @onclick="@(async () => await OnChangeOutputCategory(1))">
+                                                    @_lang["departure_date_label"]
+                                                </button>
+                                                <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputCategory == 2 ? "btn-active" : "")"
+                                                        type="button" @onclick="@(async () => await OnChangeOutputCategory(2))">
+                                                    @_lang["return_date_label"]
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label class="col-form-label col-3">@_lang["operation_date_label"]</label>
+                                    <div class="col-9">
+                                        <div class="row has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => searchParams.selectedDate)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxDateEdit Date="searchParams.selectedDate"
+                                                        DateExpression="@(() => searchParams.selectedDate)"
+                                                        DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParams.selectedDate)))"
+                                                        DisplayFormat="yyyy/MM/dd"
+                                                        CssClass="w-25"></DxDateEdit>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row mb-2">
+                                    <label class="col-form-label col-3">@_lang["company_label"]</label>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <DxComboBox Data="listCompany"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                        NullText="@_lang["company_nulltext"]"
+                                                        TextFieldName="Text"
+                                                        CssClass="w-46"
+                                                        SelectedItem="searchParams.selectedCompany"
+                                                        SelectedItemExpression="@(() => searchParams.selectedCompany)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedCompany)))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-form-label col-3">@_lang["vehiclesaleoffice_label"]</label>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <div class="has-tooltip-error w-46">
+                                                <Tooltip ValueExpressions="@(() => searchParams.selectedEigyoFrom)"
+                                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <DxComboBox Data="listEigyo"
+                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                            AllowUserInput="false"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@_lang["vehiclesaleoffice_nulltext"]"
+                                                            TextFieldName="Text"
+                                                            SelectedItem="searchParams.selectedEigyoFrom"
+                                                            SelectedItemExpression="@(() => searchParams.selectedEigyoFrom)"
+                                                            SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedEigyoFrom)))">
+                                                </DxComboBox>
+                                            </div>
+                                            <span class="text-center p-1">～</span>
+                                            <div class="has-tooltip-error w-46">
+                                                <Tooltip ValueExpressions="@(() => searchParams.selectedEigyoTo)"
+                                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <DxComboBox Data="listEigyo"
+                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                            AllowUserInput="false"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@_lang["vehiclesaleoffice_nulltext"]"
+                                                            TextFieldName="Text"
+                                                            SelectedItem="searchParams.selectedEigyoTo"
+                                                            SelectedItemExpression="@(() => searchParams.selectedEigyoTo)"
+                                                            SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.selectedEigyoTo)))">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-form-label col-3">@_lang["aggregationcategory_label"]</label>
+                                    <div class="col-9">
+                                        <div class="row has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => searchParams.aggregation)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="listAggregation"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        CssClass="w-46"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="searchParams.aggregation"
+                                                        SelectedItemExpression="@(() => searchParams.aggregation)"
+                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParams.aggregation)))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </DxTabPage>
+                    <DxTabPage Text="@_lang["tab_title_2"]">
+                        <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                            <div class="col-12">
+                                <div class="row mb-3">
+                                    <label class="col-1">@_lang["size_setting"]</label>
+                                    <div class="col-9">
+                                        <button class="@string.Format("btn-option mx-2 {0}", fontSize == (byte)ViewMode.Large ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Large))">
+                                            @_lang["large_size"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", fontSize == (byte)ViewMode.Medium ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Medium))">
+                                            @_lang["medium_size"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", fontSize == (byte)ViewMode.Small ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnSetFontSize((byte)ViewMode.Small))">
+                                            @_lang["small_size"]
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label class="col-1">@_lang["total_switching"]</label>
+                                    <div class="col-9">
+                                        <button class="@string.Format("btn-option mx-2 {0}", searchParams.TotalType == 0 ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnChangeTotalType(0))">
+                                            @_lang["total_table"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", searchParams.TotalType == 1 ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnChangeTotalType(1))">
+                                            @_lang["count_table"]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </DxTabPage>
+                    <DxTabPage Text="@_lang["tab_title_3"]">
+                        <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                            <div class="col-12">
+                                <div class="row mb-2">
+                                    <label class="col-1 text-center">@_lang["output_setting"]</label>
+                                    <div class="col-7">
+                                        <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 1 ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnChangeOutputSetting(1))">
+                                            @_lang["preview_btn"]
+                                        </button>
+                                        @*<button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 2 ? "btn-active" : "")"
+                                    type="button" @onclick="@(() => OnChangeOutputSetting(2))">
+                                @_lang["print_btn"]
+                            </button>*@
+                                        <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 3 ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnChangeOutputSetting(3))">
+                                            @_lang["pdf_btn"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", searchParams.OutputSetting == 4 ? "btn-active" : "")"
+                                                type="button" @onclick="@(() => OnChangeOutputSetting(4))">
+                                            @_lang["csv_btn"]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="row mb-2">
+                                    <label class="col-1 text-center">@_lang["formsetting_label"]</label>
+                                    <div class="col-10">
+                                        <div class="row m-0">
+                                            <div class="col-4 pr-0">
+                                                <div class="row border-dotted">
+                                                    <div class="col-12">
+                                                        <div class="row">
+                                                            <label class="col-form-label col-4">@_lang["sizeofpaper_label"]</label>
+                                                            <div class="col-8">
+                                                                <DxComboBox Data="listPageSize"
+                                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                                            AllowUserInput="false"
+                                                                            CssClass="w-75"
+                                                                            TextFieldName="Text"
+                                                                            ReadOnly="@(!isDisableCSV)"
+                                                                            SelectedItem="searchParams.pageSize"
+                                                                            SelectedItemChanged="@(v => OnChangeOutputSetting(v, nameof(searchParams.pageSize)))"
+                                                                            SelectedItemExpression="@(() => searchParams.pageSize)">
+                                                                </DxComboBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="row mb-2">
+                                    <label class="col-1 text-center">@_lang["csvsetting_label"]</label>
+                                    <div class="col-10">
+                                        <div class="row border-dotted m-0">
+                                            <div class="col-4">
+                                                <div class="row">
+                                                    <label class="col-form-label col-4">@_lang["headingoutput_label"]</label>
+                                                    <div class="col-8">
+                                                        <DxComboBox Data="listOutputWithHeader"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    CssClass="w-75"
+                                                                    TextFieldName="Text"
+                                                                    ReadOnly="isDisableCSV"
+                                                                    SelectedItem="searchParams.csvHeader"
+                                                                    SelectedItemChanged="@(v => OnChangeOutputSetting(v, nameof(searchParams.csvHeader)))"
+                                                                    SelectedItemExpression="@(() => searchParams.csvHeader)">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="row">
+                                                    <label class="col-form-label col-4">@_lang["grouping_label"]</label>
+                                                    <div class="col-8">
+                                                        <DxComboBox Data="listKukuriKbn"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    CssClass="w-75"
+                                                                    TextFieldName="Text"
+                                                                    ReadOnly="isDisableCSV"
+                                                                    SelectedItem="searchParams.csvEnclose"
+                                                                    SelectedItemChanged="@(v => OnChangeOutputSetting(v, nameof(searchParams.csvEnclose)))"
+                                                                    SelectedItemExpression="@(() => searchParams.csvEnclose)">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="row">
+                                                    <label class="col-form-label col-4">@_lang["delimitertype_label"]</label>
+                                                    <div class="col-8">
+                                                        <DxComboBox Data="listKugiriCharType"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    CssClass="w-75"
+                                                                    TextFieldName="Text"
+                                                                    ReadOnly="isDisableCSV"
+                                                                    SelectedItem="searchParams.csvSpace"
+                                                                    SelectedItemChanged="@(v => OnChangeOutputSetting(v, nameof(searchParams.csvSpace)))"
+                                                                    SelectedItemExpression="@(() => searchParams.csvSpace)">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center mb-3">
+                                <button class="btn btn-sm width--100 btn-primary" @onclick="@(async () => await OnExport())">
+                                    @_lang["start_btn"]
+                                </button>
+                            </div>
+                        </div>
+                    </DxTabPage>
+                    <DxTabPage Text="@_lang["tab_title_4"]">
+                        <div class="row border-green m-0 pt-3" style="margin-top:-1px">
+                            <div class="col-12">
+                                <div class="row m-0 mb-3">
+                                    <button class="btn btn-sm width--100 btn-primary mx-2"
+                                            type="button" @onclick="@(() => OnClickLayoutSetting(0))">
+                                        @_lang["init_layout_btn"]
+                                    </button>
+                                    <button class="btn btn-sm width--100 btn-primary mx-2"
+                                            type="button" @onclick="@(() => OnClickLayoutSetting(1))">
+                                        @_lang["save_layout_btn"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </DxTabPage>
+                </DxTabs>
+            </EditForm>
+        </div>
+        @if (searchParams != null)
+        {
+            <div class="border-green mb-2" style="display: flex; flex: 1; flex-direction: column">
+                <HassyaAllrightCloud.Pages.Components.TransportDailyReport.ListData searchParams="searchParams" fontSize="fontSize"
+                                                                                    DataNotFound="DataNotFound" @ref="list">
+                </HassyaAllrightCloud.Pages.Components.TransportDailyReport.ListData>
+            </div>
+        }
+    }
+</div>

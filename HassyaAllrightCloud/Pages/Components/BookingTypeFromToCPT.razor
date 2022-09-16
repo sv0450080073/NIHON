@@ -1,0 +1,58 @@
+﻿@inject IStringLocalizer<BookingTypeFromToCPT> Lang
+
+<div class="@("has-tooltip-error")">
+    <Tooltip ValueExpressions="@(() => BookingFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+    <DxComboBox Data="@BookingTypes"
+                NullText="@Lang["BookingTypeNullText"]"
+                TextFieldName="YoyaCodeName"
+                AllowUserInput="false"
+                SelectedItem="@BookingFrom"
+                SelectedItemChanged="@((e) => OnBookingFromSelectedChanged(e))"
+                SelectedItemExpression="@(() => BookingFrom)"
+                CssClass="width--290 custom-combo-box">
+    </DxComboBox>
+</div>
+<span class="mx-2">～</span>
+<div class="@("has-tooltip-error")">
+    <Tooltip ValueExpressions="@(() => BookingTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+    <DxComboBox Data="@BookingTypes"
+                NullText="@Lang["BookingTypeNullText"]"
+                TextFieldName="YoyaCodeName"
+                AllowUserInput="false"
+                SelectedItem="@BookingTo"
+                SelectedItemChanged="@((e) => OnBookingToSelectedChanged(e))"
+                SelectedItemExpression="@(() => BookingTo)"
+                CssClass="width--290 custom-combo-box">
+    </DxComboBox>
+</div>
+
+@code {
+    [Parameter] public List<ReservationData> BookingTypes { get; set; }
+    [Parameter] public ReservationData BookingFrom { get; set; }
+    [Parameter] public ReservationData BookingTo { get; set; }
+    [Parameter] public Dictionary<string, string> LangDic { get; set; }
+    [Parameter] public EventCallback<ReservationData> OnBookingFromSelected { get; set; }
+    [Parameter] public EventCallback<ReservationData> OnBookingToSelected { get; set; }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    async Task OnBookingFromSelectedChanged(ReservationData item)
+    {
+        BookingFrom = item;
+        await OnBookingFromSelected.InvokeAsync(item);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    async Task OnBookingToSelectedChanged(ReservationData item)
+    {
+        BookingTo = item;
+        await OnBookingToSelected.InvokeAsync(item);
+        StateHasChanged();
+    }
+}

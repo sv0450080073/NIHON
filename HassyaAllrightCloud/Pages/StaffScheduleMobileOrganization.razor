@@ -1,0 +1,103 @@
+﻿@inherits StaffScheduleMobileOrganizationBase
+@layout SPLayout
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<DxPopup @bind-Visible="@ShowErrorPopup">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> @Lang["Error"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@Lang["UpdateDatabaseErrorMessage"]</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(() => ShowErrorPopup = false)">OK</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+
+<div id="content-schedule-organization-sfmb">
+    <div class="body-schedule-mobile">
+        <div class="lst-sfmb-header">
+            <a @onclick="BackToStaffScheduleMobile">
+                <div class="float-left">
+                    <i class="fa fa-angle-left lbl-text-white" aria-hidden="true"></i>
+                </div>
+                <div class="text-center">
+                    <label class="lbl-text-white-title">@Lang["TitleScheduleSelection"]</label>
+                </div>
+            </a>
+        </div>
+        <div id="tableGroupScheduleMB" class="lst-sfmb-table">
+            <div class="group-schedule-mobile-title-section">
+                <i class="fa fa-angle-up lbl-title-header-sfmb" aria-hidden="true"></i>@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)
+            </div>
+            <div class="group-schedule-sfmbg">
+                <a @onclick="BackToStaffScheduleMobile">
+                    <label class="float-left lbl-left-sfmb">@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)</label>
+                    <div class="float-right">
+                        <i class="fa fa-angle-right icon-size-sfmb group-i-sfmb" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-center" style="height: 40px"></div>
+                </a>
+            </div>
+            @if (CompaniesScheduleInfo != null && CompaniesScheduleInfo.Count > 0)
+            {
+                @foreach (CompanyScheduleInfo CompanyScheduleInfo in CompaniesScheduleInfo)
+                {
+                    <div class="group-schedule-mobile-title-section">
+                        <i class="fa fa-angle-up lbl-title-header-sfmb" aria-hidden="true"></i> @(CompanyScheduleInfo.CompanyId != 0 ? CompanyScheduleInfo.CompanyName : Lang["Custom"])
+                        @if (CompanyScheduleInfo.CompanyId == 0)
+                        {
+                            <button class="btn btn-sm btn-plus-right-sfmb" @onclick="()=> AddScheduleGroup()"> <i class="fa fa-plus"></i> </button>
+                        }
+                    </div>
+                    <div class="group-schedule-sfmbg">
+                        @if (CompanyScheduleInfo.GroupInfo != null && CompanyScheduleInfo.GroupInfo.Count > 0)
+                        {
+                            @foreach (GroupScheduleInfo GroupInfo in CompanyScheduleInfo.GroupInfo)
+                            {
+                                <div id="otherGroupScheduleList" class="group-schedule-sfmb">
+                                    @if (GroupInfo.CompanyId == 0)
+                                    {
+                                        <a @onclick="()=> ShowScheduleGroup(GroupInfo)">
+                                            <label class="float-left lbl-left-sfmb">@GroupInfo.GroupName</label>
+                                        </a>
+                                        <div class="float-right">
+                                            <button class="btn btn-sm group-btn-sfmb" @onclick="()=> EditGroup(GroupInfo)">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm group-btn-sfmb" @onclick="()=> DeleteGroup(GroupInfo)">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm group-btn-sfmb" @onclick="()=> ShowScheduleGroup(GroupInfo)">
+                                                <i class="fa fa-angle-right icon-size-sfmb" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                        <a @onclick="()=> ShowScheduleGroup(GroupInfo)"><div class="text-center" style="height: 40px"></div></a>
+                                    }
+                                    else
+                                    {
+                                        <a @onclick="()=> ShowScheduleGroup(GroupInfo)">
+                                            <label class="float-left lbl-left-sfmb">@GroupInfo.GroupName</label>
+                                            <div class="float-right">
+                                                <i class="fa fa-angle-right icon-size-sfmb group-i-sfmb" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="text-center" style="height: 40px"></div>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

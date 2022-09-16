@@ -1,0 +1,310 @@
+﻿@inherits ETCBase
+@using HassyaAllrightCloud.Commons 
+@using HassyaAllrightCloud.Validation
+<div class="etc-container">
+    @if (searchForm == null)
+    {
+
+    }
+    else
+    {
+        <div class="mb-3 search-panel">
+            <div class="row mb-2">
+                <div class="col-6">
+                    <h5>@_lang["page_title"]</h5>
+                </div>
+            </div>
+            <div>
+                <ul class="validation-errors mt-2">
+                    @if (isDataNotFound)
+                    {
+                        <li class="validation-message">@_lang["DataNotFound"]</li>
+                    }
+                </ul>
+            </div>
+            <div id="control-tab" class="title-section border busrepair-accordion-header">
+                <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["SearchConditionTitle"]
+            </div>
+            <div style="display: none;">
+                <EditForm EditContext="@searchForm">
+                    <FluentValidator TValidator="ETCValidator" />
+                    <div class="float-right">
+                        <button class="btn btn-sm btn-danger" type="button" @onclick="@(async () => await Clear(true))">
+                            <i class="fa fa-refresh" aria-hidden="true"></i> &nbsp;&nbsp;@_lang["deleteall_btn"]
+                        </button>
+                    </div>
+                    <DxTabs CssClass="kobo-tabs" ActiveTabIndexChanged="(index) => OnTabChanged()">
+                        <DxTabPage Text="@_lang["tab_title_1"]">
+                            <div class="kobo-tab">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["vehicle_company_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <DxComboBox Data="listCompany" ReadOnly="true"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                CssClass="w-46"
+                                                                TextFieldName="Text"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                NullText="@_lang["vehicle_company_nulltext"]"
+                                                                SelectedItem="searchParam.SelectedCompany"
+                                                                SelectedItemExpression="@(() => searchParam.SelectedCompany)">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["vehicle_sale_office_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <DxComboBox Data="listEigyoDisplay"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                CssClass="w-46"
+                                                                TextFieldName="Text"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                NullText="@_lang["vehicle_sale_office_nulltext"]"
+                                                                SelectedItem="searchParam.SelectedEigyo"
+                                                                SelectedItemExpression="@(() => searchParam.SelectedEigyo)"
+                                                                SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedEigyo)))">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["vehicle_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="has-tooltip-error w-46">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.SelectedSyaRyoFrom)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxComboBox Data="listSyaRyoDisplay"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    NullText="@_lang["vehicle_nulltext"]"
+                                                                    TextFieldName="Text"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    SelectedItem="searchParam.SelectedSyaRyoFrom"
+                                                                    SelectedItemExpression="@(() => searchParam.SelectedSyaRyoFrom)"
+                                                                    SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedSyaRyoFrom)))">
+                                                        </DxComboBox>
+                                                    </div>
+                                                    <span class="text-center p-1">～</span>
+                                                    <div class="has-tooltip-error w-46">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.SelectedSyaRyoTo)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxComboBox Data="listSyaRyoDisplay"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    NullText="@_lang["vehicle_nulltext"]"
+                                                                    TextFieldName="Text"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    SelectedItem="searchParam.SelectedSyaRyoTo"
+                                                                    SelectedItemExpression="@(() => searchParam.SelectedSyaRyoTo)"
+                                                                    SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedSyaRyoTo)))">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["ETC_usage_date_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="has-tooltip-error w-25">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.ETCDateFrom)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="searchParam.ETCDateFrom"
+                                                                    DateExpression="@(() => searchParam.ETCDateFrom)"
+                                                                    DateChanged="async v => await OnHandleChanged(v, nameof(searchParam.ETCDateFrom))"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                    </div>
+                                                    <span class="text-center p-1">～</span>
+                                                    <div class="has-tooltip-error w-25">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.ETCDateTo)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="searchParam.ETCDateTo"
+                                                                    DateExpression="@(() => searchParam.ETCDateTo)"
+                                                                    DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParam.ETCDateTo)))"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["return_date_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="has-tooltip-error w-25">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.ReturnDateFrom)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="searchParam.ReturnDateFrom"
+                                                                    DateExpression="@(() => searchParam.ReturnDateFrom)"
+                                                                    DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParam.ReturnDateFrom)))"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                    </div>
+                                                    <span class="text-center p-1">～</span>
+                                                    <div class="has-tooltip-error w-25">
+                                                        <Tooltip ValueExpressions="@(() => searchParam.ReturnDateTo)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="searchParam.ReturnDateTo"
+                                                                    DateExpression="@(() => searchParam.ReturnDateTo)"
+                                                                    DateChanged="@(async v => await OnHandleChanged(v, nameof(searchParam.ReturnDateTo)))"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="my-auto col-3">@_lang["sort_order_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <DxComboBox Data="listSortOrder"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                CssClass="w-46"
+                                                                TextFieldName="Text"
+                                                                SelectedItem="searchParam.SelectedSortOrder"
+                                                                SelectedItemExpression="@(() => searchParam.SelectedSortOrder)"
+                                                                SelectedItemChanged="@(async e => await OnHandleSortOrderChanged(e))">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="row border-dotted m-0">
+                                            <label class="mb-auto col-3 font-weight-bold">@_lang["initial_display_setting_label"]</label>
+                                            <div class="col-9">
+                                                <div class="row mb-2">
+                                                    <label class="my-auto col-4">@_lang["fee_category_label"]</label>
+                                                    <div class="col-4 pl-0">
+                                                        <DxComboBox Data="listTesuKbn"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    CssClass="w-100"
+                                                                    TextFieldName="Text"
+                                                                    SelectedItem="searchParam.SelectedTesuKbn"
+                                                                    SelectedItemExpression="@(() => searchParam.SelectedTesuKbn)"
+                                                                    SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedTesuKbn)))">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <label class="my-auto col-4">@_lang["acquisition_range_label"]</label>
+                                                    <div class="col-8 pl-0">
+                                                        <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="999" ShowSpinButtons="false"
+                                                                    CssClass="w-25 number-spin text-right" Id="custom-number-spin"
+                                                                    ValueExpression="() => searchParam.AcquisitionRange"
+                                                                    Value="@searchParam.AcquisitionRange"
+                                                                    ValueChanged="@(async (v) => await OnHandleChanged(v, nameof(searchParam.AcquisitionRange)))">
+                                                        </DxSpinEdit>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <label class="my-auto col-4">@_lang["incidental_label"]</label>
+                                                    <div class="col-6 pl-0">
+                                                        <div class="has-tooltip-error w-100">
+                                                            <Tooltip ValueExpressions="@(() => searchParam.SelectedFutai)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="listFutai"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                                        AllowUserInput="false"
+                                                                        TextFieldName="Text"
+                                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                        NullText="@_lang["incidental_nulltext"]"
+                                                                        SelectedItem="searchParam.SelectedFutai"
+                                                                        SelectedItemExpression="@(() => searchParam.SelectedFutai)"
+                                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedFutai)))">
+                                                            </DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <label class="my-auto col-4">@_lang["payoff_label"]</label>
+                                                    <div class="col-6 pl-0">
+                                                        <div class="has-tooltip-error w-100">
+                                                            <Tooltip ValueExpressions="@(() => searchParam.SelectedSeisan)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="listSeisan"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                                        AllowUserInput="false"
+                                                                        TextFieldName="Text"
+                                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                        NullText="@_lang["payoff_nulltext"]"
+                                                                        SelectedItem="searchParam.SelectedSeisan"
+                                                                        SelectedItemExpression="@(() => searchParam.SelectedSeisan)"
+                                                                        SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedSeisan)))">
+                                                            </DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <label class="my-auto col-4">@_lang["transfer_classification_label"]</label>
+                                                    <div class="col-4 pl-0">
+                                                        <DxComboBox Data="listTensoKbn"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                                    AllowUserInput="false"
+                                                                    CssClass="w-100"
+                                                                    TextFieldName="Text"
+                                                                    SelectedItem="searchParam.SelectedTensoKbn"
+                                                                    SelectedItemExpression="@(() => searchParam.SelectedTensoKbn)"
+                                                                    SelectedItemChanged="@(async e => await OnHandleChanged(e, nameof(searchParam.SelectedTensoKbn)))">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                        <DxTabPage Text="@_lang["tab_title_2"]">
+                            <div class="kobo-tab enterField">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <label class="col-1 text-center">@_lang["size_setting_label"]</label>
+                                            <div class="col-9">
+                                                <button class="@string.Format("btn-option mx-2 w-4rem {0}", fontSize == (byte)ViewMode.Large ? "btn-active" : "")"
+                                                        type="button" @onclick="@(async () => await OnSetFontSize((byte)ViewMode.Large))">
+                                                    @_lang["large_size"]
+                                                </button>
+                                                <button class="@string.Format("btn-option mx-2 w-4rem {0}", fontSize == (byte)ViewMode.Medium ? "btn-active" : "")"
+                                                        type="button" @onclick="@(async() => await OnSetFontSize((byte)ViewMode.Medium))">
+                                                    @_lang["medium_size"]
+                                                </button>
+                                                <button class="@string.Format("btn-option mx-2 w-4rem {0}", fontSize == (byte)ViewMode.Small ? "btn-active" : "")"
+                                                        type="button" @onclick="@(async() => await OnSetFontSize((byte)ViewMode.Small))">
+                                                    @_lang["small_size"]
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                        <DxTabPage Text="@_lang["LayoutSettingHeader"]">
+                            <div class="kobo-tab enterField">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button class="btn btn-sm mw-6rem btn-primary mr-3">@_lang["SaveBtn"]</button>
+                                        <button class="btn btn-sm mw-6rem btn-primary">@_lang["InitializeBtn"]</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                    </DxTabs>
+                </EditForm>
+            </div>
+        </div>
+        <div class="border-green mb-2" style="display: flex; flex: 1; flex-direction: column">
+            <HassyaAllrightCloud.Pages.Components.ETC.ETCList searchParam="searchParam" fontSize="fontSize" DataNotFound="DataNotFound" @ref="list"
+                                                                 listFutai="listFutai" listSeisan="listSeisan">
+            </HassyaAllrightCloud.Pages.Components.ETC.ETCList>
+        </div>
+    }
+</div>
+

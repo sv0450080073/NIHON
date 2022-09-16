@@ -1,0 +1,142 @@
+﻿@inherits VehicleSchedulerMobileBase
+@using HassyaAllrightCloud.Commons
+@layout SPLayout
+
+
+<div class="w-100">
+    <div class="row m-0 setting-date calendar-header-container">
+        <table class="w-100" style="height: 70px">
+            <tr>
+                <th colspan="3" class="text-center calendar-title">@(string.Format("{0} {1}", Eigyo?.EigyoCd.ToString().PadLeft(5, '0'), Eigyo?.EigyoName))</th>
+            </tr>
+            <tr>
+                <th class="w-25 pl-2">
+                    <button class="calendar-button" @onclick="OnSetCurrentDate">@Lang["today"]</button>
+                </th>
+                <th class="w-50 pl-2 text-center">
+                    <DxComboBox Data="ListSyaRyo"
+                                CssClass="calendar-dropdown"
+                                AllowUserInput="false"
+                                TextFieldName="SyaRyoNm"
+                                SelectedItem="selectedSyaRyo"
+                                SelectedItemExpression="() => selectedSyaRyo"
+                                SelectedItemChanged="async v => await OnChangeSyaRyo(v)">
+                    </DxComboBox>
+                </th>
+                <th class="pr-2 w-25 text-right">
+                    <button class="calendar-button" @onclick="() => NextPrevSyaRyo(0)"><i class="fa fa-chevron-circle-left"></i></button>
+                    <button class="calendar-button" @onclick="() => NextPrevSyaRyo(1)"><i class="fa fa-chevron-circle-right"></i></button>
+                    <button class="calendar-button" @onclick="async () => await OnRefresh()"><i class="fa fa-refresh"></i></button>
+                    <button class="calendar-button" @onclick="OnNavigate"><i class="fa fa-plus-square"></i></button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div class="row m-0 setting-date">
+        <table class="w-100" style="height: 40px">
+            <tr>
+                <th class="w-50 pl-2">@selectedMonth.ToString(DateTimeFormat.yyyyM_JP)</th>
+                <th class="pr-2 w-50 text-right">
+                    <button class="calendar-button" @onclick="async () => await NextPrevMonth(0)"><i class="fa fa-chevron-circle-left"></i></button>
+                    <button class="calendar-button" @onclick="async () => await NextPrevMonth(1)"><i class="fa fa-chevron-circle-right"></i></button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div class="row m-0">
+        <ul class="p-0 list-unstyled mb-0 text-center w-100">
+            <li class="calendar-header">@Lang["sun"]</li>
+            <li class="calendar-header">@Lang["mon"]</li>
+            <li class="calendar-header">@Lang["tue"]</li>
+            <li class="calendar-header">@Lang["wen"]</li>
+            <li class="calendar-header">@Lang["thu"]</li>
+            <li class="calendar-header">@Lang["fri"]</li>
+            <li class="calendar-header">@Lang["sat"]</li>
+        </ul>
+    </div>
+    <div class="row m-0">
+        <ul class="p-0 list-unstyled mb-0 text-center w-100">
+            @foreach (var item in listDate.Select((value, i) => new { i, value }))
+            {
+                <li class="@string.Format("calendar-item{0}{1}{2}",
+                    lastItem.Contains(item.i) ? " calendar-item-border-right" : string.Empty,
+                    item.i > 34 ? " calendar-item-border-btm" : string.Empty,
+                    selectedDate == item.value ? " selected-date" : string.Empty)"
+                    @onclick="() => OnSelectDate(item.value)">
+                    <div class="@string.Format("calendar-child-item{0}",
+                item.value.IsDisable ? " calendar-disable-item" : string.Empty)">@(item.value.DisplayData.Day < 10 ? string.Format("0{0}", item.value.DisplayData.Day) : item.value.DisplayData.Day.ToString())</div>
+                    <div class="calendar-status-item" style="background-color: @item.value.Status"></div>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="row m-0 setting-date">
+        <table class="w-100" style="height: 40px">
+            <tr>
+                <th class="w-50 pl-2">@(IsYesterday ? Lang["yesterday"] : IsToday ? Lang["today"] : IsTomorrow ? Lang["tomorrow"] : string.Empty)</th>
+                <th class="pr-2 w-50 text-right">
+                    <label>@selectedDate?.DisplayData.ToString(DateTimeFormat.yyyyMd_ddd_JP)</label>
+                    <button class="calendar-button" @onclick="() => NextPrevDate(0)"><i class="fa fa-chevron-circle-left"></i></button>
+                    <button class="calendar-button" @onclick="() => NextPrevDate(1)"><i class="fa fa-chevron-circle-right"></i></button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div class="row m-0 setting-date item-area">
+        @foreach (var item in Data)
+        {
+            <table class="w-100 border-bottom border-dark" style="height: 60px; table-layout: fixed">
+                <tr @onclick="() => OnOpenPopup(item)">
+                    <th class="text-center w-15 calendar-info font-weight-normal" rowspan="2" style="background-color: @item.Status">
+                        <div>
+                            @item.StartTime
+                            @if (item.StartTime != Lang["starttime"])
+                            {
+                                <br /> @("~") <br /> @item.EndTime
+                            }
+                        </div>
+                    </th>
+                    <th class="w-70 pl-2 font-weight-normal" colspan="2">
+                        <div class="w-100 overflow-hidden text-truncate">
+                            @item.Name
+                        </div>
+                    </th>
+                    <th class="text-right w-15 font-weight-normal pl-2" rowspan="2">
+                        <button class="calendar-button"><i class="fa fa-chevron-circle-right"></i></button>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="w-70 pl-2 font-weight-normal" colspan="2">
+                        <div class="calendar-info text-center float-left" style="width: 50px; background-color: @item.Status">@(item.Type == 0 ? Lang["repair"] : item.Type == 1 ? Lang["daytrip"] : Lang["overnight"])</div>
+                        <div class="float-right">@item.Ymd</div>
+                    </th>
+                </tr>
+            </table>
+        }
+    </div>
+</div>
+
+@if (IsShow)
+{
+    <DxPopup CssClass="modal-dialog-centered">
+        <HeaderTemplate>
+            <div class="w-100 text-right bg-primary">
+                <button class="btn border border-dark bg-white m-2" @onclick="async () => await OnClosePopup()">@Lang["Close"]</button>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <ConfirmReservationDetailMobile Data="PopupData" eventCallback="OnClosePopup"></ConfirmReservationDetailMobile>
+        </ChildContent>
+    </DxPopup>
+}
+
+@if (isLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}

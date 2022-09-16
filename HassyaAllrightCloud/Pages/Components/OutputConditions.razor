@@ -1,0 +1,201 @@
+﻿@using HassyaAllrightCloud.Commons.Constants
+@using Microsoft.Extensions.DependencyInjection
+
+<div class="outputwhere-item form-group d-flex flex-nowrap">
+    <label class="col-form-label-sm mr-3">@FieldConfigs.WhereNm</label>
+    @switch (FieldConfigs.OutPutWhereType)
+    {
+        case OutPutWhere.UI_T01:
+            <DxTextBox Text="@TextValue1"
+                       TextChanged="@((newValue) => OnValueChanged(newValue))"
+                       TextExpression="() => TextValue1"
+                       CssClass="width--160"></DxTextBox>
+            break;
+        case OutPutWhere.UI_T02:
+            <DxTextBox Text="@TextValue1"
+                       TextChanged="@((newValue) => OnValueChanged(newValue))"
+                       TextExpression="() => TextValue1"
+                       CssClass="width--160"></DxTextBox>
+            <span class="mx-2">～</span>
+            <DxTextBox Text="@TextValue2"
+                       TextChanged="@((newValue) => OnValueChanged(newValue, false))"
+                       TextExpression="() => TextValue2"
+                       CssClass="width--160"></DxTextBox>
+            break;
+        case OutPutWhere.UI_CA01:
+            <DxDateEdit Date="@DateValue1"
+                        Format="yy/MM/dd"
+                        DateChanged="@((newValue) => OnDateChanged(newValue))"
+                        DateExpression="@(() => DateValue1)"
+                        CssClass="width--120"></DxDateEdit>
+            break;
+        case OutPutWhere.UI_CA02:
+            <DxDateEdit Date="@DateValue1"
+                        Format="yy/MM/dd"
+                        DateChanged="@((newValue) => OnDateChanged(newValue))"
+                        DateExpression="@(() => DateValue1)"
+                        CssClass="width--120"></DxDateEdit>
+            <span class="mx-2">～</span>
+            <DxDateEdit Date="@DateValue2"
+                        Format="yy/MM/dd"
+                        DateChanged="@((newValue) => OnDateChanged(newValue, false))"
+                        DateExpression="@(() => DateValue2)"
+                        CssClass="width--120"></DxDateEdit>
+            break;
+        case OutPutWhere.UI_Co01:
+            <DxComboBox Data="ComboboxData"
+                        TextFieldName=""
+                        AllowUserInput="false"
+                        SelectedItem="@ComboboxSelectedItem1"
+                        SelectedItemChanged="@((e) => OnSelectedItemChanged(e))"
+                        SelectedItemExpression="() => ComboboxSelectedItem1"
+                        CssClass="width--160"></DxComboBox>
+            break;
+        case OutPutWhere.UI_Co02:
+            <DxComboBox Data="ComboboxData"
+                        TextFieldName=""
+                        AllowUserInput="false"
+                        SelectedItem="@ComboboxSelectedItem1"
+                        SelectedItemChanged="@((e) => OnSelectedItemChanged(e))"
+                        SelectedItemExpression="() => ComboboxSelectedItem1"
+                        CssClass="width--160"></DxComboBox>
+            <span class="mx-2">～</span>
+            <DxComboBox Data="ComboboxData"
+                        TextFieldName=""
+                        AllowUserInput="false"
+                        SelectedItem="@ComboboxSelectedItem2"
+                        SelectedItemChanged="@((e) => OnSelectedItemChanged(e, false))"
+                        SelectedItemExpression="() => ComboboxSelectedItem2"
+                        CssClass="width--160"></DxComboBox>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter] public TPM_GeneralOutPutWhereData FieldConfigs { get; set; }
+    [Parameter] public string Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    public string TextValue1 { get; set; }
+    public string TextValue2 { get; set; }
+    public DateTime DateValue1 { get; set; }
+    public DateTime DateValue2 { get; set; }
+    public List<TPM_CodeKbCodeSyuData> ComboboxData { get; set; } = new List<TPM_CodeKbCodeSyuData>();
+    public TPM_CodeKbCodeSyuData ComboboxSelectedItem1 { get; set; }
+    public TPM_CodeKbCodeSyuData ComboboxSelectedItem2 { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (FieldConfigs.WhereControl == 1 || FieldConfigs.WhereControl == 3)
+        {
+            if (FieldConfigs.WhereType == 2)
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_T02;
+            }
+            else
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_T01;
+            }
+        }
+        else if (FieldConfigs.WhereControl == 2)
+        {
+            if (FieldConfigs.WhereType == 2)
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_CA02;
+            }
+            else
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_CA01;
+            }
+        }
+        else if (FieldConfigs.WhereControl == 4)
+        {
+            if (FieldConfigs.WhereType == 2)
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_Co02;
+            }
+            else
+            {
+                FieldConfigs.OutPutWhereType = OutPutWhere.UI_Co01;
+            }
+        }
+        await AssignParentValue();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AssignParentValue();
+    }
+
+    private async Task AssignParentValue()
+    {
+        switch (FieldConfigs.OutPutWhereType)
+        {
+            case OutPutWhere.UI_T01:
+                // To do
+                break;
+            case OutPutWhere.UI_T02:
+                // To do
+                break;
+            case OutPutWhere.UI_CA01:
+                // To do
+                break;
+            case OutPutWhere.UI_CA02:
+                // To do
+                break;
+            case OutPutWhere.UI_Co01:
+                // to do
+            case OutPutWhere.UI_Co02:
+                // to do
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void OnValueChanged(string value, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            TextValue1 = value;
+        }
+        else
+        {
+            TextValue2 = value;
+        }
+        Value = value;
+        ValueChanged.InvokeAsync(value);
+        StateHasChanged();
+    }
+
+    private void OnDateChanged(DateTime dateTime, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            DateValue1 = dateTime;
+            Value = DateValue1.ToString("yyyyMMdd");
+        }
+        else
+        {
+            DateValue2 = dateTime;
+            Value = DateValue2.ToString("yyyyMMdd");
+        }
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+
+    private void OnSelectedItemChanged(TPM_CodeKbCodeSyuData e, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            ComboboxSelectedItem1 = e;
+            Value = ComboboxSelectedItem1.CodeKbn;
+        }
+        else
+        {
+            ComboboxSelectedItem2 = e;
+            Value = ComboboxSelectedItem2.CodeKbn;
+        }
+        ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+}

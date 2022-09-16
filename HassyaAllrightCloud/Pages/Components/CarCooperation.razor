@@ -1,0 +1,167 @@
+﻿@inject IStringLocalizer<CarCooperation> Lang
+@inject ICarCooperationListService CarCooperationService
+@inject ITenantGroupServiceService TenantGroupService
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inject INotificationToStaffService NotificationToStaffService;
+
+<div class="form-group d-flex flex-nowrap align-items-center">
+    <label class="col-form-label-sm mr-3 width--75 ">@Lang["car_destination"]</label>   
+    <p class="mb-0">@(carCooperationData.TOKISK_RyakuNm+"　"+carCooperationData.TOKIST_RyakuNm)</p>
+</div>
+<div class="form-group d-flex flex-nowrap align-items-center">
+    <label class="col-form-label-sm mr-3 width--75 ">@Lang["receipt_number"]</label>
+    <p class="mb-0">@carCooperationData.UkeCd.ToString("D10")</p>
+</div>
+<div class="form-group d-flex flex-nowrap align-items-center">
+    <label class="col-form-label-sm mr-3 width--75 ">@Lang["group_name"]</label>
+    <p class="mb-0">@carCooperationData.DanTaNm</p>
+</div>
+<div class="form-group d-flex flex-nowrap align-items-center">
+    <label class="col-form-label-sm mr-3 width--75 ">@Lang["service_datetime"]</label>
+    <p class="mb-0">@date</p>
+</div>
+<div class="form-group d-flex flex-nowrap align-items-center">
+    <label class="col-form-label-sm mr-3 width--75 ">@Lang["number_of_car"]</label>
+    <div class="d-flex flex-nowrap flex-grow-1 align-items-center list-number-car">
+        <div>@(carCooperationData.LargeCount >0  ? "大型　"+carCooperationData.LargeCount+"台" : null)</div>
+        <div>@(carCooperationData.MediumCount >0  ? "中型　"+carCooperationData.MediumCount+"台" : null)</div>
+        <div>@(carCooperationData.SmallCount >0  ? "小型　"+carCooperationData.SmallCount+"台" : null)</div>
+    </div>
+</div>　　　　　
+<div class="text-center">
+    <button type="button" class="btn btn-sm btn-outline-dark width--140 mx-2" @onclick="@((e) => Cancel(e))">@Lang["btn_cancel"]</button>
+    <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => OpenPopupInformation(CloseAndOpenMessage))" Text="@Lang["btn_go"]" CssClass="width--90 mx-2" />
+</div>
+
+@code {
+    [Parameter] public string UkeNo { get; set; }
+    [Parameter] public short UnkRen { get; set; }
+    [Parameter] public int YouTblSeq { get; set; }
+    [Parameter] public EventCallback<Dictionary<string, dynamic>> OnClosePopup { get; set; }
+    private CarCooperationData carCooperationData = new CarCooperationData();
+    private TenantGroupData tenantGroupDataReception = new TenantGroupData();
+    private TenantGroupData tenantGroupDataReceptionCustomer = new TenantGroupData();
+    private ClientData clientData = new ClientData();
+    DateTime minDate = new DateTime();
+    DateTime maxDate = new DateTime();
+    string date = "";
+    bool CloseAndOpenMessage { get; set; } = true;
+    string baseUrl;
+    #region Component Lifecycle
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        carCooperationData = await CarCooperationService.Getdata(UkeNo, UnkRen, YouTblSeq);
+        if(carCooperationData!=null)
+        {
+            tenantGroupDataReception = await TenantGroupService.GetdataReception(new ClaimModel().TenantID, carCooperationData.TokuiSeq, carCooperationData.SitenCdSeq);
+            if(tenantGroupDataReception!=null)
+            {
+                tenantGroupDataReceptionCustomer = await TenantGroupService.GetdataReceptionCustomer(tenantGroupDataReception.SitenCdSeqTenantCdSeq, tenantGroupDataReception.TenantGroupCdSeq, tenantGroupDataReception.TenantCdSeq);
+                if(tenantGroupDataReceptionCustomer!=null)
+                {
+                    carCooperationData.MotoTokuiSeq = tenantGroupDataReceptionCustomer.TokuiSeq;
+                    carCooperationData.MotoSitenCdSeq = tenantGroupDataReceptionCustomer.SitenCdSeq;
+                }
+                carCooperationData.UkeTenantCdSeq = tenantGroupDataReception.SitenCdSeqTenantCdSeq;
+            }
+
+            DateTime.TryParseExact(carCooperationData.MinDate+carCooperationData.MinTime,
+                              "yyyyMMddHHmm",
+                              CultureInfo.CurrentCulture,
+                              DateTimeStyles.None,
+                              out minDate);
+            DateTime.TryParseExact(carCooperationData.MaxDate+carCooperationData.MaxTime,
+                              "yyyyMMddHHmm",
+                              CultureInfo.CurrentCulture,
+                              DateTimeStyles.None,
+                              out maxDate);
+            date=minDate.ToString("yyyy年MM月dd日 (ddd) HH:mm") +"　～　"+ maxDate
+                .ToString("yyyy年MM月dd日 (ddd) HH:mm");
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task OpenPopupInformation(bool value)
+    {
+        try
+        {
+            if(carCooperationData.UkeTenantCdSeq==0|| carCooperationData.MotoTokuiSeq==0|| carCooperationData.MotoSitenCdSeq==0)
+            {
+                var parameter = new Dictionary<string, dynamic>();
+                parameter.Add("OpenPopup", value);
+                parameter.Add("Status", "Error");
+                await OnClosePopup.InvokeAsync(parameter);
+            }
+            else
+            {
+                baseUrl = AppSettingsService.GetBaseUrl();
+                var client = await Http.GetHttpClient();
+                HttpResponseMessage response = await client.PostAsync($"{baseUrl}/api/TkdYoushaNotice/", Http.getStringContentFromObject(carCooperationData));
+                if ((int)response.StatusCode == 200)
+                {
+                    clientData = await TenantGroupService.GetClienData(carCooperationData.UkeTenantCdSeq, carCooperationData.MotoTokuiSeq, carCooperationData.MotoSitenCdSeq);
+                    List<string> emailLst = new List<string>();
+                    emailLst.Add(carCooperationData.TokuiMail);
+                    string ukeTenant = await TenantGroupService.GetTenantName(carCooperationData.UkeTenantCdSeq);
+                    string emailSubject = string.Format(Lang["emailSubject"], DateTime.Now.ToString("yyyy年MM月dd日 (ddd) HH:mm"),carCooperationData.TokuiMail, carCooperationData.UkeCd.ToString("D10"));
+                    string emailcontent = string.Format(Lang["emailContent"], ukeTenant, "kidoku", carCooperationData.UkeCd.ToString("D10"), carCooperationData.DanTaNm, minDate.ToString("yyyy年MM月dd日 (ddd) HH:mm"), maxDate
+                            .ToString("yyyy年MM月dd日 (ddd) HH:mm"), clientData.TokuiCd.ToString("D4"), clientData.TokuiNm, clientData.SitenCd.ToString("D4"), clientData.SitenNm, carCooperationData.LargeCount, carCooperationData.MediumCount, carCooperationData.SmallCount, "kidoku");
+                    try
+                    {
+                        var sentmail = await NotificationToStaffService.SendMail(emailLst, emailSubject, emailcontent);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        //TODO use logger to log down exception ex.message
+                    }
+                    var parameter = new Dictionary<string, dynamic>();
+                    parameter.Add("OpenPopup", value);
+                    parameter.Add("Status", "Success");
+                    await OnClosePopup.InvokeAsync(parameter);
+                }
+                else
+                {
+                    var parameter = new Dictionary<string, dynamic>();
+                    parameter.Add("OpenPopup", value);
+                    parameter.Add("Status", "Error");
+                    await OnClosePopup.InvokeAsync(parameter);
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            //TODO use logger to log down exception ex.message
+        }
+
+
+    }
+
+    public async Task ClosePopupCarCooperation(bool value)
+    {
+
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    private async Task Cancel(MouseEventArgs e)
+    {
+        var parameter = new Dictionary<string, dynamic>();
+        parameter.Add("OpenPopup", false);
+        parameter.Add("Status", "Error");
+        await OnClosePopup.InvokeAsync(parameter);
+    }
+    #endregion
+}

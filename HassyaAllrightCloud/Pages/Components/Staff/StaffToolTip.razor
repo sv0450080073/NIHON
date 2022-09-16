@@ -1,0 +1,30 @@
+﻿@inject IStringLocalizer<Pages.Staff> Lang
+
+<div class="@CssClass" style="left: @(clientX == 0 ? string.Empty : clientX.ToString() + "px"); top: @(clientY == 0 ? string.Empty : clientY.ToString() + "px")">
+    <table>
+        <thead>
+            <tr>
+                <th width="335px">@Lang["improvement"]</th>
+                <th width="5px"></th>
+                <th width="80px">@Lang["current"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var data in staff.ToolTip)
+            {
+                <tr>
+                    <td>@data.KijunNm</td>
+                    <td class="text-center">:</td>
+                    <td class="text-center">@data.KijunValue</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public StaffData staff { get; set; }
+    [Parameter] public string CssClass { get; set; }
+    [Parameter] public int clientX { get; set; }
+    [Parameter] public int clientY { get; set; }
+}

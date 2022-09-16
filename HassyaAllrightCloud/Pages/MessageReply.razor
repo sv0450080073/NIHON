@@ -1,0 +1,45 @@
+﻿@layout LayoutConfirmRead
+@inject IStringLocalizer<MessageReply> Lang
+@inject INotificationToStaffService NotificationToStaffService
+
+<div class="top-row">
+    <img src="images/logo.png" alt="logo" />@Lang["SystemName"]
+</div>
+@if (isLoadingComplete)
+{
+    <div class="content">
+        @if (IsUpdateState)
+        {
+            @Lang["BI_T006"]
+        }
+        else
+        {
+            <i class="fa fa-2x fa-times-circle" aria-hidden="true"></i>
+            @Lang["BI_T005"]
+        }
+    </div>
+}
+<div class="bottom-row">
+    <div>
+        <p>Copyright © 2019 KOBO CO.,LTD.</p>
+        <p>All Rights Reserved.</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string No { get; set; }
+    [Parameter] public string Method { get; set; }
+    [Parameter] public string Token { get; set; }
+    bool IsUpdateState = false;
+    bool isLoadingComplete = false;
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(No) || string.IsNullOrEmpty(Method) || string.IsNullOrEmpty(Token) || !(int.TryParse(Method, out _)) || !(Enum.IsDefined(typeof(NotificationSendMethod), int.Parse(Method))))
+        {
+            isLoadingComplete = true;
+            return;
+        }
+        IsUpdateState = await NotificationToStaffService.UpdateState(No, (NotificationSendMethod)int.Parse(Method), Token);
+        isLoadingComplete = true;
+    }
+}

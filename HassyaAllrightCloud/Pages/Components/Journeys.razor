@@ -1,0 +1,1019 @@
+﻿@inject IBusBookingDataListService BusBookingDataService
+@inject ITKD_KoteiDataListService TKD_KoteiDataService
+@inject ITKD_KoteikDataListService TKD_KoteikDataListService
+@inject IJSRuntime JSRuntime
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inject BusScheduleHelper BusScheduleHelper
+@inject IStringLocalizer<Journeys> Lang
+@using System
+@using System.Text
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@popupsave" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popupSave"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => CancelSave(e))"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>  @message
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@((e) => CancelSave(e))" Text="OK" />
+        @*<a href="javascript:void(0)" class="btn btn-sm btn-success width--140" @onclick="@((e) => CancelSave(e))">OK</a>*@
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@popupclear" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popup"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => CancelClear(e))"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i>@Lang["Message_clear"]
+        </div>
+    </Content>
+    <FooterTemplate>
+        <a href="javascript:void(0)" class="btn btn-sm btn-primary width--100" @onclick="@((e) => UpdateClear(e))">@Lang["btn_yes"]</a>
+        <a href="javascript:void(0)" class="btn btn-sm btn-secondary width--100" @onclick="@((e) => CancelClear(e))">@Lang["btn_no"]</a>
+    </FooterTemplate>
+</DxPopup>
+
+<form>
+    <ul class="validation-errors">
+        @if (!isHaitaValid)
+        {
+            <li class="validation-message">@Lang["haita-error"]</li>
+        }
+    </ul>
+    <div class="d-flex justify-content-start">
+        <div class="form-group d-flex flex-nowrap mr-4">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_receipt_number"]</label>
+            <DxTextBox Text="@ukeCD.ToString("D10")" ReadOnly CssClass="width--110 disabled-content" TextExpression="() => tempstr"></DxTextBox>
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-4">
+            <label class="col-form-label-sm mr-2">@Lang["label_car"]</label>
+            <DxComboBox Data="@CarListData" CssClass="width--160" TextFieldName="Text" SelectedItemChanged="@(e => CarListDataChanged(e))" SelectedItem="CarListItem" SelectedItemExpression="() => CarListItem"></DxComboBox>
+        </div>
+        <div class="form-group d-flex flex-nowrap ml-auto @(IsDisableEdit ? "disabled-content" : "")">
+            <a href="javascript:void(0)" class="btn btn-sm btn-danger width--90 mx-1 @(IsDisableEdit ? "disabled" : "")" @onclick="@((e) => ClearKotei(e))"> <i class="fa fa-refresh" aria-hidden="true"></i> @Lang["btn_clear"]</a>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between">
+        <div class="form-group d-flex flex-nowrap mr-4">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_date"]</label>
+            <DxComboBox Data="@datelst" TextFieldName="Text" SelectedItem="dateItem" SelectedItemChanged="@(e => DateItemChanged(e))" CssClass="width--260" SelectedItemExpression="() => dateItem"></DxComboBox>
+        </div>
+    </div>
+    <div class="d-flex justify-content-start">
+        <div class="form-group d-flex flex-nowrap mr-3 @(IsDisableEdit ? "disabled-content" : "")">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_syuko_time"]</label>
+            <InputTime CssClass="width--75 date-sm "
+                       ValueExpressions="() => tempstr"
+                       TimeChanged="@((newValue) => OnSyukoTimeTextChanged(newValue))"
+                       MyTimeAsString="@(TimesStartZen=="1" ? " ":SyukoTime.ToString(@"hh\:mm"))">
+            </InputTime>
+        </div>
+        <div class="form-group d-flex flex-nowrap mr-2 @(IsDisableEdit ? "disabled-content" : "")">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_hais_time"]</label>
+            <InputTime CssClass="width--75 date-sm "
+                       ValueExpressions="() => tempstr"
+                       TimeChanged="@((newValue) => OnHaiSTimeTextChanged(newValue))"
+                       MyTimeAsString="@(TimesStartZen=="1" ? " ":HaiSTime.ToString(@"hh\:mm"))">
+            </InputTime>
+        </div>
+        <div class="form-group d-flex flex-nowrap @(IsDisableEdit ? "disabled-content" : "")">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_departure_time"]</label>
+            <InputTime CssClass="width--75 date-sm "
+                       ValueExpressions="() => tempstr"
+                       TimeChanged="@((newValue) => OnStartTimeTextChanged(newValue))"
+                       MyTimeAsString="@(TimesStartZen=="1" ? " ":SyuPaTime.ToString(@"hh\:mm"))">
+            </InputTime>
+        </div>
+    </div>
+    <div class="d-flex justify-content-start">
+        <div class="form-group d-flex flex-nowrap mr-3 @(IsDisableEdit ? "disabled-content" : "")">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_kik_time"]</label>
+            <InputTime CssClass="width--75 date-sm "
+                        ValueExpressions="() => tempstr"
+                        TimeChanged="@((newValue) => OnKikTimeTextChanged(newValue))"
+                        MyTimeAsString="@(TimesEndKha=="1" ? " ":KikTime.ToString(@"hh\:mm"))">
+            </InputTime>
+        </div>
+        <div class="form-group d-flex flex-nowrap @(IsDisableEdit ? "disabled-content" : "")">
+            <label class="col-form-label-sm mr-2 width--75">@Lang["label_arrival time"]</label>
+            <InputTime CssClass="width--75 date-sm "
+                        ValueExpressions="() => tempstr"
+                        TimeChanged="@((newValue) => OnArrivedTimeTextChanged(newValue))"
+                        MyTimeAsString="@(TimesEndKha=="1" ? " ":TouChTime.ToString(@"hh\:mm"))">
+            </InputTime>
+        </div>
+    </div>
+    <div>
+        @*<RadzenHtmlEditor style="height: 50px; margin-bottom: 1rem;" UploadUrl="upload/image" @bind-Value="@text" >
+            <RadzenHtmlEditorUndo />
+            <RadzenHtmlEditorRedo />
+            <RadzenHtmlEditorSeparator />
+            <RadzenHtmlEditorBold />
+            <RadzenHtmlEditorItalic />
+            <RadzenHtmlEditorUnderline />
+            <RadzenHtmlEditorStrikeThrough />
+            <RadzenHtmlEditorSeparator />
+            <RadzenHtmlEditorColor />
+            <RadzenHtmlEditorBackground />
+            <RadzenHtmlEditorFontSize Title="12">
+            </RadzenHtmlEditorFontSize>
+            <RadzenHtmlEditorRemoveFormat />
+        </RadzenHtmlEditor>*@
+        <textarea id="txtJourneys" rows="15" class="textarea-note mb-2 @(IsDisableEdit ? "disabled-content" : "")" @bind="@text" @bind:event="oninput"></textarea>
+    </div>
+    <div class="row mb-2 @(IsDisableEdit ? "disabled-content" : "")">
+        <div class="col-5">
+            <div class="form-group d-flex flex-nowrap">
+                <label class="col-form-label-sm mr-2">@Lang["label_schedule_transfer"]</label>
+                <DxComboBox Data="@datelst" TextFieldName="Text" SelectedItem="dateItemisnert" SelectedItemChanged="@(e => DateItemInsertChanged(e))" SelectedItemExpression="() => dateItemisnert"></DxComboBox>
+            </div>
+        </div>
+        <div class="col-7">
+            <div class="form-group d-flex flex-nowrap justify-content-end">
+                <label class="col-form-label-sm mr-2">@Lang["label_general_vehicle"]</label>
+                <input type="text" class="width--90 two-decimals" maxlength="8" @bind="@JisaIPKm" @bind:event="oninput" onkeydown="return event.key != 'Enter';" />
+                <span class="ml-2 mr-5">km</span>
+                <label class="col-form-label-sm mr-2">@Lang["label_actual_vehicle"]</label>
+                <input type="text" class="width--90 two-decimals" maxlength="8" @bind="@JisaKSKm" @bind:event="oninput" onkeydown="return event.key != 'Enter';" />
+                <span class="ml-2">km</span>
+            </div>
+            <div class="form-group d-flex flex-nowrap justify-content-end">
+                <label class="col-form-label-sm mr-2">@Lang["label_general_forwarding"]</label>
+                <input type="text" class="width--90 two-decimals" maxlength="8" @bind="@KisoIPkm" @bind:event="oninput" onkeydown="return event.key != 'Enter';" />
+                <span class="ml-2 mr-5">km</span>
+                <label class="col-form-label-sm mr-2">@Lang["label_high_speed_forwarding"]</label>
+                <input type="text" class="width--90 two-decimals" maxlength="8" @bind="@KisoKOKm" @bind:event="oninput" onkeydown="return event.key != 'Enter';" />
+                <span class="ml-2">km</span>
+            </div>
+        </div>
+    </div>
+    <div class="text-right @(IsDisableEdit ? "disabled-content" : "")">
+        <a href="javascript:void(0)" class="btn btn-sm btn-outline-dark width--90 mx-1"  @onclick="@((e) => OnClose.InvokeAsync(null))">@Lang["btn_cancel"]</a>
+        <a href="javascript:void(0)" class="btn btn-sm btn-primary width--90 mx-1 @(text=="" || IsDisableEdit ? "disabled" : "")" @onclick="@((e) => UpdateKotei(e))">@Lang["btn_save"]</a>
+    </div>
+</form>
+
+@code {
+    [Parameter] public string ukeNo { get; set; }
+    [Parameter] public short unkRenparam { get; set; }
+    [Parameter] public short teiDanNo { get; set; }
+    [Parameter] public short bunkRen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    protected bool IsDisableEdit { get; set; }
+    List<JourneysData> CarListData = new List<JourneysData>();
+    JourneysData CarListItem = new JourneysData();
+    List<JourneyDataDate> datelst = new List<JourneyDataDate>();
+    List<TKD_KoteiData> textlst = new List<TKD_KoteiData>();
+    JourneyDataDate dateItem = new JourneyDataDate();
+    JourneyDataDate dateItemisnert = new JourneyDataDate();
+    TKD_KoteikData koteikData = new TKD_KoteikData();
+    string tempstr;
+    JourneysData CarList;
+    DateTime fromdate;
+    DateTime todate;
+    DateTime fromdatemin;
+    DateTime todatemax;
+    bool isZenHaFlg = false;
+    bool isKhakFlg = false;
+    bool isCommon = true;
+    bool popupsave = false;
+    bool popupclear = false;
+    string ukeno;
+    int ukeCD;
+    short unkRen;
+    string text;
+    string baseUrl;
+    string message;
+    TimeSpan SyuPaTime;
+    TimeSpan TouChTime;
+    TimeSpan SyukoTime;
+    TimeSpan HaiSTime;
+    TimeSpan KikTime;
+    string JisaIPKm = "0";
+    string JisaKSKm = "0";
+    string KisoIPkm = "0";
+    string KisoKOKm = "0";
+    short bunkRenMin = 1;
+    short bunkRenMax = 1;
+    string TimesEndKha = "";
+    string TimesStartZen = "";
+    bool isHaitaValid = true;
+    LatestUpdYmdTime _latestUpd;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await Task.Run(() =>
+        {
+            Loadpage().Wait();
+        });
+    }
+    public async Task Loadpage()
+    {
+        isHaitaValid = true;
+        isZenHaFlg = false;
+        isKhakFlg = false;
+        isCommon = true;
+        CarListData = await BusBookingDataService.GetJourneysData(ukeNo,unkRenparam);
+        bunkRenMin = CarListData.OrderBy(x => x.Haisha_BunkRen).ToList().First().Haisha_BunkRen;
+        bunkRenMax = CarListData.OrderBy(x => x.Haisha_BunkRen).ToList().Last().Haisha_BunkRen;
+
+
+        ukeCD = CarListData.First().Yyksho_UkeCd;
+        CarListData.Insert(0, new JourneysData());
+        if(teiDanNo!=0&&bunkRen!=0)
+        {
+            CarListItem = CarListData.Where(t=>t.Haisha_TeiDanNo==teiDanNo&&t.Haisha_BunkRen==bunkRen).First();
+        }
+        else
+        {
+            CarListItem = CarListData.First();
+        }
+        CarListData.First().Unkobi_TouChTime = CarListData.Skip(1).Take(1).First().Unkobi_TouChTime;
+        CarListData.First().Unkobi_SyuPaTime = CarListData.Skip(1).Take(1).First().Unkobi_SyuPaTime;
+        CarListData.First().Unkobi_SyukoTime = CarListData.Skip(1).Take(1).First().Unkobi_SyukoTime;
+        CarListData.First().Unkobi_HaiSTime = CarListData.Skip(1).Take(1).First().Unkobi_HaiSTime;
+        CarListData.First().Unkobi_KikTime = CarListData.Skip(1).Take(1).First().Unkobi_KikTime;
+        baseUrl = AppSettingsService.GetBaseUrl();
+        DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_HaiSYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out fromdatemin);
+        DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_HaiSYmd,
+                              "yyyyMMdd",
+                              CultureInfo.CurrentCulture,
+                              DateTimeStyles.None,
+                              out fromdate);
+        DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_TouYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out todate);
+        DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_TouYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out todatemax);
+        if (CarListData.Skip(1).Take(1).First().Unkobi_HaiSYmd != CarListData.Skip(1).Take(1).First().Unkobi_SyukoYmd)
+        {
+            isZenHaFlg = true;
+        }
+        if (CarListData.Skip(1).Take(1).First().Unkobi_TouYmd != CarListData.Skip(1).Take(1).First().Unkobi_KikYmd)
+        {
+            isKhakFlg = true;
+        }
+        ukeno = CarListData.Skip(1).Take(1).First().Haisha_UkeNo;
+        unkRen = CarListData.Skip(1).Take(1).First().Haisha_UnkRen;
+        if (teiDanNo!=0&&bunkRen!=0)
+        {
+            datelst = getDateData(fromdate, todate, fromdatemin, todatemax, true, isZenHaFlg, isKhakFlg, ukeno, bunkRen, teiDanNo, unkRen, CarListData.Where(t=>t.Haisha_TeiDanNo==teiDanNo&&t.Haisha_BunkRen==bunkRen).First(), 1);
+        }
+        else
+        {
+            datelst = getDateData(fromdate, todate, fromdatemin, todatemax, true, isZenHaFlg, isKhakFlg, ukeno, CarListData.First().Haisha_BunkRen, CarListData.First().Haisha_TeiDanNo, unkRen, CarListData.First(), 0);
+        }
+        dateItem = datelst.First();
+        dateItemisnert = dateItem;
+        SyuPaTime = dateItem.form;
+        TouChTime = dateItem.to;
+        SyukoTime = dateItem.SyukoTime;
+        HaiSTime = dateItem.HaiSTime;
+        KikTime = dateItem.KikTime;
+        TimesStartZen = dateItem.timeStartZenHaFlg;
+        TimesEndKha = dateItem.timeEndKhakFlg;
+        text = "";
+        textlst = new List<TKD_KoteiData>();
+        if(teiDanNo!=0&&bunkRen!=0)
+        {
+            textlst = await TKD_KoteiDataService.GetDataKotei(!dateItem.isCommom, ukeno, dateItem.isZenHaFlg, dateItem.isKhakFlg, dateItem.teiDanNo, unkRen, dateItem.bunkRen, dateItem.nittei);
+        }
+        else
+        {
+            textlst = await TKD_KoteiDataService.GetDataKotei(dateItem.isCommom, ukeno, dateItem.isZenHaFlg, dateItem.isKhakFlg, dateItem.teiDanNo, unkRen, dateItem.bunkRen, dateItem.nittei);
+        }
+
+        foreach (var items in textlst)
+        {
+            text += items.Kotei_Koutei + "\n";
+            JisaIPKm = items.Koteik_JisaIPKm.ToString();
+            JisaKSKm = items.Koteik_JisaKSKm.ToString();
+            KisoIPkm = items.Koteik_KisoIPkm.ToString();
+            KisoKOKm = items.Koteik_KisoKOKm.ToString();
+            if (items.Koteik_SyuPaTime != "")
+            {
+                SyuPaTime = BusScheduleHelper.ConvertTime(items.Koteik_SyuPaTime);
+            }
+            if (items.Koteik_TouChTime != "")
+            {
+                TouChTime = BusScheduleHelper.ConvertTime(items.Koteik_TouChTime);
+            }
+            if (items.Koteik_SyukoTime != "")
+            {
+                SyukoTime = BusScheduleHelper.ConvertTime(items.Koteik_SyukoTime);
+            }
+            if (items.Koteik_HaiSTime != "")
+            {
+                HaiSTime = BusScheduleHelper.ConvertTime(items.Koteik_HaiSTime);
+            }
+            if (items.Koteik_KikTime != "")
+            {
+                KikTime = BusScheduleHelper.ConvertTime(items.Koteik_KikTime);
+            }
+        }
+        // check booking can edit or not
+        // disable edit
+        //  - paid or coupon
+        //  - lock table
+        var editStateList = await LoadBookingEditableStateAsync(ukeNo);
+        if (editStateList?.Count > 0)
+        {
+            IsDisableEdit = true;
+        }
+
+        _latestUpd = await TKD_KoteiDataService.GetLatestUpdYmd(ukeno, unkRen, dateItem.teiDanNo, dateItem.bunkRen, dateItem.tomKbn, dateItem.nittei);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeAsync<string>("settextinlinetextarea", 37);
+        }
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 7);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 4);
+        await JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+    }
+
+    #region InputTime changed event
+
+    private void OnSyukoTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        if (IsDisableEdit == false)
+        {
+            string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+            SyukoTime = BusScheduleHelper.ConvertTime(timeValue);
+            StateHasChanged();
+        }
+    }
+
+    private void OnHaiSTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        if (IsDisableEdit == false)
+        {
+            string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+            HaiSTime = BusScheduleHelper.ConvertTime(timeValue);
+            StateHasChanged();
+        }
+    }
+
+    private void OnStartTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        if (IsDisableEdit == false)
+        {
+            string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+            SyuPaTime = BusScheduleHelper.ConvertTime(timeValue);
+            StateHasChanged();
+        }
+    }
+
+    private void OnKikTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        if (IsDisableEdit == false)
+        {
+            string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+            KikTime = BusScheduleHelper.ConvertTime(timeValue);
+            StateHasChanged();
+        }
+    }
+
+    private void OnArrivedTimeTextChanged(BookingInputHelper.MyTime newTime)
+    {
+        if (IsDisableEdit == false)
+        {
+            string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+            TouChTime = BusScheduleHelper.ConvertTime(timeValue);
+            StateHasChanged();
+        }
+    }
+
+    #endregion
+
+    private async Task DateItemChanged(JourneyDataDate dataDateItem)
+    {
+        text = "";
+        isHaitaValid = true;
+        dateItem = dataDateItem;
+        dateItemisnert = dataDateItem;
+        SyuPaTime = dateItem.form;
+        TouChTime = dateItem.to;
+        SyukoTime = dateItem.SyukoTime;
+        HaiSTime = dateItem.HaiSTime;
+        KikTime = dateItem.KikTime;
+        TimesStartZen = dateItem.timeStartZenHaFlg;
+        TimesEndKha = dateItem.timeEndKhakFlg;
+        textlst = new List<TKD_KoteiData>();
+        textlst = await TKD_KoteiDataService.GetDataKotei(dataDateItem.isCommom, dataDateItem.ukeNo, dataDateItem.isZenHaFlg, dataDateItem.isKhakFlg, dataDateItem.teiDanNo, dataDateItem.unkRen, dataDateItem.bunkRen, dataDateItem.nittei);
+        foreach (var item in textlst)
+        {
+            text += item.Kotei_Koutei + "\n";
+            JisaIPKm = item.Koteik_JisaIPKm.ToString();
+            JisaKSKm = item.Koteik_JisaKSKm.ToString();
+            KisoIPkm = item.Koteik_KisoIPkm.ToString();
+            KisoKOKm = item.Koteik_KisoKOKm.ToString();
+        }
+        if (textlst.Count > 0)
+        {
+            SyuPaTime = BusScheduleHelper.ConvertTime(textlst[0].Koteik_SyuPaTime);
+            TimesStartZen = "";
+
+            TouChTime = BusScheduleHelper.ConvertTime(textlst[0].Koteik_TouChTime);
+            TimesEndKha = "";
+
+            SyukoTime = BusScheduleHelper.ConvertTime(textlst[0].Koteik_SyukoTime);
+            HaiSTime = BusScheduleHelper.ConvertTime(textlst[0].Koteik_HaiSTime);
+            KikTime = BusScheduleHelper.ConvertTime(textlst[0].Koteik_KikTime);
+        }
+        _latestUpd = await TKD_KoteiDataService.GetLatestUpdYmd(ukeno, unkRen, dateItem.teiDanNo, dateItem.bunkRen, dateItem.tomKbn, dateItem.nittei);
+        StateHasChanged();
+    }
+    private async Task DateItemInsertChanged(JourneyDataDate dataDateItem)
+    {
+        if (IsDisableEdit)
+        {
+            dateItemisnert = dataDateItem;
+            StateHasChanged();
+        }
+    }
+    private async Task CarListDataChanged(JourneysData journeysItem)
+    {
+        bool checkAllCarList = true;
+        CarListItem = new JourneysData();
+        CarListItem = journeysItem;
+        if (journeysItem.Haisha_UkeNo == "0")
+        {
+            isCommon = true;
+            DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_HaiSYmd,
+                                   "yyyyMMdd",
+                                   CultureInfo.CurrentCulture,
+                                   DateTimeStyles.None,
+                                   out fromdatemin);
+            DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_HaiSYmd,
+                                  "yyyyMMdd",
+                                  CultureInfo.CurrentCulture,
+                                  DateTimeStyles.None,
+                                  out fromdate);
+            DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_TouYmd,
+                                   "yyyyMMdd",
+                                   CultureInfo.CurrentCulture,
+                                   DateTimeStyles.None,
+                                   out todate);
+            DateTime.TryParseExact(CarListData.Skip(1).Take(1).First().Unkobi_TouYmd,
+                                   "yyyyMMdd",
+                                   CultureInfo.CurrentCulture,
+                                   DateTimeStyles.None,
+                                   out todatemax);
+            if (CarListData.Skip(1).Take(1).First().Unkobi_ZenHaFlg == 1)
+            {
+                isZenHaFlg = true;
+            }
+            if (CarListData.Skip(1).Take(1).First().Unkobi_KhakFlg == 1)
+            {
+                isKhakFlg = true;
+            }
+            ukeno = CarListData.Skip(1).Take(1).First().Haisha_UkeNo;
+            unkRen = CarListData.Skip(1).Take(1).First().Haisha_UnkRen;
+        }
+        else
+        {
+            isCommon = false;
+            DateTime.TryParseExact(journeysItem.Unkobi_HaiSYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out fromdatemin);
+            DateTime.TryParseExact(journeysItem.Haisha_HaiSYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out fromdate);
+            DateTime.TryParseExact(journeysItem.Haisha_TouYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out todate);
+            DateTime.TryParseExact(journeysItem.Unkobi_TouYmd,
+                               "yyyyMMdd",
+                               CultureInfo.CurrentCulture,
+                               DateTimeStyles.None,
+                               out todatemax);
+            if (journeysItem.Unkobi_HaiSYmd != journeysItem.Unkobi_SyukoYmd)
+            {
+                isZenHaFlg = true;
+            }
+            if (journeysItem.Unkobi_TouYmd != journeysItem.Unkobi_KikYmd)
+            {
+                isKhakFlg = true;
+            }
+            ukeno = journeysItem.Haisha_UkeNo;
+            unkRen = journeysItem.Haisha_UnkRen;
+        }
+
+        datelst = getDateData(fromdate, todate, fromdatemin, todatemax, isCommon, isZenHaFlg, isKhakFlg, ukeno, journeysItem.Haisha_BunkRen, journeysItem.Haisha_TeiDanNo, unkRen, journeysItem, 1);
+        dateItem = datelst.First();
+        dateItemisnert = dateItem;
+        SyuPaTime = dateItem.form;
+        TouChTime = dateItem.to;
+        SyukoTime = dateItem.SyukoTime;
+        HaiSTime = dateItem.HaiSTime;
+        KikTime = dateItem.KikTime;
+        TimesStartZen = dateItem.timeStartZenHaFlg;
+        TimesEndKha = dateItem.timeEndKhakFlg;
+        text = "";
+        textlst = new List<TKD_KoteiData>();
+        textlst = await TKD_KoteiDataService.GetDataKotei(dateItem.isCommom, ukeno, dateItem.isZenHaFlg, dateItem.isKhakFlg, dateItem.teiDanNo, unkRen, dateItem.bunkRen, dateItem.nittei);
+        _latestUpd = await TKD_KoteiDataService.GetLatestUpdYmd(ukeno, unkRen, dateItem.teiDanNo, dateItem.bunkRen, dateItem.tomKbn, dateItem.nittei);
+        isHaitaValid = true;
+        foreach (var items in textlst)
+        {
+            text += items.Kotei_Koutei + "\n";
+            JisaIPKm = items.Koteik_JisaIPKm.ToString();
+            JisaKSKm = items.Koteik_JisaKSKm.ToString();
+            KisoIPkm = items.Koteik_KisoIPkm.ToString();
+            KisoKOKm = items.Koteik_KisoKOKm.ToString();
+            if (items.Koteik_SyuPaTime != "")
+            {
+                SyuPaTime = BusScheduleHelper.ConvertTime(items.Koteik_SyuPaTime);
+            }
+            if (items.Koteik_TouChTime != "")
+            {
+                TouChTime = BusScheduleHelper.ConvertTime(items.Koteik_TouChTime);
+            }
+            if (items.Koteik_SyukoTime != "")
+            {
+                SyukoTime = BusScheduleHelper.ConvertTime(items.Koteik_SyukoTime);
+            }
+            if (items.Koteik_HaiSTime != "")
+            {
+                HaiSTime = BusScheduleHelper.ConvertTime(items.Koteik_HaiSTime);
+            }
+            if (items.Koteik_KikTime != "")
+            {
+                KikTime = BusScheduleHelper.ConvertTime(items.Koteik_KikTime);
+            }
+        }
+        InvokeAsync(StateHasChanged);
+    }
+    public List<JourneyDataDate> getDateData(DateTime fromdate, DateTime todate, DateTime fromdatemin, DateTime todatemax, bool isCommom, bool isZenHaFlg, bool isKhakFlg, string ukeNo, short bunkRen, short teiDanNo, short unkRen, JourneysData journeyitem, int checkLoadFirst)
+    {
+        datelst = new List<JourneyDataDate>();
+        int i = 0;
+        for (DateTime date = fromdate; date <= todate; date = date.AddDays(1))
+        {
+            JourneyDataDate itemdate = new JourneyDataDate();
+            itemdate.isKhakFlg = isKhakFlg;
+            if (isKhakFlg == true)
+            {
+                itemdate.isKhakFlg = !isKhakFlg;
+            }
+            itemdate.isZenHaFlg = isZenHaFlg;
+            if (isZenHaFlg == true)
+            {
+                itemdate.isZenHaFlg = !isZenHaFlg;
+            }
+            itemdate.tomKbn = 1;
+            i++;
+            itemdate.nittei = (byte)i;
+            if (!isCommom)
+            {
+                itemdate.isCommom = isCommom;
+            }
+            itemdate.date = date;
+            itemdate.ukeNo = ukeno;
+            itemdate.bunkRen = bunkRen;
+            itemdate.unkRen = unkRen;
+            itemdate.teiDanNo = teiDanNo;
+
+            if (isCommom)
+            {
+                itemdate.form = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_SyuPaTime);
+                itemdate.to = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_TouChTime);
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_SyukoTime);
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_HaiSTime);
+                itemdate.KikTime = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_KikTime);
+            }
+            else
+            {
+                itemdate.form = BusScheduleHelper.ConvertTime(journeyitem.Haisha_SyuPaTime);
+                itemdate.to = BusScheduleHelper.ConvertTime(journeyitem.Haisha_TouChTime);
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime(journeyitem.Haisha_SyukoTime);
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime(journeyitem.Haisha_HaiSTime);
+                itemdate.KikTime = BusScheduleHelper.ConvertTime(journeyitem.Haisha_KikTime);
+            }
+            datelst.Add(itemdate);
+        }
+        if (isCommom == true)
+        {
+            if (isZenHaFlg && fromdate == fromdatemin)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                if (isKhakFlg == false)
+                {
+                    itemdate.isKhakFlg = isKhakFlg;
+                }
+                else
+                {
+                    itemdate.isKhakFlg = !isKhakFlg;
+                }
+                itemdate.isZenHaFlg = isZenHaFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 2;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = fromdate.AddDays(-1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeStartZenHaFlg = "1";
+                itemdate.to = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeEndKhakFlg = "1";
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.KikTime = BusScheduleHelper.ConvertTime("0000");
+                datelst.Add(itemdate);
+            }
+            if (isKhakFlg && todate == todatemax)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                if (isZenHaFlg == false)
+                {
+                    itemdate.isZenHaFlg = isZenHaFlg;
+                }
+                else
+                {
+                    itemdate.isZenHaFlg = !isZenHaFlg;
+                }
+                itemdate.isKhakFlg = isKhakFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 3;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = todate.AddDays(1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeStartZenHaFlg = "1";
+                itemdate.to = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeEndKhakFlg = "1";
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.KikTime = BusScheduleHelper.ConvertTime("0000");
+                datelst.Add(itemdate);
+            }
+
+        }
+        else
+        {
+            if (isZenHaFlg && bunkRen == bunkRenMin)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                if (isKhakFlg == false)
+                {
+                    itemdate.isKhakFlg = isKhakFlg;
+                }
+                else
+                {
+                    itemdate.isKhakFlg = !isKhakFlg;
+                }
+                itemdate.isZenHaFlg = isZenHaFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 2;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = fromdate.AddDays(-1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                itemdate.to = BusScheduleHelper.ConvertTime("0000");
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.KikTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeEndKhakFlg = "1";
+                itemdate.timeStartZenHaFlg = "1";
+                datelst.Add(itemdate);
+            }
+            if (isKhakFlg && bunkRen == bunkRenMax)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                if (isZenHaFlg == false)
+                {
+                    itemdate.isZenHaFlg = isZenHaFlg;
+                }
+                else
+                {
+                    itemdate.isZenHaFlg = !isZenHaFlg;
+                }
+                itemdate.isKhakFlg = isKhakFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 3;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = todate.AddDays(1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                itemdate.to = BusScheduleHelper.ConvertTime("0000");
+                itemdate.SyukoTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.HaiSTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.KikTime = BusScheduleHelper.ConvertTime("0000");
+                itemdate.timeEndKhakFlg = "1";
+                itemdate.timeStartZenHaFlg = "1";
+                datelst.Add(itemdate);
+            }
+        }
+        if (isCommom)
+        {
+            datelst.OrderBy(t => t.date).First().form = BusScheduleHelper.ConvertTime("0000");
+            datelst.OrderBy(t => t.date).Last().to = BusScheduleHelper.ConvertTime("0000");
+
+        }
+        else
+        {
+            if (isZenHaFlg)
+            {
+                datelst.OrderBy(t => t.date).First().form = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_SyuPaTime);
+            }
+            if (isKhakFlg)
+            {
+                datelst.OrderBy(t => t.date).Last().to = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_TouChTime);
+            }
+        }
+        /* Handle DataDate again ->Load data follow table Koteik if tb_Koteik has record of ukeno */
+        datelst = datelst.OrderBy(t => t.date).ToList();
+        int teiDanTomKbn = 0;
+        TKD_KoteikData KoteilData = new TKD_KoteikData();
+        for (int k = 0; k < datelst.Count; k++)
+        {
+            if (checkLoadFirst == 0 || journeyitem.Haisha_UkeNo == "0") //load first-->load chung
+            {
+                teiDanTomKbn = 9;
+                bunkRen = 0;
+            }
+            else if (checkLoadFirst == 1) //change xe
+            {
+                teiDanTomKbn = datelst[k].tomKbn;
+                bunkRen = datelst[k].bunkRen;
+            }
+            KoteilData = TKD_KoteikDataListService.GetDataKoteik(ukeNo, unkRen, teiDanNo, bunkRen, teiDanTomKbn, datelst[k].tomKbn, datelst[k].nittei);
+            if (KoteilData != null)
+            {
+                datelst[k].timeEndKhakFlg = "";
+                datelst[k].timeStartZenHaFlg = "";
+                datelst[k].form = BusScheduleHelper.ConvertTime(KoteilData.SyuPaTime);
+                datelst[k].to = BusScheduleHelper.ConvertTime(KoteilData.TouChTime);
+                datelst[k].SyukoTime = BusScheduleHelper.ConvertTime(KoteilData.SyukoTime);
+                datelst[k].HaiSTime = BusScheduleHelper.ConvertTime(KoteilData.HaiSTime);
+                datelst[k].KikTime = BusScheduleHelper.ConvertTime(KoteilData.KikTime);
+            }
+        }
+
+        datelst = datelst.OrderBy(t => t.date).ToList();
+
+        return datelst.OrderBy(t => t.date).ToList();
+    }
+    private async Task UpdateClear(MouseEventArgs e)
+    {
+        //popupclear = false;
+        //datelst = getDateData(fromdate, todate, fromdatemin, todatemax, true, isZenHaFlg, isKhakFlg, ukeno, CarListData.First().Haisha_BunkRen, CarListData.First().Haisha_TeiDanNo, unkRen, CarListData.First(), 1);
+        //dateItem = datelst.First();
+        //dateItemisnert = dateItem;
+        //SyuPaTime = dateItem.form;
+        //TouChTime = dateItem.to;
+        //SyukoTime = dateItem.SyukoTime;
+        //HaiSTime = dateItem.HaiSTime;
+        //KikTime = dateItem.KikTime;
+        //JisaIPKm = "0";
+        //JisaKSKm = "0";
+        //KisoIPkm = "0";
+        //KisoKOKm = "0";
+        //text = "";
+        //dateItemisnert = dateItem;await Task.Run(() =>
+        await Task.Run(() =>
+        {
+            Loadpage().Wait();
+        });
+        popupclear = false;
+    }
+    private async Task CancelClear(MouseEventArgs e)
+    {
+        popupclear = false;
+        StateHasChanged();
+    }
+    private async void ClearKotei(MouseEventArgs e)
+    {
+        popupclear = true;
+        StateHasChanged();
+    }
+    private async Task CancelSave(MouseEventArgs e)
+    {
+        popupsave = false;
+        message = "";
+        StateHasChanged();
+    }
+    private async void UpdateKotei(MouseEventArgs e)
+    {
+        if (IsDisableEdit)
+        {
+            return;
+        }
+        var latestUpd = await TKD_KoteiDataService.GetLatestUpdYmd(ukeno, unkRen, dateItemisnert.teiDanNo, dateItemisnert.bunkRen, dateItemisnert.tomKbn, dateItemisnert.nittei);
+        isHaitaValid = latestUpd.MaxKoteiYmdTime == _latestUpd.MaxKoteiYmdTime && latestUpd.MaxKoteikYmdTime == _latestUpd.MaxKoteikYmdTime;
+        if (!isHaitaValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        var client = await Http.GetHttpClient();
+        koteikData = new TKD_KoteikData();
+        koteikData.UkeNo = dateItemisnert.ukeNo;
+        koteikData.UnkRen = dateItemisnert.unkRen;
+        koteikData.BunkRen = dateItemisnert.bunkRen;
+        koteikData.isCommom = dateItemisnert.isCommom;
+        koteikData.isKhakFlg = dateItemisnert.isKhakFlg;
+        koteikData.isZenHaFlg = dateItemisnert.isZenHaFlg;
+        koteikData.Nittei = dateItemisnert.nittei;
+        koteikData.TeiDanNo = dateItemisnert.teiDanNo;
+        koteikData.TomKbn = dateItemisnert.tomKbn;
+        koteikData.SyuPaTime = SyuPaTime.ToString("hhmm");
+        koteikData.TouChTime = TouChTime.ToString("hhmm");
+        koteikData.SyukoTime = SyukoTime.ToString("hhmm");
+        koteikData.HaiSTime = HaiSTime.ToString("hhmm");
+        koteikData.KikTime = KikTime.ToString("hhmm");
+        decimal JisaIPKmParse;
+        decimal JisaKSKmParse;
+        decimal KisoIPkmParse;
+        decimal KisoKOKmParse;
+
+        if (decimal.TryParse(JisaIPKm, out JisaIPKmParse))
+        {
+            koteikData.JisaIPKm = JisaIPKmParse;
+        }
+        else
+        {
+            koteikData.JisaIPKm = 0;
+            JisaIPKm = "0";
+        }
+
+        if (decimal.TryParse(JisaKSKm, out JisaKSKmParse))
+        {
+            koteikData.JisaKSKm = JisaKSKmParse;
+        }
+        else
+        {
+            koteikData.JisaKSKm = 0;
+            JisaKSKm = "0";
+        }
+        if (decimal.TryParse(KisoIPkm, out KisoIPkmParse))
+        {
+            koteikData.KisoIPkm = KisoIPkmParse;
+        }
+        else
+        {
+            koteikData.KisoIPkm = 0;
+            KisoIPkm = "0";
+        }
+        if (decimal.TryParse(KisoKOKm, out KisoKOKmParse))
+        {
+            koteikData.KisoKOKm = KisoKOKmParse;
+        }
+        else
+        {
+            koteikData.KisoKOKm = 0;
+            KisoKOKm = "0";
+        }
+        List<string> listTpm = new List<string>(
+                       text.Split(new string[] { "\r\n", "\n" },
+                       StringSplitOptions.None));
+        List<string> list = new List<string>();
+        for (int f = 0; f < listTpm.Count; f++)
+        {
+            if (f == listTpm.Count - 1) //end
+            {
+                if (listTpm[f].ToString() != "")
+                {
+                    list.Add(listTpm[f]);
+                }
+            }
+            else
+            {
+                list.Add(listTpm[f]);
+            }
+        }
+
+
+
+        /* if (String.IsNullOrEmpty(list.Last().ToString())|| String.IsNullOrWhiteSpace(list.Last().ToString()))
+         {
+             list.Remove(list.Last());
+         }*/
+        List<TKD_KoteiDataInsert> JourneyLst = new List<TKD_KoteiDataInsert>();
+        int j = 1;
+        foreach (var item in list)
+        {
+            var enumerator = System.Globalization.StringInfo.GetTextElementEnumerator(item);
+            int i = 0;
+            List<string> textLst = new List<string>();
+            string itemstr = "";
+            while (enumerator.MoveNext())
+            {
+                if(i<37)
+                {
+                    itemstr += enumerator.Current.ToString();
+                    i++;
+                }
+                else
+                {
+                    textLst.Add(itemstr);
+                    i = 0;
+                }
+            }
+            textLst.Add(itemstr);
+            foreach(string itemtextstr in textLst)
+            {
+                TKD_KoteiDataInsert JourneyItem = new TKD_KoteiDataInsert();
+                JourneyItem.KouRen = (byte)j;
+                JourneyItem.Koutei = itemtextstr;
+                JourneyLst.Add(JourneyItem);
+                j++;
+            }
+        }
+        koteikData.JourneyLst = JourneyLst;
+        HttpResponseMessage response = await client.PostAsync($"{baseUrl}/api/TkdKoteik/", Http.getStringContentFromObject(koteikData));
+        if ((int)response.StatusCode == 200)
+        {
+            message = Lang["Message_save"];
+            popupsave = true;
+            _latestUpd = await TKD_KoteiDataService.GetLatestUpdYmd(ukeno, unkRen, dateItemisnert.teiDanNo, dateItemisnert.bunkRen, dateItemisnert.tomKbn, dateItemisnert.nittei);
+        }
+        else
+        {
+            message = Lang["Message_unsave"];
+            popupsave = true;
+        }
+        StateHasChanged();
+    }
+
+    private async Task<List<BookingDisableEditState>> LoadBookingEditableStateAsync(string ukeNo)
+    {
+        try
+        {
+            string uri = string.Format("{0}/api/BookingInput/DisabledBookingStateList?ukeNo={1}", baseUrl, ukeNo);
+            var response = await Http.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<BookingDisableEditState>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+}

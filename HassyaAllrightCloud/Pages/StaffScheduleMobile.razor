@@ -1,0 +1,311 @@
+﻿@inherits StaffScheduleMobileBase
+@layout SPLayout
+
+<link rel="stylesheet" href="css/dx.common.css">
+<link rel="stylesheet" href="css/dx.light.css">
+
+<div id="content-schedule-sfmb" style="overflow-y: auto; line-height: unset !important">
+    <div class="calendar-area">
+        <div class="header-content-sfmb">
+            <div class="float-left">
+                <button type="button" @onclick="(e) => backToDay(e)" class="btn btn-sm btn-bg-white-sfmb">@Lang["Today"]</button>
+            </div>
+            <div class="float-right">
+                <button type="button" class="btn btn-sm btn-refresh-schedule fa fa-refresh" @onclick="(e) => RefreshNewSchedule(e)"></button>
+                <button type="button" id="btn-plus-schedule" class="btn btn-sm btn-add-schedule fa fa-plus-square "></button>
+            </div>
+            <div class="text-center">
+                <button class=@("btn btn-sm btn-bg-white-sfmb no-boder" + (displayDay ? " btn-dm-active" : string.Empty)) type="button" @onclick="(e) => hideScheduleCalenda(e)">@Lang["Day"]</button>
+                <button class=@("btn btn-sm btn-bg-white-sfmb no-boder" + (!displayDay ? " btn-dm-active" : string.Empty)) type="button" @onclick="(e) => showScheduleCalenda(e)">@Lang["Month"]</button>
+            </div>
+        </div>
+        <div>
+            <div class="staff-schedule-mobile">
+                <div id="scheduler"></div>
+            </div>
+        </div>
+        <div class="header-content-sub-sfmb">
+            <div class="float-left">
+                <label class="lbl-sfmb-custom">@Lang["Today"]</label>
+            </div>
+            <div class="float-right">
+                <label class="lbl-sfmb-custom">@(dateDisplay.ToString(formatDate))</label>
+                <button type="button" class="btn btn-sm fa fa-chevron-circle-left btn-custom-sfmb btn-custom-sfmb-left" @onclick="(e) => PreviousDay(e)"></button>
+                <button type="button" class="btn btn-sm fa fa-chevron-circle-right btn-custom-sfmb" @onclick="(e) => NextDay(e)"></button>
+            </div>
+        </div>
+    </div>
+    <div class="scheduler-area">
+        <div class="content-list-title">
+            <div class="btn-left-list">
+                <button type="button" class="btn btn-sm fa fa-list sfmb-btn-list" @onclick="(e) => RedirectToGroupList(e)"></button>
+            </div>
+            <div class="list-staff-header">
+                @if (groupSchedule == null || currentGroupSelected.GroupId == 0)
+                {
+                    <label class="mr-4">@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCd)</label>
+                    <label class="">@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)</label>
+                }
+                else
+                {
+                    <label class="">@currentCompanyGroupDisplay.CompanyName</label>
+                    @if (currentCompanyGroupDisplay != null && currentCompanyGroupDisplay.GroupInfo.Count > 0)
+                    {
+                        <label class="mr-4">@currentCompanyGroupDisplay.GroupInfo[0].GroupName</label>
+                    }
+                }
+            </div>
+            <div class="lst-btn-right-sfmb">
+                @if (groupSchedule == null || currentGroupSelected.GroupId == 0)
+                {
+                    <button type="button" class="btn btn-sm btn-cog-sfmb fa fa-cog" @onclick="@showCalendarTypeSetting"></button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-sm btn-bg-white-sfmb fa fa-users btn-left-custom @(typeDisplayGrid == 3 ? "btn-dm-active" : string.Empty)" @onclick="@ShowTimeOfStaff"></button>
+                    <button type="button" class="btn btn-sm btn-bg-white-sfmb fa fa-user-circle-o btn-left-custom @(typeDisplayGrid == 1 ? "btn-dm-active" : string.Empty)" @onclick="@SortFollowByStaff"></button>
+                    <button type="button" class="btn btn-sm btn-bg-white-sfmb fa fa-clock-o @(typeDisplayGrid == 2 ? "btn-dm-active" : string.Empty)" @onclick="@SortFollowByTime"></button>
+                }
+            </div>
+        </div>
+        <div class=@(groupSchedule == null ? "d-flex d-inline-block content-list" : "")>
+            @if (groupSchedule == null)
+            {
+                @if (currentListAppoitmentStaff.Count() > 0)
+                {
+                    <table id="staff-schedule-mobile">
+                        @foreach (var item in currentListAppoitmentStaff)
+                        {
+                            <tr @onclick="() => showAppoitmentStaff(item, true)">
+                                <td class="time-sfmb row-sfmb-color-@(item.DataType.ToString() + item.Typelabel.LabelType.ToString())">
+                                    @if (item.AllDayKbn == 1)
+                                    {
+                                        <p class = 'm-0'>@Lang["AllDay"]</p>
+
+                                    }
+                                    else
+                                    {
+                                        <p class = 'm-0'>
+                                            @(item.StartDateDisplay.TimeOfDay.ToString(@"hh\:mm"))<br /> ~ <br />@(item.EndDateDisplay.TimeOfDay.ToString(@"hh\:mm"))
+                                        </p>
+                                    }
+                                </td>
+                                <td class="description-sfmb">
+                                    <p class="description-notice">@(item.Text)</p>
+                                    <div class="d-flex d-inline-block mt-2">
+                                        <lable class="lable-schedule-type row-sfmb-color-@(item.DataType.ToString() + item.Typelabel.LabelType.ToString())">@(item.Typelabel.LabelText)</lable>
+                                        @if (item.AttachedLable != null && item.AttachedLable.Count > 0)
+                                        {
+                                            foreach (LabelList label in item.AttachedLable)
+                                            {
+                                                if (label.LabelType == 1)
+                                                {
+                                                    <label class="lable-group-absolute" style="background-color: #d2302f">@Lang["Absolute"]</label>
+                                                }
+                                                else
+                                                {
+                                                    <label class="lable-group-hope" style="background-color: #1a76d2">@Lang["Hope"]</label>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td class="icon-sfmb">
+                                    @if (item.DataType != 4 && item.DataType != 5)
+                                    {
+                                        <i class="fa fa-angle-right icon-size-sfmb @(item.DataType == 1 && item.YoteiInfo.CreatorCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq && item.YoteiInfo.YoteiShoKbn != "3" ? "sfmb-ml-40" : string.Empty)" aria-hidden="true"></i>
+                                        @if (item.DataType == 1 && item.YoteiInfo.CreatorCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq && item.YoteiInfo.YoteiShoKbn != "3")
+                                        {
+                                            <button class="btn btn-sm btn-delete-sfshmb" @onclick="() => deleteAppoitmentStaff(item)">
+                                                <i class="fa fa-trash icon-trash-sfmb"></i>
+                                            </button>
+                                        }
+                                    }
+                                </td>
+
+                            </tr>
+
+                        }
+                    </table>
+                }
+            }
+            else
+            {
+                @if (typeDisplayGrid == 3)
+                {
+                    <table id="show-time-work-sfmb">
+                        <tr class="head-tbl-sfmb">
+                            <th class="staff-info">@Lang["Staff"]</th>
+                            <th class="time-1-week">@Lang["1WeekWorkTime"]</th>
+                            <th class="time-4-week">@Lang["4WeekWorkTimeAverage"]</th>
+                        </tr>
+                        @if (StaffListOfGroup != null && StaffListOfGroup.Count > 0)
+                        {
+                            @foreach (StaffModel staffTime in StaffListOfGroup)
+                            {
+                                <tr class="row-sfmb">
+                                    <td class="staff-info">@staffTime.Employeeid</td>
+                                    <td class="row-time-1-week" rowspan="2">@staffTime.OneWeekWorkingHour</td>
+                                    <td class="row-time-4-week" rowspan="2">@staffTime.FourWeekWorkingHour</td>
+                                </tr>
+                                <tr class="row-sfmb-1">
+                                    <td class="staff-info">@staffTime.EmployeeName</td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                }
+                else
+                {
+                    @if (CurrentScheduleDataModelDict.Count() > 0)
+                    {
+                        @foreach (var item in CurrentScheduleDataModelDict)
+                        {
+                            if (typeDisplayGrid == 1)
+                            {
+                                <div id="groupScheduleTitleSectionSfmb" class="lbl-title-staff-name">
+                                    <i class="fa fa-angle-up lbl-title-header-group-sfmb" aria-hidden="true"></i>
+                                    <label class="lable-staff-name-sfmb">@item.Key</label>
+                                </div>
+                            }
+                            <div>
+                                @foreach (var itemStaff in item.Value)
+                                {
+                                    <div @onclick=" () => showAppoitmentGroup(itemStaff, true)">
+                                        <div class="row-schedule-staff-sfmb">
+                                            <div class="row-schedule-staff-text">
+                                                <div class="time-group-sfmb row-sfmb-color-@(itemStaff.DataType == 1 && itemStaff.DisplayType == 90 ? "private" : itemStaff.DataType.ToString() + itemStaff.Typelabel.LabelType.ToString())">
+                                                    @if (itemStaff.AllDayKbn == 1)
+                                                    {
+                                                        <p class="sfmb-full-day">@Lang["AllDay"]</p>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="time-group-display-sfmb">@(itemStaff.StartDateDisplay.TimeOfDay.ToString(@"hh\:mm"))<br /> ~ <br />@(itemStaff.EndDateDisplay.TimeOfDay.ToString(@"hh\:mm"))</p>
+                                                    }
+                                                </div>
+                                                <div class="description-group-sfmb">
+                                                    <p class="description-group-notice">@(itemStaff.Text)</p>
+                                                    <div class="d-flex d-inline-block type-lable-group-display-sfmb">
+                                                        <lable class="lable-group-schedule-type row-sfmb-color-@(itemStaff.DataType == 1 && itemStaff.DisplayType == 90 ? "private" : itemStaff.DataType.ToString() + itemStaff.Typelabel.LabelType.ToString())">@(itemStaff.Typelabel.LabelText)</lable>
+                                                        @if (itemStaff.AttachedLable != null && itemStaff.AttachedLable.Count > 0)
+                                                        {
+                                                            foreach (LabelList label in itemStaff.AttachedLable)
+                                                            {
+                                                                if (label.LabelType == 1)
+                                                                {
+                                                                    <label class="lable-group-absolute" style="background-color: #d2302f">@Lang["Absolute"]</label>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <label class="lable-group-hope" style="background-color: #1a76d2">@Lang["Hope"]</label>
+                                                                }
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="icon-group-sfmb">
+                                                @if (itemStaff.DataType == 1 && itemStaff.YoteiInfo.CreatorCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq && itemStaff.YoteiInfo.YoteiShoKbn != "3")
+                                                {
+                                                    <button class="btn btn-sm btn-delete-group-sfshmb" @onclick="() => deleteAppoitmentStaff(itemStaff)">
+                                                        <i class="fa fa-trash icon-trash-sfmb"></i>
+                                                    </button>
+                                                }
+                                                @if (typeDisplayGrid == 2)
+                                                {
+                                                    <div class="name-group-sfmb">@itemStaff.SyainnmDisplay</div>
+                                                }
+                                                @if (itemStaff.DataType != 4 && itemStaff.DataType != 5)
+                                                {
+                                                    <i class="fa fa-angle-right icon-size-sfmb" aria-hidden="true"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                }
+            }
+        </div>
+        <div class="day-button-display-@(displayDay ? "show" : "hide")">
+            <button type="button" class="btn btn-sm btn-bg-white-sfmb" @onclick="(e) => PreviousDay(e)"><i class="arrow-schedule sfmb-left"></i>@Lang["BtnBefore"]</button>
+            <button type="button" class="btn btn-sm btn-bg-white-sfmb" @onclick="(e) => NextDay(e)">@Lang["BtnAfter"]<i class="arrow-schedule sfmb-right"></i></button>
+        </div>
+    </div>
+    <div class="footer-scheudle-mobile">
+        <div class="footer-right-bottom">
+        </div>
+        <div id="addschedulemobile" class="dx-fa-button-icon sfmb-icon-add">
+            <i class="dx-icon dx-icon-add"></i>
+        </div>
+    </div>
+</div>
+<DxPopup CssClass="custom-popup" @bind-Visible="@IsSendMailError">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Error"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { IsSendMailError = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-times-circle" style="color:red" aria-hidden="true"></i>
+        @Lang["BI_T005"]
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@(() => { IsSendMailError = false; })" Text="@Lang["OK"]" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="modal-lg custom-popup popup-sfmb" @bind-Visible="@PopupDetailConfirm">
+    <HeaderTemplate>
+        <div class="lst-sfmb-header">
+            <button class="btn btn-sm btn-close-confirm-sfmb" @onclick="@(async () => { PopupDetailConfirm = false; })">@Lang["Close"]</button>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileConfirm scheduleStaffData="@staffParam" currentDate="@dateDisplay" ChangeDate="ChangeDate"></HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileConfirm>
+    </ChildContent>
+</DxPopup>
+<DxPopup CssClass="modal-lg custom-popup popup-sfmb" @bind-Visible="@PopupDetailOther">
+    <HeaderTemplate>
+        <div class="lst-sfmb-header">
+            <button class="btn btn-sm btn-close-confirm-sfmb" @onclick="@(async () => { PopupDetailOther = false; })">@Lang["Close"]</button>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileDetailOther scheduleStaffData="@staffParam" currentDate="@dateDisplay"></HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileDetailOther>
+    </ChildContent>
+</DxPopup>
+<DxPopup CssClass="modal-lg custom-popup popup-sfmb" @bind-Visible="@PopupDetail">
+    <HeaderTemplate>
+        <div class="lst-sfmb-header">
+            <button class="btn btn-sm btn-close-confirm-sfmb" @onclick="@(async () => { PopupDetail = false; })">@Lang["Close"]</button>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileDetails scheduleStaffData="@staffParam" currentDate="@dateDisplay"></HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.StaffScheduleMobileDetails>
+    </ChildContent>
+</DxPopup>
+<DxPopup CssClass="modal-lg custom-popup popup-sfmb" @bind-Visible="@PopupIsSettingTypeCalendar">
+    <HeaderTemplate>
+        <div class="lst-sfmb-header">
+            <a @onclick="@(async () => backToScheduleByCalendarType())">
+                <div class="float-left">
+                    <i class="fa fa-angle-left lbl-text-white" aria-hidden="true"></i>
+                </div>
+                <div class="text-center">
+                    <label class="lbl-text-white-title">@Lang["TitleCalendarSetting"]</label>
+                </div>
+            </a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.CalendarMobileTypeSetting CalendarSets="@CalendarSets" @bind-SelectedCalendarDict="@SelectedCalendarDict" @bind-SelectedBirthdayCommentDict="@SelectedBirthdayCommentDict" currentDate="@dateDisplay"></HassyaAllrightCloud.Pages.Components.StaffScheduleMobile.CalendarMobileTypeSetting>
+    </ChildContent>
+</DxPopup>
+

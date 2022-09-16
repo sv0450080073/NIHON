@@ -1,0 +1,35 @@
+﻿<ul class="list-unstyled list mb-0 custom-scroll" style="max-height: 130px; overflow-y: auto">
+    @foreach (var item in List)
+    {
+        <li class="draggable" draggable="true" @ondragstart="@(() => HandleDragStart(item))" @ondragend="OnDragEnd">
+            @*class="holiday-@item.KinKyuCd"*@
+            <div style="color: @GetColor(item)">@(item.KinKyuCd.ToString("D3") + " " + item.KinKyuNm)</div>
+        </li>
+    }
+</ul>
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    [Parameter] public List<WorkLeaveItem> List { get; set; }
+
+    private void HandleDragStart(WorkLeaveItem selectItem)
+    {
+        Container.Holiday = selectItem;
+        Container.Payload.AllowStatus = Flag.Holiday;
+        Container.isHoliday = true;
+        Container.isAHoliday = true;
+        Container.isWork = false;
+        Container.isJob = false;
+        Container.OnChange();
+    }
+
+    private void OnDragEnd()
+    {
+        Container.isAHoliday = false;
+    }
+
+    private string GetColor(WorkLeaveItem item)
+    {
+        return !string.IsNullOrWhiteSpace(item.ColKinKyu) ? item.ColKinKyu : "#000000";
+    }
+}

@@ -1,0 +1,2105 @@
+﻿@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<BookingInputTab> Lang
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inject IConfirmationTabService ConfirmationTabService
+@inject IBusBookingDataListService BusBookingDataService
+@inject ITKD_KoteiDataListService TKD_KoteiDataService
+@inject IStringLocalizer<Index> LangIndex
+@inject BusScheduleHelper BusScheduleHelper
+@inherits OwningComponentBase
+@using System.Threading;
+@using HassyaAllrightCloud.Commons.Extensions;
+@using System.Text.RegularExpressions;
+@using HassyaAllrightCloud.Pages.Components.BookingTabs;
+@using HassyaAllrightCloud.Pages.Components.Popup
+
+<EditForm id="bookinginputtab" EditContext="@formContext" OnSubmit="OnValidSubmit">
+    <MyPopup Model="MyPopup" OnClose="HandleClosePopup" />
+    <DxPopup CssClass="custom-popup" @bind-Visible="@isConfirmSuccess" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @popupTitle
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { isConfirmSuccess = false; })"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+            @popupContent
+        </ChildContent>
+        <FooterTemplate>
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => { isConfirmSuccess = false; })" Text="@ok" />
+        </FooterTemplate>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupJourney" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                行程入力
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => { PopupJourney = false; await CarItemChanged(selectedCar); })"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <Journeys ukeNo="@id" unkRenparam="@BookingData.UnkRen" teiDanNo="@selectedCar.Haisha_TeiDanNo" bunkRen="@selectedCar.Haisha_BunkRen"  OnClose="@(async (e) => { PopupJourney = false; await CarItemChanged(selectedCar); })"></Journeys>
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-xl custom-popup" @bind-Visible="@PopupTehai" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["ArrangementInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => await ClosePopupTehai())"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <Tehai UkeNo="@id" OnClose="@(async () => await ClosePopupTehai())" />
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="custom-popup" @bind-Visible="@isPopupAskSaveBooking" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["PopupTitleInfo"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => await ConfirmUpdateBooking(false))"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+            @if (confirmStatus == ConfirmStatus.Fixed)
+            {
+                @Lang["PopupContentUpdateWhenConfimed"]<br />
+            }
+            @Lang["AskForUpdate"]
+        </ChildContent>
+        <FooterTemplate>
+            <DxButton RenderStyle="ButtonRenderStyle.Danger" CssClass="width--90" @onclick="@(async () => await ConfirmUpdateBooking(true))" Text="@yes" />
+            <DxButton RenderStyle="ButtonRenderStyle.Secondary" CssClass="width--90" @onclick="@(async () => await ConfirmUpdateBooking(false))" Text="@no" />
+        </FooterTemplate>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupFuttumDetail" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                <div>
+                    @Lang["IncidentalBtnText"]
+                </div>
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+                   @onclick="async () => await ClosePopupFuttumDetail()">
+                </a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <Futai CurrentViewMode="@IncidentalView" UkeNo="@id" />
+        </ChildContent>
+    </DxPopup>
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BookingFormValidator" />
+    <div class="express-condition mb-2">
+        <a href="javascript:void(0)" class="zoom-icon zoom-icon--expand">
+            <i class="fa fa-expand" aria-hidden="true"></i>
+        </a>
+        <a href="javascript:void(0)" class="zoom-icon zoom-icon--compress">
+            <i class="fa fa-compress" aria-hidden="true"></i>
+        </a>
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["Tab1"]"></DxTab>
+            <DxTab Text="@Lang["Tab2"]"></DxTab>
+            <DxTab Text="@Lang["Tab3"]"></DxTab>
+            <DxTab Text="@Lang["Custom"]" CssClass="@(TenantHasCustomData ? "" : "d-none")"></DxTab>
+            @if (id != "0" && id != null)
+            {
+                <DxTab Text="@Lang["Tab5"]" CssClass="@(!IsValidBookingForm() ? "disabled-content" : "")"></DxTab>
+                <DxTab Text="@Lang["Tab6"]" CssClass="@(!isValidBookingForm ? "disabled-content" : "")"></DxTab>
+                <DxTab Text="@Lang["Tab9"]" CssClass="@(!isValidBookingForm ? "disabled-content" : "")"></DxTab>
+                @if (IsCopyMode == false)
+                {
+                    <DxTab Text="@Lang["Tab7"]" CssClass="@(!isValidBookingForm ? "disabled-content" : "")"></DxTab>
+                    @if (BookingData.IsDailyReportRegisted == false)
+                    {
+                        <DxTab Text="@Lang["Tab8"]" CssClass="@(!isValidBookingForm ? "disabled-content" : "")"></DxTab>
+                    }
+                }
+            }
+            <DxTab Text="@TabUpload"></DxTab>
+        </DxTabs>
+        <div class="card dxbs-border-radius-top-0">
+            <div class="card-body">
+                @switch (ActiveTabIndex)
+                {
+                    case 0: //予約１
+                        @if (BookingData.SupervisorTabData != null)
+                        {
+                            <div class="@(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                <div class="row">
+                                    <div class="col-4 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Name"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanJNm"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanJNm"
+                                                   maxlength="20"
+                                                   TextChanged="@(newValue => OnKanJNmChanged(newValue))"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["Phone"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjTel"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjTel"
+                                                   maxlength="14"
+                                                   type="tel"
+                                                   CssClass="customTelFax"
+                                                   TextChanged="@(newValue => OnKanjTelChanged(newValue))"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap pl-0">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Fax"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjFax"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjFax"
+                                                   maxlength="14"
+                                                   type="tel"
+                                                   CssClass="customTelFax"
+                                                   TextChanged="@(newValue => OnKanjFaxChanged(newValue))"></DxTextBox>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Address"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjJyus1"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjJyus1"
+                                                   TextChanged="@(newValue => OnKanjJyus1Changed(newValue))"
+                                                   maxlength="30"
+                                                   CssClass="flex-grow-1"></DxTextBox>
+                                    </div>
+                                    <div class="col-3 form-group d-flex flex-nowrap">
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjJyus2"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjJyus2"
+                                                   TextChanged="@(newValue => OnKanjJyus2Changed(newValue))"
+                                                   maxlength="30"
+                                                   CssClass="flex-grow-1"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap pl-0">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Mobile"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjKeiNo"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjKeiNo"
+                                                   maxlength="14"
+                                                   type="tel"
+                                                   CssClass="customTelFax"
+                                                   TextChanged="@(newValue => OnKanjKeiNoChanged(newValue))"></DxTextBox>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-8 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Email"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.KanjMail"
+                                                   TextExpression="() => BookingData.SupervisorTabData.KanjMail"
+                                                   maxlength="50"
+                                                   type="email"
+                                                   TextChanged="@(newValue => OnKanjMailChanged(newValue))"
+                                                   CssClass="flex-grow-1"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap pl-0">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["DM"]</label>
+                                        <DxCheckBox Checked="@BookingData.SupervisorTabData.KanDMHFlg"
+                                                    CheckedExpression="() => BookingData.SupervisorTabData.KanDMHFlg"
+                                                    CheckedChanged="@(newValue => OnKanDMHFlgChanged(newValue))"></DxCheckBox>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 form-group d-flex">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Supplier"]</label>
+                                        @*<DxComboBox DataAsync="GetSupplierListAsync"
+                                                    TextFieldName="Text"
+                                                    AllowUserInput="false"
+                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItemExpression="() => BookingData.SupervisorTabData.Supplier"
+                                                    SelectedItem="BookingData.SupervisorTabData.Supplier"
+                                                    NullText="仕入先コード：仕入先名　支店コード：仕入先支店名"
+                                                    SelectedItemChanged="SelectedSupplierChanged"
+                                                    CssClass="flex-grow-1"
+                                                    DropDownDirection="DropDownDirection.Down" />*@
+                                        <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent 
+                                                                            DefaultGyosya="null"
+                                                                            SelectedGyosya="BookingData.SupervisorTabData.customerComponentGyosyaData"
+                                                                            GyosyaExpression="() => BookingData.SupervisorTabData.customerComponentGyosyaData"
+                                                                            SelectedGyosyaChanged="(e) => SelectedSupplierChanged(nameof(BookingData.SupervisorTabData.customerComponentGyosyaData), e)"
+                                                                            DefaultTokisk="@(Convert.ToInt32(BookingData.SupervisorTabData.customerComponentTokiskData?.TokuiSeq))"
+                                                                            SelectedTokisk="BookingData.SupervisorTabData.customerComponentTokiskData"
+                                                                            TokiskExpression="() => BookingData.SupervisorTabData.customerComponentTokiskData"
+                                                                            SelectedTokiskChanged="(e) => SelectedSupplierChanged(nameof(BookingData.SupervisorTabData.customerComponentTokiskData), e)"
+                                                                            DefaultTokiSt="@(Convert.ToInt32(BookingData.SupervisorTabData.customerComponentTokiStData?.SitenCdSeq))"
+                                                                            SelectedTokiSt="BookingData.SupervisorTabData.customerComponentTokiStData"
+                                                                            SelectedTokiStChanged="(e) => SelectedSupplierChanged(nameof(BookingData.SupervisorTabData.customerComponentTokiStData), e)"
+                                                                            TokiStExpression="() => BookingData.SupervisorTabData.customerComponentTokiStData"
+                                                                            DropDownDirection="DropDownDirection.Down"
+                                                                            LangDic="LangDic"
+                                                                            DefaultTokiskNullText="@Lang["DefaultTokiskNullText"]"
+                                                                            DefaultTokiStNullText="@Lang["DefaultTokiStNullText"]"
+                                                                            @ref="CustomerComponent"
+                                                                            isTokiskAddNull="true"
+                                                                            isTokiStAddNull="true"
+                                                                            />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Person in charge"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.TokuiTanNm"
+                                                   TextExpression="() => BookingData.SupervisorTabData.TokuiTanNm"
+                                                   maxlength="16"
+                                                   TextChanged="@(newValue => OnTokuiTanNmChanged(newValue))"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["Phone"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.TokuiTel"
+                                                   TextExpression="() => BookingData.SupervisorTabData.TokuiTel"
+                                                   maxlength="14"
+                                                   type="tel"
+                                                   CssClass="customTelFax"
+                                                   TextChanged="@(newValue => OnTokuiTelChanged(newValue))"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap pl-0">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Fax"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.TokuiFax"
+                                                   TextExpression="() => BookingData.SupervisorTabData.TokuiFax"
+                                                   maxlength="14"
+                                                   type="tel"
+                                                   CssClass="customTelFax"
+                                                   TextChanged="@(newValue => OnTokuiFaxChanged(newValue))"></DxTextBox>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-8 form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Email"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.TokuiMail"
+                                                   TextExpression="() => BookingData.SupervisorTabData.TokuiMail"
+                                                   TextChanged="@(newValue => OnTokuiMailChanged(newValue))"
+                                                   maxlength="50"
+                                                   type="email"
+                                                   CssClass="flex-grow-1"></DxTextBox>
+                                    </div>
+                                    <div class="col-4 form-group d-flex flex-nowrap pl-0">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Passenger"]</label>
+                                        <DxTextBox Text="@BookingData.SupervisorTabData.JyoSyaJinDisplay"
+                                                   TextChanged="@(newValue => OnJyoSyaJinChanged(newValue))"
+                                                   TextExpression="() => BookingData.SupervisorTabData.JyoSyaJin"
+                                                   maxlength="4"
+                                                   CssClass="width--56 number"></DxTextBox>
+                                        <span class="mx-2">@Lang["People"] +</span>
+                                        <DxTextBox CssClass="width--56 number"
+                                                   Text="@BookingData.SupervisorTabData.PlusJinDisplay"
+                                                   TextChanged="@(newValue => OnPlusJinChanged(newValue))"
+                                                   maxlength="4"
+                                                   TextExpression="() => BookingData.SupervisorTabData.PlusJin" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        break;
+                    case 1: //予約２
+                        @if (BookingData.ReservationTabData != null)
+                        {
+                            <div class="@(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                <div class="row @(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                    <div class="col-4 form-group">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Delivery DateTime"]</label>
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.GarageLeaveDate)"
+                                                            Lang="@LangDic"
+                                                            Text=""
+                                                            Position="PositionTooltip.top" />
+                                                <DxDateEdit CssClass="width--120"
+                                                            Date="@BookingData.ReservationTabData.GarageLeaveDate"
+                                                            DateExpression="@(() => BookingData.ReservationTabData.GarageLeaveDate)"
+                                                            DateChanged="@((newValue) => OnGarageLeaveDateChanged(newValue))"
+                                                            Format="yyyy/MM/dd"
+                                                            @oninput="e => {
+                                                                          var date = CommonHelper.ConvertToDateTime((string)e.Value);
+                                                                          if (date != null)
+                                                                              OnGarageLeaveDateChanged((DateTime)date);
+                                                                      }"/>
+                                            </div>
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.SyuKoTime.Str)"
+                                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <InputTime CssClass="ml-2 width--90 text-center"
+                                                           Time="@BookingData.ReservationTabData.SyuKoTime"
+                                                           TimeChanged="@((e) => GarageLeaveTimeChanged(e))">
+                                                </InputTime>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Departure DateTime"]</label>
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.GoDate)"
+                                                            Lang="@LangDic"
+                                                            Text=""
+                                                            Position="PositionTooltip.top" />
+                                                <DxDateEdit CssClass="width--120"
+                                                            Date="@BookingData.ReservationTabData.GoDate"
+                                                            DateExpression="@(() => BookingData.ReservationTabData.GoDate)"
+                                                            DateChanged="@((newValue) => OnGoDateDateChanged(newValue))"
+                                                            Format="yyyy/MM/dd"
+                                                            @oninput="e => {
+                                                                          var date = CommonHelper.ConvertToDateTime((string)e.Value);
+                                                                          if (date != null)
+                                                                              OnGoDateDateChanged((DateTime)date);
+                                                                      }"/>
+                                            </div>
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.SyuPatime.Str)"
+                                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <InputTime CssClass="ml-2 width--90 text-center"
+                                                           Time="@BookingData.ReservationTabData.SyuPatime"
+                                                           TimeChanged="@((e) => DepartureStartTimeChanged(e.Str))"
+                                                           MaxHour="23">
+                                                </InputTime>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["Receipt DateTime"]</label>
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.GarageReturnDate)"
+                                                            Lang="@LangDic"
+                                                            Text=""
+                                                            Position="PositionTooltip.top" />
+                                                <DxDateEdit CssClass="width--120"
+                                                            Date="@BookingData.ReservationTabData.GarageReturnDate"
+                                                            DateExpression="@(() => BookingData.ReservationTabData.GarageReturnDate)"
+                                                            DateChanged="@((newValue) => OnGarageReturnDateDateChanged(newValue))"
+                                                            Format="yyyy/MM/dd"
+                                                            @oninput="e => {
+                                                                          var date = CommonHelper.ConvertToDateTime((string)e.Value);
+                                                                          if (date != null)
+                                                                              OnGarageReturnDateDateChanged((DateTime)date);
+                                                                      }"
+                                                            />
+                                            </div>
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.KikTime.Str)"
+                                                         Lang="@LangDic" Text="" Position="PositionTooltip.left"></Tooltip>
+                                                <InputTime CssClass="ml-2 width--90 text-center"
+                                                           Time="@BookingData.ReservationTabData.KikTime"
+                                                           TimeChanged="@((e) => GarageReturnTimeChanged(e.Str))"
+                                                           MaxHour="23">
+                                                </InputTime>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3 width--56">@Lang["Destination"]</label>
+                                    <DxComboBox Data="destinationDataList" CssClass="width--290"
+                                                TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="BookingData.ReservationTabData.Destination"
+                                                SelectedItemExpression="() => BookingData.ReservationTabData.Destination"
+                                                SelectedItemChanged="SelectedDestinationChanged"
+                                                NullText="県コード:県名 マップコード:場所名" />
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.IkNm)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.IkNm"
+                                                   TextExpression="() => BookingData.ReservationTabData.IkNm"
+                                                   TextChanged="DestinationNameChanged"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3 width--56">@Lang["Depot"]</label>
+                                    <DxComboBox Data="placeDataList" CssClass="width--290"
+                                                TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="BookingData.ReservationTabData.DespatchingPlace"
+                                                SelectedItemExpression="() => BookingData.ReservationTabData.DespatchingPlace"
+                                                SelectedItemChanged="SelectedDespatchingPlaceChanged"
+                                                NullText="県コード:件名 マップコード:場所名" />
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.HaiSNm)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.HaiSNm"
+                                                   TextExpression="() => BookingData.ReservationTabData.HaiSNm"
+                                                   TextChanged="DespatchingPlaceNameChanged"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.HaiSjyus1)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.HaiSjyus1"
+                                                   TextExpression="() => BookingData.ReservationTabData.HaiSjyus1"
+                                                   TextChanged="HaiSjyus1Changed"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.HaiSjyus2)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.HaiSjyus2"
+                                                   TextExpression="() => BookingData.ReservationTabData.HaiSjyus2"
+                                                   TextChanged="HaiSjyus2Changed"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3 width--56">@Lang["Arrival"]</label>
+                                    <DxComboBox Data="placeDataList" CssClass="width--290"
+                                                TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="BookingData.ReservationTabData.ArrivePlace"
+                                                SelectedItemExpression="() => BookingData.ReservationTabData.ArrivePlace"
+                                                SelectedItemChanged="SelectedArrivePlaceChanged"
+                                                NullText="県コード:件名 マップコード:場所名"
+                                                DropDownDirection="DropDownDirection.Down" />
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.TouNm)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.TouNm"
+                                                   TextExpression="() => BookingData.ReservationTabData.TouNm"
+                                                   TextChanged="ArrivePlaceNameChanged"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.TouJyusyo1)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.TouJyusyo1"
+                                                   TextExpression="() => BookingData.ReservationTabData.TouJyusyo1"
+                                                   TextChanged="TouJyusyo1Changed"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.ReservationTabData.TouJyusyo2)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox Text="@BookingData.ReservationTabData.TouJyusyo2"
+                                                   TextExpression="() => BookingData.ReservationTabData.TouJyusyo2"
+                                                   TextChanged="TouJyusyo2Changed"
+                                                   CssClass="ml-2 length50" />
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <div class="d-flex flex-nowrap @(BookingData.IsDailyReportRegisted ? "disabled-content" : "")">
+                                        <label class="col-form-label-sm mr-3 width--56">@Lang["String5"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => BookingData.ReservationTabData.MovementStatus)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxComboBox Data="movementStatusList"
+                                                        TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                        SelectedItem="BookingData.ReservationTabData.MovementStatus"
+                                                        SelectedItemExpression="() => BookingData.ReservationTabData.MovementStatus"
+                                                        SelectedItemChanged="SelectedMovementStatusChanged"
+                                                        CssClass="width--150"
+                                                        ReadOnly="@BookingData.IsDailyReportRegisted"
+                                                        DropDownDirection="DropDownDirection.Down" />
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 ml-3">@Lang["String6"]</label>
+                                        <DxComboBox Data="acceptanceConditionList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.AcceptanceConditions"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.AcceptanceConditions"
+                                                    SelectedItemChanged="SelectedAcceptanceConditionsChanged"
+                                                    CssClass="width--150"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                </div>
+                                <div class="grid-table">
+                                    <div class="form-group">
+                                        <label class="col-form-label-sm mr-3">@SijJoKnmData.SijJoKnm1</label>
+                                        <DxComboBox Data="rainyMeasureList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.RainyMeasure"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.RainyMeasure"
+                                                    SelectedItemChanged="SelectedRainyMeasureChanged"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label-sm mr-3">@SijJoKnmData.SijJoKnm2</label>
+                                        <DxComboBox Data="paymentMethodList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.PaymentMethod"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.PaymentMethod"
+                                                    SelectedItemChanged="SelectedPaymentMethodChanged"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label-sm mr-3">@SijJoKnmData.SijJoKnm3</label>
+                                        <DxComboBox Data="movementFormList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.MovementForm"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.MovementForm"
+                                                    SelectedItemChanged="SelectedMovementFormChanged"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label-sm mr-3">@SijJoKnmData.SijJoKnm4</label>
+                                        <DxComboBox Data="guiderSettingList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.GuiderSetting"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.GuiderSetting"
+                                                    SelectedItemChanged="SelectedGuiderSettingChanged"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label-sm mr-3">@SijJoKnmData.SijJoKnm5</label>
+                                        <DxComboBox Data="estimateSettingList"
+                                                    TextFieldName="Text" AllowUserInput="false" FilteringMode="DataGridFilteringMode.Contains"
+                                                    SelectedItem="BookingData.ReservationTabData.EstimateSetting"
+                                                    SelectedItemExpression="() => BookingData.ReservationTabData.EstimateSetting"
+                                                    SelectedItemChanged="SelectedEstimateSettingChanged"
+                                                    DropDownDirection="DropDownDirection.Down" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        break;
+                    case 2: //予約備考
+                        {
+                            <div class="mb-2 @(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                <div class="form-group">
+                                    <label class="col-form-label-sm mr-3">@Lang["Remarks"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @BookingData.BikoNm)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <InputTextArea AdditionalAttributes="@(new Dictionary<string, object>() { { "rows", 10 }, { "class", "form-control w-100" }, { "maxlength", 250 } })"
+                                                       Value="@BookingData.BikoNm"
+                                                       ValueChanged="BikoNmChanged"
+                                                       ValueExpression="() => BookingData.BikoNm" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        break;
+                    case 3:
+                        <CustomItemsTab BookingData="@BookingData"></CustomItemsTab>
+                        break;
+                    case 4: //行程入力
+                        if (!string.IsNullOrWhiteSpace(id))
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex">
+                                    <DxComboBox NullText="共通"
+                                                CssClass="width--130"
+                                                Data="@carListData"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="Text"
+                                                AllowUserInput="false"
+                                                SelectedItem="selectedCar"
+                                                SelectedItemChanged="async (newValue) => await CarItemChanged(newValue)"
+                                                SelectedItemExpression="() => selectedCar" />
+                                    <a href="javascript:void(0)" class="btn btn-sm btn-primary ml-3 @(IsCopyMode==false?"":"disabled")" @onclick="OpenJourneys">行程変更</a>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill">GoogleMap</a>
+                            </div>
+                            <table class="table table-bordered table-sm mb-2 @(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                <thead class="thead-primary">
+                                    <tr>
+                                        <th scope="col">Ｎｏ．</th>
+                                        <th scope="col">@Lang["Schedule"]</th>
+                                        <th scope="col">@Lang["String3"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int index = 0; index < noteViewList.Count; index++)
+                                    {
+                                        <tr>
+                                            <td>@(index + 1)</td>
+                                            <td>@noteViewList[index].DateView</td>
+                                            <td>
+                                                @for (int line = 0; line < noteViewList[index].NoteViewList.Count; line++)
+                                                {
+                                                    @noteViewList[index].NoteViewList[line]
+                                                    if (line < noteViewList[index].NoteViewList.Count - 1)
+                                                    {
+                                                        <br>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <CustomUploadFile UkeNo="@id" UnkRen="@BookingData.UnkRen" BookingData="@BookingData" UpdateFileupload="Updatefile"></CustomUploadFile>
+                        }
+                        break;
+                    case 5:
+                        {
+                            <div class="d-flex justify-content-between mb-3">
+                                <nav class="nav nav-pills">
+                                    <a href="javascript:void(0)"
+                                       class="nav-link @(IncidentalView == IncidentalViewMode.Futai ? "active" : null)"
+                                       @onclick="e => SelectViewBooking(e, IncidentalViewMode.Futai)">@Lang["Futai"]</a>
+                                    <a href="javascript:void(0)"
+                                       class="nav-link @(IncidentalView == IncidentalViewMode.Tsumi ? "active" : null)"
+                                       @onclick="e => SelectViewBooking(e, IncidentalViewMode.Tsumi)">@Lang["Tsumi"]</a>
+                                </nav>
+                                @if (IncidentalView == IncidentalViewMode.Futai)
+                                {
+                                    <a href="javascript:void(0)" class="btn btn-sm btn-primary  @(IsCopyMode==false?"":"disabled")" @onclick="OpenPopupFuttumDetail">@Lang["IncidentalBtnText"]</a>
+                                }
+                                else
+                                {
+                                    <a href="javascript:void(0)" class="btn btn-sm btn-primary  @(IsCopyMode==false?"":"disabled")" @onclick="OpenPopupFuttumDetail">@Lang["IncidentalBtnText"]</a>
+                                }
+                            </div>
+                            <div class="@(BookingData.IsDisableEdit ? "disabled-content" : "")">
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="thead-primary">
+                                            <tr>
+                                                <th scope="col" class="text-center" width="110px">@Lang["Schedule"]</th>
+                                                @if (IncidentalView == IncidentalViewMode.Futai)
+                                                {
+                                                    <th scope="col" class="text-center" width="80px">@Lang["IncidentalName"]</th>
+                                                }
+                                                else
+                                                {
+                                                    <th scope="col" class="text-center" width="80px">@Lang["LoadedProductName"]</th>
+                                                }
+                                                <th scope="col" class="text-center" width="140px">@Lang["LiquidationName"]</th>
+                                                <th scope="col" class="text-center" width="80px">@Lang["ClearingCategory"]</th>
+                                                @if (IncidentalView == IncidentalViewMode.Futai)
+                                                {
+                                                    <th scope="col" class="text-center" width="90px">@Lang["Tollbooth"]</th>
+                                                    <th scope="col" class="text-center" width="90px">@Lang["String1"]</th>
+                                                }
+                                                <th scope="col" class="text-center" width="40px">@Lang["Quantity"]</th>
+                                                <th scope="col" class="text-center" width="50px">@Lang["UnitPrice"]</th>
+                                                <th scope="col" class="text-center" width="80px">@Lang["SalesAmount"]</th>
+                                                <th scope="col" class="text-center" width="80px">@Lang["TaxIncluded"]</th>
+                                                <th scope="col" class="text-center" width="100px">@Lang["ConsumptionTaxRate"]・@Lang["Tax"]</th>
+                                                <th scope="col" class="text-center" width="100px">@Lang["String2"]</th>
+                                                <th scope="col" class="text-center" width="80px">@Lang["AccrualDate"]</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var incidentalItem in BookingData.FuttumViewList.Where(f => f.FuttumKbnMode == IncidentalView))
+                                            {
+                                                <tr>
+                                                    <td class="text-center text-nowrap">
+                                                        @incidentalItem.ScheduleDate.GetPrefixString()<br />
+                                                        @incidentalItem.ScheduleDate.Date.ToString("yyyy/MM/dd (ddd)")
+                                                    </td>
+                                                    <td class="text-left text-nowrap">@incidentalItem.FutTumNm</td>
+                                                    <td class="text-left text-nowrap">@incidentalItem.SeisanNm</td>
+                                                    <td class="text-left text-nowrap">@incidentalItem.SelectedLoadSeisanKbn.RyakuName</td>
+                                                    @if (IncidentalView == IncidentalViewMode.Futai)
+                                                    {
+                                                        <td class="text-left text-nowrap">@incidentalItem.IriRyoNm</td>
+                                                        <td class="text-left text-nowrap">@incidentalItem.DeRyoNm</td>
+                                                    }
+                                                    <td class="text-right text-nowrap">@CommonUtil.CurencyFormat(incidentalItem.Suryo)</td>
+                                                    <td class="text-right text-nowrap">@CommonUtil.CurencyFormat(incidentalItem.Tanka)</td>
+                                                    <td class="text-right text-nowrap">@CommonUtil.CurencyFormat(incidentalItem.TotalAmountWithoutTax)</td>
+                                                    <td class="text-right text-nowrap">@CommonUtil.CurencyFormat(incidentalItem.ZeikomiKin)</td>
+                                                    <td>
+                                                        <div class="d-flex justify-content-between text-nowrap">
+                                                            <span class="mr-3">@CommonUtil.TaxRateFormat(incidentalItem.Zeiritsu)％</span>
+                                                            <span>@CommonUtil.CurencyFormat(incidentalItem.SyaRyoSyo)</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex justify-content-between text-nowrap">
+                                                            <span class="mr-3">@CommonUtil.TaxRateFormat(incidentalItem.TesuRitu)％</span>
+                                                            <span>@CommonUtil.CurencyFormat(incidentalItem.SyaRyoTes)</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-left">@incidentalItem.ScheduleDate.Date.ToString("yyyy/MM/dd")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <table class="table table-bordered table-sm text-center w-75">
+                                    <thead class="thead-primary">
+                                        <tr>
+                                            <th scope="col">種別</th>
+                                            <th scope="col">売上額</th>
+                                            <th scope="col">消費税</th>
+                                            <th scope="col">手数料</th>
+                                            <th scope="col">付帯料金</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            @if (IncidentalView == IncidentalViewMode.Futai)
+                                            {
+                                                <th scope="row" class="table-active bg-primary text-white">@Lang["Futai"]</th>
+                                            }
+                                            else
+                                            {
+                                                <th scope="row" class="table-active bg-primary text-white">@Lang["Tsumi"]</th>
+                                            }
+                                            <td class="text-right">@((BookingData.FuttumViewList?.Where(f => f.FuttumKbnMode == IncidentalView).Sum(f => f.TotalAmountWithoutTax) ?? 0).ToString("C", ci))</td>
+                                            <td class="text-right">@((BookingData.FuttumViewList?.Where(f => f.FuttumKbnMode == IncidentalView).Sum(f => f.SyaRyoSyo) ?? 0).ToString("C", ci))</td>
+                                            <td class="text-right">@((BookingData.FuttumViewList?.Where(f => f.FuttumKbnMode == IncidentalView).Sum(f => f.SyaRyoTes) ?? 0).ToString("C", ci))</td>
+                                            <td class="text-right">@((BookingData.FuttumViewList?.Where(f => f.FuttumKbnMode == IncidentalView).Sum(f => f.ZeikomiKin) ?? 0).ToString("C", ci))</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        break;
+                    case 6: //手配
+                        {
+                            <div class="d-flex align-items-start">
+                                <div class="form-group form-inline">
+                                    <label class="col-form-label mr-3">@Lang["CarNo"]</label>
+                                    <DxComboBox NullText="共通"
+                                                CssClass="width--130"
+                                                Data="@carArrangementList"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="Text"
+                                                AllowUserInput="false"
+                                                SelectedItem="selectedCarArrangement"
+                                                SelectedItemChanged="async (value) => await HandleCarArrangementChanged(value)"
+                                                SelectedItemExpression="() => selectedCarArrangement">
+                                    </DxComboBox>
+                                </div>
+                                <a href="javascript:void(0)" class="btn btn-sm btn-primary ml-3 mb-3 @(IsCopyMode==false?"":"disabled")" @onclick="OpenTehai">@Lang["ArrangementInput"]</a>
+                            </div>
+                            <table class="table table-bordered table-sm mb-2">
+                                <thead class="thead-primary">
+                                    <tr>
+                                        <th scope="col" class="text-center" width="50px">Ｎｏ．</th>
+                                        <th scope="col" class="text-center" width="150px">@Lang["Schedule"]</th>
+                                        <th scope="col" class="text-center" width="100px">@Lang["Type"]</th>
+                                        <th scope="col" class="text-center">@Lang["TehaiName"]</th>
+                                        <th scope="col" class="text-center" width="100px">@Lang["ArrivalTime"]</th>
+                                        <th scope="col" class="text-center" width="100px">@Lang["DepartureTime"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var arrangement in BookingData.ArrangementTabList)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@(BookingData.ArrangementTabList.IndexOf(arrangement) + 1)</td>
+                                            <td>
+                                                @arrangement.Schedule?.GetPrefixString()
+                                                <br />
+                                                @arrangement.Schedule?.GetDateString()
+                                            </td>
+                                            @if (arrangement.SelectedArrangementType.TypeCode != 0)
+                                            {
+                                                <td class="text-center">@arrangement.SelectedArrangementType.TypeName</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-center"></td>
+                                            }
+                                            <td>@arrangement.LocationName</td>
+                                            <td class="text-center">@arrangement.ArrivalTime?.myHour.ToString("D2")：@arrangement.ArrivalTime?.myMinute.ToString("D2")</td>
+                                            <td class="text-center">@arrangement.DepartureTime?.myHour.ToString("D2")：@arrangement.DepartureTime?.myMinute.ToString("D2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        break;
+                    case 7: //確認
+                        {
+                            <CascadingValue Value="formContext" Name="@nameof(CancellationTabBase.FormContext)">
+                                <ConfirmInputTab UkeNo="@id"
+                                                 BookingData="BookingData"                                                 
+                                                 CopyMode="@IsCopyMode"
+                                                 OnChange="OnConfirmChange"
+                                                 OnConfirmSuccess="HandleConfirmTabConfirmSuccess"
+                                                 OnHaitaError="async () => await HandleHaitaError()"
+                                                 OnSubmit="async () => await HandleSaveConfirmationDataList()" />
+                            </CascadingValue>
+                        }
+                        break;
+                    case 8:
+                        {
+                            <CascadingValue Value="formContext" Name="@nameof(CancellationTabBase.FormContext)">
+                                <CancellationTab UkeNo="@id"
+                                                 BookingData="BookingData"
+                                                 OnChange="OnCancelChange"
+                                                 OnSubmit="async () => await HandleSaveCancelData()" />
+                            </CascadingValue>
+                        }
+                        break;
+                    case 9: //添付ファイル
+                        {
+                            <CascadingValue Value="formContext" Name="@nameof(CancellationTabBase.FormContext)">
+                                <CustomUploadFile UkeNo="@id" UnkRen="@BookingData.UnkRen" BookingData="@BookingData" UpdateFileupload="Updatefile" OnSubmit="async () => await HandleHaitaError()"></CustomUploadFile>
+                            </CascadingValue>
+                        }
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    IncidentalViewMode IncidentalView { get; set; }
+    bool PopupFuttumDetail { get; set; } = false;
+    bool PopupJourney { get; set; } = false;
+    bool PopupTehai { get; set; }
+    [CascadingParameter] string id { get; set; }
+    [CascadingParameter] bool IsCopyMode { get; set; }
+    [CascadingParameter] public CallBackTabBookingState CallBackIndexCommand { get; set; }
+    [CascadingParameter] public EditContext formContext { get; set; }
+    [Parameter] public EventCallback<CallBackTabBookingState> OnChangeCommandState { get; set; }
+    [Parameter] public BookingFormData BookingData { get; set; }
+    [Parameter] public EventCallback<List<FileInfoData>> UpdateFileupload { get; set; }
+    int activeTabIndex = 0;
+    int waitingTabIndex = -1;
+    private readonly string patternFaxTel = @"[^0-9-]+";
+    private readonly int[] tabIndexNotSave = {0,1,2,3,9};
+    private readonly int[] tabIndexNotModify = {4,5,6};
+    [Parameter] public bool TenantHasCustomData { get; set; }
+    public int ActiveTabIndex
+    {
+        get
+        {
+            return activeTabIndex;
+        }
+        set
+        {
+            // create mode
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                activeTabIndex = value;
+            }
+            else
+            {
+                if (tabIndexNotModify.Contains(activeTabIndex))
+                {
+                    formContext.MarkAsUnmodified();
+                }
+                // switch between [0,1,2,3,9] not need to save data
+                if (tabIndexNotSave.Contains(activeTabIndex) && tabIndexNotSave.Contains(value))
+                {
+                    activeTabIndex = value;
+                }
+                else if (isValidBookingForm)
+                {
+                    if (formContext.IsModified()&& IsCopyMode==false)
+                    {
+                        isPopupAskSaveBooking = true;
+                        waitingTabIndex = value;
+                    }
+                    else
+                    {
+                        CallBackTabBookingState cbAction;
+                        activeTabIndex = value;
+                        if (tabIndexNotSave.Contains(value))
+                        {
+                            cbAction = CallBackTabBookingState.EnableIndex;
+                        }
+                        else
+                        {
+                            cbAction = CallBackTabBookingState.DisableIndex;
+                        }
+                        OnChangeCommandState.InvokeAsync(cbAction);
+                    }
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    string baseUrl = string.Empty;
+    public ConfirmStatus confirmStatus;
+    public bool isConfirmSuccess = false;
+    public bool isPopupAskSaveBooking = false;
+    public bool isEnableSubmitConfirm = false;
+    public bool isEnableSubmitCancel = false;
+    public int maxRowTab7 = 15;
+    public string tempstr;
+    public object tempObject;
+
+    bool Value { get; set; }
+    DateTime DateTimeValue = DateTime.Today;
+
+    CultureInfo ci = new CultureInfo("ja-JP");
+    string popupTitleInfo;
+    string popupTitleError;
+    string popupTitleWarning;
+    string yes;
+    string no;
+    string ok;
+    string bookingFixedSuccess;
+    string bookingUnFixedSuccess;
+    string commonError;
+    string configurationButtonText;
+    string updateButtonText;
+    string popupTitle;
+    string popupContent;
+    string TabUpload;
+    private string updateResultSuccessMessage;
+    private string updateResultErrorMessage;
+
+    List<SupplierData> supplierDataList;
+    List<DestinationData> destinationDataList;
+    List<PlaceData> placeDataList;
+    List<TPM_CodeKbCodeSyuData> movementStatusList;
+    List<TPM_CodeKbCodeSyuData> acceptanceConditionList;
+    List<TPM_CodeKbCodeSyuData> rainyMeasureList;
+    List<TPM_CodeKbCodeSyuData> paymentMethodList;
+    List<TPM_CodeKbCodeSyuData> movementFormList;
+    List<TPM_CodeKbCodeSyuData> guiderSettingList;
+    List<TPM_CodeKbCodeSyuData> estimateSettingList;
+    List<SettingStaff> settingStaffList;
+    List<ArrangementType> arrangementTypeList;
+    List<ArrangementCar> carArrangementList;
+    ArrangementCar selectedCarArrangement;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+
+    //List<LoadCodeKb> loadCodeKbList;
+    //List<LoadFutai> loadFutaiList;
+    //List<LoadNoteMaster> loadNoteMasterList;
+    //List<LoadNyuRyokinName> loadNyuRyokinNameList;
+    //List<LoadSeisanCd> loadSeisanCdList;
+    List<LoadSeisanKbn> loadSeisanKbnList;
+
+    List<JourneysData> carListData;
+    JourneysData selectedCar;
+    List<JourneyNoteView> noteViewList = new List<JourneyNoteView>();
+    SijJoKnmData SijJoKnmData { get; set; }
+    protected MyPopupModel MyPopup { get; set; }
+    public HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent CustomerComponent { get; set; }
+    = new HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent();
+
+    private void LocalizationInit()
+    {
+        popupTitleError = Lang["PopupTitleError"];
+        popupTitleInfo = Lang["PopupTitleInfo"];
+        popupTitleWarning = Lang["PopupTitleWarning"];
+        yes = Lang["Yes"];
+        no = Lang["No"];
+        ok = Lang["OK"];
+        configurationButtonText = Lang["ConfigurationButton"];
+        updateButtonText = Lang["UpdateButton"];
+        bookingFixedSuccess = Lang["BookingFixed"];
+        bookingUnFixedSuccess = Lang["BookingUnFixed"];
+        commonError = Lang["CommonError"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        TabUpload = Lang["TabUpload"];
+        updateResultSuccessMessage = Lang["UpdateResultSuccessMessage"];
+        updateResultErrorMessage = Lang["UpdateResultErrorMessage"];
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        MyPopup = new MyPopupModel();
+        baseUrl = AppSettingsService.GetBaseUrl();
+        SijJoKnmData = BusBookingDataService.GetSijJoKnm("001", new ClaimModel().TenantID);
+        await LoadAllDataCombobox();
+
+        //create mode
+        if (id == "0" || id == null)
+        {
+            SetDefaultValueReservationTab(BookingData);
+        }
+        // edit mode
+        else
+        {
+            if (BookingData.BookingStatus.CodeKbn == Constants.BookingStatus)
+            {
+                await SetupJourneyTabAsync();
+                await SetupIncidentalTabAsync(BookingData);
+                await SetupArrangementTab(BookingData);
+                //SetupCOnfirmationTab(BookingData);
+            }
+            //await SetupCancelTabAsync(BookingData); // moved to tab
+            //await SetupJourneyTabAsync();
+            //await SetupIncidentalTabAsync(BookingData);
+            //await SetupArrangementTab(BookingData);
+            //SetupCOnfirmationTab(BookingData);
+
+            await Load(BookingData);
+        }
+    }
+
+    public async Task Load(BookingFormData booking)
+    {
+        IncidentalView = IncidentalViewMode.Futai;
+        //if (supplierDataList != null)
+        //{
+        //    if (booking.SupervisorTabData.customerComponentTokiStData != null)
+        //    {
+        //        int sirCdSeq = booking.SupervisorTabData.customerComponentTokiStData.TokuiSeq;
+        //        int sirSitenCdSeq = booking.SupervisorTabData.customerComponentTokiStData.SitenCdSeq;
+        //        var supplier = supplierDataList.SingleOrDefault(s => s.SirCdSeq == sirCdSeq && s.SirSitenCdSeq == sirSitenCdSeq);
+        //        if (supplier != null) booking.SupervisorTabData.customerComponentTokiStData = new Domain.Dto.CommonComponents.CustomerComponentTokiStData() {
+        //            RyakuNm = supplier.RyakuNm,
+        //            SitenCd = (short)supplier.SitenCd,
+        //            SitenCdSeq = supplier.SirCdSeq,
+        //            TokuiSeq = supplier.SirSitenCdSeq
+        //        };
+        //    }
+        //}
+        //------------
+        if (booking.ReservationTabData.Destination != null && destinationDataList != null)
+        {
+            int basyoMapCdSeq = booking.ReservationTabData.Destination.BasyoMapCdSeq;
+            booking.ReservationTabData.Destination = destinationDataList.FirstOrDefault(d => d.BasyoMapCdSeq == basyoMapCdSeq);
+        }
+        if (booking.ReservationTabData.DespatchingPlace != null && placeDataList != null)
+        {
+            int haiSCdSeq = booking.ReservationTabData.DespatchingPlace.HaiSCdSeq;
+            booking.ReservationTabData.DespatchingPlace = placeDataList.FirstOrDefault(d => d.HaiSCdSeq == haiSCdSeq);
+        }
+        if (booking.ReservationTabData.ArrivePlace != null && placeDataList != null)
+        {
+            int haiSCdSeq = booking.ReservationTabData.ArrivePlace.HaiSCdSeq;
+            booking.ReservationTabData.ArrivePlace = placeDataList.FirstOrDefault(d => d.HaiSCdSeq == haiSCdSeq);
+        }
+        // data in Unkobi is tinyInt but in CodeSyu is nvarchar => 1 != 01 => convert to byte
+        if (booking.ReservationTabData.MovementStatus != null && movementStatusList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.MovementStatus.CodeKbn);
+            booking.ReservationTabData.MovementStatus = movementStatusList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.AcceptanceConditions != null && acceptanceConditionList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.AcceptanceConditions.CodeKbn);
+            booking.ReservationTabData.AcceptanceConditions = acceptanceConditionList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.RainyMeasure != null && rainyMeasureList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.RainyMeasure.CodeKbn);
+            booking.ReservationTabData.RainyMeasure = rainyMeasureList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.PaymentMethod != null && paymentMethodList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.PaymentMethod.CodeKbn);
+            booking.ReservationTabData.PaymentMethod = paymentMethodList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.MovementForm != null && movementFormList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.MovementForm.CodeKbn);
+            booking.ReservationTabData.MovementForm = movementFormList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.GuiderSetting != null && guiderSettingList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.GuiderSetting.CodeKbn);
+            booking.ReservationTabData.GuiderSetting = guiderSettingList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        if (booking.ReservationTabData.EstimateSetting != null && estimateSettingList != null)
+        {
+            byte codeKbn = Byte.Parse(booking.ReservationTabData.EstimateSetting.CodeKbn);
+            booking.ReservationTabData.EstimateSetting = estimateSettingList.FirstOrDefault(d => Byte.Parse(d.CodeKbn) == codeKbn);
+        }
+        //LoadCancelComboboxValue(booking);
+        LoadArrangementComboboxValue(booking);
+        LoadIncidentalComboboxValue(booking.FuttumViewList);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
+
+    public async Task LoadAllDataCombobox()
+    {
+        supplierDataList = await Http.GetJsonAsync<List<SupplierData>>(baseUrl + "/api/BookingInput/Supervisor/Supplier");
+        destinationDataList = await Http.GetJsonAsync<List<DestinationData>>(baseUrl + "/api/BookingInput/Reservation/Destination");
+        placeDataList = await Http.GetJsonAsync<List<PlaceData>>(baseUrl + "/api/BookingInput/Reservation/Place");
+        movementStatusList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/UNKOJKBN");
+        acceptanceConditionList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/UKEJYKBNCD");
+        rainyMeasureList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/SIJJOKBN1");
+        paymentMethodList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/SIJJOKBN2");
+        movementFormList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/SIJJOKBN3");
+        guiderSettingList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/SIJJOKBN4");
+        estimateSettingList = await Http.GetJsonAsync<List<TPM_CodeKbCodeSyuData>>(baseUrl + "/api/BookingInput/Reservation/GetCodeKbnByCodeSyu/SIJJOKBN5");
+    }
+
+    public void SetSelectedSupplier(int sirCdSeq, int sirSitenCdSeq)
+    {
+        if (supplierDataList == null)
+            return;
+        var supplier = supplierDataList.SingleOrDefault(s => s.SirCdSeq == sirCdSeq && s.SirSitenCdSeq == sirSitenCdSeq);
+        if (supplier == null)
+        {
+            StateHasChanged();
+            return;
+        }
+        CustomerComponent.DefaultTokisk = supplier.SirCdSeq;
+        CustomerComponent.DefaultTokiSt = supplier.SirSitenCdSeq;
+        CustomerComponent.DefaultGyosya = null;
+        CustomerComponent.RenderByTokiskTokist();
+        //formContext.NotifyFieldChanged(FieldIdentifier.Create(() => BookingData.SupervisorTabData.customerComponentTokiStData));
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JSRuntime.InvokeVoidAsync("setEventforTimeInput");
+        JSRuntime.InvokeVoidAsync("setEventForTelAndFaxInput");
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 50);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 3);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 8);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 4);
+        JSRuntime.InvokeVoidAsync("zoomTabBooking");
+        JSRuntime.InvokeAsync<string>("addtabindex", "notabindex");
+
+        if (firstRender == false)
+        {
+            if (formContext.IsModified())
+            {
+                if (!isEnableSubmitCancel)
+                {
+                    isEnableSubmitCancel = true;
+                    StateHasChanged();
+                }
+                if (!isEnableSubmitConfirm)
+                {
+                    isEnableSubmitConfirm = true;
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    #region Booking Tab Supervisor value changed methods
+
+    protected void OnKanJNmChanged(string newValue)
+    {
+        BookingData.SupervisorTabData.KanJNm = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjTelChanged(string newValue)
+    {
+        var newValueNor = newValue.Normalize(System.Text.NormalizationForm.FormKC);
+
+        if(!Regex.IsMatch(newValueNor, patternFaxTel))
+        {
+            BookingData.SupervisorTabData.KanjTel = newValueNor;
+        }
+
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjFaxChanged(string newValue)
+    {
+        var newValueNor = newValue.Normalize(System.Text.NormalizationForm.FormKC);
+
+        if(!Regex.IsMatch(newValueNor, patternFaxTel))
+        {
+            BookingData.SupervisorTabData.KanjFax = newValueNor;
+        }
+
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjJyus1Changed(string newValue)
+    {
+        BookingData.SupervisorTabData.KanjJyus1 = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjJyus2Changed(string newValue)
+    {
+        BookingData.SupervisorTabData.KanjJyus2 = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjKeiNoChanged(string newValue)
+    {
+        BookingData.SupervisorTabData.KanjKeiNo = newValue.Normalize(System.Text.NormalizationForm.FormKC);
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanjMailChanged(string newValue)
+    {
+        BookingData.SupervisorTabData.KanjMail = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnKanDMHFlgChanged(bool newValue)
+    {
+        BookingData.SupervisorTabData.KanDMHFlg = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnPlusJinChanged(string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(newValue) == false)
+        {
+            if (int.TryParse(newValue.Normalize(System.Text.NormalizationForm.FormKC), out int newValueInt) && newValueInt >= 0 && newValueInt <= 9999)
+            {
+                BookingData.SupervisorTabData.PlusJin = newValueInt.ToString();
+            }
+        }
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnTokuiTanNmChanged(string newValue)
+    {
+        BookingData.SupervisorTabData.TokuiTanNm = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnTokuiTelChanged(string newValue)
+    {
+        var newValueNor = newValue.Normalize(System.Text.NormalizationForm.FormKC);
+
+        if(!Regex.IsMatch(newValueNor, patternFaxTel))
+        {
+            BookingData.SupervisorTabData.TokuiTel = newValueNor;
+        }
+
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnTokuiFaxChanged(string newValue)
+    {
+        var newValueNor = newValue.Normalize(System.Text.NormalizationForm.FormKC);
+
+        if(!Regex.IsMatch(newValueNor, patternFaxTel))
+        {
+            BookingData.SupervisorTabData.TokuiFax = newValueNor;
+        }
+
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnTokuiMailChanged(string newValue)
+    {
+        BookingData.SupervisorTabData.TokuiMail = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnJyoSyaJinChanged(string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(newValue) == false)
+        {
+            if (int.TryParse(newValue.Normalize(System.Text.NormalizationForm.FormKC), out int newValueInt) && newValueInt >= 0 && newValueInt <= 9999)
+            {
+                BookingData.SupervisorTabData.JyoSyaJin = newValueInt.ToString();
+            }
+        }
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void SelectedSupplierChanged(string propertyName, dynamic value)
+    {
+        var propertyInfo = BookingData.SupervisorTabData.GetType().GetProperty(propertyName);
+        propertyInfo.SetValue(BookingData.SupervisorTabData, value, null);
+        //BookingDataChanged.InvokeAsync(BookingData);
+        CallBackIndexCommand = value == null ? CallBackIndexCommand : CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected async Task<IEnumerable<SupplierData>> GetSupplierListAsync(CancellationToken ct = default)
+    {
+        supplierDataList = await Http.GetJsonAsync<List<SupplierData>>(baseUrl + "/api/BookingInput/Supervisor/Supplier");
+        if (id != "0" && id != null)
+        {
+            if (BookingData.SupervisorTabData.customerComponentTokiStData != null && supplierDataList != null)
+            {
+                int sirCdSeq = BookingData.SupervisorTabData.customerComponentTokiStData.TokuiSeq;
+                int sirSitenCdSeq = BookingData.SupervisorTabData.customerComponentTokiStData.SitenCdSeq;
+                var supplier = supplierDataList.SingleOrDefault(s => s.SirCdSeq == sirCdSeq && s.SirSitenCdSeq == sirSitenCdSeq);
+                if (supplier != null) BookingData.SupervisorTabData.customerComponentTokiStData = new Domain.Dto.CommonComponents.CustomerComponentTokiStData()
+                {
+                    RyakuNm = supplier.RyakuNm,
+                    SitenCd = (short)supplier.SitenCd,
+                    SitenCdSeq = supplier.SirCdSeq,
+                    TokuiSeq = supplier.SirSitenCdSeq
+                };
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        return supplierDataList;
+    }
+
+    #endregion
+
+    #region Booking tab Reservation value changed methods
+
+    protected void OnGarageLeaveDateChanged(DateTime newDate)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        BookingData.ReservationTabData.GarageLeaveDate = newDate;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnGoDateDateChanged(DateTime newDate)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        BookingData.ReservationTabData.GoDate = newDate;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void OnGarageReturnDateDateChanged(DateTime newDate)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        BookingData.ReservationTabData.GarageReturnDate = newDate;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void GarageLeaveTimeChanged(object newTime)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void DepartureStartTimeChanged(string newTime)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void GarageReturnTimeChanged(string newTime)
+    {
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void SelectedDestinationChanged(DestinationData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.Destination = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            BookingData.ReservationTabData.IkNm = BookingData.ReservationTabData.Destination.VpmBasyoRyakuNm;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void DestinationNameChanged(string newName)
+    {
+        BookingData.ReservationTabData.IkNm = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void SelectedDespatchingPlaceChanged(PlaceData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.DespatchingPlace = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            BookingData.ReservationTabData.HaiSNm = BookingData.ReservationTabData.DespatchingPlace.VpmHaichiRyakuNm;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void DespatchingPlaceNameChanged(string newName)
+    {
+        BookingData.ReservationTabData.HaiSNm = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void HaiSjyus1Changed(string newName)
+    {
+        BookingData.ReservationTabData.HaiSjyus1 = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void HaiSjyus2Changed(string newName)
+    {
+        BookingData.ReservationTabData.HaiSjyus2 = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void SelectedArrivePlaceChanged(PlaceData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.ArrivePlace = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            BookingData.ReservationTabData.TouNm = BookingData.ReservationTabData.ArrivePlace.VpmHaichiRyakuNm;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void ArrivePlaceNameChanged(string newName)
+    {
+        BookingData.ReservationTabData.TouNm = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void TouJyusyo1Changed(string newName)
+    {
+        BookingData.ReservationTabData.TouJyusyo1 = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void TouJyusyo2Changed(string newName)
+    {
+        BookingData.ReservationTabData.TouJyusyo2 = newName;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    protected void SelectedMovementStatusChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null && BookingData.IsDailyReportRegisted == false)
+        {
+            BookingData.ReservationTabData.MovementStatus = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedAcceptanceConditionsChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.AcceptanceConditions = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedRainyMeasureChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.RainyMeasure = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedPaymentMethodChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.PaymentMethod = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedMovementFormChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.MovementForm = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedGuiderSettingChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.GuiderSetting = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    protected void SelectedEstimateSettingChanged(TPM_CodeKbCodeSyuData newData)
+    {
+        if (newData != null)
+        {
+            BookingData.ReservationTabData.EstimateSetting = newData;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    #endregion
+
+    #region Booking Tab3
+
+    public void SetDefaultValueReservationTab(BookingFormData data)
+    {
+        data.SupervisorTabData.customerComponentGyosyaData = data.customerComponentGyosyaData;
+        data.ReservationTabData.MovementStatus = movementStatusList.FirstOrDefault(m => m.CodeKbn == "5");
+        data.ReservationTabData.AcceptanceConditions = acceptanceConditionList.FirstOrDefault(m => m.CodeKbn == "99");
+        data.ReservationTabData.RainyMeasure = rainyMeasureList.FirstOrDefault(m => m.CodeKbn == "99");
+        data.ReservationTabData.PaymentMethod = paymentMethodList.FirstOrDefault(m => m.CodeKbn == "99");
+        data.ReservationTabData.MovementForm = movementFormList.FirstOrDefault(m => m.CodeKbn == "99");
+        data.ReservationTabData.GuiderSetting = guiderSettingList.FirstOrDefault(m => m.CodeKbn == "99");
+        data.ReservationTabData.EstimateSetting = estimateSettingList.FirstOrDefault(m => m.CodeKbn == "99");
+
+        data.ReservationTabData.SyuKoTime.Str = data.BusStartTime.Str;
+        data.ReservationTabData.SyuPatime.Str = data.BusStartTime.Str;
+        data.ReservationTabData.KikTime.Str = data.BusEndTime.Str;
+
+        data.ReservationTabData.GarageLeaveDate = data.BusStartDate;
+        data.ReservationTabData.GarageReturnDate = data.BusEndDate;
+    }
+
+    protected void BikoNmChanged(string newValue)
+    {
+        BookingData.BikoNm = newValue;
+        CallBackIndexCommand = CallBackTabBookingState.False;
+        OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+    }
+
+    public void OnPreDayChecked(bool isChecked)
+    {
+        if (isChecked)
+        {
+            BookingData.ReservationTabData.GarageLeaveDate = BookingData.ReservationTabData.GarageLeaveDate.AddDays(-1);
+        }
+        else
+        {
+            BookingData.ReservationTabData.GarageLeaveDate = BookingData.BusStartDate;
+        }
+        StateHasChanged();
+    }
+
+    public void OnAfterDayChecked(bool isChecked)
+    {
+        if (isChecked)
+        {
+            BookingData.ReservationTabData.GarageReturnDate = BookingData.ReservationTabData.GarageReturnDate.AddDays(1);
+        }
+        else
+        {
+            BookingData.ReservationTabData.GarageReturnDate = BookingData.BusEndDate;
+        }
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Booking Tab7
+
+    protected void OnConfirmChange()
+    {
+        OnChangeCommandState.InvokeAsync(CallBackTabBookingState.True);
+    }
+
+    protected async Task HandleConfirmTabConfirmSuccess((ConfirmStatus status, bool success) confirm)
+    {
+        if(confirm.success)
+        {
+            if (confirm.status == ConfirmStatus.Fixed)
+            {
+                MyPopup.Build()
+                        .WithTitle(popupTitleInfo)
+                        .WithBody(bookingFixedSuccess)
+                        .WithIcon(MyPopupIconType.Info)
+                        .AddButton(new MyPopupFooterButton(ok, () => MyPopup.Hide()))
+                        .Show();
+            }
+            else
+            {
+                MyPopup.Build()
+                        .WithTitle(popupTitleInfo)
+                        .WithBody(bookingUnFixedSuccess)
+                        .WithIcon(MyPopupIconType.Info)
+                        .AddButton(new MyPopupFooterButton(ok, () => MyPopup.Hide()))
+                        .Show();
+            }
+            await OnChangeCommandState.InvokeAsync(CallBackTabBookingState.FixedConfirm);
+        }
+        else
+        {
+            MyPopup.Build()
+                    .WithTitle(popupTitleError)
+                    .WithBody(commonError)
+                    .WithIcon(MyPopupIconType.Info)
+                    .AddButton(new MyPopupFooterButton(ok, () => MyPopup.Hide()))
+                    .Show();
+        }
+    }
+
+    #endregion
+
+    #region BookingInput tab 5
+
+    public async Task SetupJourneyTabAsync()
+    {
+        noteViewList.Clear();
+        bool isZenHaFlg = false;
+        bool isKhakFlg = false;
+        carListData = await BusBookingDataService.GetJourneysData(id,BookingData.UnkRen);
+        carListData.Insert(0, new JourneysData());
+        selectedCar = carListData.First();
+        carListData.First().Unkobi_TouChTime = BookingData.BusEndTime.ToStringWithoutDelimiter();
+        carListData.First().Unkobi_SyuPaTime = BookingData.ReservationTabData.SyuPatime.ToStringWithoutDelimiter();
+        var fromdatemin = BookingData.BusStartDate;
+        var fromdate = BookingData.BusStartDate;
+        var todate = BookingData.BusEndDate;
+        var todatemax = BookingData.BusEndDate;
+        string ukeno = BookingData.UkeNo;
+        short unkRen = 1;// TODO get from BookingInput
+
+        if (carListData.Count > 1)
+        {
+            carListData.First().Unkobi_TouChTime = carListData.Skip(1).Take(1).First().Unkobi_TouChTime;
+            carListData.First().Unkobi_SyuPaTime = carListData.Skip(1).Take(1).First().Unkobi_SyuPaTime;
+            fromdatemin = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_HaiSYmd, "yyyyMMdd", null);
+            fromdate = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Haisha_HaiSYmd, "yyyyMMdd", null);
+            todate = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Haisha_TouYmd, "yyyyMMdd", null);
+            todatemax = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_TouYmd, "yyyyMMdd", null);
+            if (carListData.Skip(1).Take(1).First().Unkobi_ZenHaFlg == 1)
+            {
+                isZenHaFlg = true;
+            }
+            if (carListData.Skip(1).Take(1).First().Unkobi_KhakFlg == 1)
+            {
+                isKhakFlg = true;
+            }
+            ukeno = carListData.Skip(1).Take(1).First().Haisha_UkeNo;
+            unkRen = carListData.Skip(1).Take(1).First().Haisha_UnkRen;
+        }
+        var dateList = GetDateData(fromdate, todate, fromdatemin, todatemax, true, isZenHaFlg, isKhakFlg, ukeno,
+                    carListData.First().Haisha_BunkRen, carListData.First().Haisha_TeiDanNo, unkRen, carListData.First());
+
+        foreach (var dateItem in dateList)
+        {
+            var journeyNote = new JourneyNoteView() { DateView = dateItem.Text };
+            List<TKD_KoteiData> noteList = await TKD_KoteiDataService.GetDataKotei(dateItem.isCommom, ukeno, dateItem.isZenHaFlg, dateItem.isKhakFlg,
+                                                            dateItem.teiDanNo, unkRen, dateItem.bunkRen, dateItem.nittei);
+            foreach (var items in noteList.OrderBy(e => e.Kotei_TeiDanNo).ThenBy(e => e.Kotei_KouRen))
+            {
+                journeyNote.NoteViewList.Add(items.Kotei_Koutei);
+            }
+            if (noteList.Count == 0)
+            {
+                journeyNote.NoteViewList.Add(string.Empty);
+            }
+            noteViewList.Add(journeyNote);
+        }
+    }
+
+    protected async Task CarItemChanged(JourneysData newValue)
+    {
+        if (newValue != null)
+        {
+            noteViewList.Clear();
+            selectedCar = newValue;
+            bool isCommon = selectedCar.Haisha_GoSya == null;
+            bool isZenHaFlg, isKhakFlg;
+            DateTime fromdatemin, fromdate, todate, todatemax;
+            string ukeno;
+            short unkRen;
+            if (isCommon)
+            {
+                isZenHaFlg = false;
+                isKhakFlg = false;
+                fromdatemin = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_HaiSYmd, "yyyyMMdd", null);
+                fromdate = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_HaiSYmd, "yyyyMMdd", null);
+                todate = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_TouYmd, "yyyyMMdd", null);
+                todatemax = DateTime.ParseExact(carListData.Skip(1).Take(1).First().Unkobi_TouYmd, "yyyyMMdd", null);
+                if (carListData.Skip(1).Take(1).First().Unkobi_ZenHaFlg == 1)
+                {
+                    isZenHaFlg = true;
+                }
+                if (carListData.Skip(1).Take(1).First().Unkobi_KhakFlg == 1)
+                {
+                    isKhakFlg = true;
+                }
+                ukeno = carListData.Skip(1).Take(1).First().Haisha_UkeNo;
+                unkRen = carListData.Skip(1).Take(1).First().Haisha_UnkRen;
+            }
+            else
+            {
+                isZenHaFlg = false;
+                isKhakFlg = false;
+                fromdatemin = DateTime.ParseExact(selectedCar.Unkobi_HaiSYmd, "yyyyMMdd", null);
+                fromdate = DateTime.ParseExact(selectedCar.Haisha_HaiSYmd, "yyyyMMdd", null);
+                todate = DateTime.ParseExact(selectedCar.Haisha_TouYmd, "yyyyMMdd", null);
+                todatemax = DateTime.ParseExact(selectedCar.Unkobi_TouYmd, "yyyyMMdd", null);
+                if (selectedCar.Unkobi_ZenHaFlg == 1)
+                {
+                    isZenHaFlg = true;
+                }
+                if (selectedCar.Unkobi_KhakFlg == 1)
+                {
+                    isKhakFlg = true;
+                }
+                ukeno = selectedCar.Haisha_UkeNo;
+                unkRen = selectedCar.Haisha_UnkRen;
+            }
+            var dateList = GetDateData(fromdate, todate, fromdatemin, todatemax, isCommon, isZenHaFlg, isKhakFlg, ukeno,
+                        selectedCar.Haisha_BunkRen, selectedCar.Haisha_TeiDanNo, unkRen, selectedCar);
+
+            foreach (var dateItem in dateList)
+            {
+                var journeyNote = new JourneyNoteView() { DateView = dateItem.Text };
+                List<TKD_KoteiData> noteList = await TKD_KoteiDataService.GetDataKotei(dateItem.isCommom, ukeno, dateItem.isZenHaFlg, dateItem.isKhakFlg,
+                                                                dateItem.teiDanNo, unkRen, dateItem.bunkRen, dateItem.nittei);
+                foreach (var items in noteList.OrderBy(e => e.Kotei_TeiDanNo).ThenBy(e => e.Kotei_KouRen))
+                {
+                    journeyNote.NoteViewList.Add(items.Kotei_Koutei);
+                }
+                if (noteList.Count == 0)
+                {
+                    journeyNote.NoteViewList.Add(string.Empty);
+                }
+                noteViewList.Add(journeyNote);
+            }
+            StateHasChanged();
+        }
+    }
+
+    public List<JourneyDataDate> GetDateData(DateTime fromdate, DateTime todate, DateTime fromdatemin, DateTime todatemax, bool isCommom,
+        bool isZenHaFlg, bool isKhakFlg, string ukeno, short bunkRen, short teiDanNo, short unkRen, JourneysData journeyitem)
+    {
+        List<JourneyDataDate> dateList = new List<JourneyDataDate>();
+        int i = 0;
+        for (DateTime date = fromdate; date <= todate; date = date.AddDays(1))
+        {
+            JourneyDataDate itemdate = new JourneyDataDate();
+            itemdate.isKhakFlg = isKhakFlg;
+            if (isKhakFlg == true)
+            {
+                itemdate.isKhakFlg = !isKhakFlg;
+            }
+            itemdate.isZenHaFlg = isZenHaFlg;
+            if (isZenHaFlg == true)
+            {
+                itemdate.isZenHaFlg = !isZenHaFlg;
+            }
+            itemdate.tomKbn = 1;
+            i++;
+            itemdate.nittei = (byte)i;
+            if (!isCommom)
+            {
+                itemdate.isCommom = isCommom;
+            }
+            itemdate.date = date;
+            itemdate.ukeNo = ukeno;
+            itemdate.bunkRen = bunkRen;
+            itemdate.unkRen = unkRen;
+            itemdate.teiDanNo = teiDanNo;
+            //itemdate.form = BusScheduleHelper.ConvertTime("0000");
+            //itemdate.to = BusScheduleHelper.ConvertTime("2359");
+            dateList.Add(itemdate);
+
+        }
+        if (isCommom == true)
+        {
+            if (isZenHaFlg && fromdate == fromdatemin)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                itemdate.isKhakFlg = !isKhakFlg;
+                itemdate.isZenHaFlg = isZenHaFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 2;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = fromdate.AddDays(-1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                //itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                //itemdate.to = BusScheduleHelper.ConvertTime("2359");
+                dateList.Add(itemdate);
+            }
+            if (isKhakFlg && todate == todatemax)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                itemdate.isZenHaFlg = !isZenHaFlg;
+                itemdate.isKhakFlg = isKhakFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 3;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = todate.AddDays(1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                //itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                //itemdate.to = BusScheduleHelper.ConvertTime("2359");
+                dateList.Add(itemdate);
+            }
+        }
+        else
+        {
+            if (isZenHaFlg)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                itemdate.isKhakFlg = !isKhakFlg;
+                itemdate.isZenHaFlg = isZenHaFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 2;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = fromdate.AddDays(-1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                //itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                //itemdate.to = BusScheduleHelper.ConvertTime("2359");
+                dateList.Add(itemdate);
+            }
+            if (isKhakFlg)
+            {
+                JourneyDataDate itemdate = new JourneyDataDate();
+                itemdate.isZenHaFlg = !isZenHaFlg;
+                itemdate.isKhakFlg = isKhakFlg;
+                itemdate.nittei = 1;
+                itemdate.tomKbn = 3;
+                if (!isCommom)
+                {
+                    itemdate.isCommom = isCommom;
+                }
+                itemdate.date = todate.AddDays(1);
+                itemdate.ukeNo = ukeno;
+                itemdate.bunkRen = bunkRen;
+                itemdate.unkRen = unkRen;
+                itemdate.teiDanNo = teiDanNo;
+                //itemdate.form = BusScheduleHelper.ConvertTime("0000");
+                //itemdate.to = BusScheduleHelper.ConvertTime("2359");
+                dateList.Add(itemdate);
+            }
+        }
+        if (isCommom)
+        {
+            dateList.OrderBy(t => t.date).First().form = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_SyuPaTime);
+            dateList.OrderBy(t => t.date).Last().to = BusScheduleHelper.ConvertTime(journeyitem.Unkobi_TouChTime);
+        }
+        else
+        {
+            dateList.OrderBy(t => t.date).First().form = BusScheduleHelper.ConvertTime(journeyitem.Haisha_SyuPaTime);
+            dateList.OrderBy(t => t.date).Last().to = BusScheduleHelper.ConvertTime(journeyitem.Haisha_TouChTime);
+        }
+        return dateList.OrderBy(t => t.date).ToList();
+    }
+
+    public void OpenJourneys()
+    {
+        if(!IsCopyMode)
+        {
+            PopupJourney = true;
+        }
+        StateHasChanged();
+    }
+
+    public void OpenTehai()
+    {
+        if(!IsCopyMode)
+        {
+            PopupTehai = true;
+        }
+
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region BookingInput tab 4
+
+    protected void SelectedPassengerTypeChanged(PassengerType newValue)
+    {
+        if (newValue != null)
+        {
+            BookingData.PassengerTypeData = newValue;
+            CallBackIndexCommand = CallBackTabBookingState.False;
+            OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+        }
+    }
+
+    #endregion
+
+    #region Booking Input Tab 8 Cancel
+
+    protected void OnCancelChange()
+    {
+        OnChangeCommandState.InvokeAsync(CallBackTabBookingState.True);
+    }
+
+    #endregion
+
+    #region incidental tab
+
+    public async Task SetupIncidentalTabAsync(BookingFormData booking)
+    {
+        loadSeisanKbnList = await Http.GetJsonAsync<List<LoadSeisanKbn>>(baseUrl + "/api/BookingIncidental/LoadSeisanKbn");
+    }
+
+    public void LoadIncidentalComboboxValue(List<LoadFuttum> futtumList)
+    {
+        for (int index = 0; index < futtumList.Count; index++)
+        {
+            var futtumView = futtumList[index];
+            futtumView.SelectedLoadSeisanKbn =
+                loadSeisanKbnList.FirstOrDefault(s => byte.Parse(s.CodeKbn) == byte.Parse(futtumView.SelectedLoadSeisanKbn.CodeKbn));
+        }
+    }
+
+    protected void OpenPopupFuttumDetail()
+    {
+        if(!IsCopyMode)
+        {
+            PopupFuttumDetail = true;
+        }
+        StateHasChanged();
+    }
+
+    protected async Task ClosePopupFuttumDetail()
+    {
+        PopupFuttumDetail = false;
+        BookingData.FuttumViewList = await LoadBookingIncidentalDataAsync();
+        LoadIncidentalComboboxValue(BookingData.FuttumViewList);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<List<LoadFuttum>> LoadBookingIncidentalDataAsync()
+    {
+        string uri = string.Format("{0}/api/BookingIncidental/LoadFuttumList?ukeNo={1}&viewMode={2}", baseUrl, id, IncidentalViewMode.All);
+        var result = await Http.GetJsonAsync<List<LoadFuttum>>(uri);
+        return result;
+    }
+
+    void SelectViewBooking(MouseEventArgs e, IncidentalViewMode number)
+    {
+        IncidentalView = number;
+    }
+
+    #endregion
+
+    #region Arrangement
+
+    protected async Task ClosePopupTehai()
+    {
+        PopupTehai = false;
+        BookingData.ArrangementTabList = await LoadBookingArrangementDataAsync(selectedCarArrangement);
+        LoadArrangementComboboxValue(BookingData);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected async Task SetupArrangementTab(BookingFormData booking)
+    {
+        arrangementTypeList = await Http.GetJsonAsync<List<ArrangementType>>(baseUrl + "/api/BookingArrangement/ArrangementType?ukeNo=" + id);
+        carArrangementList = await Http.GetJsonAsync<List<ArrangementCar>>(baseUrl + "/api/BookingArrangement/ArrangementCar?ukeNo=" + id);
+        selectedCarArrangement = carArrangementList.First();
+
+        arrangementTypeList.Insert(0, ArrangementType.CreateDefault());
+    }
+
+    public void LoadArrangementComboboxValue(BookingFormData booking)
+    {
+        if (arrangementTypeList != null)
+        {
+            for (int index = 0; index < booking.ArrangementTabList.Count; index++)
+            {
+                int code = booking.ArrangementTabList[index].SelectedArrangementType.TypeCode;
+                booking.ArrangementTabList[index].SelectedArrangementType = arrangementTypeList.FirstOrDefault(t => t.TypeCode == code);
+            }
+        }
+    }
+
+    protected async Task HandleCarArrangementChanged(ArrangementCar newValue)
+    {
+        selectedCarArrangement = newValue;
+        BookingData.ArrangementTabList = await LoadBookingArrangementDataAsync(selectedCarArrangement);
+        LoadArrangementComboboxValue(BookingData);
+        StateHasChanged();
+    }
+
+    private async Task<List<BookingArrangementData>> LoadBookingArrangementDataAsync(ArrangementCar car)
+    {
+        try
+        {
+            string uri = string.Format("{0}/api/BookingArrangement?ukeNo={1}&unkRen={2}&teiDanNo={3}&bunkRen={4}", baseUrl, id, car.UnkRen, car.TeiDanNo, car.BunkRen);
+            var response = await Http.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<BookingArrangementData>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    #endregion
+
+    private bool isValidBookingForm;
+    protected bool IsValidBookingForm()
+    {
+        isValidBookingForm = formContext.GetValidationMessages().Count() == 0;
+        return isValidBookingForm;
+    }
+
+    protected async Task ConfirmUpdateBooking(bool isUpdate)
+    {
+        isPopupAskSaveBooking = false;
+        if (isUpdate)
+        {
+            CallBackIndexCommand = CallBackTabBookingState.UpdateBooking;
+            await OnChangeCommandState.InvokeAsync(CallBackIndexCommand);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            waitingTabIndex = -1;
+        }
+    }
+
+    public void SetActiveTabIndexToWaitting()
+    {
+        if (waitingTabIndex != -1)
+        {
+            ActiveTabIndex = waitingTabIndex;
+            waitingTabIndex = -1;
+        }
+    }
+
+    protected void OnValidSubmit()
+    {
+    }
+
+    protected async Task HandleSaveConfirmationDataList()
+    {
+        if (BookingData.IsDisableEdit == false)
+        {
+            waitingTabIndex = 7;
+            //CallBackIndexCommand = CallBackTabBookingState.UpdateConfirmTab;
+            await OnChangeCommandState.InvokeAsync(CallBackTabBookingState.UpdateConfirmTab);
+        }
+    }
+
+    protected async Task HandleSaveCancelData()
+    {
+        if (BookingData.IsDisableEdit == false)
+        {
+            waitingTabIndex = 8;
+            //callBackIndexCommand = CallBackTabBookingState.UpdateCancelTab;
+            await OnChangeCommandState.InvokeAsync(CallBackTabBookingState.UpdateCancelTab);
+        }
+    }
+
+    protected async Task HandleHaitaError()
+    {
+        await OnChangeCommandState.InvokeAsync(CallBackTabBookingState.HaitaError);
+    }
+
+    protected void HandleClosePopup()
+    {
+        MyPopup.Hide();
+        StateHasChanged();
+    }
+
+    private async Task Updatefile(List<FileInfoData> updateFileupload)
+    {
+        await UpdateFileupload.InvokeAsync(updateFileupload);
+    }
+}

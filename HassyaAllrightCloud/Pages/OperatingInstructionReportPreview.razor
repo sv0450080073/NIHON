@@ -1,0 +1,185 @@
+﻿@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject CustomNavigation NavManager
+@using MediatR;
+@using HassyaAllrightCloud.Application.ReportLayout.Queries;
+
+@if (!string.IsNullOrEmpty(strUri) && !string.IsNullOrWhiteSpace(strUri))
+{
+    @if (IsOperationInstructions == true && IsCrewRecordBook == false)
+    {
+        <DxDocumentViewer ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.ReportUnkoushijisho)}?"+strUri)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    }
+    else if (IsOperationInstructions == false && IsCrewRecordBook == true)
+    {
+        <DxDocumentViewer ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.ReportJomukirokubo)}?"+strUri)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    }
+    else
+    {
+        <DxDocumentViewer ReportUrl="@($"{nameof(HassyaAllrightCloud.Reports.ReportFactory.ReportUnkoushijishoBase)}?"+strUri)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    }
+}
+
+@code {
+    [Parameter] public string searchString { get; set; }
+    [Parameter] public string IsLoadDefault { get; set; }
+    [Parameter] public string Option { get; set; }
+    [Parameter] public string Date { get; set; }
+    [Parameter] public string Mode { get; set; }
+    [Parameter] public string BookingID { get; set; }
+    [Parameter] public string TeiDanNo { get; set; }
+    [Parameter] public string UnkRen { get; set; }
+    [Parameter] public string BunkRen { get; set; }
+    [Parameter] public string UkenoList { get; set; }
+    [Parameter] public string FormOutput { get; set; }
+    [Inject] IMediator _mediator { get; set; }
+    public OperatingInstructionReportData reportData = new OperatingInstructionReportData();
+    List<DepartureOfficeData> departureofficelst;
+    List<ReservationData> reservationlst;
+    List<OutputOrderData> outputorderlst;
+    bool IsOperationInstructions { get; set; }
+    bool IsCrewRecordBook { get; set; }
+    string strUri { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsLoadDefault == "1")
+        {
+            //reservationlst = new List<ReservationData>();
+            //reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+            //reservationlst.Insert(0, new ReservationData());
+            //reportData.ReservationList = reservationlst.ToList();
+            reportData.BookingFrom = reservationlst.FirstOrDefault();
+            reportData.BookingTo = reservationlst.FirstOrDefault();
+            reportData.DeliveryDate = DateTime.Today;
+            reportData.ReceiptNumberFrom = "";
+            reportData.ReceiptNumberTo = "";
+            /*Load Departure Office*/
+            departureofficelst = new List<DepartureOfficeData>();
+            departureofficelst = await TPM_EigyosDataService.GetAllBranchData(new ClaimModel().TenantID);
+            departureofficelst.Insert(0, new DepartureOfficeData());
+            reportData.DepartureOffice = departureofficelst.First();
+            /*Load Output Data*/
+            outputorderlst = new List<OutputOrderData>();
+            outputorderlst = OutputOrderListData.OutputOrderlst;
+            reportData.OutputOrder = OutputOrderListData.OutputOrderlst.First();
+            //check Param
+            if (!string.IsNullOrEmpty(Date))
+            {
+                DateTime dateTimeConvert;
+                try
+                {
+                    dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                    reportData.DeliveryDate = dateTimeConvert;
+                    reportData.ReceiptNumberFrom = "0";
+                    reportData.ReceiptNumberTo = "2147483647";
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            else
+            {
+                reportData.DeliveryDate = new DateTime();
+            }
+            if (!string.IsNullOrEmpty(BookingID) && !string.IsNullOrEmpty(TeiDanNo) && !string.IsNullOrEmpty(UnkRen) && !string.IsNullOrEmpty(BunkRen))
+            {
+                reportData.DeliveryDate = new DateTime();
+                reportData.ReceiptNumberFrom = BookingID.Substring(5, 10);
+                reportData.ReceiptNumberTo = BookingID.Substring(5, 10);
+                reportData.TeiDanNo = int.Parse(TeiDanNo);
+                reportData.UnkRen = int.Parse(UnkRen);
+                reportData.BunkRen = int.Parse(BunkRen);
+            }
+            if (Mode == "1")
+            {
+                reportData.OperationInstructions = true;
+                reportData.CrewRecordBook = false;
+            }
+            else if (Mode == "2")
+            {
+                reportData.OperationInstructions = false;
+                reportData.CrewRecordBook = true;
+            }
+            else
+            {
+                reportData.OperationInstructions = true;
+                reportData.CrewRecordBook = true;
+            }
+            reportData.UkenoList = UkenoList;
+            reportData.FormOutput = int.Parse(FormOutput == null ? "0" : FormOutput);
+            IsOperationInstructions = reportData.OperationInstructions;
+            IsCrewRecordBook = reportData.CrewRecordBook;
+            strUri = GetUri();
+        }
+        else
+        {
+            {
+                var searchParams = EncryptHelper.Decrypt<OperatingInstructionReportData>(searchString);
+                IsOperationInstructions = searchParams.OperationInstructions;
+                IsCrewRecordBook = searchParams.CrewRecordBook;
+                strUri = searchParams.Uri;
+            }
+        }
+        NavManager.NavigateTo("/operatinginstructionreportpreview", false);
+    }
+    private string GetUri()
+    {
+        return String.Format("TenantCdSeq={0}&" +
+                     "SyuKoYmd={1}&" +
+                     "UkeCdFrom={2}&" +
+                     "UkeCdTo={3}&" +
+                     "YoyakuFrom={4}" +
+                     "&SyuEigCdSeq={5}" +
+                     "&TeiDanNo={6}&" +
+                     "UnkRen={7}" +
+                     "&BunkRen={8}" +
+                     "&SortOrder={9}" +
+                     "&UkenoList={10}" +
+                     "&FormOutput={11}" +
+                     "&YoyakuTo={12}"
+                     , new ClaimModel().TenantID, reportData.DeliveryDate.ToString("yyyyMMdd"),
+                     reportData.ReceiptNumberFrom == "" ? 0 : int.Parse(reportData.ReceiptNumberFrom),
+                     reportData.ReceiptNumberTo == "" ? int.MaxValue : int.Parse(reportData.ReceiptNumberTo),
+                     (reportData.YoyakuFrom == null) ? 0 : reportData.YoyakuFrom.YoyaKbnSeq,
+                     reportData.DepartureOffice.EigyoCdSeq,
+                     reportData.TeiDanNo,
+                     reportData.UnkRen,
+                     reportData.BunkRen,
+                     reportData.OutputOrder.IdValue,
+                     UkenoList != "" ? UkenoList : "",
+                     FormOutput,
+                     (reportData.YoyakuTo == null) ? 0 : reportData.YoyakuTo.YoyaKbnSeq
+                      );
+    }
+
+    public void GetTemplate()
+    {
+        Task.Run(async () =>
+        {
+            var claimModel = new ClaimModel();
+            int CurrentTemplateId = await _mediator.Send(new GetReportCurrentTemplateQuery { TenantCdSeq = claimModel.TenantID, ReportId = ReportIdForSetting.Operatinginstructionreport, EigyouCdSeq = claimModel.EigyoCdSeq });
+            string ReportClassName = string.Empty;
+            if (IsOperationInstructions == true && IsCrewRecordBook == false)
+            {
+                ReportClassName = BaseNamespace.Report + BaseNamespace.UnkoushijishoReport + CurrentTemplateId + PaperSize.A4;
+            }
+            else if (IsOperationInstructions == false && IsCrewRecordBook == true)
+            {
+                ReportClassName = BaseNamespace.Report + BaseNamespace.JomukirokuboReport + CurrentTemplateId + PaperSize.A4;
+            }
+            else
+            {
+                ReportClassName = BaseNamespace.Report + BaseNamespace.UnkoushijishoBaseReport + CurrentTemplateId + PaperSize.A4;
+            }
+            strUri += "&ReportTemplate=" + ReportClassName;
+        }).Wait();
+    }
+}

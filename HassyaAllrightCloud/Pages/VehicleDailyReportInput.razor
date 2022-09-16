@@ -1,0 +1,406 @@
+﻿@inherits VehicleDailyReportInputBase
+@using HassyaAllrightCloud.Pages.Components
+
+<DxPopup CssClass="w-98vw modal-dialog modal-dialog-centered">
+    <HeaderTemplate>
+        <div id="control-tab" class="title-section border busrepair-accordion-header row m-0" style="background-color: var(--primary); color: #ffffff">
+            <div class="col-6 p-0">
+                @_lang["header_label"]
+            </div>
+            <div class="col-6 p-0 text-right">
+                <label style="cursor: pointer" @onclick="TogglePopup">✖</label>
+            </div>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="tranportation-summary">
+            <div>
+                <ul class="validation-errors">
+                    @if(!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <li class="validation-message">@_lang[errorMessage]</li>
+                    }
+                </ul>
+            </div>
+            <div class="search-panel">
+                <div class="card-body border-green p-3 focus-popup">
+                    @if (vehicleDailyInputForm == null)
+                    {
+
+                    }
+                    else
+                    {
+                        <EditForm EditContext="@vehicleDailyInputForm">
+                            <FluentValidator TValidator="VehicleDailyReportValidator" />
+                            <ul class="validation-errors mt-2">
+                                @foreach (var item in vehicleDailyInputForm.GetValidationMessages().Distinct())
+                                {
+                                    <li class="validation-message">@_lang[item]</li>
+                                }
+                            </ul>
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["vehicle_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxComboBox Data="listVehicle"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        CssClass="w-100"
+                                                        ReadOnly="true"
+                                                        @bind-SelectedItem="selectedVehicle">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["startingmeter_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 two-decimals-7 text-right"
+                                                       maxlength="10"
+                                                       Text="@dto.StMeter"
+                                                       TextExpression="@(() => dto.StMeter)"
+                                                       TextChanged="@(v => OnDecimalChanged(v, nameof(dto.StMeter), 7))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["endmeter_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 two-decimals-7 text-right"
+                                                       Text="@dto.EndMeter"
+                                                       maxlength="10"
+                                                       TextExpression="@(() => dto.EndMeter)"
+                                                       TextChanged="@(v => OnDecimalChanged(v, nameof(dto.EndMeter), 7))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["totalmile_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 two-decimals text-right"
+                                                       ReadOnly="true"
+                                                       @bind-Text="dto.TotalMile"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["operatingperiod_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row">
+                                                <DxDateEdit @bind-Date="dto.HaiSYmd"
+                                                            DisplayFormat="yyyy/MM/dd"
+                                                            ReadOnly="true"
+                                                            CssClass="w-45"></DxDateEdit>
+                                                <span class="text-center p-1">～</span>
+                                                <DxDateEdit @bind-Date="dto.TouYmd"
+                                                            DisplayFormat="yyyy/MM/dd"
+                                                            ReadOnly="true"
+                                                            CssClass="w-45"></DxDateEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["departuretime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 time text-right"
+                                                       NullText="--:--"
+                                                       maxlength="4"
+                                                       Text="@dto.SyuKoTime"
+                                                       TextExpression="@(() => dto.SyuKoTime)"
+                                                       TextChanged="@(v => OnTimeChanged(v, nameof(dto.SyuKoTime)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["returntime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 time text-right"
+                                                       NullText="--:--"
+                                                       maxlength="4"
+                                                       Text="@dto.KikTime"
+                                                       TextExpression="@(() => dto.KikTime)"
+                                                       TextChanged="@(v => OnTimeChanged(v, nameof(dto.KikTime)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["restrainttime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 text-right"
+                                                       ReadOnly="true"
+                                                       @bind-Text="dto.KoskuTime"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["dailyreportdate_label"]</label>
+                                        <div class="col-8 p-0">
+                                            <DxComboBox Data="listUnkYmd"
+                                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                                        AllowUserInput="false"
+                                                        CssClass="w-45"
+                                                        SelectedItem="selectedUnkYmd"
+                                                        SelectedItemExpression="@(() => selectedUnkYmd)"
+                                                        SelectedItemChanged="@(v => OnChangeUnkYmd(v))">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["departuretime_label_1"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 time text-right"
+                                                       NullText="--:--"
+                                                       maxlength="4"
+                                                       Text="@dto.SyuPaTime"
+                                                       TextExpression="@(() => dto.SyuPaTime)"
+                                                       TextChanged="@(v => OnTimeChanged(v, nameof(dto.SyuPaTime)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["arrivaltime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 time text-right"
+                                                       NullText="--:--"
+                                                       maxlength="4"
+                                                       Text="@dto.TouChTime"
+                                                       TextExpression="@(() => dto.TouChTime)"
+                                                       TextChanged="@(v => OnTimeChanged(v, nameof(dto.TouChTime)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["actualvehicletime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 text-right"
+                                                       NullText="--:--"
+                                                       ReadOnly="true"
+                                                       @bind-Text="dto.JisTime"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["inspectiontime_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 time text-right"
+                                                       NullText="--:--"
+                                                       maxlength="4"
+                                                       Text="@dto.InspectionTime"
+                                                       TextExpression="@(() => dto.InspectionTime)"
+                                                       TextChanged="@(v => OnTimeChanged(v, nameof(dto.InspectionTime)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["actualgeneralkilo_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-5 text-right"
+                                                           maxlength="8"
+                                                           Text="@dto.JisaIPKm"
+                                                           TextExpression="@(() => dto.JisaIPKm)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.JisaIPKm), 5))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["Km_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["actualhighspeedkm_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-5 text-right"
+                                                           maxlength="8"
+                                                           Text="@dto.JisaKSKm"
+                                                           TextExpression="@(() => dto.JisaKSKm)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.JisaKSKm), 5))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["Km_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["forwardinggeneralkilo_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-5 text-right"
+                                                           maxlength="8"
+                                                           Text="@dto.KisoIPKm"
+                                                           TextExpression="@(() => dto.KisoIPKm)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.KisoIPKm), 5))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["Km_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["forwardinghighspeedkm_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-5 text-right"
+                                                           maxlength="8"
+                                                           Text="@dto.KisoKOKm"
+                                                           TextExpression="@(() => dto.KisoKOKm)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.KisoKOKm), 5))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["Km_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["otherkilo_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-5 text-right"
+                                                           ReadOnly="true"
+                                                           @bind-Text="@dto.OthKm"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["Km_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["lightoil_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-3 text-right"
+                                                           maxlength="6"
+                                                           Text="@dto.Nenryo1"
+                                                           TextExpression="@(() => dto.Nenryo1)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.Nenryo1), 3))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["liter_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["lampoil_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-3 text-right"
+                                                           maxlength="6"
+                                                           Text="@dto.Nenryo2"
+                                                           TextExpression="@(() => dto.Nenryo2)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.Nenryo2), 3))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["liter_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["oil_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 two-decimals-3 text-right"
+                                                           maxlength="6"
+                                                           Text="@dto.Nenryo3"
+                                                           TextExpression="@(() => dto.Nenryo3)"
+                                                           TextChanged="@(v => OnDecimalChanged(v, nameof(dto.Nenryo3), 3))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["liter_label"]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-3">
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["boardingpersonnel_label"]</label>
+                                        <div class="col-8">
+                                            <div class="row mr-0">
+                                                <DxTextBox CssClass="w-38 number text-right"
+                                                           maxlength="4"
+                                                           Text="@dto.JyoSyaJin"
+                                                           TextExpression="@(() => dto.JyoSyaJin)"
+                                                           TextChanged="@(v => OnChangeNumber(v, nameof(dto.JyoSyaJin)))"></DxTextBox>
+                                                <span class="text-center p-1">@_lang["plusman_label"]&nbsp;<b>＋</b>&nbsp;</span>
+                                                <DxTextBox CssClass="w-38 number text-right"
+                                                           maxlength="4"
+                                                           Text="@dto.PlusJin"
+                                                           TextExpression="@(() => dto.PlusJin)"
+                                                           TextChanged="@(v => OnChangeNumber(v, nameof(dto.PlusJin)))"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="row">
+                                        <label class="col-4">@_lang["numberoftrip_label"]</label>
+                                        <div class="col-8 pl-0">
+                                            <DxTextBox CssClass="w-38 number text-right"
+                                                       maxlength="4"
+                                                       Text="@dto.UnkKai"
+                                                       TextExpression="@(() => dto.UnkKai)"
+                                                       TextChanged="@(v => OnChangeNumber(v, nameof(dto.UnkKai)))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <button class="btn btn-sm mx-2 width--100 btn-danger" @onclick="@(async () => await OnTogglePopup(false))">@_lang["delete_btn"]</button>
+                    </div>
+                    <div class="col-6 text-right">
+                        <button class="btn btn-sm mx-2 width--100 btn-outline-dark" @onclick="@(async () => await TogglePopup.InvokeAsync(new MouseEventArgs()))">@_lang["btn_close"]</button>
+                        <button class="btn btn-sm mx-2 width--100 btn-primary" @onclick="@(async () => await OnSave())">@_lang["save_btn"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</DxPopup>
+
+<div id="popup">
+    <DeleteConfirm IsShowPopup="isShowPopup" OnTogglePopup="OnTogglePopup" Message="@_lang["delete_message"]" Header="@_lang["delete_header"]">
+    </DeleteConfirm>
+</div>

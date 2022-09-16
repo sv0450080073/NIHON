@@ -1,0 +1,181 @@
+﻿@page "/monthlytransportationresult"
+@inherits HassyaAllrightCloud.Pages.MonthlyTransportationResultBase
+<DxPopup @bind-Visible="@IsShow">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-info-circle" aria-hidden="true"></i> @_lang["HeaderPopup"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@_lang["DataNoExist"]</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--120" @onclick="@(() => IsShow = false)">@_lang["OK"]</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+<div class="monthlytransportation-result">
+    <div class="mb-3 search-panel">
+        <div class="row mb-2 mt-2">
+            <div class="col-6">
+                <h5>@_lang["PageTitle"]</h5>
+            </div>
+            <div class="col-6 text-right">
+                <button class="btn btn-sm btn-danger btnclear float-right" @onclick="@(() => ClearFormSeach())">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    @_lang["DeleteAll"]
+                </button>
+            </div>
+        </div>
+        <div>
+            @if (editFormContext != null)
+            {
+                <ul class="validation-errors mt-2">
+                    @foreach (var item in ErrorMessage)
+                    {
+                        <li class="validation-message">@_lang[item]</li>
+                    }
+                </ul>
+            }
+        </div>
+        @if (editFormContext != null)
+        {
+            <EditForm EditContext="@editFormContext">
+                <FluentValidator TValidator="MonthlyTransportationValidator" />
+                <div class="row border-component m-0 pt-3 mb-3">
+                    <div class="col-md-12 mb-3">
+                        <div class="row ml-2 font-weight-bold mb-2" style="font-size: 1.1rem">@_lang["Component1"]</div>
+                        <div class="row mb-3 ml-2">
+                            <div class="col-6 d-flex flex-row">
+                                <label class="col-2 mt-1 text-left">@_lang["OutputInstruction"]</label>
+                                <div class="col-9">
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchModel.OutputInstructionMode == (int)OutputInstruction.Show ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(e => UpdateFormValue(nameof(searchModel.OutputInstructionMode),(int)OutputInstruction.Show))">
+                                        @_lang["Show"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchModel.OutputInstructionMode == (int)OutputInstruction.Preview ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(e => UpdateFormValue(nameof(searchModel.OutputInstructionMode),(int)OutputInstruction.Preview))">
+                                        @_lang["Preview"]
+                                    </button>
+                                    <button class="@string.Format("btn-option mx-2 {0}", searchModel.OutputInstructionMode == (int)OutputInstruction.Pdf ? "btn-active" : string.Empty)"
+                                            type="button" @onclick="@(e => UpdateFormValue(nameof(searchModel.OutputInstructionMode),(int)OutputInstruction.Pdf))">
+                                        @_lang["Pdf"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row border-component m-0 pt-3">
+                    <div class="col-md-12 mb-3">
+                        <div class="row font-weight-bold ml-2 mb-2" style="font-size: 1.1rem">@_lang["Component2"]</div>
+                        <div class="row mb-3 ml-4">
+                            <div class="col-6 d-flex flex-row">
+                                <label class="col-2 mt-2 text-left pl-0">@_lang["ProcessingDate"]</label>
+                                <div class="col-9">
+                                    <DxDateEdit Date="searchModel.ProcessingDate" DisplayFormat="yyyy/MM" Format="yyyy/MM"
+                                                ScrollPickerFormat="yyyy MM"
+                                                CssClass="width--120 focus-first-item"
+                                                PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker"
+                                                DateChanged="@((value) => UpdateFormValue(nameof(searchModel.ProcessingDate), value))"
+                                                DateExpression="@(() => searchModel.ProcessingDate)"></DxDateEdit>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3 ml-4">
+                            <div class="col-6 d-flex flex-row">
+                                <label class="mt-1 col-2 text-left pl-0">@_lang["Company"]</label>
+                                <div class="col-4">
+                                    <DxComboBox SelectedItem="searchModel.Company"
+                                                SelectedItemExpression="@(() => searchModel.Company)"
+                                                Data="@companys"
+                                                TextFieldName="Text"
+                                                AllowUserInput="false"
+                                                ReadOnly="true"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                NullText="@_lang["CompanyCodeName"]"
+                                                SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.Company),value))"></DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2 ml-4">
+                            <div class="col-6 d-flex flex-row">
+                                <label class="col-form-label col-2 text-left pl-0">@_lang["SalesOffice"]</label>
+                                <div class="col-4 has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => searchModel.EigyoFrom)"
+                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox SelectedItem="searchModel.EigyoFrom"
+                                                SelectedItemExpression="@(() => searchModel.EigyoFrom)"
+                                                Data="@eigyoFrom"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                NullText="@_lang["SaleCodeName"]"
+                                                TextFieldName="Text"
+                                                SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.EigyoFrom),value))"></DxComboBox>
+                                </div>
+                                <span class="ml-2 mr-2 mt-1 mb-auto">～</span>
+                                <div class="col-4 has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => searchModel.EigyoTo)"
+                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox SelectedItem="searchModel.EigyoTo"
+                                                SelectedItemExpression="@(() => searchModel.EigyoTo)"
+                                                Data="@eigyoTo"
+                                                ReadOnly="@IsReadOnly"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                NullText="@_lang["SaleCodeName"]"
+                                                TextFieldName="Text"
+                                                SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.EigyoTo),value))"></DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row ml-4">
+                            <div class="col-6 d-flex flex-row">
+                                <label class="col-form-label col-2 text-left pl-0">@_lang["Shipping"]</label>
+                                <div class="col-4 has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => searchModel.ShippingFrom)"
+                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox SelectedItem="searchModel.ShippingFrom"
+                                                SelectedItemExpression="@(() => searchModel.ShippingFrom)"
+                                                Data="@shippingFrom"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                NullText="@_lang["General"]"
+                                                TextFieldName="Text"
+                                                SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.ShippingFrom),value))"></DxComboBox>
+                                </div>
+                                <span class="ml-2 mr-2 mt-1 mb-auto">～</span>
+                                <div class="col-4 has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => searchModel.ShippingTo)"
+                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox SelectedItem="searchModel.ShippingTo"
+                                                SelectedItemExpression="@(() => searchModel.ShippingTo)"
+                                                Data="@shippingTo"
+                                                ReadOnly="@IsReadOnly"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                NullText="@_lang["General"]"
+                                                TextFieldName="Text"
+                                                SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.ShippingTo),value))"></DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+    <div class="row mt-3 text-center">
+        <div class="col-12">
+            <DxButton @onclick="e => BtnStart()" CssClass="btn btn-primary width--90 lifecycle-btn" Text="@_lang["Start"]" />
+        </div>
+    </div>
+</div>
+@if (isLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}

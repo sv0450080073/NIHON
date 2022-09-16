@@ -1,0 +1,416 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="BusTypeList" Landscape="true" Margins="25, 25, 60, 19" PaperKind="A4" PageWidth="1169" PageHeight="827" Version="20.1" DataSource="#Ref-0" Font="Arial, 9.75pt">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="TopMargin" HeightF="60">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label20" Multiline="true" CanGrow="false" WordWrap="false" SizeF="41.17517,13.1944427" LocationFloat="1042.66174,36.8055573" Font="MS PGothic, 8pt" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="4" EventName="BeforePrint" PropertyName="Text" Expression="[PageNumber] + '/' + [TotalPage]" />
+          </ExpressionBindings>
+          <StylePriority Ref="5" UseFont="false" />
+        </Item1>
+        <Item2 Ref="6" ControlType="XRLabel" Name="label8" Multiline="true" SizeF="72.5763855,13.1944466" LocationFloat="0,36.8055534" Font="MS PGothic, 8pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="7" EventName="BeforePrint" PropertyName="Text" Expression="[OrtherInfo].[CurrentDateSearch]" />
+          </ExpressionBindings>
+          <StylePriority Ref="8" UseFont="false" UseForeColor="false" />
+        </Item2>
+        <Item3 Ref="9" ControlType="XRLabel" Name="label9" Multiline="true" CanGrow="false" Text="車 種 別 台 数 一 覧" LockedInUserDesigner="true" TextAlignment="MiddleCenter" SizeF="250.107346,29.8611088" LocationFloat="434.44632,20.1388874" Font="MS PGothic, 20pt, style=Bold" Padding="2,2,0,0,100">
+          <StylePriority Ref="10" UseFont="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="11" ControlType="XRLabel" Name="label10" Multiline="true" SizeF="128.003723,13.1944466" LocationFloat="908.999939,36.8055534" Font="MS PGothic, 8pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="12" EventName="BeforePrint" PropertyName="Text" Expression="[OrtherInfo].[CurrentDateFormat]" />
+          </ExpressionBindings>
+          <StylePriority Ref="13" UseFont="false" UseForeColor="false" />
+        </Item4>
+        <Item5 Ref="14" ControlType="XRLabel" Name="label11" Multiline="true" Text="ページ" SizeF="35.1631927,13.1944437" LocationFloat="1083.83691,36.8055534" Font="MS PGothic, 8pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="15" UseFont="false" />
+        </Item5>
+        <Item6 Ref="16" ControlType="XRLabel" Name="label12" Multiline="true" Text="より" SizeF="31.5545654,13.1944466" LocationFloat="72.5763855,36.8055534" Font="MS PGothic, 8pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="17" UseFont="false" />
+        </Item6>
+      </Controls>
+    </Item1>
+    <Item2 Ref="18" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="19" />
+    <Item3 Ref="19" ControlType="DetailBand" Name="Detail" Expanded="false" HeightF="0" />
+    <Item4 Ref="20" ControlType="PageFooterBand" Name="PageFooter" HeightF="18.1944466">
+      <Controls>
+        <Item1 Ref="21" ControlType="XRLabel" Name="label7" Multiline="true" SizeF="227.438782,13.1944447" LocationFloat="891.56134,5.00000143" Font="MS PGothic, 8pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="22" EventName="BeforePrint" PropertyName="Text" Expression="[OrtherInfo].[SyainNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="23" UseFont="false" UseForeColor="false" />
+        </Item1>
+        <Item2 Ref="24" ControlType="XRLabel" Name="label6" Multiline="true" SizeF="78.236145,13.1944437" LocationFloat="813.3252,4.999999" Font="MS PGothic, 8pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="25" EventName="BeforePrint" PropertyName="Text" Expression="[OrtherInfo].[SyainCd]" />
+          </ExpressionBindings>
+          <StylePriority Ref="26" UseFont="false" UseForeColor="false" />
+        </Item2>
+      </Controls>
+    </Item4>
+    <Item5 Ref="27" ControlType="DetailReportBand" Name="DetailReport2" Level="0" DataMember="ReportBodyList" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="28" ControlType="DetailBand" Name="Detail3" HeightF="17.5">
+          <Controls>
+            <Item1 Ref="29" ControlType="XRTable" Name="table3" TextAlignment="MiddleCenter" SizeF="1119,17.5" LocationFloat="0,0" Font="MS PGothic, 6pt" ForeColor="Black" Padding="2,2,0,0,96" Borders="All">
+              <Rows>
+                <Item1 Ref="30" ControlType="XRTableRow" Name="tableRow3" Weight="1.1666666666666665" Borders="Left, Right, Bottom">
+                  <Cells>
+                    <Item1 Ref="31" ControlType="XRTableCell" Name="tableCell3" Weight="10.132099144170532" Multiline="true" TextAlignment="MiddleLeft">
+                      <ExpressionBindings>
+                        <Item1 Ref="32" EventName="BeforePrint" PropertyName="Text" Expression="[BusTypeNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="33" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="34" ControlType="XRTableCell" Name="tableCell35" Weight="1.9117166370342056" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[NumberOfBusTypeText]" />
+                      </ExpressionBindings>
+                    </Item2>
+                    <Item3 Ref="36" ControlType="XRTableCell" Name="tableCell67" Weight="1.9117167979748313" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="37" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText01]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="38" ControlType="XRTableCell" Name="tableCell68" Weight="1.9117168340075583" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="39" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText02]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="40" ControlType="XRTableCell" Name="tableCell69" Weight="1.9117166329844346" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="41" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText03]" />
+                      </ExpressionBindings>
+                    </Item5>
+                    <Item6 Ref="42" ControlType="XRTableCell" Name="tableCell70" Weight="1.9117166252464777" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="43" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText04]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="44" ControlType="XRTableCell" Name="tableCell71" Weight="1.9117166252464781" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="45" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText05]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="46" ControlType="XRTableCell" Name="tableCell72" Weight="1.9117168550592871" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="47" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText06]&#xA;" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="48" ControlType="XRTableCell" Name="tableCell73" Weight="1.9117168409512035" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="49" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText07]&#xA;" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="50" ControlType="XRTableCell" Name="tableCell74" Weight="1.9117166252464766" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="51" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText08]&#xA;" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="52" ControlType="XRTableCell" Name="tableCell75" Weight="1.911716625246479" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="53" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText09]&#xA;" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="54" ControlType="XRTableCell" Name="tableCell76" Weight="1.9117166252464781" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="55" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText10]&#xA;" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="56" ControlType="XRTableCell" Name="tableCell77" Weight="1.9117166252464786" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="57" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText11]&#xA;" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="58" ControlType="XRTableCell" Name="tableCell78" Weight="1.9117166252464779" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="59" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText12]&#xA;" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="60" ControlType="XRTableCell" Name="tableCell79" Weight="1.9117166252464779" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="61" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText13]&#xA;" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="62" ControlType="XRTableCell" Name="tableCell80" Weight="1.9117166252464797" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="63" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText14]&#xA;" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="64" ControlType="XRTableCell" Name="tableCell81" Weight="1.9117166252464735" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="65" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText15]&#xA;" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="66" ControlType="XRTableCell" Name="tableCell82" Weight="1.9117166252464783" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="67" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText16]&#xA;" />
+                      </ExpressionBindings>
+                    </Item18>
+                    <Item19 Ref="68" ControlType="XRTableCell" Name="tableCell83" Weight="1.911716625246477" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="69" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText17]&#xA;" />
+                      </ExpressionBindings>
+                    </Item19>
+                    <Item20 Ref="70" ControlType="XRTableCell" Name="tableCell84" Weight="1.9117166252464788" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="71" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText18]&#xA;" />
+                      </ExpressionBindings>
+                    </Item20>
+                    <Item21 Ref="72" ControlType="XRTableCell" Name="tableCell85" Weight="1.9117166252464779" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="73" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText19]&#xA;" />
+                      </ExpressionBindings>
+                    </Item21>
+                    <Item22 Ref="74" ControlType="XRTableCell" Name="tableCell86" Weight="1.911716625246477" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText20]&#xA;" />
+                      </ExpressionBindings>
+                    </Item22>
+                    <Item23 Ref="76" ControlType="XRTableCell" Name="tableCell87" Weight="1.911716783305768" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="77" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText21]&#xA;" />
+                      </ExpressionBindings>
+                    </Item23>
+                    <Item24 Ref="78" ControlType="XRTableCell" Name="tableCell88" Weight="1.9117166453054393" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="79" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText22]&#xA;" />
+                      </ExpressionBindings>
+                    </Item24>
+                    <Item25 Ref="80" ControlType="XRTableCell" Name="tableCell89" Weight="1.9117168665478059" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="81" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText23]&#xA;" />
+                      </ExpressionBindings>
+                    </Item25>
+                    <Item26 Ref="82" ControlType="XRTableCell" Name="tableCell90" Weight="1.911716651054028" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="83" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText24]&#xA;" />
+                      </ExpressionBindings>
+                    </Item26>
+                    <Item27 Ref="84" ControlType="XRTableCell" Name="tableCell91" Weight="1.9117166510540158" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="85" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText25]&#xA;" />
+                      </ExpressionBindings>
+                    </Item27>
+                    <Item28 Ref="86" ControlType="XRTableCell" Name="tableCell92" Weight="1.9117166510540185" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="87" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText26]&#xA;" />
+                      </ExpressionBindings>
+                    </Item28>
+                    <Item29 Ref="88" ControlType="XRTableCell" Name="tableCell93" Weight="1.9117166510540229" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText27]&#xA;" />
+                      </ExpressionBindings>
+                    </Item29>
+                    <Item30 Ref="90" ControlType="XRTableCell" Name="tableCell94" Weight="1.9117168251198971" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="91" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText28]&#xA;" />
+                      </ExpressionBindings>
+                    </Item30>
+                    <Item31 Ref="92" ControlType="XRTableCell" Name="tableCell95" Weight="1.9117167035762201" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="93" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText29]&#xA;" />
+                      </ExpressionBindings>
+                    </Item31>
+                    <Item32 Ref="94" ControlType="XRTableCell" Name="tableCell96" Weight="1.9117167321373814" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText30]&#xA;" />
+                      </ExpressionBindings>
+                    </Item32>
+                    <Item33 Ref="96" ControlType="XRTableCell" Name="tableCell1" Weight="1.9117183122051866" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="97" EventName="BeforePrint" PropertyName="Text" Expression="[CalValueText31]" />
+                      </ExpressionBindings>
+                    </Item33>
+                  </Cells>
+                  <StylePriority Ref="98" UseBorders="false" />
+                </Item1>
+              </Rows>
+              <StylePriority Ref="99" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="100" ControlType="ReportHeaderBand" Name="ReportHeader" HeightF="30" ForeColor="Black">
+          <Controls>
+            <Item1 Ref="101" ControlType="XRTable" Name="table4" TextAlignment="MiddleCenter" SizeF="1119,30" LocationFloat="0,0" Font="MS PGothic, 6pt" ForeColor="Black" Padding="2,2,0,0,96" Borders="All">
+              <Rows>
+                <Item1 Ref="102" ControlType="XRTableRow" Name="tableRow4" Weight="1.5">
+                  <Cells>
+                    <Item1 Ref="103" ControlType="XRTableCell" Name="tableCell97" Weight="10.132099807780669" Multiline="true" Text="車種名" ForeColor="Black">
+                      <StylePriority Ref="104" UseForeColor="false" />
+                    </Item1>
+                    <Item2 Ref="105" ControlType="XRTableCell" Name="tableCell98" Weight="1.9117168494313936" Multiline="true" Text="台数" ForeColor="Black">
+                      <StylePriority Ref="106" UseForeColor="false" />
+                    </Item2>
+                    <Item3 Ref="107" ControlType="XRTableCell" Name="tableCell99" Weight="1.911717040387366" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="108" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText01], '-', NewLine())" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="109" ControlType="XRTableCell" Name="tableCell100" Weight="1.9117169580498572" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="110" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText02], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="111" ControlType="XRTableCell" Name="tableCell101" Weight="1.9117170001140782" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="112" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText03], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item5>
+                    <Item6 Ref="113" ControlType="XRTableCell" Name="tableCell102" Weight="1.9117169923761315" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="114" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText04], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="115" ControlType="XRTableCell" Name="tableCell103" Weight="1.9117169923761317" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="116" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText05], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="117" ControlType="XRTableCell" Name="tableCell104" Weight="1.9117169791015867" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="118" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText06], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="119" ControlType="XRTableCell" Name="tableCell105" Weight="1.9117169649935129" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="120" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText07], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="121" ControlType="XRTableCell" Name="tableCell106" Weight="1.9117169923761304" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="122" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText08], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="123" ControlType="XRTableCell" Name="tableCell107" Weight="1.911716992376133" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="124" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText09], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="125" ControlType="XRTableCell" Name="tableCell108" Weight="1.9117169923761319" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="126" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText10], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="127" ControlType="XRTableCell" Name="tableCell109" Weight="1.9117169923761324" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="128" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText11], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="129" ControlType="XRTableCell" Name="tableCell110" Weight="1.9117169923761319" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="130" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText12], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="131" ControlType="XRTableCell" Name="tableCell111" Weight="1.9117169923761315" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="132" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText13], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="133" ControlType="XRTableCell" Name="tableCell112" Weight="1.9117169923761335" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="134" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText14], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="135" ControlType="XRTableCell" Name="tableCell113" Weight="1.9117169923761272" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="136" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText15], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="137" ControlType="XRTableCell" Name="tableCell114" Weight="1.9117169923761326" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="138" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText16], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item18>
+                    <Item19 Ref="139" ControlType="XRTableCell" Name="tableCell115" Weight="1.9117169923761308" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="140" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText17], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item19>
+                    <Item20 Ref="141" ControlType="XRTableCell" Name="tableCell116" Weight="1.9117169923761326" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="142" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText18], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item20>
+                    <Item21 Ref="143" ControlType="XRTableCell" Name="tableCell117" Weight="1.9117169923761317" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="144" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText19], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item21>
+                    <Item22 Ref="145" ControlType="XRTableCell" Name="tableCell118" Weight="1.9117169923761317" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="146" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText20], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item22>
+                    <Item23 Ref="147" ControlType="XRTableCell" Name="tableCell119" Weight="1.9117169923761315" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="148" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText21], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item23>
+                    <Item24 Ref="149" ControlType="XRTableCell" Name="tableCell120" Weight="1.9117169923761308" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="150" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText22], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item24>
+                    <Item25 Ref="151" ControlType="XRTableCell" Name="tableCell121" Weight="1.9117170257182818" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="152" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText23], '-', NewLine())" />
+                      </ExpressionBindings>
+                    </Item25>
+                    <Item26 Ref="153" ControlType="XRTableCell" Name="tableCell122" Weight="1.9117170124350931" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="154" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText24], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item26>
+                    <Item27 Ref="155" ControlType="XRTableCell" Name="tableCell123" Weight="1.9117169905901055" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="156" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText25], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item27>
+                    <Item28 Ref="157" ControlType="XRTableCell" Name="tableCell124" Weight="1.9117170181836813" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="158" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText26], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item28>
+                    <Item29 Ref="159" ControlType="XRTableCell" Name="tableCell125" Weight="1.9117170181836696" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="160" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText27], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item29>
+                    <Item30 Ref="161" ControlType="XRTableCell" Name="tableCell126" Weight="1.9117170181836722" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="162" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText28], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item30>
+                    <Item31 Ref="163" ControlType="XRTableCell" Name="tableCell127" Weight="1.9117170181836767" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="164" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText29], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item31>
+                    <Item32 Ref="165" ControlType="XRTableCell" Name="tableCell128" Weight="1.9117169269480705" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="166" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText30], '-', NewLine())&#xA;" />
+                      </ExpressionBindings>
+                    </Item32>
+                    <Item33 Ref="167" ControlType="XRTableCell" Name="tableCell2" Weight="1.9117161976859238" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="168" EventName="BeforePrint" PropertyName="Text" Expression="Replace([HeatderTable].[CalText31], '-', NewLine())" />
+                      </ExpressionBindings>
+                    </Item33>
+                  </Cells>
+                </Item1>
+              </Rows>
+              <StylePriority Ref="169" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+          <StylePriority Ref="170" UseForeColor="false" />
+        </Item2>
+      </Bands>
+    </Item5>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5CdXNUeXBlTGlzdFJlcG9ydFBERiwgSGFzc3lhQWxscmlnaHRDbG91ZCwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwiIC8+PENvbnN0cnVjdG9yIC8+PC9PYmplY3REYXRhU291cmNlPg==" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

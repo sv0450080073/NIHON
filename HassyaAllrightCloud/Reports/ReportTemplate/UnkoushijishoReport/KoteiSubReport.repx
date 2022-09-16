@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="KoteiSubReport" Margins="0, 316, 0, 0" PageWidth="850" PageHeight="1100" Version="20.1" DataMember="RP_UnkoushijishoSubReportNew" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Description="Ukeno" Name="Ukeno" />
+    <Item2 Ref="4" Description="SyuKoYmd" Name="SyuKoYmd" />
+    <Item3 Ref="5" Description="KikYmd" Name="KikYmd" />
+    <Item4 Ref="7" Description="Parameter1" ValueInfo="0" Name="TeiDanNo" Type="#Ref-6" />
+    <Item5 Ref="8" Description="UnkRen" ValueInfo="0" Name="UnkRen" Type="#Ref-6" />
+    <Item6 Ref="9" Description="BunkRen" ValueInfo="0" Name="BunkRen" Type="#Ref-6" />
+    <Item7 Ref="10" Description="Dateparam" Name="Dateparam" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="11" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="0" />
+    <Item2 Ref="12" ControlType="DetailBand" Name="detailBand1" HeightF="18.5">
+      <Controls>
+        <Item1 Ref="13" ControlType="XRTable" Name="table1" SizeF="530.88,18.5" LocationFloat="0,0" Padding="2,2,0,0,96">
+          <Rows>
+            <Item1 Ref="14" ControlType="XRTableRow" Name="tableRow1" Weight="0.74">
+              <Cells>
+                <Item1 Ref="15" ControlType="XRTableCell" Name="tableCell1" Weight="0.71029998734069855" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="16" EventName="BeforePrint" PropertyName="Text" Expression="[StrDate]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="17" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="18" ControlType="XRTableCell" Name="tableCell2" Weight="4.5985001926901345" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 8pt" Borders="Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="19" EventName="BeforePrint" PropertyName="Text" Expression="[Koutei]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="20" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item1>
+          </Rows>
+        </Item1>
+      </Controls>
+    </Item2>
+    <Item3 Ref="21" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="0" />
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.Sql.SqlDataSource,DevExpress.DataAccess.v20.1" Name="sqlDataSource1" Base64="PFNxbERhdGFTb3VyY2UgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxDb25uZWN0aW9uIE5hbWU9IlNxbERiQ29udGV4dCIgRnJvbUFwcENvbmZpZz0idHJ1ZSIgLz48UXVlcnkgVHlwZT0iU3RvcmVkUHJvY1F1ZXJ5IiBOYW1lPSJSUF9VbmtvdXNoaWppc2hvU3ViUmVwb3J0TmV3Ij48UGFyYW1ldGVyIE5hbWU9IkBVa2VubyIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/VWtlbm8pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAU3l1S29ZbWQiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLlN0cmluZykoP1N5dUtvWW1kKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQEtpa1ltZCIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/S2lrWW1kKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFRlaURhbk5vIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQxNikoP1RlaURhbk5vKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9VbmtSZW4pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAQnVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9CdW5rUmVuKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQERhdGVwYXJhbSIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/RGF0ZXBhcmFtKTwvUGFyYW1ldGVyPjxQcm9jTmFtZT5SUF9VbmtvdXNoaWppc2hvU3ViUmVwb3J0TmV3PC9Qcm9jTmFtZT48L1F1ZXJ5PjxSZXN1bHRTY2hlbWE+PERhdGFTZXQgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxWaWV3IE5hbWU9IlJQX1Vua291c2hpamlzaG9TdWJSZXBvcnROZXciPjxGaWVsZCBOYW1lPSJkYXRlS290ZWkiIFR5cGU9IkRhdGVUaW1lIiAvPjxGaWVsZCBOYW1lPSJLb3V0ZWkiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iVGVoTm0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iVGVoVGVsIiBUeXBlPSJTdHJpbmciIC8+PEZpZWxkIE5hbWU9IlN0ckRhdGUiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iSUQiIFR5cGU9IkludDMyIiAvPjwvVmlldz48L0RhdGFTZXQ+PC9SZXN1bHRTY2hlbWE+PENvbm5lY3Rpb25PcHRpb25zIENsb3NlQ29ubmVjdGlvbj0idHJ1ZSIgLz48L1NxbERhdGFTb3VyY2U+" />
+  </ComponentStorage>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v20.1" Ref="6" Content="System.Int32" Type="System.Type" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

@@ -1,0 +1,890 @@
+﻿@inject IBlazorContextMenuService blazorContextMenuService
+@inject IJSRuntime JSRuntime
+@inject ITKD_KikyujDataListService TKD_KikyujDataService
+@inject ITKD_HaiinDataService TKD_HaiinDataService 
+@inject ITKD_HaishaDataListService TKD_HaishaDataService
+@inject IBusBookingDataListService BusBookingDataListService
+
+<S_Container Param="@Param" 
+             Date="@Date" 
+             Width="@Width" 
+             StaffsName="@StaffsName" 
+             StaffsNameUnassigned="@StaffsNameUnassigned" 
+             StaffsLines="@StaffsLines" 
+             Jobs="@StaffsLines"
+             UpdateLineHeight="ReupdateLineBusHeight"              
+             OnStatusUpdated="HandlerStatusUpdated"
+             OnShowMenu="HandleShowMenu"
+             OnUpdateLineCut="HandleUpdateLineCut">
+    <div class="busData staffData mb-2 view-@Param.DisplayedLineHeight line-@Param.Type group-@Param.Grouping" @onmousewheel="OnHandleMouseWheel">
+        <div class="wrap">
+            <div class="busData--normal busData__wrap">
+                <div class="busData-content busData-content--@Param.DisplayRange @(Param.TimeRange == (int)TimeMode.Minute ? "minute" : null) @(Param.TimeRange == (int)TimeMode.OneHour ? "one-hour" : null) @(Param.TimeRange == (int)TimeMode.Day ? "one-day" : null) @commentClass">
+                    <div class="busData-name">
+                        <div class="topbar"></div>
+                        <div>
+                            @foreach (var staff in StaffsName)
+                            {
+                                <div class="busData-name__item" style="height: @(staff.StaffHeight)rem"><span>@(staff.StaffName)</span></div>
+                            }
+                        </div>
+                    </div>
+                    <div class="busData-timeline busData--@Param.TimeRange mode--@Param.Mode">
+                        <div class="listColumn clearfix">
+                            <!-- 15minute -->
+                            @if (Param.TimeRange == (int)TimeMode.Minute)
+                            {
+                                DateTime date = Date;
+                                <div class="listColumn__item">
+                                    <div class="day text-center @date.DayOfWeek.ToString("G").ToLower()">
+                                        <div class="day-sticky">
+                                            <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="MenuDate" Data="@date.ToString("yyyyMMdd")">
+                                                <strong>@date.ToString("MM月dd日 (ddd)", ci)</strong>
+                                            </ContextMenuTrigger>
+                                            <span class="fa fa-pencil-square-o mx-1" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))" aria-hidden="true" @onclick="@(() => OnClickDateComment.InvokeAsync(date.ToString("yyyyMMdd")))"></span>
+                                            <div class="des" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))">@GetCommentDate(date)</div>
+                                        </div>
+                                    </div>
+                                    <div class="hours font-weight-bold d-flex">
+                                        @for (var j = 0; j < 24; j++)
+                                        {
+                                            <span>@j</span>
+                                        }
+                                    </div>
+                                    <div class="minutes d-flex">
+                                        @for (var j = 0; j < 24; j++)
+                                        {
+                                            <span>0</span>
+                                            <span>15</span>
+                                            <span>30</span>
+                                            <span>45</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <!-- 1hour -->
+                            @if (Param.TimeRange == (int)TimeMode.OneHour)
+                            {
+                                for (var i = 0; i < Param.Number_of_days; i++)
+                                {
+                                    DateTime date = Date.AddDays(i);
+                                    <div class="listColumn__item">
+                                        <div class="day text-center @date.DayOfWeek.ToString("G").ToLower()">
+                                            <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="MenuDate" Data="@date.ToString("yyyyMMdd")">
+                                                <strong>@date.ToString("MM月dd日 (ddd)", ci)</strong>
+                                            </ContextMenuTrigger>
+                                            <span class="fa fa-pencil-square-o mx-1" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))" aria-hidden="true" @onclick="@(() => OnClickDateComment.InvokeAsync(date.ToString("yyyyMMdd")))"></span>
+                                            <div class="des" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))">@GetCommentDate(date)</div>
+                                        </div>
+                                        <div class="description text-center">@((MarkupString)GetheaderText(Date.AddDays(i)))</div>
+                                        <div class="hours d-flex">
+                                            @for (var j = 0; j < 24; j++)
+                                            {
+                                                <span>@j</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <!-- 3hours -->
+                            @if (Param.TimeRange == (int)TimeMode.ThreeHours)
+                            {
+                                for (int i = 0; i < Param.Number_of_days; i++)
+                                {
+                                    DateTime date = Date.AddDays(i);
+                                    <div class="listColumn__item">
+                                        <div class="day text-center @date.DayOfWeek.ToString("G").ToLower()">
+                                            <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="MenuDate" Data="@date.ToString("yyyyMMdd")">
+                                                <strong>@date.ToString("MM月dd日 (ddd)", ci)</strong>
+                                            </ContextMenuTrigger>
+                                            <span class="fa fa-pencil-square-o mx-1" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))" aria-hidden="true" @onclick="@(() => OnClickDateComment.InvokeAsync(date.ToString("yyyyMMdd")))"></span>
+                                            <div class="des" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))">@GetCommentDate(date)</div>
+                                        </div>
+                                        <div class="description text-center">@((MarkupString)GetheaderText(Date.AddDays(i)))</div>
+                                        <div class="hours d-flex">
+                                            @for (var j = 0; j < 8; j++)
+                                            {
+                                                <span>@(j * 3)</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <!-- 6hours -->
+                            @if (Param.TimeRange == (int)TimeMode.SixHours)
+                            {
+                                for (var i = 0; i < Param.Number_of_days; i++)
+                                {
+                                    DateTime date = Date.AddDays(i);
+                                    <div class="listColumn__item">
+                                        <div class="day text-center @date.DayOfWeek.ToString("G").ToLower()">
+                                            <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="MenuDate" Data="@date.ToString("yyyyMMdd")">
+                                                <strong>@date.ToString("MM月dd日 (ddd)", ci)</strong>
+                                            </ContextMenuTrigger>
+                                            <span class="fa fa-pencil-square-o mx-1" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))" aria-hidden="true" @onclick="@(() => OnClickDateComment.InvokeAsync(date.ToString("yyyyMMdd")))"></span>
+                                            <div class="des" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))">@GetCommentDate(date)</div>
+                                        </div>
+                                        <div class="description text-center">@((MarkupString)GetheaderText(Date.AddDays(i)))</div>
+                                        <div class="hours d-flex">
+                                            @for (var j = 0; j < 4; j++)
+                                            {
+                                                <span>@(j * 6)</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <!-- 1day -->
+                            @if (Param.TimeRange == (int)TimeMode.Day)
+                            {
+                                for (var i = 0; i < Param.Number_of_days; i++)
+                                {
+                                    DateTime date = Date.AddDays(i);
+                                    <div class="listColumn__item">
+                                        <div class="day text-center @date.DayOfWeek.ToString("G").ToLower()">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="MenuDate" Data="@date.ToString("yyyyMMdd")">
+                                                    <strong>@date.ToString("MM月dd日 (ddd)", ci)</strong>
+                                                </ContextMenuTrigger>
+                                                <span class="fa fa-pencil-square-o mx-1" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))" aria-hidden="true" @onclick="@(() => OnClickDateComment.InvokeAsync(date.ToString("yyyyMMdd")))"></span>&nbsp;
+                                            </div>
+                                            <div class="des" style="color:@GetheaderColor(date.ToString("yyyyMMdd"))">@GetCommentDate(date)</div>
+                                        </div>
+                                        <div class="description text-center">@((MarkupString)GetheaderText(Date.AddDays(i)))</div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div class="listTimeline">
+                             <div class="linevisual" style="left: 0px; position: absolute; width: 100%; height: 100%; z-index:0; background-color: transparent"></div>
+                            @foreach (var staff in StaffsName)
+                            {
+                                <S_Line Item="staff" Type="(int)Staffs_Type.Normal" ></S_Line>
+                            }
+                            <div class="grid-calendar grid-calendar-view">
+                                <!-- 15minute -->
+                                @if (Param.TimeRange == (int)TimeMode.Minute)
+                                {
+                                    @for (var i = 0; i < 24 * 4; i++)
+                                    {
+                                        <div></div>
+                                    }
+                                }
+                                <!-- 1hour -->
+                                @if (Param.TimeRange == (int)TimeMode.OneHour)
+                                {
+                                    @for (var j = 0; j < Param.Number_of_days * 24; j++)
+                                    {
+                                        <div></div>
+                                    }
+                                }
+                                <!-- 3hours -->
+                                @if (Param.TimeRange == (int)TimeMode.ThreeHours)
+                                {
+                                    @for (var i = 0; i < Param.Number_of_days * 8; i++)
+                                    {
+                                        <div></div>
+                                    }
+                                }
+                                <!-- 6hours -->
+                                @if (Param.TimeRange == (int)TimeMode.SixHours)
+                                {
+                                    @for (var j = 0; j < Param.Number_of_days * 4; j++)
+                                    {
+                                        <div></div>
+                                    }
+                                }
+                                <!-- 1day -->
+                                @if (Param.TimeRange == (int)TimeMode.Day)
+                                {
+                                    @for (var j = 0; j < Param.Number_of_days; j++)
+                                    {
+                                        <div></div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (Param.Type == (int)Staffs_Type.Unassigned)
+            {
+                <div class="busData--spareBus busData__wrap">
+                    <div class="busData-content busData-content--@Param.DisplayRange @(Param.TimeRange == (int)TimeMode.Minute ? "minute" : null) @(Param.TimeRange == (int)TimeMode.OneHour ? "one-hour" : null) @(Param.TimeRange == (int)TimeMode.Day ? "one-day" : null)">
+                        <div class="busData-name">
+                            <div class="busData-name__item busData-name__item--spareBus disabled">予約団体名</div>
+                            @foreach (var staff in StaffsNameUnassigned)
+                            {
+                                <div class="busData-name__item busData-name__item--spareBus" style="height: @(staff.StaffHeight)rem"><span>@(staff.StaffName)</span></div>
+                            }
+                        </div>
+                        <div class="busData-timeline busData--@Param.TimeRange mode--@Param.Mode">
+                            <div class="busData-timeline__title--spareBus"><span>未割当</span></div>
+                            <div class="listTimeline">
+                                @foreach (var staff in StaffsNameUnassigned)
+                                {
+                                    <S_Line Item="staff" Type="(int)Staffs_Type.Unassigned"></S_Line>
+                                }
+                                <div class="grid-calendar grid-calendar-view">
+                                    <!-- 15minute -->
+                                    @if (Param.TimeRange == (int)TimeMode.Minute)
+                                    {
+                                        @for (var i = 0; i < 24 * 4; i++)
+                                        {
+                                            <div></div>
+                                        }
+                                    }
+                                    <!-- 1hour -->
+                                    @if (Param.TimeRange == (int)TimeMode.OneHour)
+                                    {
+                                        @for (var j = 0; j < Param.Number_of_days * 24; j++)
+                                        {
+                                            <div></div>
+                                        }
+                                    }
+                                    <!-- 3hours -->
+                                    @if (Param.TimeRange == (int)TimeMode.ThreeHours)
+                                    {
+                                        @for (var i = 0; i < Param.Number_of_days * 8; i++)
+                                        {
+                                            <div></div>
+                                        }
+                                    }
+                                    <!-- 6hours -->
+                                    @if (Param.TimeRange == (int)TimeMode.SixHours)
+                                    {
+                                        @for (var j = 0; j < Param.Number_of_days * 4; j++)
+                                        {
+                                            <div></div>
+                                        }
+                                    }
+                                    <!-- 1day -->
+                                    @if (Param.TimeRange == (int)TimeMode.Day)
+                                    {
+                                        @for (var j = 0; j < Param.Number_of_days; j++)
+                                        {
+                                            <div></div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</S_Container>
+
+@code {
+    [CascadingParameter] S_Container Container { get; set; }
+    [Parameter] public ConfigStaffsChart Param { get; set; }
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public double Width { get; set; }
+    [Parameter] public List<StaffData> StaffsName { get; set; }
+    [Parameter] public List<StaffData> StaffsNameUnassigned { get; set; }
+    [Parameter] public List<ItemStaff> StaffsLines { get; set; }
+    [Parameter] public EventCallback<string> OnClickDateComment { get; set; }
+    [Parameter] public List<TkdCalend> Calendlst { get; set; }
+    [Parameter] public EventCallback<ItemStaff> OnShowContextMenuUpdated { get; set; }
+    [Parameter] public List<KyoSHeDatabyDate> listKyoSHebyDate { get; set; }
+    [Parameter] public EventCallback<string> OnRowUpdated { get; set; }
+    [Parameter] public IEnumerable<BranchChartData> SelectedBranchItems { get; set; }
+    [Parameter] public List<ItemBus> BusLines { get; set; }
+    [Parameter] public List<BusDataType> Busnames { get; set; }
+    [Parameter] public VpmKinKyuData CodeKbnItem { get; set; }
+    CultureInfo ci = new CultureInfo("ja-JP");
+    [Parameter] public int GroupID { get; set; }
+    string commentClass;
+    string commentdate;
+    string color { get; set; } = "#000";
+
+    #region Component Lifecycle
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    /// <returns></returns>
+    protected override void OnParametersSet()
+    {
+
+        // 乗務員並び
+        if (Param.OrderbyList == (int)Staffs_OrderbyList.DutyEmployee)
+        {
+            StaffsName = StaffsName.OrderBy(x => x.SyokumuCdSeq).ThenBy(x => x.SyainCdSeq).ToList();
+        }
+        if (Param.OrderbyList == (int)Staffs_OrderbyList.BranchEmployee)
+        {
+            StaffsName = StaffsName.OrderBy(x => x.EigyoCdSeq).ThenBy(x => x.SyainCdSeq).ToList();
+        }
+        if (Param.OrderbyList == (int)Staffs_OrderbyList.BranchJob)
+        {
+            StaffsName = StaffsName.OrderBy(x => x.EigyoCdSeq).ThenBy(x => x.SyokumuCdSeq).ToList();
+        }
+        if (Param.OrderbyList == (int)Staffs_OrderbyList.Rolling)
+        {
+            StaffsName = StaffsName.OrderBy(x => x.TenkoNo).ToList();
+        }
+
+        // 乗務員表示名順
+        foreach (var i in StaffsName)
+        {
+            if (Param.OrderbyName == (int)Staffs_OrderbyName.DutyEmployee)
+            {
+                i.StaffName = i.SyokumuNm + "・" + i.SyainNm;
+            }
+            if (Param.OrderbyName == (int)Staffs_OrderbyName.BranchDuty)
+            {
+                i.StaffName = i.RyakuNm + "・" + i.SyokumuNm;
+            }
+            if (Param.OrderbyName == (int)Staffs_OrderbyName.BranchEmployee)
+            {
+                i.StaffName = i.RyakuNm + "・" + i.SyainNm;
+            }
+            if(i.IsGray==true)
+            {
+                i.StaffName = i.SyokumuNm;
+            }
+        }
+
+        // 職務
+        if (Param.Duties == (int)Staffs_Duties.All)
+        {
+            StaffsName = StaffsName.ToList();
+        }
+        if (Param.Duties == (int)Staffs_Duties.Driver)
+        {
+            StaffsName = StaffsName.Where(x => x.SyokumuKbn < 3).ToList();
+        }
+        if (Param.Duties == (int)Staffs_Duties.Guide)
+        {
+            StaffsName = StaffsName.Where(x => x.SyokumuKbn == 3 || x.SyokumuKbn == 4).ToList();
+        }
+        if (Param.Duties == (int)Staffs_Duties.OfficeWork)
+        {
+            StaffsName = StaffsName.Where(x => x.SyokumuKbn > 4).ToList();
+        }
+    }
+    #endregion
+
+    /// <summary>
+    /// Get color
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public string GetheaderColor(string date)
+    {
+        if (Calendlst.Count != 0 && Calendlst.Where(t => t.CompanyCdSeq == 1 && t.CalenSyu == 1 && t.CalenYmd == date).Any())
+        {
+            string commentdate = Calendlst.Where(t => t.CompanyCdSeq == 1 && t.CalenSyu == 1 && t.CalenYmd == date).FirstOrDefault().CalenCom;
+            if (commentdate != "" && commentdate.Length <= 100)
+            {
+                color = "#8533ff";
+            }
+            else
+            {
+                color = "#000";
+            }
+        }
+        else
+        {
+            color = "#000";
+        }
+        return color;
+    }
+
+    /// <summary>
+    /// Get text
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public string GetheaderText(DateTime date)
+    {
+        string datestr = date.ToString("yyyyMMdd");
+        int countbusname = Busnames.Where(x => x.IsOutOfDate == false && x.NinkaKbn != 7).Select(x => x.BusID).Count() + Busnames.Where(x => x.IsOutOfDate && x.IsHasBooking & x.IsActive & x.NinkaKbn != 7).Select(x => x.BusID).Count();
+        int countbusnameLarge = Busnames.Where(x => x.IsOutOfDate == false && x.NinkaKbn != 7 && x.KataKbn == 1).Select(x => x.BusID).Count() + Busnames.Where(x => x.IsOutOfDate && x.IsHasBooking & x.IsActive & x.NinkaKbn != 7 && x.KataKbn == 1).Select(x => x.BusID).Count();
+        int countbusnameMedium = Busnames.Where(x => x.IsOutOfDate == false && x.NinkaKbn != 7 && x.KataKbn == 2).Select(x => x.BusID).Count() + Busnames.Where(x => x.IsOutOfDate && x.IsHasBooking & x.IsActive & x.NinkaKbn != 7 && x.KataKbn == 2).Select(x => x.BusID).Count();
+        int countbusnameSmall = Busnames.Where(x => x.IsOutOfDate == false && x.NinkaKbn != 7 && x.KataKbn == 3).Select(x => x.BusID).Count() + Busnames.Where(x => x.IsOutOfDate && x.IsHasBooking & x.IsActive & x.NinkaKbn != 7 && x.KataKbn == 3).Select(x => x.BusID).Count();
+
+        if (countbusname != 0)
+        {
+            int a = countbusname;
+        }
+        int countbus = 0;
+        int countbusrp = 0;
+        int countbusLarge = 0;// BusLines.Where(x=>x.Syasyu_KataKbn ==1).Select(x=>x.BusLine).Count();
+        int countbusMedium = 0;//BusLines.Where(x => x.Syasyu_KataKbn == 2).Select(x => x.BusLine).Count();
+        int countbusSmall = 0;// BusLines.Where(x => x.Syasyu_KataKbn == 3).Select(x => x.BusLine).Count();
+
+        int countbusgrayLarge = 0;// BusLines.Where(x=>x.Syasyu_KataKbn ==1).Select(x=>x.BusLine).Count();
+        int countbusgrayMedium = 0;//BusLines.Where(x => x.Syasyu_KataKbn == 2).Select(x => x.BusLine).Count();
+        int countbusgraySmall = 0;// BusLines.Where(x => x.Syasyu_KataKbn == 3).Select(x => x.BusLine).Count();
+
+        int countbusrpLarge = 0;// BusLines.Where(x=>x.Syasyu_KataKbn ==1).Select(x=>x.BusLine).Count();
+        int countbusrpMedium = 0;//BusLines.Where(x => x.Syasyu_KataKbn == 2).Select(x => x.BusLine).Count();
+        int countbusrpSmall = 0;// BusLines.Where(x => x.Syasyu_KataKbn == 3).Select(x => x.BusLine).Count();
+
+        int countBusdriver = 0;
+        int countBusguider = 0;
+        int countBusdriveroff = 0;
+        int countBusguieroff = 0;
+        int countbusdriveruse = 0;
+        int countbusguideruse = 0;
+
+        int countBusdriverNew = 0;
+        int countBusguiderNew = 0;
+        int countBusdriverLarge = 0;
+        int countBusdriverMedium = 0;
+        int countBusdriverSmall = 0;
+        int countBusdriverLargeNew = 0;
+        int countBusdriverMediumNew = 0;
+        int countBusdriverSmallNew = 0;
+        int countBusdriveroffLarge = 0;
+        int countBusdriveroffMedium = 0;
+        int countBusdriveroffSmall = 0;
+        int countbusdriverwork = 0;
+        int countbusdriverholiday = 0;
+        int countbusdriverpublic = 0;
+
+        List<int> listbranch = new List<int>();
+        if (SelectedBranchItems != null)
+        {
+            listbranch = SelectedBranchItems.Select(t => t.EigyoCdSeq).ToList();
+        }
+
+        /*Update by M*/
+        if (Param.Grouping == (int)GroupMode.All)
+        {
+
+            countbusLarge = BusLines.Where(t => String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && (listbranch.Contains(t.BranchId)|| t.KSKbn == 1) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x=>x.BusLine).Distinct().Count();
+            countbusMedium = BusLines.Where(t => String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && (listbranch.Contains(t.BranchId)|| t.KSKbn == 1) && t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+            countbusSmall = BusLines.Where(t =>  String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && (listbranch.Contains(t.BranchId)|| t.KSKbn == 1) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+
+            countbusrpLarge = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x=>x.BusLine).Distinct().Count();
+            countbusrpMedium = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && listbranch.Contains(t.BranchId)&& t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+            countbusrpSmall = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+
+            countbusgrayLarge = BusLines.Where(t =>  String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.KSKbn == 1 && t.Syasyu_KataKbn == 0 && t.YykSyu_KataKbn==1 && t.SyaRyo_NinKaKbn != 7).Select(x=>x.BusLine).Distinct().Count();
+            countbusgrayMedium = BusLines.Where(t => String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.KSKbn == 1 && t.Syasyu_KataKbn == 0 && t.YykSyu_KataKbn==2 && t.SyaRyo_NinKaKbn != 7).Select(x => x.BusLine).Distinct().Count();
+            countbusgraySmall = BusLines.Where(t =>  String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.KSKbn == 1 && t.Syasyu_KataKbn == 0 && t.YykSyu_KataKbn==3 && t.SyaRyo_NinKaKbn != 7).Select(x => x.BusLine).Distinct().Count();
+        }
+        else if (Param.Grouping == (int)GroupMode.Branch)
+        {
+            countbusLarge = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+            countbusMedium = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+            countbusSmall = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+
+            countbusrpLarge = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+            countbusrpMedium = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+            countbusrpSmall = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+        }
+        else
+        {
+            countbusLarge = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+            countbusMedium = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+            countbusSmall = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==false).Select(x => x.BusLine).Distinct().Count();
+
+            countbusrpLarge = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 1 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+            countbusrpMedium = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 2 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+            countbusrpSmall = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.Syasyu_KataKbn == 3 && t.SyaRyo_NinKaKbn != 7 && t.IsBusRepair==true).Select(x => x.BusLine).Distinct().Count();
+        }
+        /*END*/
+        if (Param.Grouping == (int)GroupMode.All)
+        {
+            var busitem = BusLines.Where(t => t.YouTblSeq==0 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && (listbranch.Contains(t.BranchId)||t.KSKbn==1) && t.SyaRyo_NinKaKbn != 7 && t.BusLine!="0").ToList();
+            countbus = busitem.Where(t=>t.IsBusRepair==false).Select(t => t.BusLine).Distinct().Count();
+            countbusrp= busitem.Where(t=>t.IsBusRepair==true).Select(t => t.BusLine).Distinct().Count();
+            if (busitem.Count != 0)
+            {
+                foreach (var item in busitem)
+                {
+                    if (busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).Count() == 1)
+                    {
+                        countbusdriveruse += item.NumberDriver;
+                        countbusguideruse += item.NumberGuider;
+                    }
+                    else
+                    {
+                        if (item.BunkRen != busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).First().BunkRen)
+                        {
+                            countbusdriveruse += item.NumberDriver;
+                            countbusguideruse += item.NumberGuider;
+                        }
+                    }
+
+                }
+            }
+            if (listKyoSHebyDate != null)
+            {
+
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Count() > 0)
+                {
+                    var a = listKyoSHebyDate.Where(t => t.date == date).ToList();
+                    var listKyoSHebyDateitem = listKyoSHebyDate.Where(t => t.date == date).First().KyoSHelst;
+                    var haishadrgdDataitem=listKyoSHebyDate.Where(t => t.date == date).First().haishadrgdData;
+                    countBusdriver = listKyoSHebyDateitem.Where(t => t.SyokumuKbn == 1 || t.SyokumuKbn == 2).Count();
+                    countBusguider = listKyoSHebyDateitem.Where(t => t.SyokumuKbn == 3 || t.SyokumuKbn == 4).Count();
+                    countBusdriverLarge = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriverMedium = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriverSmall = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.SmallTypeDrivingFlg == 1).Count();
+                    if (haishadrgdDataitem != null)
+                    {
+                        countBusdriverNew = haishadrgdDataitem.Sum(t => t.allDrivers);
+                        countBusguiderNew = haishadrgdDataitem.Sum(t => t.allGuides);
+                        countBusdriverLargeNew = haishadrgdDataitem.Sum(t => t.largeDriver);
+                        countBusdriverMediumNew = haishadrgdDataitem.Sum(t => t.MediumDriver);
+                        countBusdriverSmallNew = haishadrgdDataitem.Sum(t => t.SmallDriver);
+                    }
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujdriverlst).ToList().Count() > 0)
+                {
+                    countBusdriveroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujdriverlst.Where(t => t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujguiderlst).ToList().Count() > 0)
+                {
+                    countBusguieroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujguiderlst.Where(t => t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kobandriverlst).ToList().Count() > 0)
+                {
+                    countbusdriverwork = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.KinKyuKbn == 1).Count();
+                    countbusdriverholiday = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.KinKyuKbn == 2).Count();
+                    countbusdriverpublic = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.KyusyutsuKbn == 1).Count();
+
+                    countBusdriveroffLarge = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriveroffMedium = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriveroffSmall = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => t.SmallTypeDrivingFlg == 1).Count();
+                }
+            }
+        }
+        else if (Param.Grouping == (int)GroupMode.Branch)
+        {
+            var busitem = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.BranchId == GroupID && listbranch.Contains(t.BranchId) && t.SyaRyo_NinKaKbn != 7 && t.BusLine!="0").ToList();
+            countbus = busitem.Where(t=>t.IsBusRepair==false).Select(t => t.BusLine).Distinct().Count();
+            countbusrp= busitem.Where(t=>t.IsBusRepair==true).Select(t => t.BusLine).Distinct().Count();
+            if (busitem.Count != 0)
+            {
+                foreach (var item in busitem)
+                {
+                    if (busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).Count() == 1)
+                    {
+                        countbusdriveruse += item.NumberDriver;
+                        countbusguideruse += item.NumberGuider;
+                    }
+                    else
+                    {
+                        if (item.BunkRen != busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).First().BunkRen)
+                        {
+                            countbusdriveruse += item.NumberDriver;
+                            countbusguideruse += item.NumberGuider;
+                        }
+                    }
+
+                }
+            }
+            if (listKyoSHebyDate != null)
+            {
+                List<TPM_KyoSHeData> busdriver = new List<TPM_KyoSHeData>();
+                List<TPM_KyoSHeData> busguider = new List<TPM_KyoSHeData>();
+                List<int> busdriverlst = new List<int>();
+                List<int> busguiderlst = new List<int>();
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Count() > 0)
+                {
+                    var a = listKyoSHebyDate.Where(t => t.date == date).ToList();
+                    var listKyoSHebyDateitem = listKyoSHebyDate.Where(t => t.date == date).First().KyoSHelst;
+                    var haishadrgdDataitem=listKyoSHebyDate.Where(t => t.date == date).First().haishadrgdData;
+                    busdriver = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.EigyoCdSeq == GroupID).ToList();
+                    busguider = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 3 || t.SyokumuKbn == 4) && t.EigyoCdSeq == GroupID).ToList();
+                    busdriverlst = busdriver.Select(t => t.SyainCdSeq).ToList();
+                    busguiderlst = busguider.Select(t => t.SyainCdSeq).ToList();
+                    countBusdriver = busdriver.Count();
+                    countBusguider = busguider.Count();
+
+                    countBusdriverLarge = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.EigyoCdSeq == GroupID && t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriverMedium = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.EigyoCdSeq == GroupID && t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriverSmall = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.EigyoCdSeq == GroupID && t.SmallTypeDrivingFlg == 1).Count();
+
+                    if (haishadrgdDataitem != null)
+                    {
+                        countBusdriverNew = haishadrgdDataitem.Where(t=> t.EigyoCdSeq == GroupID && t.KSKbn==2).Sum(t => t.allDrivers);
+                        countBusguiderNew = haishadrgdDataitem.Where(t=> t.EigyoCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.allGuides);
+                        countBusdriverLargeNew = haishadrgdDataitem.Where(t=> t.EigyoCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.largeDriver);
+                        countBusdriverMediumNew = haishadrgdDataitem.Where(t=> t.EigyoCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.MediumDriver);
+                        countBusdriverSmallNew = haishadrgdDataitem.Where(t=> t.EigyoCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.SmallDriver);
+                    }
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujdriverlst).ToList().Count() > 0)
+                {
+                    countBusdriveroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujdriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujguiderlst).ToList().Count() > 0)
+                {
+                    countBusguieroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujguiderlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kobandriverlst).ToList().Count() > 0)
+                {
+                    countbusdriverwork = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuKbn == 1).Count();
+                    countbusdriverholiday = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuKbn == 2).Count();
+                    countbusdriverpublic = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KyusyutsuKbn == 1).Count();
+
+                    countBusdriveroffLarge = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriveroffMedium = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriveroffSmall = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.SmallTypeDrivingFlg == 1).Count();
+                }
+            }
+        }
+        else
+        {
+            var busitem = BusLines.Where(t => t.KSKbn == 2 && String.Compare(t.StartDateDefault, datestr) <= 0 && String.Compare(t.EndDateDefault, datestr) >= 0 && t.CompanyId == GroupID && listbranch.Contains(t.BranchId) && t.SyaRyo_NinKaKbn != 7 && t.BusLine!="0").ToList();
+            countbus = busitem.Where(t=>t.IsBusRepair==false).Select(t => t.BusLine).Distinct().Count();
+            countbusrp= busitem.Where(t=>t.IsBusRepair==true).Select(t => t.BusLine).Distinct().Count();
+            if (busitem.Count != 0)
+            {
+                foreach (var item in busitem)
+                {
+                    if (busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).Count() == 1)
+                    {
+                        countbusdriveruse += item.NumberDriver;
+                        countbusguideruse += item.NumberGuider;
+                    }
+                    else
+                    {
+                        if (item.BunkRen != busitem.Where(t => t.BookingId == item.BookingId && t.TeiDanNo == item.TeiDanNo).First().BunkRen)
+                        {
+                            countbusdriveruse += item.NumberDriver;
+                            countbusguideruse += item.NumberGuider;
+                        }
+                    }
+
+                }
+            }
+            if (listKyoSHebyDate != null)
+            {
+                List<TPM_KyoSHeData> busdriver = new List<TPM_KyoSHeData>();
+                List<TPM_KyoSHeData> busguider = new List<TPM_KyoSHeData>();
+                List<int> busdriverlst = new List<int>();
+                List<int> busguiderlst = new List<int>();
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Count() > 0)
+                {
+                    var a = listKyoSHebyDate.Where(t => t.date == date).ToList();
+                    var listKyoSHebyDateitem = listKyoSHebyDate.Where(t => t.date == date).First().KyoSHelst;
+                    var haishadrgdDataitem=listKyoSHebyDate.Where(t => t.date == date).First().haishadrgdData;
+                    busdriver = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.CompanyCdSeq == GroupID).ToList();
+                    busguider = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 3 || t.SyokumuKbn == 4) && t.CompanyCdSeq == GroupID).ToList();
+                    busdriverlst = busdriver.Select(t => t.SyainCdSeq).ToList();
+                    busguiderlst = busguider.Select(t => t.SyainCdSeq).ToList();
+                    countBusdriver = busdriver.Count();
+                    countBusguider = busguider.Count();
+
+                    countBusdriverLarge = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.CompanyCdSeq == GroupID && t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriverMedium = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.CompanyCdSeq == GroupID && t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriverSmall = listKyoSHebyDateitem.Where(t => (t.SyokumuKbn == 1 || t.SyokumuKbn == 2) && t.CompanyCdSeq == GroupID && t.SmallTypeDrivingFlg == 1).Count();
+                    if(haishadrgdDataitem!=null)
+                    {
+                        countBusdriverNew = haishadrgdDataitem.Where(t=> t.CompanyCdSeq == GroupID && t.KSKbn==2).Sum(t => t.allDrivers);
+                        countBusguiderNew = haishadrgdDataitem.Where(t=> t.CompanyCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.allGuides);
+                        countBusdriverLargeNew = haishadrgdDataitem.Where(t=> t.CompanyCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.largeDriver);
+                        countBusdriverMediumNew = haishadrgdDataitem.Where(t=> t.CompanyCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.MediumDriver);
+                        countBusdriverSmallNew = haishadrgdDataitem.Where(t=> t.CompanyCdSeq == GroupID && t.KSKbn==2).Sum(t=>t.SmallDriver);
+                    }
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujdriverlst).ToList().Count() > 0)
+                {
+                    countBusdriveroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujdriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kikyujguiderlst).ToList().Count() > 0)
+                {
+                    countBusguieroff = listKyoSHebyDate.Where(t => t.date == date).First().Kikyujguiderlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuTblCdSeq != 1).Count();
+                }
+                if (listKyoSHebyDate.Count != 0 && listKyoSHebyDate.Where(t => t.date == date).Select(t => t.Kobandriverlst).ToList().Count() > 0)
+                {
+                    countbusdriverwork = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuKbn == 1).Count();
+                    countbusdriverholiday = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KinKyuKbn == 2).Count();
+                    countbusdriverpublic = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.KyusyutsuKbn == 1).Count();
+
+                    countBusdriveroffLarge = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.BigTypeDrivingFlg == 1).Count();
+                    countBusdriveroffMedium = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.MediumTypeDrivingFlg == 1).Count();
+                    countBusdriveroffSmall = listKyoSHebyDate.Where(t => t.date == date).First().Kobandriverlst.Where(t => busdriverlst.Contains(t.SyainCdSeq) && t.SmallTypeDrivingFlg == 1).Count();
+                }
+            }
+        }
+
+        object tooltip = new Object();
+        tooltip = "<div class=\"d-flex\"><div>空台数：</div><div>";
+        tooltip += "<div>" + (countbusnameLarge - countbusLarge-countbusrpLarge-countbusgrayLarge) + "台　大型（" + (countbusLarge+countbusgrayLarge) + "/" + (countbusnameLarge-countbusrpLarge) + "）</div>";
+        tooltip += "<div>" + (countbusnameMedium - countbusMedium-countbusrpMedium-countbusgrayMedium) + "台　中型（" + (countbusMedium+ countbusgrayMedium)+ "/" + (countbusnameMedium-countbusrpMedium) + "）</div>";
+        tooltip += "<div>" + (countbusnameSmall - countbusSmall-countbusrpSmall-countbusgraySmall) + "台　小型（" + (countbusSmall+countbusgraySmall) + "/" + (countbusnameSmall-countbusrpSmall) + "）</div>";
+        tooltip += "</div></div>";
+
+        object tooltipDriver = new Object();
+        tooltipDriver = "<div class=\"d-flex\"><div>空運転手：</div><div>";
+        tooltipDriver += "<div>大型　" + (countBusdriverLarge - countBusdriveroffLarge-countBusdriverLargeNew).ToString() + "人（" + countBusdriverLargeNew.ToString() + "/" + (countBusdriverLarge- countBusdriveroffLarge).ToString() + "）</div>";
+        tooltipDriver += "<div>中型　" + (countBusdriverMedium - countBusdriveroffMedium-countBusdriverMediumNew).ToString() + "人（" + countBusdriverMediumNew.ToString() + "/" + (countBusdriverMedium-countBusdriveroffMedium).ToString() + "）</div>";
+        tooltipDriver += "<div>小型　" + (countBusdriverSmall - countBusdriveroffSmall-countBusdriverSmallNew).ToString() + "人（" + countBusdriverSmallNew.ToString() + "/" + (countBusdriverSmall-countBusdriveroffSmall).ToString() + "）</div>";
+        tooltipDriver += "</div></div><div>勤務：" + countbusdriverwork.ToString() + "人　休日：" + countbusdriverholiday.ToString() + "人　公出：" + countbusdriverpublic.ToString() + "人</div>";
+
+        return "<a href='javascript:void(0)' data-toggle='tooltip' data-html='true' data-placement='right' data-original-title='" + tooltip + "'>空台数：" + (countbusname - countbus-countbusrp).ToString() + "台（" + countbus + "/" + (countbusname-countbusrp) + "）</a>" +
+                "<a href='javascript:void(0)' data-toggle='tooltip' data-html='true' data-placement='right' data-original-title='" + tooltipDriver + "'>空運転手：" + (countBusdriverLarge - countBusdriveroffLarge-countBusdriverNew).ToString() + "人（" + countBusdriverNew.ToString() + "/" + (countBusdriverLarge-countBusdriveroffLarge).ToString() + "）</a>" +
+                "<div>空ガイド：" + (countBusguider - countbusguideruse - countBusguieroff).ToString() + "人（" + (countbusguideruse ).ToString() + "/" + (countBusguider - countBusguieroff) + "）</div>";
+    }
+
+    /// <summary>
+    /// Get comment
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public string GetCommentDate(DateTime date)
+    {
+        if (Calendlst.Count != 0 && Calendlst.Where(t => t.CompanyCdSeq == 1 && t.CalenSyu == 1 && t.CalenYmd == date.ToString("yyyyMMdd")).Any())
+        {
+            string commentdate = Calendlst.Where(t => t.CompanyCdSeq == 1 && t.CalenSyu == 1 && t.CalenYmd == date.ToString("yyyyMMdd")).FirstOrDefault().CalenCom;
+            if (commentdate != "" && commentdate.Length <= 100)
+            {
+                return commentdate;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    /// <summary>
+    /// MouseWheel hide context menu
+    /// </summary>
+    /// <returns></returns>
+    private async Task OnHandleMouseWheel()
+    {
+        await blazorContextMenuService.HideMenu("MenuRepair");
+        await blazorContextMenuService.HideMenu("MenuSplit");
+        await blazorContextMenuService.HideMenu("MenuDate");
+        await JSRuntime.InvokeVoidAsync("removeTooltip");
+    }
+
+
+    void ReupdateLineBusHeight(BusLineData busheight)
+    {
+        for (var i = 0; i < StaffsName.Count; i++)
+        {
+            if (StaffsName[i].StaffID == busheight.LineID)
+            {
+                StaffsName[i].StaffHeight = busheight.LineHeight;
+                break;
+            }
+        }
+
+        for (var i = 0; i < StaffsNameUnassigned.Count; i++)
+        {
+            if (StaffsNameUnassigned[i].StaffID == busheight.LineID)
+            {
+                StaffsNameUnassigned[i].StaffHeight = busheight.LineHeight;
+                break;
+            }
+        }
+    }
+
+    public async Task HandlerStatusUpdated(ItemStaff updatedStaff)
+    {
+        try
+        {
+            updatedStaff.KinKyuCdSeq = CodeKbnItem.KinKyuCdSeq;
+            updatedStaff.KinKyuKbn = CodeKbnItem.KinKyuKbn;
+            if (updatedStaff.BookingId == "-1")
+            {
+                TKD_KikyujDataService.UpdateStaffdata(updatedStaff, 1);
+                await OnRowUpdated.InvokeAsync("reloadgrid");
+            }
+            else if (updatedStaff.BookingId == "0" && updatedStaff.KinKyuTblCdSeq != 0)
+            {
+                TKD_KikyujDataService.UpdateStaffLinedata(updatedStaff.KinKyuTblCdSeq, int.Parse(updatedStaff.BusLine), new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+                await OnRowUpdated.InvokeAsync("reloadgrid");
+            }
+            else
+            {
+                if(updatedStaff.isGray==true||updatedStaff.BusLine=="9999999999999991"||updatedStaff.BusLine=="9999999999999992"||updatedStaff.BusLine=="9999999999999993")
+                {
+                    TKD_HaiinDataService.UpdateStaffMovetoGray(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, (byte)updatedStaff.haiInRen,  new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, updatedStaff);
+
+                    await OnRowUpdated.InvokeAsync("reloadgrid");
+                    if (CheckHaisha(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen) == true)
+                    {
+                        TKD_HaishaDataService.UpdatebusHaiIKbn(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, 1, (byte)2);
+                    }
+                    else
+                    {
+                        TKD_HaishaDataService.UpdatebusHaiIKbn(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, 1, (byte)1);
+                    }
+                    BusBookingDataListService.UpdateHaiSha(updatedStaff.BookingId, updatedStaff.HaUnkRen,updatedStaff.TeiDanNo,updatedStaff.BunkRen,"KU1300",updatedStaff.HasYmd);
+                    BusBookingDataListService.UpdateUnkobi(updatedStaff.BookingId, updatedStaff.HaUnkRen,"KU1300");
+                    BusBookingDataListService.UpdateYyksho(updatedStaff.BookingId,new ClaimModel().TenantID,"KU1300");
+                    await OnRowUpdated.InvokeAsync("reloadgrid");
+                }
+                else if(TKD_HaiinDataService.CheckDataHaiin(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, int.Parse(updatedStaff.BusLine))==false)
+                {
+                    await OnRowUpdated.InvokeAsync("warningMoveLine");
+                }
+                else if(updatedStaff.BusVehicle==StaffsName.Where(t=>t.StaffID==updatedStaff.BusLine).First().StaffVehicle)
+                {
+                    TKD_HaiinDataService.UpdateStaffLinedata(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, (byte)updatedStaff.haiInRen, int.Parse(updatedStaff.BusLine), new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, updatedStaff);
+                    await OnRowUpdated.InvokeAsync("reloadgrid");
+                    if(CheckHaisha(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen)==true)
+                    {
+                        TKD_HaishaDataService.UpdatebusHaiIKbn(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, 1, (byte)2);
+                    }
+                    else
+                    {
+                        TKD_HaishaDataService.UpdatebusHaiIKbn(updatedStaff.BookingId, updatedStaff.HaUnkRen, updatedStaff.TeiDanNo, updatedStaff.BunkRen, 1, (byte)1);
+                    }
+                    BusBookingDataListService.UpdateHaiSha(updatedStaff.BookingId, updatedStaff.HaUnkRen,updatedStaff.TeiDanNo,updatedStaff.BunkRen,"KU1300",updatedStaff.HasYmd);
+                    BusBookingDataListService.UpdateUnkobi(updatedStaff.BookingId, updatedStaff.HaUnkRen,"KU1300");
+                    BusBookingDataListService.UpdateYyksho(updatedStaff.BookingId,new ClaimModel().TenantID,"KU1300");
+                    await OnRowUpdated.InvokeAsync("reloadgrid");
+                }
+                else if(StaffsName.Where(t=>t.StaffID==updatedStaff.BusLine).First().StaffVehicle==1)
+                {
+                    await OnRowUpdated.InvokeAsync("warningDriver");
+                }
+                else if(StaffsName.Where(t=>t.StaffID==updatedStaff.BusLine).First().StaffVehicle==2)
+                {
+                    await OnRowUpdated.InvokeAsync("warningGuide");
+                }
+                else
+                {
+                    await OnRowUpdated.InvokeAsync("reloadgrid");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await OnRowUpdated.InvokeAsync("reloadgrid");
+        };
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("loadComponentScript", "busComponent", "customScrollbar");
+    }
+    public bool CheckHaisha(string BookingId,  int HaUnkRen, int TeiDanNo, int BunkRen)
+    {
+        bool checkdata = false;
+        int driver = StaffsLines.Where(t => t.BookingId == BookingId && t.HaUnkRen == HaUnkRen && t.TeiDanNo == TeiDanNo && t.BunkRen == BunkRen).First().NumberDriver;
+        int guider = StaffsLines.Where(t => t.BookingId == BookingId && t.HaUnkRen == HaUnkRen && t.TeiDanNo == TeiDanNo && t.BunkRen == BunkRen).First().NumberGuider;
+        int sumdriver = StaffsLines.Where(t => t.BookingId == BookingId && t.HaUnkRen == HaUnkRen && t.TeiDanNo == TeiDanNo && t.BunkRen == BunkRen && t.BusVehicle==1 && t.isGray==false).ToList().Count();
+        int sumguider = StaffsLines.Where(t => t.BookingId == BookingId && t.HaUnkRen == HaUnkRen && t.TeiDanNo == TeiDanNo && t.BunkRen == BunkRen && t.BusVehicle==2 && t.isGray==false).ToList().Count();
+        if(sumdriver>=driver&&sumguider>=guider)
+        {
+            checkdata = true;
+        }
+        return checkdata;
+    }
+    public async Task HandleShowMenu(ItemStaff item)
+    {
+        await OnShowContextMenuUpdated.InvokeAsync(item);
+    }
+
+    public async Task HandleUpdateLineCut(string text)
+    {
+        await OnRowUpdated.InvokeAsync(text);
+    }
+}

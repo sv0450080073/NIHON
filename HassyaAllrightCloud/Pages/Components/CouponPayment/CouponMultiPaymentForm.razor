@@ -1,0 +1,304 @@
+﻿@using HassyaAllrightCloud.Commons
+@inherits CouponMultiPaymentFormBase
+<div class="coupon-multi-payment-form">
+    <ul class="validation-errors">
+        @if (!isHaitaValid)
+        {
+            <li class="validation-message">@_lang["BI_T0011"]</li>
+        }
+    </ul>
+    <div class="row">
+        <div class="col-3">
+            @_lang["total_deposit_amount_lb"]
+        </div>
+        <div class="col-4 text-right">
+            <input disabled maxlength="8" value="@Model.DepositAmount.AddCommas()" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositAmount), e.Value)" class="form-control form-control-sm number" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-3 mb-auto">@_lang["deposit_method_lb"]</div>
+        <div class="col-9">
+            <div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="cash" id="cash"
+                           value="@(DepositMethodEnum.Cash)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.Cash)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="cash">
+                        @_lang["cash_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="transfer" id="transfer"
+                           value="@(DepositMethodEnum.Transfer)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.Transfer)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="transfer">
+                        @_lang["transfer_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="card" id="card"
+                           value="@(DepositMethodEnum.Card)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.Card)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="card">
+                        @_lang["card_radio"]
+                    </label>
+                </div>
+            </div>
+            <div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="bill" id="bill"
+                           value="@(DepositMethodEnum.Bill)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.Bill)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="bill">
+                        @_lang["bill_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="offset" id="offset"
+                           value="@(DepositMethodEnum.Offset)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.Offset)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="offset">
+                        @_lang["offset_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="adjustment-money" id="adjustment-money"
+                           value="@(DepositMethodEnum.AdjustmentMoney)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.AdjustmentMoney)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="adjustment-money">
+                        @_lang["adjustment_money_radio"]
+                    </label>
+                </div>
+            </div>
+            <div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="depositor-and-others-1" id="depositor-and-others-1"
+                           value="@(DepositMethodEnum.DepositorAndOther1)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.DepositorAndOther1)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="depositor-and-others-1">
+                        @_lang["deposit_hand_1_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-7rem">
+                    <input type="radio" class="k-radio" name="depositor-and-others-2" id="depositor-and-others-2"
+                           value="@(DepositMethodEnum.DepositorAndOther2)"
+                           checked="@(Model.DepositMethod == DepositMethodEnum.DepositorAndOther2)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositMethod), e.Value)">
+                    <label class="k-radio-label ml-2" for="depositor-and-others-2">
+                        @_lang["deposit_hand_2_radio"]
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-3 my-auto">@_lang["payment_date_lb"]</div>
+        <div class="col-9">
+            <div class="row">
+                <div class="col-6">
+                    <DxDateEdit Date="@Model.DepositDate"
+                                DateChanged="async v => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositDate), v)"
+                                DateExpression="() => Model.DepositDate"
+                                ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                Format="@DateTimeFormat.yyyyMMddSlash"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-3 my-auto">@_lang["deposit_office_lb"]</div>
+        <div class="col-9">
+            <div class="row">
+                <div class="col-6">
+                    <DxComboBox Data="DepositOffices"
+                                TextFieldName="@nameof(EigyoListItem.DisplayName)"
+                                FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                SelectedItem="Model.DepositOffice"
+                                SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.DepositOffice), v)"
+                                SelectedItemExpression="() => Model.DepositOffice"
+                                NullText="@_lang["deposit_office_nulltext"]"></DxComboBox>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.DepositMethod == DepositMethodEnum.Transfer)
+    {
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["bank_transfer_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-9">
+                        <DxComboBox Data="BankTransferItems"
+                                    TextFieldName="@nameof(BankTransferItem.DisplayName)"
+                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                    SelectedItem="Model.BankTransfer"
+                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.BankTransfer), v)"
+                                    SelectedItemExpression="() => Model.BankTransfer"
+                                    NullText="@_lang["bank_transfer_nulltext"]"></DxComboBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["deposit_type_lb"]</div>
+            <div class="col-9">
+                <div class="form-check form-check-inline mw-4rem">
+                    <input type="radio" class="k-radio" name="deposit-type-usually" id="deposit-type-usually"
+                           value="@DepositTypeEnum.Normal"
+                           checked="@(Model.DepositType == DepositTypeEnum.Normal)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositType), e.Value)">
+                    <label class="k-radio-label ml-2" for="deposit-type-usually">
+                        @_lang["usually_radio"]
+                    </label>
+                </div>
+                <div class="form-check form-check-inline mw-4rem">
+                    <input type="radio" class="k-radio" name="deposit-type-current" id="deposit-type-current"
+                           value="@DepositTypeEnum.Current"
+                           checked="@(Model.DepositType == DepositTypeEnum.Current)"
+                           @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.DepositType), e.Value)">
+                    <label class="k-radio-label ml-2" for="deposit-type-current">
+                        @_lang["current_radio"]
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["transfer_fee_lb"]</div>
+            <div class="col-2 number text-right">
+                <input maxlength="8" value="@Model.TransferFee.AddCommas()" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.TransferFee), e.Value)" class="form-control form-control-sm" />
+            </div>
+            <div class="col-3 my-auto">@_lang["sponsorship_fund_lb"]</div>
+            <div class="col-2 number text-right">
+                <input maxlength="8" value="@Model.SponsorshipFee.AddCommas()" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.SponsorshipFee), e.Value)" class="form-control form-control-sm" />
+            </div>
+        </div>
+    }
+    @if (Model.DepositMethod == DepositMethodEnum.Card)
+    {
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["card_approval_number_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6 @GetValidateClass(isCardSyoEmpty) has-tooltip-error">
+                        @if (isCardSyoEmpty)
+                        {
+                            <Tooltip Position="PositionTooltip.top" Text="@_lang["BI_T003"]"></Tooltip>
+                        }
+
+                        <input value="@Model.CardSyo" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.CardSyo), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["card_slip_number_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6 @GetValidateClass(isCardDenEmpty) has-tooltip-error">
+                        @if (isCardDenEmpty)
+                        {
+                            <Tooltip Position="PositionTooltip.top" Text="@_lang["BI_T004"]"></Tooltip>
+                        }
+
+                        <input value="@Model.CardDen" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.CardDen), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (Model.DepositMethod == DepositMethodEnum.Bill)
+    {
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["bill_date_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6">
+                        <DxDateEdit Date="@Model.TegataYmd"
+                                    DateChanged="async v => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.TegataYmd), v)"
+                                    DateExpression="() => Model.TegataYmd"
+                                    ScrollPickerFormat="@DateTimeFormat.yyMMddSlash"
+                                    DisplayFormat="@DateTimeFormat.yyMMddSlash"
+                                    Format="@DateTimeFormat.yyMMddSlash"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["bill_no_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6 @GetValidateClass(isTegataNoEmpty) has-tooltip-error">
+                        @if (isTegataNoEmpty)
+                        {
+                            <Tooltip Position="PositionTooltip.top" Text="@_lang["BI_T005"]"></Tooltip>
+                        }
+
+                        <input value="@Model.TegataNo" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.TegataNo), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (Model.DepositMethod == DepositMethodEnum.DepositorAndOther1)
+    {
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["deposit_method_detailed_name_11_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6">
+                        <input value="@Model.EtcSyo1" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.EtcSyo1), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["deposit_method_detailed_name_12_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6">
+                        <input value="@Model.EtcSyo2" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.EtcSyo2), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (Model.DepositMethod == DepositMethodEnum.DepositorAndOther2)
+    {
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["deposit_method_detailed_name_21_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6">
+                        <input value="@Model.EtcSyo1" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.EtcSyo1), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 my-auto">@_lang["deposit_method_detailed_name_22_lb"]</div>
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-6">
+                        <input value="@Model.EtcSyo2" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentPopupFormModel.EtcSyo2), e.Value)" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="text-right mt-3 coupon-payment-form-footer">
+        <button class="btn btn-sm btn-primary mr-3 mw-5rem" @onclick="Close">@_lang["キャンセル"]</button>
+        <button class="btn btn-sm btn-primary mr-3 mw-5rem" @onclick="Save">@_lang["保存"]</button>
+    </div>
+</div>

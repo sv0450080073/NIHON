@@ -1,0 +1,111 @@
+﻿@inject IStringLocalizer<CancelList> Lang
+
+@if (BookingTypes.Any())
+{
+    <div class="dropdown dropdown-listbox">
+        <div class="input-group input-group-sm dx-listbox width--160 multi-combobox dropdown-toggle" data-toggle="dropdown" id="lstBookingTypes">
+            <p class="form-control form-control-sm">@DisplayBookingTypeCmb</p>
+            <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstBookingTypes">
+            <div class=@("has-tooltip-error custom-listbox-invalid " + formContext.FieldCssClass(() => BookingTypeExpressions))>
+                <Tooltip ValueExpressions="@(() => BookingTypeExpressions)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                <DxListBox Data="@BookingTypes"
+                           ShowCheckboxes="true"
+                           TextFieldName="BookingTypeName"
+                           SelectionMode="ListBoxSelectionMode.Multiple"
+                           SelectedItems="@BookingTypeSelected"
+                           SelectedItemsChanged="@OnBookingTypesChanged"
+                           SelectedItemsExpression="()=> BookingTypeExpressions"
+                           CssClass="width--160">
+                </DxListBox>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [CascadingParameter] EditContext formContext { get; set; }
+    [Parameter] public List<ReservationData> BookingTypes { get; set; }
+    [Parameter] public List<ReservationData> BookingTypeExpressions { get; set; }
+    private IEnumerable<ReservationData> BookingTypeSelected { get; set; }
+    private Dictionary<string, string> LangDic { get; set; }
+    private string DisplayBookingTypeCmb = string.Empty;
+    private bool IsSelectedAll = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        InsertSelectAll(BookingTypes, _ => _.BookingTypeName.Equals(Constants.SelectedAll));
+        BookingTypeExpressions = BookingTypes;
+        BookingTypeSelected = BookingTypes;
+        if (BookingTypes.Any())
+        {
+            DisplayBookingTypeCmb = $"{Constants.SelectedAll}";
+        }
+        await base.OnParametersSetAsync().ContinueWith((t) => { formContext.Validate(); InvokeAsync(StateHasChanged); });
+    }
+
+    private void InsertSelectAll<T>(List<T> source, Func<T, bool> predicate, T emptyObj = null) where T : class
+    {
+        if (source.Any() && !source.Where(predicate).Any())
+            source.Insert(0, emptyObj != null ? emptyObj : (T)Activator.CreateInstance(typeof(T))); // Insert a item to mark choose all in first line
+    }
+
+    private void OnBookingTypesChanged(IEnumerable<ReservationData> reservations)
+    {
+        int newCount = reservations.Count();
+        int maxCount = BookingTypes.Count();
+
+        BookingTypeSelected = reservations;
+
+        bool isContainSelectAll = BookingTypeSelected.Where(_ => _.BookingTypeName.Equals(Constants.SelectedAll)).Any();
+
+        if (IsSelectedAll == true)
+        {
+            if (!isContainSelectAll)
+            {
+                BookingTypeSelected = BookingTypeSelected.Take(0);
+                IsSelectedAll = false;
+            }
+            else if (isContainSelectAll && newCount < maxCount)
+            {
+                BookingTypeSelected = BookingTypeSelected.Where(_ => !_.BookingTypeName.Equals(Constants.SelectedAll));
+                IsSelectedAll = false;
+            }
+        }
+        else
+        {
+            if (isContainSelectAll)
+            {
+                BookingTypeSelected = BookingTypes;
+                IsSelectedAll = true;
+            }
+            else if (!isContainSelectAll && newCount == maxCount - 1)
+            {
+                BookingTypeSelected = BookingTypes;
+                IsSelectedAll = true;
+            }
+        }
+
+        if (newCount == 1 && (!BookingTypeSelected.FirstOrDefault()?.BookingTypeName?.Equals(Constants.SelectedAll) ?? false))
+        {
+            DisplayBookingTypeCmb = BookingTypeSelected.FirstOrDefault()?.BookingTypeName ?? string.Empty;
+        }
+        else if (newCount == maxCount)
+        {
+            DisplayBookingTypeCmb = Constants.SelectedAll;
+        }
+        else
+        {
+            DisplayBookingTypeCmb = $"{Lang["Choices"]}: {newCount}";
+        }
+
+        BookingTypeExpressions = BookingTypeSelected.ToList();
+        StateHasChanged();
+    }
+}

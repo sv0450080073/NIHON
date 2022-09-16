@@ -1,0 +1,3433 @@
+﻿@page "/hypergraph"
+@using HassyaAllrightCloud.IService.CommonComponents;
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents;
+@inject CustomNavigation NavigationManager
+@inject IHyperDataService HyperDataService
+@inject IStaffListService SyainService
+@inject ICustomerListService CustomerService
+@inject ITPM_CodeKbListService CodeKbService
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ISaleBranchListService EigyosService
+@inject ICustomerCLassificationListService CustomerCLassificationService
+@inject ILocationListService LocationService
+@inject IDispatchListService DispatchService
+@inject IBusTypeListService BusTypeService
+@inject IJSRuntime JSRuntime
+@inject IBlazorContextMenuService blazorContextMenuService
+@inject IStringLocalizer<HyperGraph> Lang
+@inject IStringLocalizer<HyperMenu> HyperMenuLang
+@inject IFilterCondition FilterConditionService
+@inject IGenerateFilterValueDictionary GenerateFilterValueDictionaryService
+@inject IErrorHandlerService errorModalService
+@inject AppSettingsService AppSettingsService
+@inject ICustomerComponentService _service
+@inject IReservationClassComponentService _yoyakuservice
+@using OfficeOpenXml;
+@using BlazorDownloadFile;
+@using OfficeOpenXml.Drawing.Chart;
+@using OfficeOpenXml.Style;
+@using System.Drawing;
+@using System.Xml
+
+<div class="excel-output-wrapper">
+    <button class="excel-output btn btn-primary" @onclick="ExcelExport" title=@Lang["ExcelExport"]>
+        <i class="fa fa-table"></i>
+    </button>
+</div>
+@foreach (int index in Enumerable.Range(0, GraphList.Count).ToList())
+{
+    switch (GraphList[index])
+    {
+        case GraphPattern.BarLineSaleQuan:
+            <div class="title-section mb-2" id="bar-sale-count-day-title">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["SalesCountComparison"]@(IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"])
+            </div>
+            <div class="chart-area  mb-2" id="bar-sale-count-day">
+                <div id="sale-chart-area" @onmousedown="MouseDownEvent">
+                    <div id="frame-select"></div>
+                    @if (SaleData.Count > 0)
+                    {
+                        <DxChart Data="SaleData.Concat(LastYearSaleData).ToList()" CssClass="chart-display">
+                            <DxChartTitle Text="@(Lang["SalesCountComparison"] + (IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"]))" />
+                            <DxChartValueAxis Name="Sale" Position="HorizontalEdge.Left">
+                                <DxChartAxisLabel Format="@ChartAxisLabelFormat.FixedPoint"></DxChartAxisLabel>
+                                <DxChartAxisTitle Text="@(Lang["SaleTitle"])" />
+                            </DxChartValueAxis>
+                            <DxChartValueAxis Name="Count" Position="HorizontalEdge.Right">
+                                <DxChartAxisTitle Text="@(Lang["CountTitle"])" />
+                            </DxChartValueAxis>
+                            <DxChartBarSeries Name="@(SaleData[0].Time.Year.ToString())"
+                                              ArgumentField="@((SalePerTime i) => i.Time.ToString(FormatStringDayNoDay))"
+                                              Filter="@((SalePerTime s) => s.Time >= SaleData[0].Time)"
+                                              ValueField="@((SalePerTime i) => i.Sale)"
+                                              Color="@System.Drawing.Color.FromArgb(59, 185, 153)"
+                                              Axis="Sale">
+                            </DxChartBarSeries>
+                            <DxChartBarSeries VisibleChanged="@GetVisibleChangeHandler"
+                                              Name="@((SaleData[0].Time.Year - 1).ToString())"
+                                              Filter="@((SalePerTime s) => s.Time < SaleData[0].Time)"
+                                              ArgumentField="@((SalePerTime s) => s.Time.ToString(FormatStringDayNoDay))"
+                                              ValueField="@((SalePerTime s) => s.Sale)"
+                                              Color="@System.Drawing.Color.FromArgb(255, 140, 0)"
+                                              Axis="Sale">
+                            </DxChartBarSeries>
+                            <DxChartLineSeries Name="@("Count " + SaleData[0].Time.Year.ToString())"
+                                               Filter="@((SalePerTime s) => s.Time >= SaleData[0].Time)"
+                                               ArgumentField="@((SalePerTime s) => s.Time.ToString(FormatStringDayNoDay))"
+                                               ValueField="@((SalePerTime s) => s.Count)"
+                                               Color="@System.Drawing.Color.FromArgb(186, 237, 76)"
+                                               Axis="Count">
+                                <DxChartSeriesLegendItem IconCssClass="fa fa-line-chart">
+                                    <TextTemplate>@SaleData[0].Time.Year.ToString()</TextTemplate>
+                                </DxChartSeriesLegendItem>
+                                <DxChartSeriesPoint Size="5"></DxChartSeriesPoint>
+                            </DxChartLineSeries>
+                            <DxChartLineSeries Visible="@LineSaleCountSeriesLY"
+                                               Name="@("Count " + (SaleData[0].Time.Year - 1).ToString())"
+                                               Filter="@((SalePerTime s) => s.Time < SaleData[0].Time)"
+                                               ArgumentField="@((SalePerTime s) => s.Time.ToString(FormatStringDayNoDay))"
+                                               ValueField="@((SalePerTime s) => s.Count)"
+                                               Color="@System.Drawing.Color.FromArgb(79, 195, 247)"
+                                               Axis="Count">
+                                <DxChartSeriesLegendItem IconCssClass="fa fa-line-chart">
+                                    <TextTemplate>@((SaleData[0].Time.Year - 1).ToString())</TextTemplate>
+                                </DxChartSeriesLegendItem>
+                                <DxChartSeriesPoint Size="5"></DxChartSeriesPoint>
+                            </DxChartLineSeries>
+                            <DxChartLegend AllowToggleSeries="true" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside">
+                            </DxChartLegend>
+                        </DxChart>
+                    }
+                </div>
+                @if (SaleData.Count > 0)
+                {
+                    <div class="grid-area-wcount" id="sale-grid-area-wcount">
+                        <table class="grid-display-wcount">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                                <th class="bg-percent">@Lang["CompareYear"]</th>
+                            </tr>
+                            @{ int IndexDifferent = 0;
+                                @for (int i = 0; i < SaleData.Count(); i++)
+                                {
+                                    int current = i;
+                                    <tr class="row-count @(SelectedTime.Count() > 0 && SelectedTime[0].Time <= SaleData[i].Time && SelectedTime[SelectedTime.Count() - 1].Time >= SaleData[i].Time ? "selected-area-wcount" : "")">
+                                        <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" rowspan="2" class="row-title-@(int.Parse(type) == 1 || int.Parse(type) == 3|| int.Parse(type) ==7 || int.Parse(type) == 9  ? CheckWeeken(SaleData[i].Time).ToString() : "0" )">@SaleData[i].Time.ToString(FormatStringDay)</td>
+                                        <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-title-@(int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) ==7 || int.Parse(type) == 9 ? CheckWeeken(SaleData[i].Time).ToString() : "0" )">@Lang["CountTitle"]</td>
+                                        <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">@SaleData[i].Count.ToString()</td>
+                                        @if (SaleData[i].Time.Month == 2 && SaleData[i].Time.Day == 29)
+                                        {
+                                            IndexDifferent = 1;
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 2))" class="row-value">_</td>
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">_</td>
+                                        }
+                                        else
+                                        {
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 1))" class="row-value">@LastYearSaleData[i - IndexDifferent].Count.ToString()</td>
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">@(LastYearSaleData[i - IndexDifferent].Count == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Count / LastYearSaleData[i - IndexDifferent].Count), 1)) + "%")</td>
+                                        }
+                                    </tr>
+                                    <tr class="row-sale @(SelectedTime.Count() > 0 && SelectedTime[0].Time <= SaleData[i].Time && SelectedTime[SelectedTime.Count() - 1].Time >= SaleData[i].Time ? "selected-area-wcount" : "")">
+                                        <td class="row-title-@(int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) ==7 || int.Parse(type) == 9 ? CheckWeeken(SaleData[i].Time).ToString() : "0" )">@Lang["SaleTitle"]</td>
+                                        <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">@string.Format("{0:C}", SaleData[i].Sale)</td>
+                                        @if (SaleData[i].Time.Month == 2 && SaleData[i].Time.Day == 29)
+                                        {
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 2))" class="row-value">_</td>
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">_</td>
+                                        }
+                                        else
+                                        {
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 1))" class="row-value">@string.Format("{0:C}", LastYearSaleData[i - IndexDifferent].Sale)</td>
+                                            <td @onmousedown="@((e) => MouseDownGridWCount(e, current, 0))" class="row-value">@(LastYearSaleData[i - IndexDifferent].Sale == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Sale / LastYearSaleData[i - IndexDifferent].Sale), 1)) + "%")</td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        case GraphPattern.LineSale:
+            <div class="@("title-section mb-2" + (int.Parse(type) == (int)GraphTypeDisplay.GraphOrganizationBar || int.Parse(type) == (int)GraphTypeDisplay.GraphOrganizationPie ? " hidden-graph" : ""))" id="sale-per-day-title">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["SalesComparison"]@(IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"])
+            </div>
+            <div class="@("show-legend" + (int.Parse(type) == (int)GraphTypeDisplay.GraphOrganizationBar || int.Parse(type) == (int)GraphTypeDisplay.GraphOrganizationPie ? " hidden-graph" : ""))">
+                <div id="sale-chart-area" @onmousedown="MouseDownEvent">
+                    <div id="frame-select"></div>
+                    @if (SaleData.Count > 0)
+                    {
+                        <DxChart Data="SaleData.Concat(LastYearSaleData).ToList()" CssClass="chart-display">
+                            <DxChartTitle Text="@(Lang["SalesComparison"] + (IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"]))" />
+                            <DxChartValueAxis>
+                                <DxChartAxisLabel Format="@ChartAxisLabelFormat.FixedPoint"></DxChartAxisLabel>
+                            </DxChartValueAxis>
+                            <DxChartLineSeries Name="@(SaleData[0].Time.Year.ToString())"
+                                               Filter="@((SalePerTime s) => s.Time >= SaleData[0].Time)"
+                                               ArgumentField="@((SalePerTime s) => s.Time.ToString(FormatStringDayNoDay))"
+                                               ValueField="@((SalePerTime s) => s.Sale)"
+                                               Color="@System.Drawing.Color.FromArgb(59, 185, 153)">
+                                <DxChartSeriesPoint Size="5"></DxChartSeriesPoint>
+                            </DxChartLineSeries>
+                            <DxChartLineSeries VisibleChanged="@GetVisibleChangeHandler"
+                                               Name="@((SaleData[0].Time.Year - 1).ToString())"
+                                               Filter="@((SalePerTime s) => s.Time < SaleData[0].Time)"
+                                               ArgumentField="@((SalePerTime s) => s.Time.ToString(FormatStringDayNoDay))"
+                                               ValueField="@((SalePerTime s) => s.Sale)"
+                                               Color="@System.Drawing.Color.FromArgb(255, 140, 0)">
+                                <DxChartSeriesPoint Size="5"></DxChartSeriesPoint>
+                            </DxChartLineSeries>
+                            <DxChartLegend AllowToggleSeries="true" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside">
+                            </DxChartLegend>
+                        </DxChart>
+                    }
+                </div>
+                @if (SaleData.Count > 0)
+                {
+                    <div class="grid-area" id="sale-grid-area">
+                        <table class="grid-display">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                                <th class="bg-percent">@Lang["CompareYear"]</th>
+                            </tr>
+                            @{ int IndexDifferent = 0;
+                                @for (int i = 0; i < SaleData.Count(); i++)
+                                {
+                                    int current = i;
+                                    <tr class="@(SelectedTime.Count() > 0 && SelectedTime[0].Time <= SaleData[i].Time && SelectedTime[SelectedTime.Count() - 1].Time >= SaleData[i].Time ? "selected-area" : "")">
+                                        <td @onmousedown="@((e) => MouseDownGrid(e, current, 0))" class="row-title-@(int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) ==7 || int.Parse(type) == 9 ? CheckWeeken(SaleData[i].Time).ToString() : "0" )">@SaleData[i].Time.ToString(FormatStringDay)</td>
+                                        <td @onmousedown="@((e) => MouseDownGrid(e, current, 0))">@string.Format("{0:C}", SaleData[i].Sale)</td>
+                                        @if (SaleData[i].Time.Month == 2 && SaleData[i].Time.Day == 29)
+                                        {
+                                            IndexDifferent = 1;
+                                            <td @onmousedown="@((e) => MouseDownGrid(e, current, 2))">_</td>
+                                            <td @onmousedown="@((e) => MouseDownGrid(e, current, 0))">_</td>
+                                        }
+                                        else
+                                        {
+                                            <td @onmousedown="@((e) => MouseDownGrid(e, current, 1))">@string.Format("{0:C}", LastYearSaleData[i - IndexDifferent].Sale)</td>
+                                            <td @onmousedown="@((e) => MouseDownGrid(e, current, 0))">@(LastYearSaleData[i - IndexDifferent].Sale == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Sale / LastYearSaleData[i - IndexDifferent].Sale), 1)) + "%")</td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        case GraphPattern.BarSalePerStaff:
+            <div class="title-section mb-2">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["SalesStaffPer"]
+            </div>
+            <div class="chart-area" id="bar-staff-day">
+                @if (IsShowStaff)
+                {
+                    <DxChart Data="@SalePerStaffDayData.Concat(SalePerStaffDayDataLastYear).ToList()" CssClass="chart-display" CustomizeSeriesPoint="@PreparePointColorForStaff">
+                        <DxChartLegend Visible="false">
+                        </DxChartLegend>
+                        <DxChartTitle Text="@Lang["SalesStaffPer"]" />
+                        <DxChartValueAxis>
+                            <DxChartAxisLabel Format="@ChartAxisLabelFormat.FixedPoint"></DxChartAxisLabel>
+                        </DxChartValueAxis>
+                        <DxChartBarSeries Name="@(SaleData[0].Time.Year.ToString())"
+                                          Filter="@((SalePerStaff s) => s.Time >= SaleData[0].Time)"
+                                          ArgumentField="@((SalePerStaff s) => s.StaffName)"
+                                          Color="@System.Drawing.Color.FromArgb(59, 185, 153)"
+                                          ValueField="@((SalePerStaff s) => s.Sale)"></DxChartBarSeries>
+                        <DxChartBarSeries Visible="@BarStaffSeriesLY"
+                                          Name="@((SaleData[0].Time.Year - 1).ToString())"
+                                          Filter="@((SalePerStaff s) => s.Time < SaleData[0].Time)"
+                                          ArgumentField="@((SalePerStaff s) => s.StaffName)"
+                                          Color="@System.Drawing.Color.FromArgb(255, 140, 0)"
+                                          ValueField="@((SalePerStaff s) => s.Sale)"></DxChartBarSeries>
+                        <DxChartLegend AllowToggleSeries="true">
+                        </DxChartLegend>
+                    </DxChart>
+                    <div class="grid-area">
+                        <table class="grid-display">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                            </tr>
+                            @{ int indexCurrent = 0;}
+                            @for (int i = 0; i < SalePerStaffDayData.Count(); i++)
+                            {
+                                int current = indexCurrent;
+                                <tr class="@(SalePerStaffDayData[i].StaffSeq == SelectedStaffSeq ? "selected-area" : "")">
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerStaff, 0))" style="background-color: @(!BarStaffSeriesLY ? $"#{HyperDataService.GetColorByIndex(i).R:X2}{HyperDataService.GetColorByIndex(i).G:X2}{HyperDataService.GetColorByIndex(i).B:X2}" : default) !important">@(SalePerStaffDayData[i].StaffName)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerStaff, 0))">@string.Format("{0:C}", SalePerStaffDayData[i].Sale)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerStaff, 1))">@string.Format("{0:C}", SalePerStaffDayDataLastYear[i].Sale)</td>
+                                </tr>
+                                indexCurrent++;
+                            }
+                            <tr>
+                                <td>@Lang["Total"]</td>
+                                <td>@string.Format("{0:C}", TotalByStaff)</td>
+                                <td>@string.Format("{0:C}", TotalByStaffLastYear)</td>
+                            </tr>
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        case GraphPattern.BarSalePerCustomer:
+            <div class="title-section mb-2">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["CustomerPer"]
+            </div>
+            <div class="chart-area" id="bar-customer-day">
+                @if (IsShowCustomer)
+                {
+                    <DxChart Data="@SalePerCustomerDayData.Concat(SalePerCustomerDayDataLastYear).ToList()" CssClass="chart-display" CustomizeSeriesPoint="@PreparePointColorForCustomer">
+                        <DxChartLegend Visible="false">
+                        </DxChartLegend>
+                        <DxChartTitle Text="@Lang["CustomerPer"]" />
+                        <DxChartValueAxis>
+                            <DxChartAxisLabel Format="@ChartAxisLabelFormat.FixedPoint"></DxChartAxisLabel>
+                        </DxChartValueAxis>
+
+                        <DxChartBarSeries Name="@((SaleData[0].Time.Year).ToString())"
+                                          Filter="@((SalePerCustomer s) => s.Time >= SaleData[0].Time)"
+                                          Color="@System.Drawing.Color.FromArgb(59, 185, 153)"
+                                          ArgumentField="@((SalePerCustomer s) => s.CustomerName + " " + s.BranchName)"
+                                          ValueField="@((SalePerCustomer s) => s.Sale)"></DxChartBarSeries>
+                        <DxChartBarSeries Visible="@BarCustomerSeriesLY"
+                                          Name="@((SaleData[0].Time.Year - 1).ToString())"
+                                          Filter="@((SalePerCustomer s) => s.Time < SaleData[0].Time)"
+                                          Color="@System.Drawing.Color.FromArgb(255, 140, 0)"
+                                          ArgumentField="@((SalePerCustomer s) => s.CustomerName + " " + s.BranchName)"
+                                          ValueField="@((SalePerCustomer s) => s.Sale)"></DxChartBarSeries>
+                    </DxChart>
+                    <div class="grid-area">
+                        <table class="grid-display">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                            </tr>
+                            @{ int indexCurrent = 0;}
+                            @for (int i = 0; i < SalePerCustomerDayData.Count(); i++)
+                            {
+                                int current = indexCurrent;
+                                <tr class="@(SalePerCustomerDayData[i].BranchSeq == SelectedCustomerSeq ? "selected-area" : "")">
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerCustomer, 0))" style="background-color: @(!BarCustomerSeriesLY ? $"#{HyperDataService.GetColorByIndex(i).R:X2}{HyperDataService.GetColorByIndex(i).G:X2}{HyperDataService.GetColorByIndex(i).B:X2}" : default) !important">@(SalePerCustomerDayData[i].CustomerName + " " + SalePerCustomerDayData[i].BranchName)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerCustomer, 0))">@string.Format("{0:C}", SalePerCustomerDayData[i].Sale)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerCustomer, 1))">@string.Format("{0:C}", SalePerCustomerDayDataLastYear[i].Sale)</td>
+                                </tr>
+                                indexCurrent++;
+                            }
+                            <tr>
+                                <td>@Lang["Total"]</td>
+                                <td>@string.Format("{0:C}", TotalByCustomer)</td>
+                                <td>@string.Format("{0:C}", TotalByCustomerLastYear)</td>
+                            </tr>
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        case GraphPattern.BarSalePerGroupClassification:
+            <div class="title-section mb-2">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["GroupClassificationPer"]
+            </div>
+            <div class="chart-area" id="bar-group-classification-day">
+                @if (IsShowGroup)
+                {
+                    <DxChart Data="@SalePerGroupClassificationDayData.Concat(SalePerGroupClassificationDayDataLastYear).ToList()" CssClass="chart-display" CustomizeSeriesPoint="@PreparePointColorForGroup" Id="pieChart">
+                        <DxChartLegend Visible="false">
+                        </DxChartLegend>
+                        <DxChartTitle Text="@Lang["GroupClassificationPer"]" />
+                        <DxChartValueAxis>
+                            <DxChartAxisLabel Format="@ChartAxisLabelFormat.FixedPoint"></DxChartAxisLabel>
+                        </DxChartValueAxis>
+                        <DxChartBarSeries Name="@((SaleData[0].Time.Year).ToString())"
+                                          Filter="@((SalePerGroupClassification s) => s.Time >= SaleData[0].Time)"
+                                          Color="@System.Drawing.Color.FromArgb(59, 185, 153)"
+                                          ArgumentField="@((SalePerGroupClassification s) => s.GroupClassificationName)"
+                                          ValueField="@((SalePerGroupClassification s) => s.Sale)">
+                        </DxChartBarSeries>
+                        <DxChartBarSeries Visible="@BarGroupClassificationSeriesLY"
+                                          Name="@((SaleData[0].Time.Year - 1).ToString())"
+                                          Filter="@((SalePerGroupClassification s) => s.Time < SaleData[0].Time)"
+                                          Color="@System.Drawing.Color.FromArgb(255, 140, 0)"
+                                          ArgumentField="@((SalePerGroupClassification s) => s.GroupClassificationName)"
+                                          ValueField="@((SalePerGroupClassification s) => s.Sale)">
+                        </DxChartBarSeries>
+                    </DxChart>
+                    <div class="grid-area">
+                        <table class="grid-display">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                            </tr>
+                            @{ int indexCurrent = 0;}
+                            @for (int i = 0; i < SalePerGroupClassificationDayData.Count(); i++)
+                            {
+                                int current = indexCurrent;
+                                <tr class="@(SalePerGroupClassificationDayData[i].GroupClassificationCd == SelectedGroupClassificationKbn ? "selected-area" : "")">
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerGroupClassification, 0))" style="background-color: @(!BarGroupClassificationSeriesLY ? $"#{HyperDataService.GetColorByIndex(i).R:X2}{HyperDataService.GetColorByIndex(i).G:X2}{HyperDataService.GetColorByIndex(i).B:X2}" : default) !important">@(SalePerGroupClassificationDayData[i].GroupClassificationName)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerGroupClassification, 0))">@string.Format("{0:C}", SalePerGroupClassificationDayData[i].Sale)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.BarSalePerGroupClassification, 1))">@string.Format("{0:C}", SalePerGroupClassificationDayDataLastYear[i].Sale)</td>
+                                </tr>
+                                indexCurrent++;
+                            }
+                            <tr>
+                                <td>@Lang["Total"]</td>
+                                <td>@string.Format("{0:C}", TotalByGroupClassification)</td>
+                                <td>@string.Format("{0:C}", TotalByGroupClassificationLastYear)</td>
+                            </tr>
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        case GraphPattern.PieSalePerGroupClassification:
+            <div class="title-section mb-2">
+                <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["GroupClassificationPer"]
+            </div>
+            <div class="chart-area show-legend @(PieGroupClassificationSeriesLY ? "form-group flex-nowrap pie-2" : "")" id="pie-group-classification-day">
+                @if (IsShowGroup)
+                {
+                    bool NoDataGraphThisYear = true;
+                    bool NoDataGraphLastYear = true;
+                    List<SalePerGroupClassification> lstNoDataTYear = new List<SalePerGroupClassification>();
+                    List<SalePerGroupClassification> lstNoDataLYear = new List<SalePerGroupClassification>();
+                    lstNoDataLYear.Add(new SalePerGroupClassification() { GroupClassificationCd = "NODATA", GroupClassificationName = Lang["NoData"], Sale = 0, Time = SaleData[0].Time.AddYears(-1) });
+                    lstNoDataTYear.Add(new SalePerGroupClassification() { GroupClassificationCd = "NODATA", GroupClassificationName = Lang["NoData"], Sale = 0, Time = SaleData[0].Time.AddYears(1) });
+                    for (int i = 0; i < SalePerGroupClassificationDayData.Count; i++)
+                    {
+                        if (SalePerGroupClassificationDayData[i].Sale != 0)
+                        {
+                            NoDataGraphThisYear = false;
+                        }
+                    }
+                    for (int i = 0; i < SalePerGroupClassificationDayDataLastYear.Count; i++)
+                    {
+                        if (SalePerGroupClassificationDayDataLastYear[i].Sale != 0)
+                        {
+                            NoDataGraphLastYear = false;
+                        }
+                    }
+                    @if (PieGroupClassificationSeriesLY)
+                    {
+                        <div class="chart-display form-group d-sm-flex flex-nowrap pie-2">
+                            <DxChart Data="@(NoDataGraphThisYear ? lstNoDataTYear : SalePerGroupClassificationDayData)" CssClass="chart-pie this-year-pie" Id="pieChart">
+                                <DxChartLegend VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"></DxChartLegend>
+                                <DxChartTitle Text="@(Lang["GroupClassificationPer"] +"("+ SaleData[0].Time.Year.ToString() +")")" />
+
+                                <DxChartPieSeries ValueField="@((SalePerGroupClassification s) => s.Sale)"
+                                                  Color="@(NoDataGraphThisYear ? System.Drawing.Color.FromArgb(126, 123, 126) : default)"
+                                                  ArgumentField="@((SalePerGroupClassification s) => s.GroupClassificationName)">
+                                </DxChartPieSeries>
+                            </DxChart>
+                            <DxChart Data="@(NoDataGraphLastYear ? lstNoDataLYear :SalePerGroupClassificationDayDataLastYear)" CssClass="chart-pie last-year-pie">
+                                <DxChartLegend VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"></DxChartLegend>
+                                <DxChartTitle Text="@(Lang["GroupClassificationPer"] +"("+ (SaleData[0].Time.Year - 1).ToString() +")")" />
+
+                                <DxChartPieSeries ValueField="@((SalePerGroupClassification s) => s.Sale)"
+                                                  Color="@(NoDataGraphLastYear ? System.Drawing.Color.Gray : default)"
+                                                  ArgumentField="@((SalePerGroupClassification s) => s.GroupClassificationName)">
+                                </DxChartPieSeries>
+                            </DxChart>
+                        </div>
+                    }
+                    else
+                    {
+                        <DxChart Data="@(NoDataGraphThisYear ? lstNoDataTYear : SalePerGroupClassificationDayData)" CssClass="chart-display this-year-pie" CustomizeSeriesPoint="PreparePointColorForGroup">
+                            <DxChartLegend VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"></DxChartLegend>
+                            <DxChartTitle Text="@(Lang["GroupClassificationPer"] +"("+ SaleData[0].Time.Year.ToString() +")")" />
+                            <DxChartPieSeries ValueField="@((SalePerGroupClassification s) => s.Sale)"
+                                              Color="@(NoDataGraphThisYear ? System.Drawing.Color.Gray : default)"
+                                              ArgumentField="@((SalePerGroupClassification s) => s.GroupClassificationName)">
+                                <DxChartSeriesLabel Visible="true" />
+                            </DxChartPieSeries>
+                        </DxChart>
+                    }
+                    <div class="grid-area">
+                        <table class="grid-display">
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th class="bg-this-year">@(SaleData[0].Time.Year)</th>
+                                <th class="bg-last-year">@(SaleData[0].Time.Year - 1)</th>
+                            </tr>
+                            @{ int indexCurrent = 0;}
+                            @for (int i = 0; i < SalePerGroupClassificationDayData.Count(); i++)
+                            {
+                                int current = indexCurrent;
+                                <tr class="@(SalePerGroupClassificationDayData[i].GroupClassificationCd == SelectedGroupClassificationKbn ? "selected-area" : "")">
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.PieSalePerGroupClassification, 0))" style="background-color: @(!PieGroupClassificationSeriesLY ? $"#{HyperDataService.GetColorByIndex(i).R:X2}{HyperDataService.GetColorByIndex(i).G:X2}{HyperDataService.GetColorByIndex(i).B:X2}" : default) !important">@(SalePerGroupClassificationDayData[i].GroupClassificationName)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.PieSalePerGroupClassification, 0))" class="value-this-year">@string.Format("{0:C}", SalePerGroupClassificationDayData[i].Sale)</td>
+                                    <td @onclick="@((e) => MouseClickGridNext(e, current, (int)GraphPattern.PieSalePerGroupClassification, 1))" class="value-last-year">@string.Format("{0:C}", SalePerGroupClassificationDayDataLastYear[i].Sale)</td>
+                                </tr>
+                                indexCurrent++;
+                            }
+                            <tr>
+                                <td>@Lang["Total"]</td>
+                                <td>@string.Format("{0:C}", TotalByGroupClassification)</td>
+                                <td>@string.Format("{0:C}", TotalByGroupClassificationLastYear)</td>
+                            </tr>
+                        </table>
+                    </div>
+                }
+            </div>
+            break;
+        default:
+            break;
+    }
+}
+
+<ContextMenu Id="LineSaleSeriesMenu" CssClass="contextmenu">
+    @{
+        int IndexOfBarSalePerStaff = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+        int IndexOfBarSalePerCustomer = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+        int IndexOfBarSalePerGroupClassification = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+        int IndexOfPieSalePerGroupClassification = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+        <Item Enabled="@(isEnableSuperMenu)" OnClick="@(() => OpenSuperMenuBySale(SuperMenyTypeDisplay.Reservation))">@Lang["SupermenuRevervationEdit"]</Item>
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuBySale(SuperMenyTypeDisplay.Vehicle))">@Lang["SupermenuVehicleEdit"]</Item>
+        <Item id="line-sale-staff">@Lang["ShowGraphBarPerStaff"]</Item>
+        <Item id="line-sale-customer">@Lang["ShowGraphBarPerCustomer"]</Item>
+        <Item id="line-sale-group-bar">@Lang["ShowGraphBarPerGroupClassification"]</Item>
+        <Item id="line-sale-group-pie">@Lang["ShowGraphPiePerGroupClassification"]</Item>
+    }
+</ContextMenu>
+
+<ContextMenu Id="BarStaffSeriesMenu" CssClass="contextmenu">
+    @{
+        int Index = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+        int IndexOfBarSalePerCustomer = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+        int IndexOfBarSalePerGroupClassification = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+        int IndexOfPieSalePerGroupClassification = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByStaff(Index, SalePerStaffDayData[IndexOfMenuSeries].StaffSeq, SalePerStaffDayDataLastYear[IndexOfMenuSeries].StaffSeq, SuperMenyTypeDisplay.Reservation))">@Lang["SupermenuRevervationEdit"]</Item>
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByStaff(Index, SalePerStaffDayData[IndexOfMenuSeries].StaffSeq, SalePerStaffDayDataLastYear[IndexOfMenuSeries].StaffSeq, SuperMenyTypeDisplay.Vehicle))">@Lang["SupermenuVehicleEdit"]</Item>
+        @if (IndexOfBarSalePerCustomer < 0 || IndexOfBarSalePerCustomer > Index)
+        {
+            <Item id="bar-staff-customer">@Lang["ShowGraphBarPerCustomer"]</Item>
+        }
+
+        @if ((IndexOfBarSalePerGroupClassification < 0 || IndexOfBarSalePerGroupClassification > Index) && (IndexOfPieSalePerGroupClassification < 0 || IndexOfPieSalePerGroupClassification > Index))
+        {
+            <Item id="bar-staff-group-bar">@Lang["ShowGraphBarPerGroupClassification"]</Item>
+            <Item id="bar-staff-group-pie">@Lang["ShowGraphPiePerGroupClassification"]</Item>
+        }
+    }
+</ContextMenu>
+
+<ContextMenu Id="BarCustomerSeriesMenu" CssClass="contextmenu">
+    @{
+        int Index = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+        int IndexOfBarSalePerStaff = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+        int IndexOfBarSalePerGroupClassification = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+        int IndexOfPieSalePerGroupClassification = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByCustomer(Index, SalePerCustomerDayData[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayData[IndexOfMenuSeries].CustomerSeq, SalePerCustomerDayData[IndexOfMenuSeries].GyosyaCdSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].CustomerSeq, SuperMenyTypeDisplay.Reservation))">@Lang["SupermenuRevervationEdit"]</Item>
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByCustomer(Index, SalePerCustomerDayData[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayData[IndexOfMenuSeries].CustomerSeq, SalePerCustomerDayData[IndexOfMenuSeries].GyosyaCdSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].CustomerSeq, SuperMenyTypeDisplay.Vehicle))">@Lang["SupermenuVehicleEdit"]</Item>
+        @if (IndexOfBarSalePerStaff < 0 || IndexOfBarSalePerStaff > Index)
+        {
+            <Item id="bar-customer-staff">@Lang["ShowGraphBarPerStaff"]</Item>
+        }
+
+        @if ((IndexOfBarSalePerGroupClassification < 0 || IndexOfBarSalePerGroupClassification > Index) && (IndexOfPieSalePerGroupClassification < 0 || IndexOfPieSalePerGroupClassification > Index))
+        {
+            <Item id="bar-customer-group-bar">@Lang["ShowGraphBarPerGroupClassification"]</Item>
+            <Item id="bar-customer-group-pie">@Lang["ShowGraphPiePerGroupClassification"]</Item>
+        }
+    }
+</ContextMenu>
+
+<ContextMenu Id="GroupClassificationSeriesMenu" CssClass="contextmenu">
+    @{
+        int Index = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+        if (Index < 0)
+        {
+            Index = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+        }
+        int IndexOfBarSalePerStaff = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+        int IndexOfBarSalePerCustomer = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByGroupClassification(Index, SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd, SalePerGroupClassificationDayDataLastYear[IndexOfMenuSeries].GroupClassificationCd, SuperMenyTypeDisplay.Reservation))">@Lang["SupermenuRevervationEdit"]</Item>
+        <Item Enabled="@isEnableSuperMenu" OnClick="@(() => OpenSuperMenuByGroupClassification(Index, SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd, SalePerGroupClassificationDayDataLastYear[IndexOfMenuSeries].GroupClassificationCd, SuperMenyTypeDisplay.Vehicle))">@Lang["SupermenuVehicleEdit"]</Item>
+        @if (IndexOfBarSalePerStaff < 0 || IndexOfBarSalePerStaff > Index)
+        {
+            <Item id="group-staff">@Lang["ShowGraphBarPerStaff"]</Item>
+        }
+
+        @if (IndexOfBarSalePerCustomer < 0 || IndexOfBarSalePerCustomer > Index)
+        {
+            <Item id="group-customer">@Lang["ShowGraphBarPerCustomer"]</Item>
+        }
+    }
+</ContextMenu>
+
+@code {
+    [Parameter] public string HaishaBiFrom { get; set; }
+    [Parameter] public string HaishaBiTo { get; set; }
+    [Parameter] public string TochakuBiFrom { get; set; }
+    [Parameter] public string TochakuBiTo { get; set; }
+    [Parameter] public string YoyakuBiFrom { get; set; }
+    [Parameter] public string YoyakuBiTo { get; set; }
+    [Parameter] public string UketsukeBangoFrom { get; set; }
+    [Parameter] public string UketsukeBangoTo { get; set; }
+    [Parameter] public string YoyakuFrom { get; set; }
+    [Parameter] public string YoyakuTo { get; set; }
+    [Parameter] public string EigyoTantoShaFrom { get; set; }
+    [Parameter] public string EigyoTantoShaTo { get; set; }
+    [Parameter] public string UketsukeEigyoJoFrom { get; set; }
+    [Parameter] public string UketsukeEigyoJoTo { get; set; }
+    [Parameter] public string NyuryokuTantoShaFrom { get; set; }
+    [Parameter] public string NyuryokuTantoShaTo { get; set; }
+    [Parameter] public string DantaiKbnFrom { get; set; }
+    [Parameter] public string DantaiKbnTo { get; set; }
+    [Parameter] public string KyakuDaneKbnFrom { get; set; }
+    [Parameter] public string KyakuDaneKbnTo { get; set; }
+    [Parameter] public string YukiSakiFrom { get; set; }
+    [Parameter] public string YukiSakiTo { get; set; }
+    [Parameter] public string HaishaChiFrom { get; set; }
+    [Parameter] public string HaishaChiTo { get; set; }
+    [Parameter] public string HasseiChiFrom { get; set; }
+    [Parameter] public string HasseiChiTo { get; set; }
+    [Parameter] public string AreaFrom { get; set; }
+    [Parameter] public string AreaTo { get; set; }
+    [Parameter] public string ShashuFrom { get; set; }
+    [Parameter] public string ShashuTo { get; set; }
+    [Parameter] public string ShashuTankaFrom { get; set; }
+    [Parameter] public string ShashuTankaTo { get; set; }
+    [Parameter] public string UketsukeJokenFrom { get; set; }
+    [Parameter] public string UketsukeJokenTo { get; set; }
+    [Parameter] public string DantaiNm { get; set; }
+    [Parameter] public string MaxMinSetting { get; set; }
+    [Parameter] public string ReservationStatus { get; set; }
+    [Parameter] public string GyosyaTokuiSakiFrom { get; set; }
+    [Parameter] public string GyosyaTokuiSakiTo { get; set; }
+    [Parameter] public string TokiskTokuiSakiFrom { get; set; }
+    [Parameter] public string TokiskTokuiSakiTo { get; set; }
+    [Parameter] public string TokiStTokuiSakiFrom { get; set; }
+    [Parameter] public string TokiStTokuiSakiTo { get; set; }
+    [Parameter] public string GyosyaShiireSakiFrom { get; set; }
+    [Parameter] public string GyosyaShiireSakiTo { get; set; }
+    [Parameter] public string TokiskShiireSakiFrom { get; set; }
+    [Parameter] public string TokiskShiireSakiTo { get; set; }
+    [Parameter] public string TokiStShiireSakiFrom { get; set; }
+    [Parameter] public string TokiStShiireSakiTo { get; set; }
+
+    [Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
+    int BufferSize = 32768;
+
+    public HyperFormData hyperData = new HyperFormData();
+    public List<HyperFormData> CurrentHyperForm = new List<HyperFormData>();
+    public HyperFormData LastYearHyperData = new HyperFormData();
+    public List<HyperGraphData> GraphData = new List<HyperGraphData>();
+    public List<List<HyperGraphData>> CurrentHyperData = new List<List<HyperGraphData>>();
+    public List<List<HyperGraphData>> CurrentHyperDataLastYear = new List<List<HyperGraphData>>();
+    public List<HyperGraphData> LastYearGraphData = new List<HyperGraphData>();
+    public List<SalePerTime> SaleData = new List<SalePerTime>();
+    public List<SalePerTime> LastYearSaleData = new List<SalePerTime>();
+    public List<SalePerStaff> SalePerStaffDayData = new List<SalePerStaff>();
+    public List<SalePerStaff> SalePerStaffDayDataLastYear = new List<SalePerStaff>();
+    public List<SalePerCustomer> SalePerCustomerDayData = new List<SalePerCustomer>();
+    public List<SalePerCustomer> SalePerCustomerDayDataLastYear = new List<SalePerCustomer>();
+    public List<SalePerGroupClassification> SalePerGroupClassificationDayData = new List<SalePerGroupClassification>();
+    public List<SalePerGroupClassification> SalePerGroupClassificationDayDataLastYear = new List<SalePerGroupClassification>();
+    public List<SalePerTime> SelectedTime = new List<SalePerTime>();
+    public List<CustomerComponentGyosyaData> ListGyosya { get; set; } = new List<CustomerComponentGyosyaData>();
+    public List<CustomerComponentTokiskData> ListTokisk { get; set; } = new List<CustomerComponentTokiskData>();
+    public List<CustomerComponentTokiStData> ListTokiSt { get; set; } = new List<CustomerComponentTokiStData>();
+    private List<CustomerComponentTokiskData> TokiskData { get; set; } = new List<CustomerComponentTokiskData>();
+    private List<CustomerComponentTokiStData> TokiStData { get; set; } = new List<CustomerComponentTokiStData>();
+    public List<ReservationClassComponentData> ListReservationClass { get; set; } = new List<ReservationClassComponentData>();
+    public string TypeDate;
+    public dynamic DateFromProperty;
+    public dynamic DateToProperty;
+    [Parameter] public string type { get; set; }
+    public long TotalByStaff = 0;
+    public long TotalByStaffLastYear = 0;
+    public long TotalByCustomer = 0;
+    public long TotalByCustomerLastYear = 0;
+    public long TotalByGroupClassification = 0;
+    public long TotalByGroupClassificationLastYear = 0;
+    public DateTime? StartDate;
+    public DateTime? EndDate;
+    public int? SelectedStaffSeq;
+    public int? SelectedCustomerSeq;
+    public string? SelectedGroupClassificationKbn;
+    public int IndexSelectBegin;
+    public int IndexSelectEnd;
+    public List<StaffsData> StaffList;
+    List<CodeTypeData> CodeKbList;
+    public List<GraphPattern> GraphList = new List<GraphPattern>();
+    public int IndexOfMenuSeries { get; set; }
+    bool IsReinitNewGraph = false;
+    public string FormatStringDay = "MM月dd日(ddd)";
+    public string FormatStringDayNoDay = "MM月dd日";
+    private bool IsDisplayByDay = true;
+    private GraphPattern NextGraph = GraphPattern.LineSale;
+    private bool IsShowStaff = false;
+    private bool IsShowCustomer = false;
+    private bool IsShowGroup = false;
+    private bool firstDisplay = true;
+    private bool LineSaleCountSeriesLY = true;
+    private bool BarStaffSeriesLY = true;
+    private bool BarCustomerSeriesLY = true;
+    private bool BarGroupClassificationSeriesLY = true;
+    private bool PieGroupClassificationSeriesLY = true;
+    byte isThisYear = 0; // 0:This Year; 1:Last Year; 2: disable supermenu
+    bool isEnableSuperMenu { get; set; } = true;
+    bool isMonth = false;
+    string currentYear = "";
+    bool isGrid = true;
+    bool isDragComplete = true;
+
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            JSRuntime.InvokeVoidAsync("loadPageScript", "hyperGraphPage");
+            base.OnParametersSet();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // 受付営業所
+            List<SaleBranchData> TempSaleBranchList = await EigyosService.Get(new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+
+            // 営業担当, 入力担当
+            List<StaffsData> TempStaffList = await SyainService.Get(new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+            StaffList = TempStaffList;
+
+            ListReservationClass = await _yoyakuservice.GetListReservationClass();
+
+            // 得意先, 仕入先
+            var taskTokisk = _service.GetListTokisk();
+            var taskTokiSt = _service.GetListTokiSt();
+            var taskGyosya = _service.GetListGyosya();
+
+            await Task.WhenAll(taskGyosya, taskTokisk, taskTokiSt);
+
+            ListGyosya = taskGyosya.Result;
+            TokiskData = taskTokisk.Result;
+            TokiStData = taskTokiSt.Result;
+
+            // 団体区分
+            List<CodeTypeData> TempCodeKbList = await CodeKbService.GetDantai(new ClaimModel().TenantID);
+            CodeKbList = TempCodeKbList;
+
+            // 客種区分
+            List<CustomerClassification> TempCustomerClassificationList = await CustomerCLassificationService.Get(new ClaimModel().TenantID);
+
+            // 行先
+            List<LoadLocation> TempDestinationList = await LocationService.GetDestination(new ClaimModel().TenantID);
+
+            // 配車地
+            List<LoadDispatchArea> TempDispatchList = await DispatchService.Get(new ClaimModel().TenantID);
+
+            // 発生地
+            List<LoadLocation> TempOriginList = await LocationService.GetOrigin(new ClaimModel().TenantID);
+
+            // エリア
+            List<LoadLocation> TempAreaList = await LocationService.GetArea(new ClaimModel().TenantID);
+
+            // 車種
+            List<BusTypesData> TempBusTypeList = await BusTypeService.GetAll(new ClaimModel().TenantID);
+
+            // 受付条件
+            List<VpmCodeKb> TempConditionList = await CodeKbService.GetJoken(new ClaimModel().TenantID);
+
+            // 上限下限設定
+            List<ComboboxFixField> MaxMinSettingList = new List<ComboboxFixField> {
+                null,
+                new ComboboxFixField() { IdValue = 0, StringValue = Lang["AlreadySet"] },
+                new ComboboxFixField() { IdValue = 1, StringValue = Lang["NotYetSet"] }
+            };
+            // 予約ステータス
+            List<ComboboxFixField> ReservationStatusList = new List<ComboboxFixField> {
+                null,
+                new ComboboxFixField() { IdValue = 0, StringValue = Lang["Reservation"] },
+                new ComboboxFixField() { IdValue = 1, StringValue = Lang["Estimates"] }
+            };
+
+            hyperData = HyperFormData.ToObject(HaishaBiFrom, HaishaBiTo, TochakuBiFrom, TochakuBiTo, YoyakuBiFrom, YoyakuBiTo, UketsukeBangoFrom, UketsukeBangoTo,
+                YoyakuFrom, YoyakuTo, ListReservationClass, 
+                EigyoTantoShaFrom, EigyoTantoShaTo, TempStaffList,
+                UketsukeEigyoJoFrom, UketsukeEigyoJoTo, TempSaleBranchList,
+                NyuryokuTantoShaFrom, NyuryokuTantoShaTo,
+                GyosyaTokuiSakiFrom, GyosyaTokuiSakiTo, ListGyosya, 
+                TokiskTokuiSakiFrom, TokiskTokuiSakiTo, TokiskData,
+                TokiStTokuiSakiFrom, TokiStTokuiSakiTo, TokiStData,
+                GyosyaShiireSakiFrom, GyosyaShiireSakiTo,
+                TokiskShiireSakiFrom, TokiskShiireSakiTo,
+                TokiStShiireSakiFrom, TokiStShiireSakiTo,
+                DantaiKbnFrom, DantaiKbnTo, TempCodeKbList,
+                KyakuDaneKbnFrom, KyakuDaneKbnTo, TempCustomerClassificationList,
+                YukiSakiFrom, YukiSakiTo, TempDestinationList,
+                HaishaChiFrom, HaishaChiTo, TempDispatchList,
+                HasseiChiFrom, HasseiChiTo, TempOriginList,
+                AreaFrom, AreaTo, TempAreaList,
+                ShashuFrom, ShashuTo, TempBusTypeList,
+                ShashuTankaFrom, ShashuTankaTo,
+                UketsukeJokenFrom, UketsukeJokenTo, TempConditionList,
+                DantaiNm,
+                MaxMinSetting, MaxMinSettingList,
+                ReservationStatus, ReservationStatusList);
+            CurrentHyperForm.Add(new HyperFormData(hyperData));
+            LastYearHyperData = new HyperFormData(hyperData);
+            int TypeDateNumber = (int)DateType.Dispatch;
+            if (hyperData.HaishaBiFrom != null || hyperData.HaishaBiTo != null)
+            {
+                TypeDate = nameof(HyperGraphData.HaiSYmd);
+                StartDate = hyperData.HaishaBiFrom;
+                EndDate = hyperData.HaishaBiTo;
+                LastYearHyperData.HaishaBiFrom = GetDayFromOfLastYear(StartDate);
+                LastYearHyperData.HaishaBiTo = EndDate == null ? EndDate : ((DateTime)EndDate).AddYears(-1);
+                DateFromProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.HaishaBiFrom));
+                DateToProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.HaishaBiTo));
+                currentYear = StartDate.Value.Year.ToString();
+            }
+            else if (hyperData.TochakuBiFrom != null || hyperData.TochakuBiTo != null)
+            {
+                TypeDateNumber = (int)DateType.Arrival;
+                TypeDate = nameof(HyperGraphData.TouYmd);
+                StartDate = (DateTime)hyperData.TochakuBiFrom;
+                EndDate = (DateTime)hyperData.TochakuBiTo;
+                LastYearHyperData.TochakuBiFrom = GetDayFromOfLastYear(StartDate);
+                LastYearHyperData.TochakuBiTo = EndDate == null ? EndDate : ((DateTime)EndDate).AddYears(-1);
+                DateFromProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.TochakuBiFrom));
+                DateToProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.TochakuBiTo));
+                currentYear = StartDate.Value.Year.ToString();
+            }
+            else
+            {
+                TypeDateNumber = (int)DateType.Reservation;
+                TypeDate = nameof(HyperGraphData.UkeYmd);
+                StartDate = (DateTime)hyperData.YoyakuBiFrom;
+                EndDate = (DateTime)hyperData.YoyakuBiTo;
+                LastYearHyperData.YoyakuBiFrom = GetDayFromOfLastYear(StartDate);
+                LastYearHyperData.YoyakuBiTo = EndDate == null ? EndDate : ((DateTime)EndDate).AddYears(-1);
+                DateFromProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.YoyakuBiFrom));
+                DateToProperty = CurrentHyperForm[0].GetType().GetProperty(nameof(hyperData.YoyakuBiTo));
+                currentYear = StartDate.Value.Year.ToString();
+            }
+
+            if (!(int.TryParse(type, out _)) || !(Enum.IsDefined(typeof(GraphTypeDisplay), int.Parse(type))) ||
+                !string.IsNullOrEmpty(HyperDataService.CheckValidationForGraph((GraphTypeDisplay)(int.Parse(type)), hyperData, TypeDateNumber)))
+            {
+                NavigationManager.NavigateTo("/hypermenu", true);
+                return;
+            }
+            GraphData = await HyperDataService.GetHyperGraphData(hyperData, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID, new ClaimModel().TenantID);
+            CurrentHyperData.Add(GraphData);
+            LastYearGraphData = await HyperDataService.GetHyperGraphData(LastYearHyperData, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID, new ClaimModel().TenantID);
+            CurrentHyperDataLastYear.Add(LastYearGraphData);
+
+            switch (int.Parse(type))
+            {
+                case (int)GraphTypeDisplay.GraphSaleStaffDayBar:
+                case (int)GraphTypeDisplay.GraphCustomerDayBar:
+                case (int)GraphTypeDisplay.GraphSaleDayLine:
+                case (int)GraphTypeDisplay.GraphOrganizationBar:
+                case (int)GraphTypeDisplay.GraphOrganizationPie:
+                case (int)GraphTypeDisplay.GraphSaleQuanDayBarLine:
+                    isMonth = false;
+                    if (StartDate != null && EndDate != null)
+                    {
+                        SaleData = await HyperDataService.GetSaleByDay(GraphData, TypeDate, (DateTime)StartDate, (DateTime)EndDate);
+                        await GetLastYearData();
+                    }
+                    if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleQuanDayBarLine)
+                    {
+                        GraphList.Add(GraphPattern.BarLineSaleQuan);
+                    }
+                    else
+                    {
+                        GraphList.Add(GraphPattern.LineSale);
+                    }
+                    if (int.Parse(type) != (int)GraphTypeDisplay.GraphSaleDayLine)
+                    {
+                        IndexSelectBegin = 0;
+                        IndexSelectEnd = SaleData.Count() - 1;
+                        if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleStaffDayBar)
+                        {
+                            NextGraph = GraphPattern.BarSalePerStaff;
+                        }
+                        else if (int.Parse(type) == (int)GraphTypeDisplay.GraphCustomerDayBar)
+                        {
+                            NextGraph = GraphPattern.BarSalePerCustomer;
+                        }
+                        else if (int.Parse(type) == (int)GraphTypeDisplay.GraphOrganizationBar)
+                        {
+                            NextGraph = GraphPattern.BarSalePerGroupClassification;
+                        }
+                        else if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleQuanDayBarLine)
+                        {
+
+                        }
+                        else
+                        {
+                            NextGraph = GraphPattern.PieSalePerGroupClassification;
+                        }
+                        await SelectTime();
+                    }
+                    break;
+                case (int)GraphTypeDisplay.GraphSaleStaffMonthBar:
+                case (int)GraphTypeDisplay.GraphCustomerMonthBar:
+                case (int)GraphTypeDisplay.GraphSaleMonthLine:
+                case (int)GraphTypeDisplay.GraphSaleQuanMonthBarLine:
+                    isMonth = true;
+                    FormatStringDay = "MM月";
+                    FormatStringDayNoDay = "MM月";
+                    IsDisplayByDay = false;
+                    if (StartDate != null && EndDate != null)
+                    {
+                        SaleData = await HyperDataService.GetSaleByMonth(GraphData, TypeDate, (DateTime)StartDate, (DateTime)EndDate);
+                        await GetLastYearData();
+                    }
+                    if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleQuanMonthBarLine)
+                    {
+                        GraphList.Add(GraphPattern.BarLineSaleQuan);
+                    }
+                    else
+                    {
+                        GraphList.Add(GraphPattern.LineSale);
+                    }
+                    if (int.Parse(type) != (int)GraphTypeDisplay.GraphSaleMonthLine)
+                    {
+                        IndexSelectBegin = 0;
+                        IndexSelectEnd = SaleData.Count() - 1;
+                        if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleStaffMonthBar)
+                        {
+                            NextGraph = GraphPattern.BarSalePerStaff;
+                        }
+                        else if (int.Parse(type) == (int)GraphTypeDisplay.GraphSaleQuanMonthBarLine)
+                        {
+
+                        }
+                        else
+                        {
+                            NextGraph = GraphPattern.BarSalePerCustomer;
+                        }
+                        await SelectTime();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            if ((int)GraphList[0] == (int)GraphPattern.BarLineSaleQuan)
+            {
+                SelectedTime = new List<SalePerTime>();
+            }
+            CultureInfo cultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
+            if (cultureInfo.Name != "ja-JP")
+            {
+                FormatStringDay = "MM/dd";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private DateTime? GetDayFromOfLastYear(DateTime? DayFromOfThisYear)
+    {
+        if (DayFromOfThisYear == null)
+        {
+            return StartDate;
+        }
+        DateTime Result = ((DateTime)DayFromOfThisYear).AddYears(-1);
+        if (DayFromOfThisYear.Value.Month == 2 && DayFromOfThisYear.Value.Day == 29)
+        {
+            Result = Result.AddDays(1);
+        }
+        return Result;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                JSRuntime.InvokeAsync<string>("ChangeChartType", DotNetObjectReference.Create(this));
+            }
+            if (IsReinitNewGraph)
+            {
+                IsReinitNewGraph = false;
+                JSRuntime.InvokeVoidAsync("triggerToggle");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async void MouseDownEvent(MouseEventArgs e)
+    {
+        try
+        {
+            if (!isDragComplete)
+            {
+                return;
+            }
+            isDragComplete = false;
+            isThisYear = 0;
+            await JSRuntime.InvokeAsync<string>("setMouseUpAndMove", e.ClientX, e.ClientY, SaleData.Count(), DotNetObjectReference.Create(this));
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task WhenDragComplete(int Begin, int End, double ClientX, double ClientY)
+    {
+        try
+        {
+            isEnableSuperMenu = true;
+            IndexSelectBegin = Begin;
+            IndexSelectEnd = End;
+            if (IndexSelectBegin == IndexSelectEnd && isThisYear == 2)
+            {
+                isThisYear = 1;
+                isEnableSuperMenu = false;
+            }
+            if (IndexSelectBegin != IndexSelectEnd && isThisYear == 2)
+            {
+                isThisYear = 1;
+                isEnableSuperMenu = true;
+            }
+            if (isMonth && isThisYear == 1 && IndexSelectBegin == 0 && IndexSelectBegin == IndexSelectEnd)
+            {
+                if (CurrentHyperForm.Count > 0)
+                {
+                    if (CurrentHyperForm[0].HaishaBiFrom.HasValue && CurrentHyperForm[0].HaishaBiFrom.Value.Month == 2 && CurrentHyperForm[0].HaishaBiFrom.Value.Day == 29)
+                    {
+                        isEnableSuperMenu = false;
+                    }
+                    if (CurrentHyperForm[0].TochakuBiFrom.HasValue && CurrentHyperForm[0].TochakuBiFrom.Value.Month == 2 && CurrentHyperForm[0].TochakuBiFrom.Value.Day == 29)
+                    {
+                        isEnableSuperMenu = false;
+                    }
+                    if (CurrentHyperForm[0].YoyakuBiFrom.HasValue && CurrentHyperForm[0].YoyakuBiFrom.Value.Month == 2 && CurrentHyperForm[0].YoyakuBiFrom.Value.Day == 29)
+                    {
+                        isEnableSuperMenu = false;
+                    }
+                }
+            }
+            await SelectTime();
+            await ShowMenu(ClientX, ClientY, 0, 0);
+            StateHasChanged();
+            isDragComplete = true;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task SelectTime()
+    {
+        try
+        {
+            SelectedTime = SaleData.Skip(IndexSelectBegin).Take(IndexSelectEnd - IndexSelectBegin + 1).ToList();
+            if (firstDisplay)
+            {
+                firstDisplay = false;
+                switch (NextGraph)
+                {
+                    case GraphPattern.BarSalePerStaff:
+                        await DisplayStaffBySale();
+                        break;
+                    case GraphPattern.BarSalePerCustomer:
+                        await DisplayCustomerBySale();
+                        break;
+                    case GraphPattern.BarSalePerGroupClassification:
+                        await DisplayGroupClassificationBarBySale();
+                        break;
+                    case GraphPattern.PieSalePerGroupClassification:
+                        await DisplayGroupClassificationPieBySale();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+
+    }
+
+    private bool CheckDataByDate(HyperGraphData data, DateTime DayFrom, DateTime DayTo, bool IsLastYear)
+    {
+        try
+        {
+            DateTime DateValue = (DateTime)data.GetType().GetProperty(TypeDate).GetValue(data, null);
+            DateTime DateToCompare = IsDisplayByDay ? DayTo : new DateTime(DayTo.Year, DayTo.Month, DateTime.DaysInMonth(DayTo.Year, DayTo.Month));
+            return DateValue >= DayFrom && DateValue <= DateToCompare && (!IsLastYear || DateValue.Month != 2 || DateValue.Day != 29);
+        }
+        catch (Exception ex)
+        {
+            return true;
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private bool CheckDataByStaff(HyperGraphData data, int StaffSeq)
+    {
+        try
+        {
+            return data.EigTanCdSeq == StaffSeq;
+        }
+        catch (Exception ex)
+        {
+            return data.EigTanCdSeq == StaffSeq;
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private bool CheckDataByCustomer(HyperGraphData data, int BranchSeq, int TokuiSeq)
+    {
+        try
+        {
+            if (data.SitenCdSeq == BranchSeq && data.TokuiSeq == TokuiSeq)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return (data.SitenCdSeq == BranchSeq && data.TokuiSeq == TokuiSeq);
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private bool CheckDataByGroupClassification(HyperGraphData data, string GroupClassification)
+    {
+        try
+        {
+            return data.DantaiKbn == GroupClassification;
+        }
+        catch (Exception ex)
+        {
+            return data.DantaiKbn == GroupClassification;
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task GetLastYearData()
+    {
+        try
+        {
+            LastYearGraphData = await HyperDataService.GetHyperGraphData(LastYearHyperData, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID, new ClaimModel().TenantID);
+            if (IsDisplayByDay)
+            {
+                LastYearSaleData = await HyperDataService.GetSaleByDay(LastYearGraphData, TypeDate, GetDayFromOfLastYear(StartDate).Value, ((DateTime)EndDate).AddYears(-1));
+            }
+            else
+            {
+                LastYearSaleData = await HyperDataService.GetSaleByMonth(LastYearGraphData, TypeDate, ((DateTime)StartDate).AddYears(-1), ((DateTime)EndDate).AddYears(-1));
+            }
+            LastYearSaleData = LastYearSaleData.FindAll(data => data.Time.Month != 2 || data.Time.Day != 29);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void ClearSelected()
+    {
+        try
+        {
+            if (!GraphList.Contains(GraphPattern.BarSalePerStaff))
+            {
+                SelectedStaffSeq = null;
+            }
+            if (!GraphList.Contains(GraphPattern.BarSalePerCustomer))
+            {
+                SelectedCustomerSeq = null;
+            }
+            if (!GraphList.Contains(GraphPattern.BarSalePerGroupClassification) && !GraphList.Contains(GraphPattern.PieSalePerGroupClassification))
+            {
+                SelectedGroupClassificationKbn = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void ClearCurrent(int GraphIndex, bool IsResetData)
+    {
+        try
+        {
+            if (!IsResetData)
+            {
+                return;
+            }
+            if (GraphList.Count() > GraphIndex)
+            {
+                CurrentHyperForm.RemoveRange(GraphIndex, GraphList.Count() - GraphIndex);
+                CurrentHyperData.RemoveRange(GraphIndex, GraphList.Count() - GraphIndex);
+                CurrentHyperDataLastYear.RemoveRange(GraphIndex, GraphList.Count() - GraphIndex);
+
+                GraphList.RemoveRange(GraphIndex, GraphList.Count() - GraphIndex);
+                CurrentHyperForm.Add(new HyperFormData(CurrentHyperForm[GraphIndex - 1]));
+                CurrentHyperData.Add(new List<HyperGraphData>(CurrentHyperData[GraphIndex - 1]));
+                CurrentHyperDataLastYear.Add(new List<HyperGraphData>(CurrentHyperDataLastYear[GraphIndex - 1]));
+            }
+            else if (GraphList.Count() == GraphIndex)
+            {
+                CurrentHyperForm.Add(new HyperFormData(CurrentHyperForm[GraphIndex - 1]));
+                CurrentHyperData.Add(new List<HyperGraphData>(CurrentHyperData[GraphIndex - 1]));
+                CurrentHyperDataLastYear.Add(new List<HyperGraphData>(CurrentHyperDataLastYear[GraphIndex - 1]));
+            }
+            ClearSelected();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetSaleAtIndex(int GraphIndex, bool IsResetData)
+    {
+        try
+        {
+            if (NextGraph == GraphPattern.LineSale)
+            {
+                SelectTime().Wait();
+            }
+            ClearCurrent(GraphIndex, IsResetData);
+            int IndexToBeChanged = IsResetData ? GraphIndex : GraphIndex - 1;
+            DateFromProperty.SetValue(CurrentHyperForm[IndexToBeChanged], SelectedTime.Count > 0 && SelectedTime[0].Time >= StartDate ? SelectedTime[0].Time : StartDate, null);
+            DateTime? EndSelectedTime = SelectedTime.Count > 0 ? SelectedTime[SelectedTime.Count() - 1].Time : EndDate;
+            if (!IsDisplayByDay)
+            {
+                DateTime EndOfMonth = new DateTime(((DateTime)EndSelectedTime).Year, ((DateTime)EndSelectedTime).Month, DateTime.DaysInMonth(((DateTime)EndSelectedTime).Year, ((DateTime)EndSelectedTime).Month));
+                EndSelectedTime = EndOfMonth <= (DateTime)EndDate ? EndOfMonth : (DateTime)EndDate;
+            }
+            DateToProperty.SetValue(CurrentHyperForm[IndexToBeChanged], EndSelectedTime, null);
+            if (IsResetData && SelectedTime.Count > 0)
+            {
+                CurrentHyperData[IndexToBeChanged] = CurrentHyperData[IndexToBeChanged - 1].FindAll(e => CheckDataByDate(e, SelectedTime[0].Time, SelectedTime[SelectedTime.Count() - 1].Time, false));
+                CurrentHyperDataLastYear[IndexToBeChanged] = CurrentHyperDataLastYear[IndexToBeChanged - 1].FindAll(e => CheckDataByDate(e, ((DateTime)SelectedTime[0].Time).AddYears(-1), ((DateTime)SelectedTime[SelectedTime.Count() - 1].Time).AddYears(-1), true));
+                if (SelectedTime.Count == 1 && SelectedTime[0].Time.Day == 29 && SelectedTime[0].Time.Month == 2)
+                {
+                    CurrentHyperDataLastYear[IndexToBeChanged] = new List<HyperGraphData>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task OpenSuperMenuBySale(SuperMenyTypeDisplay type)
+    {
+        try
+        {
+            int GraphIndex = 0;
+            SetSaleAtIndex(GraphIndex + 1, false);
+            if (isThisYear == 1)
+            {
+                HyperFormData result = new HyperFormData(HyperDataService.GetDataLastYear(CurrentHyperForm, GraphIndex, isThisYear, currentYear, isMonth));
+                await OpenSupermenu(type, result);
+            }
+            else
+            {
+                await OpenSupermenu(type, CurrentHyperForm[GraphIndex]);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+    [JSInvokable]
+    public async Task DisplayStaffBySale()
+    {
+        try
+        {
+            int GraphIndex = 0;
+            SetSaleAtIndex(GraphIndex + 1, true);
+            IsShowStaff = false;
+            GraphList.Add(GraphPattern.BarSalePerStaff);
+            StateHasChanged();
+            SalePerStaffDayData = await HyperDataService.GetSaleByStaff(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerStaffDayDataLastYear = await HyperDataService.GetSaleByStaff(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByStaff = SalePerStaffDayData.Sum(data => data.Sale);
+            TotalByStaffLastYear = SalePerStaffDayDataLastYear.Sum(data => data.Sale);
+            // Compare data staff 2 year.
+            HyperDataService.JoinSaleByStaff(ref SalePerStaffDayData, ref SalePerStaffDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowStaff = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayCustomerBySale()
+    {
+        try
+        {
+            int GraphIndex = 0;
+            SetSaleAtIndex(GraphIndex + 1, true);
+            IsShowCustomer = false;
+            GraphList.Add(GraphPattern.BarSalePerCustomer);
+            StateHasChanged();
+            SalePerCustomerDayData = await HyperDataService.GetSaleByCustomer(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerCustomerDayDataLastYear = await HyperDataService.GetSaleByCustomer(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByCustomer = SalePerCustomerDayData.Sum(data => data.Sale);
+            TotalByCustomerLastYear = SalePerCustomerDayDataLastYear.Sum(data => data.Sale);
+            // Compare data customer 2 year.
+            HyperDataService.JoinSaleByCustomer(ref SalePerCustomerDayData, ref SalePerCustomerDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowCustomer = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationBarBySale()
+    {
+        try
+        {
+            int GraphIndex = 0;
+            SetSaleAtIndex(GraphIndex + 1, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.BarSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationPieBySale()
+    {
+        try
+        {
+            int GraphIndex = 0;
+            SetSaleAtIndex(GraphIndex + 1, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.PieSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    private void SetStaffAtIndex(int GraphIndex, int StaffSeq, int StaffSeqLastYear, bool IsResetData)
+    {
+        try
+        {
+            ClearCurrent(GraphIndex, IsResetData);
+            int IndexToBeChanged = IsResetData ? GraphIndex : GraphIndex - 1;
+            StaffsData SelectedStaff = StaffList.Find(x => x.SyainCdSeq == StaffSeq);
+            CurrentHyperForm[IndexToBeChanged].EigyoTantoShaFrom = SelectedStaff;
+            CurrentHyperForm[IndexToBeChanged].EigyoTantoShaTo = SelectedStaff;
+            if (IsResetData)
+            {
+                SelectedStaffSeq = StaffSeq;
+                CurrentHyperData[IndexToBeChanged] = CurrentHyperData[IndexToBeChanged - 1].FindAll(e => CheckDataByStaff(e, StaffSeq));
+                CurrentHyperDataLastYear[IndexToBeChanged] = CurrentHyperDataLastYear[IndexToBeChanged - 1].FindAll(e => CheckDataByStaff(e, StaffSeqLastYear));
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task OpenSuperMenuByStaff(int GraphIndex, int StaffSeq, int StaffSeqLastYear, SuperMenyTypeDisplay type)
+    {
+        try
+        {
+            SetStaffAtIndex(GraphIndex + 1, StaffSeq, StaffSeqLastYear, false);
+            if (isThisYear == 1)
+            {
+                HyperFormData result = new HyperFormData(HyperDataService.GetDataLastYear(CurrentHyperForm, GraphIndex, isThisYear, currentYear, isMonth));
+                await OpenSupermenu(type, result);
+            }
+            else
+            {
+                await OpenSupermenu(type, CurrentHyperForm[GraphIndex]);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayCustomerByStaff()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+            IsShowCustomer = false;
+            SetStaffAtIndex(GraphIndex + 1, SalePerStaffDayData[IndexOfMenuSeries].StaffSeq, SalePerStaffDayDataLastYear[IndexOfMenuSeries].StaffSeq, true);
+            GraphList.Add(GraphPattern.BarSalePerCustomer);
+            StateHasChanged();
+            SalePerCustomerDayData = await HyperDataService.GetSaleByCustomer(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerCustomerDayDataLastYear = await HyperDataService.GetSaleByCustomer(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByCustomer = SalePerCustomerDayData.Sum(data => data.Sale);
+            TotalByCustomerLastYear = SalePerCustomerDayDataLastYear.Sum(data => data.Sale);
+            // Compare data customer 2 year.
+            HyperDataService.JoinSaleByCustomer(ref SalePerCustomerDayData, ref SalePerCustomerDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowCustomer = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationBarByStaff()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+            SetStaffAtIndex(GraphIndex + 1, SalePerStaffDayData[IndexOfMenuSeries].StaffSeq, SalePerStaffDayDataLastYear[IndexOfMenuSeries].StaffSeq, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.BarSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationPieByStaff()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerStaff);
+            SetStaffAtIndex(GraphIndex + 1, SalePerStaffDayData[IndexOfMenuSeries].StaffSeq, SalePerStaffDayDataLastYear[IndexOfMenuSeries].StaffSeq, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.PieSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetCusomterAtIndex(int GraphIndex, int BranchSeq, int TokuiSeq, int GyosyaCdSeq, int BranchSeqLastYear, int TokuiSeqLastYear, bool IsResetData)
+    {
+        try
+        {
+            ClearCurrent(GraphIndex, IsResetData);
+            CustomerComponentGyosyaData SelectedGyosya = ListGyosya.FirstOrDefault(_ => _.GyosyaCdSeq == GyosyaCdSeq);
+            ListTokisk = TokiskData.Where(_ => _.GyosyaCdSeq == (SelectedGyosya?.GyosyaCdSeq ?? -1)).ToList();
+            CustomerComponentTokiskData SelectedTokisk = ListTokisk.FirstOrDefault(_ => _.TokuiSeq == TokuiSeq);
+            ListTokiSt = TokiStData.Where(_ => _.TokuiSeq == (SelectedTokisk?.TokuiSeq ?? -1)).ToList();
+            CustomerComponentTokiStData SelectedTokiSt = ListTokiSt.FirstOrDefault(_ => _.SitenCdSeq == BranchSeq);
+            int IndexToBeChanged = IsResetData ? GraphIndex : GraphIndex - 1;
+            CurrentHyperForm[IndexToBeChanged].GyosyaTokuiSakiFrom = SelectedGyosya;
+            CurrentHyperForm[IndexToBeChanged].GyosyaTokuiSakiTo = SelectedGyosya;
+            CurrentHyperForm[IndexToBeChanged].TokiskTokuiSakiFrom = SelectedTokisk;
+            CurrentHyperForm[IndexToBeChanged].TokiskTokuiSakiTo = SelectedTokisk;
+            CurrentHyperForm[IndexToBeChanged].TokiStTokuiSakiFrom = SelectedTokiSt;
+            CurrentHyperForm[IndexToBeChanged].TokiStTokuiSakiTo = SelectedTokiSt;
+            if (IsResetData)
+            {
+                SelectedCustomerSeq = BranchSeq;
+                CurrentHyperData[IndexToBeChanged] = CurrentHyperData[IndexToBeChanged - 1].FindAll(e => CheckDataByCustomer(e, BranchSeq, TokuiSeq));
+                CurrentHyperDataLastYear[IndexToBeChanged] = CurrentHyperDataLastYear[IndexToBeChanged - 1].FindAll(e => CheckDataByCustomer(e, BranchSeqLastYear, TokuiSeqLastYear));
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task OpenSuperMenuByCustomer(int GraphIndex, int BranchSeq, int TokuiSeq, int GyosyaCdSeq, int BranchSeqLastYear, int TokuiSeqLastYear, SuperMenyTypeDisplay type)
+    {
+        try
+        {
+            SetCusomterAtIndex(GraphIndex + 1, BranchSeq, TokuiSeq, GyosyaCdSeq, BranchSeqLastYear, TokuiSeqLastYear, false);
+            if (isThisYear == 1)
+            {
+                HyperFormData result = new HyperFormData(HyperDataService.GetDataLastYear(CurrentHyperForm, GraphIndex, isThisYear, currentYear, isMonth));
+                await OpenSupermenu(type, result);
+            }
+            else
+            {
+                await OpenSupermenu(type, CurrentHyperForm[GraphIndex]);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayStaffByCustomer()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+            SetCusomterAtIndex(GraphIndex + 1, SalePerCustomerDayData[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayData[IndexOfMenuSeries].CustomerSeq, SalePerCustomerDayData[IndexOfMenuSeries].GyosyaCdSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].CustomerSeq, true);
+            IsShowStaff = false;
+            GraphList.Add(GraphPattern.BarSalePerStaff);
+            StateHasChanged();
+            SalePerStaffDayData = await HyperDataService.GetSaleByStaff(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerStaffDayDataLastYear = await HyperDataService.GetSaleByStaff(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByStaff = SalePerStaffDayData.Sum(data => data.Sale);
+            TotalByStaffLastYear = SalePerStaffDayDataLastYear.Sum(data => data.Sale);
+            // Compare data staff 2 year.
+            HyperDataService.JoinSaleByStaff(ref SalePerStaffDayData, ref SalePerStaffDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowStaff = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationBarByCustomer()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+            SetCusomterAtIndex(GraphIndex + 1, SalePerCustomerDayData[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayData[IndexOfMenuSeries].CustomerSeq, SalePerCustomerDayData[IndexOfMenuSeries].GyosyaCdSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].CustomerSeq, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.BarSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayGroupClassificationPieByCustomer()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerCustomer);
+            SetCusomterAtIndex(GraphIndex + 1, SalePerCustomerDayData[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayData[IndexOfMenuSeries].CustomerSeq, SalePerCustomerDayData[IndexOfMenuSeries].GyosyaCdSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].BranchSeq, SalePerCustomerDayDataLastYear[IndexOfMenuSeries].CustomerSeq, true);
+            IsShowGroup = false;
+            GraphList.Add(GraphPattern.PieSalePerGroupClassification);
+            StateHasChanged();
+            SalePerGroupClassificationDayData = await HyperDataService.GetSaleByGroupClassification(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerGroupClassificationDayDataLastYear = await HyperDataService.GetSaleByGroupClassification(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByGroupClassification = SalePerGroupClassificationDayData.Sum(data => data.Sale);
+            TotalByGroupClassificationLastYear = SalePerGroupClassificationDayDataLastYear.Sum(data => data.Sale);
+            // Compare data GroupClassification 2 year.
+            HyperDataService.JoinSaleByGroupClassification(ref SalePerGroupClassificationDayData, ref SalePerGroupClassificationDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowGroup = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetGroupClassificationAtIndex(int GraphIndex, string GroupClassificationCd, string GroupClassificationCdLastYear, bool IsResetData)
+    {
+        try
+        {
+            ClearCurrent(GraphIndex, IsResetData);
+            int IndexToBeChanged = IsResetData ? GraphIndex : GraphIndex - 1;
+            CodeTypeData SelectedGroupClassification = CodeKbList.Find(x => x.CodeKbn == GroupClassificationCd);
+            CurrentHyperForm[IndexToBeChanged].DantaiKbnFrom = SelectedGroupClassification;
+            CurrentHyperForm[IndexToBeChanged].DantaiKbnTo = SelectedGroupClassification;
+            if (IsResetData)
+            {
+                SelectedGroupClassificationKbn = GroupClassificationCd;
+                CurrentHyperData[IndexToBeChanged] = CurrentHyperData[IndexToBeChanged - 1].FindAll(e => CheckDataByGroupClassification(e, GroupClassificationCd));
+                CurrentHyperDataLastYear[IndexToBeChanged] = CurrentHyperDataLastYear[IndexToBeChanged - 1].FindAll(e => CheckDataByGroupClassification(e, GroupClassificationCdLastYear));
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async Task OpenSuperMenuByGroupClassification(int GraphIndex, string GroupClassificationCd, string GroupClassificationCdLastYear, SuperMenyTypeDisplay type)
+    {
+        try
+        {
+            SetGroupClassificationAtIndex(GraphIndex + 1, GroupClassificationCd, GroupClassificationCdLastYear, false);
+            if (isThisYear == 1)
+            {
+                HyperFormData result = new HyperFormData(HyperDataService.GetDataLastYear(CurrentHyperForm, GraphIndex, isThisYear, currentYear, isMonth));
+                await OpenSupermenu(type, result);
+            }
+            else
+            {
+                await OpenSupermenu(type, CurrentHyperForm[GraphIndex]);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayStaffByGroupClassification()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+            if (GraphIndex < 0)
+            {
+                GraphIndex = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+            }
+            SetGroupClassificationAtIndex(GraphIndex + 1, SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd, SalePerGroupClassificationDayDataLastYear[IndexOfMenuSeries].GroupClassificationCd, true);
+            IsShowStaff = false;
+            GraphList.Add(GraphPattern.BarSalePerStaff);
+            StateHasChanged();
+            SalePerStaffDayData = await HyperDataService.GetSaleByStaff(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerStaffDayDataLastYear = await HyperDataService.GetSaleByStaff(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByStaff = SalePerStaffDayData.Sum(data => data.Sale);
+            TotalByStaffLastYear = SalePerStaffDayDataLastYear.Sum(data => data.Sale);
+            // Compare data staff 2 year.
+            HyperDataService.JoinSaleByStaff(ref SalePerStaffDayData, ref SalePerStaffDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowStaff = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task DisplayCustomerByGroupClassification()
+    {
+        try
+        {
+            int GraphIndex = GraphList.IndexOf(GraphPattern.BarSalePerGroupClassification);
+            if (GraphIndex < 0)
+            {
+                GraphIndex = GraphList.IndexOf(GraphPattern.PieSalePerGroupClassification);
+            }
+            SetGroupClassificationAtIndex(GraphIndex + 1, SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd, SalePerGroupClassificationDayDataLastYear[IndexOfMenuSeries].GroupClassificationCd, true);
+            IsShowCustomer = false;
+            GraphList.Add(GraphPattern.BarSalePerCustomer);
+            StateHasChanged();
+            SalePerCustomerDayData = await HyperDataService.GetSaleByCustomer(CurrentHyperData[GraphIndex + 1], TypeDate);
+            SalePerCustomerDayDataLastYear = await HyperDataService.GetSaleByCustomer(CurrentHyperDataLastYear[GraphIndex + 1], TypeDate);
+            TotalByCustomer = SalePerCustomerDayData.Sum(data => data.Sale);
+            TotalByCustomerLastYear = SalePerCustomerDayDataLastYear.Sum(data => data.Sale);
+            // Compare data customer 2 year.
+            HyperDataService.JoinSaleByCustomer(ref SalePerCustomerDayData, ref SalePerCustomerDayDataLastYear);
+            IsReinitNewGraph = true;
+            IsShowCustomer = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task ShowMenu(double ClientX, double ClientY, int Index, int Type, bool IsFromGrid = false)
+    {
+        try
+        {
+            if (!IsFromGrid)
+            {
+                int checkYear = Type;
+                Type = Type == 5 ? 4 : Type;
+                switch ((GraphPattern)Type)
+                {
+                    case GraphPattern.LineSale:
+                    case GraphPattern.BarLineSaleQuan:
+                        break;
+                    case GraphPattern.BarSalePerStaff:
+                        if (BarStaffSeriesLY)
+                        {
+                            isThisYear = (byte)(Index % 2 == 0 ? 0 : 1);
+                        }
+                        else
+                        {
+                            isThisYear = 0;
+                        }
+                        isEnableSuperMenu = true;
+                        break;
+                    case GraphPattern.BarSalePerCustomer:
+                        if (BarCustomerSeriesLY)
+                        {
+                            isThisYear = (byte)(Index % 2 == 0 ? 0 : 1);
+                        }
+                        else
+                        {
+                            isThisYear = 0;
+                        }
+                        isEnableSuperMenu = true;
+                        break;
+                    case GraphPattern.BarSalePerGroupClassification:
+                        if (BarGroupClassificationSeriesLY)
+                        {
+                            isThisYear = (byte)(Index % 2 == 0 ? 0 : 1);
+                        }
+                        else
+                        {
+                            isThisYear = 0;
+                        }
+                        isEnableSuperMenu = true;
+                        break;
+                    case GraphPattern.PieSalePerGroupClassification:
+                        isThisYear = (byte)(checkYear == 5 ? 1 : 0);
+                        isEnableSuperMenu = true;
+                        break;
+                    default:
+                        if (checkYear == 5)
+                        {
+                            isThisYear = 1;
+                        }
+                        else
+                        {
+                            isThisYear = 0;
+                        }
+                        isEnableSuperMenu = true;
+                        break;
+                }
+            }
+            if (IsFromGrid)
+            {
+                if (isThisYear == 1)
+                {
+                    isEnableSuperMenu = true;
+                    if (CurrentHyperForm.Count > 0)
+                    {
+                        if (CurrentHyperForm[1].HaishaBiFrom.HasValue && CurrentHyperForm[1].HaishaBiTo.HasValue &&
+                            CurrentHyperForm[1].HaishaBiFrom.Value == CurrentHyperForm[1].HaishaBiTo.Value &&
+                            CurrentHyperForm[1].HaishaBiFrom.Value.Month == 2 && CurrentHyperForm[1].HaishaBiFrom.Value.Day == 29)
+                        {
+                            isEnableSuperMenu = false;
+                        }
+                        if (CurrentHyperForm[1].TochakuBiFrom.HasValue && CurrentHyperForm[1].TochakuBiTo.HasValue &&
+                            CurrentHyperForm[1].TochakuBiFrom.Value == CurrentHyperForm[1].TochakuBiTo.Value &&
+                            CurrentHyperForm[1].TochakuBiFrom.Value.Month == 2 && CurrentHyperForm[1].TochakuBiFrom.Value.Day == 29)
+                        {
+                            isEnableSuperMenu = false;
+                        }
+                        if (CurrentHyperForm[1].YoyakuBiFrom.HasValue && CurrentHyperForm[1].YoyakuBiTo.HasValue &&
+                            CurrentHyperForm[1].YoyakuBiFrom.Value == CurrentHyperForm[1].YoyakuBiTo.Value &&
+                            CurrentHyperForm[1].YoyakuBiFrom.Value.Month == 2 && CurrentHyperForm[1].YoyakuBiFrom.Value.Day == 29)
+                        {
+                            isEnableSuperMenu = false;
+                        }
+                    }
+                }
+                if (isThisYear == 0)
+                {
+                    isEnableSuperMenu = true;
+                }
+            }
+            int x = Convert.ToInt32(ClientX);
+            int y = Convert.ToInt32(ClientY);
+            IndexOfMenuSeries = Index;
+            if (BarStaffSeriesLY && !IsFromGrid && (GraphPattern)Type != GraphPattern.PieSalePerGroupClassification)
+            {
+                IndexOfMenuSeries = IndexOfMenuSeries / 2;
+            }
+
+            string MenuId = GetMenuId(Index, Type);
+            if (!(string.IsNullOrEmpty(MenuId)))
+            {
+                await blazorContextMenuService.ShowMenu(MenuId, x, y);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    [JSInvokable]
+    public async Task HideMenu(int Index, int Type)
+    {
+        try
+        {
+            string MenuId = GetMenuId(Index, Type);
+            if (!(string.IsNullOrEmpty(MenuId)))
+            {
+                await blazorContextMenuService.HideMenu(MenuId);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private string GetMenuId(int Index, int Type)
+    {
+        try
+        {
+            string MenuId = "";
+            switch ((GraphPattern)Type)
+            {
+                case GraphPattern.LineSale:
+                    MenuId = "LineSaleSeriesMenu";
+                    break;
+                case GraphPattern.BarSalePerStaff:
+                    MenuId = "BarStaffSeriesMenu";
+                    break;
+                case GraphPattern.BarSalePerCustomer:
+                    MenuId = "BarCustomerSeriesMenu";
+                    break;
+                case GraphPattern.BarSalePerGroupClassification:
+                    if (!(string.IsNullOrEmpty(SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd)))
+                    {
+                        MenuId = "GroupClassificationSeriesMenu";
+                    }
+                    break;
+                case GraphPattern.PieSalePerGroupClassification:
+                    if (!(string.IsNullOrEmpty(SalePerGroupClassificationDayData[IndexOfMenuSeries].GroupClassificationCd)))
+                    {
+                        MenuId = "GroupClassificationSeriesMenu";
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return MenuId;
+        }
+        catch (Exception ex)
+        {
+            return "";
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async void MouseDownGrid(MouseEventArgs e, int index, byte _isThisYear)
+    {
+        try
+        {
+            if (!isDragComplete)
+            {
+                return;
+            }
+            isDragComplete = false;
+            isThisYear = _isThisYear;
+            await JSRuntime.InvokeAsync<string>("SelectTimeByGrid", index, SaleData.Count(), DotNetObjectReference.Create(this));
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async void MouseDownGridWCount(MouseEventArgs e, int index, byte _isThisYear)
+    {
+        try
+        {
+            if (!isDragComplete)
+            {
+                return;
+            }
+            isDragComplete = false;
+            isThisYear = _isThisYear;
+            index = index * 2;
+            await JSRuntime.InvokeAsync<string>("SelectTimeByGridWCount", index, SaleData.Count(), DotNetObjectReference.Create(this));
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private async void MouseClickGridNext(MouseEventArgs e, int index, int type, byte _isThisYear)
+    {
+        try
+        {
+            isThisYear = _isThisYear;
+            await ShowMenu(e.ClientX, e.ClientY, index, type, true);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void PreparePointColorForStaff(ChartSeriesPointCustomizationSettings pointSettings)
+    {
+        try
+        {
+            if (!BarStaffSeriesLY)
+            {
+                SalePerStaff item = (SalePerStaff)pointSettings.Point.DataItems.ToList()[0];
+                int index = SalePerStaffDayData.IndexOf(item);
+                if (index > 0)
+                {
+                    pointSettings.PointAppearance.Color = HyperDataService.GetColorByIndex(index);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    protected void PreparePointColorForCustomer(ChartSeriesPointCustomizationSettings pointSettings)
+    {
+        try
+        {
+            if (!BarCustomerSeriesLY)
+            {
+                SalePerCustomer item = (SalePerCustomer)pointSettings.Point.DataItems.ToList()[0];
+                int index = SalePerCustomerDayData.IndexOf(item);
+                if (index > 0)
+                {
+                    pointSettings.PointAppearance.Color = HyperDataService.GetColorByIndex(index);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected void PreparePointColorForGroup(ChartSeriesPointCustomizationSettings pointSettings)
+    {
+        try
+        {
+            if (!BarGroupClassificationSeriesLY)
+            {
+                SalePerGroupClassification item = (SalePerGroupClassification)pointSettings.Point.DataItems.ToList()[0];
+                int index = SalePerGroupClassificationDayData.IndexOf(item);
+                if (index > 0)
+                {
+                    pointSettings.PointAppearance.Color = HyperDataService.GetColorByIndex(index);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+
+    }
+
+    protected void GetVisibleChangeHandler(Boolean args)
+    {
+        try
+        {
+            LineSaleCountSeriesLY = args;
+            BarStaffSeriesLY = args;
+            BarCustomerSeriesLY = args;
+            BarGroupClassificationSeriesLY = args;
+            PieGroupClassificationSeriesLY = args;
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    protected async Task OpenSupermenu(SuperMenyTypeDisplay type, HyperFormData hyperForm)
+    {
+        try
+        {
+            string baseUrl = AppSettingsService.GetBaseUrl();
+            string QueryParam = hyperForm.ToQueryString();
+            string url = "";
+            url = baseUrl + string.Format("/supermenu?{0}&type={1}", QueryParam, (int)type);
+            await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    public async Task ExcelExport()
+    {
+        try
+        {
+            ExcelPackage excelPackage = new ExcelPackage();
+            for (int i = 0; i < GraphList.Count; i++)
+            {
+                GraphPattern Graph = GraphList[i];
+                switch (Graph)
+                {
+                    // 売上件数
+                    case GraphPattern.BarLineSaleQuan:
+                        AddSaleQuantitySheet(excelPackage, i);
+                        break;
+                    case GraphPattern.LineSale:
+                        if (int.Parse(type) != (int)GraphTypeDisplay.GraphOrganizationBar && int.Parse(type) != (int)GraphTypeDisplay.GraphOrganizationPie)
+                        {
+                            AddSaleSheet(excelPackage, i);
+                        }
+                        break;
+                    case GraphPattern.BarSalePerStaff:
+                        AddSalePerStaffSheet(excelPackage, i);
+                        break;
+                    case GraphPattern.BarSalePerCustomer:
+                        AddSalePerCustomerSheet(excelPackage, i);
+                        break;
+                    case GraphPattern.BarSalePerGroupClassification:
+                        AddSalePerGroupClassificationBarSheet(excelPackage, i);
+                        break;
+                    case GraphPattern.PieSalePerGroupClassification:
+                        AddSalePerGroupClassificationPieSheet(excelPackage, i);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            byte[] Base64Nyan = excelPackage.GetAsByteArray();
+            await BlazorDownloadFileService.DownloadFile(Lang["HyperGraph"] + DateTime.Now.ToString(CommonConstants.FormatYMDHMSNoSeparated) + ".xlsx", Base64Nyan, BufferSize, "application/octet-stream");
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSaleQuantitySheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["SalesCountComparison"] + (IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"]);
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSaleQuantity(worksheet, 5);
+            SetGraphForSaleQuantity(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSaleSheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["SalesComparison"] + (IsDisplayByDay ? Lang["PerDay"] : Lang["PerMonth"]);
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSale(worksheet, 5);
+            SetGraphForSale(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSalePerStaffSheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["SalesStaffPer"];
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSalePerStaff(worksheet, 5);
+            SetGraphForSalePerStaff(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSalePerCustomerSheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["CustomerPer"];
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSalePerCustomer(worksheet, 5);
+            SetGraphForSalePerCustomer(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSalePerGroupClassificationBarSheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["GroupClassificationPer"];
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSalePerGroup(worksheet, 5);
+            SetBarGraphForSalePerGroup(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void AddSalePerGroupClassificationPieSheet(ExcelPackage excelPackage, int index)
+    {
+        try
+        {
+            string Title = Lang["GroupClassificationPer"];
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(Title);
+            SetSheetTitle(worksheet, Title);
+            SetFilterConditionForSheet(worksheet, index);
+            SetTableDataForSalePerGroup(worksheet, 5);
+            SetPieGraphForSalePerGroup(worksheet, Title, 5);
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetSheetTitle(ExcelWorksheet worksheet, string title)
+    {
+        try
+        {
+            worksheet.Cells.Style.Font.Name = "ＭＳ Ｐゴシック";
+            worksheet.Cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            worksheet.Cells.Style.Fill.BackgroundColor.SetColor(Color.White);
+            ExcelRange TitleArea = worksheet.Cells["I2:Q3"];
+            // Merge cell
+            TitleArea.Merge = true;
+            // Border Setting
+            TitleArea.Style.Border.BorderAround(ExcelBorderStyle.Thick);
+            // Text Setting
+            TitleArea.Style.Font.Bold = true;
+            TitleArea.Style.Font.Size = 18;
+            // Alignment Setting
+            TitleArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            TitleArea.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            // Add Text
+            TitleArea.Value = title;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetFilterConditionForSheet(ExcelWorksheet worksheet, int index)
+    {
+        try
+        {
+            ExcelRange FilterTitleArea = worksheet.Cells["B5:G5"];
+            // Merge cell
+            FilterTitleArea.Merge = true;
+            // Border Setting
+            FilterTitleArea.Style.Border.Top.Style = ExcelBorderStyle.Medium;
+            FilterTitleArea.Style.Border.Left.Style = ExcelBorderStyle.Medium;
+            FilterTitleArea.Style.Border.Right.Style = ExcelBorderStyle.Medium;
+            // Text Setting
+            FilterTitleArea.Style.Font.Bold = true;
+            FilterTitleArea.Style.Font.Size = 12;
+            // Alignment Setting
+            FilterTitleArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            // Add Text
+            FilterTitleArea.Value = HyperMenuLang["SearchCondition"];
+            HyperFormData hyperFormDate = CurrentHyperForm[index];
+
+            int BeginRow = 6;
+            int StartRow = BeginRow;
+            string FromToSymbol = " ～ ";
+            while (true)
+            {
+                // Item Name Title
+                ExcelRange FilterItemNameArea = worksheet.Cells["B" + StartRow + ":C" + StartRow];
+                FilterItemNameArea.Merge = true;
+                FilterItemNameArea.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                FilterItemNameArea.Style.Border.Left.Style = ExcelBorderStyle.Medium;
+                FilterItemNameArea.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                FilterItemNameArea.Style.Font.Bold = StartRow == BeginRow;
+                FilterItemNameArea.Style.Font.Size = 11;
+                FilterItemNameArea.Style.HorizontalAlignment = StartRow == BeginRow ? ExcelHorizontalAlignment.Center : ExcelHorizontalAlignment.Left;
+
+                // Item Value Title
+                ExcelRange FilterItemValueArea = worksheet.Cells["D" + StartRow + ":G" + StartRow];
+                FilterItemValueArea.Merge = true;
+                FilterItemValueArea.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                FilterItemValueArea.Style.Border.Right.Style = ExcelBorderStyle.Medium;
+                FilterItemValueArea.Style.Font.Bold = StartRow == BeginRow;
+                FilterItemValueArea.Style.Font.Size = 11;
+                FilterItemValueArea.Style.HorizontalAlignment = StartRow == BeginRow ? ExcelHorizontalAlignment.Center : ExcelHorizontalAlignment.Left;
+                if (StartRow == BeginRow)
+                {
+                    FilterItemNameArea.Value = Lang["ItemName"];
+                    FilterItemValueArea.Value = Lang["Value"];
+                }
+
+                // 配車日
+                if (StartRow == BeginRow + 1)
+                {
+                    FilterItemNameArea.Value = HyperMenuLang["DispatchDate"];
+                    string Value = string.Empty;
+                    if (hyperFormDate.HaishaBiFrom != null)
+                    {
+                        Value += ((DateTime)hyperFormDate.HaishaBiFrom).ToString(CommonConstants.Format2YMDWithSlash) + FromToSymbol;
+                    }
+                    if (hyperFormDate.HaishaBiTo != null)
+                    {
+                        Value += (hyperFormDate.HaishaBiFrom == null ? FromToSymbol : string.Empty);
+                        Value += ((DateTime)hyperFormDate.HaishaBiTo).ToString(CommonConstants.Format2YMDWithSlash);
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 到着日
+                if (StartRow == BeginRow + 2)
+                {
+                    FilterItemNameArea.Value = HyperMenuLang["ArrivalDate"];
+                    string Value = string.Empty;
+                    if (hyperFormDate.TochakuBiFrom != null)
+                    {
+                        Value += ((DateTime)hyperFormDate.TochakuBiFrom).ToString(CommonConstants.Format2YMDWithSlash) + FromToSymbol;
+                    }
+                    if (hyperFormDate.TochakuBiTo != null)
+                    {
+                        Value += (hyperFormDate.TochakuBiFrom == null ? FromToSymbol : string.Empty);
+                        Value += ((DateTime)hyperFormDate.TochakuBiTo).ToString(CommonConstants.Format2YMDWithSlash);
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 予約日
+                if (StartRow == BeginRow + 3)
+                {
+                    FilterItemNameArea.Value = HyperMenuLang["ReserveDate"];
+                    string Value = string.Empty;
+                    if (hyperFormDate.YoyakuBiFrom != null)
+                    {
+                        Value += ((DateTime)hyperFormDate.YoyakuBiFrom).ToString(CommonConstants.Format2YMDWithSlash) + FromToSymbol;
+                    }
+                    if (hyperFormDate.YoyakuBiTo != null)
+                    {
+                        Value += (hyperFormDate.YoyakuBiFrom == null ? FromToSymbol : string.Empty);
+                        Value += ((DateTime)hyperFormDate.YoyakuBiTo).ToString(CommonConstants.Format2YMDWithSlash);
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 受付番号
+                if (StartRow == BeginRow + 4)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["ReceiptNumber"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.UketsukeBangoFrom != null)
+                    {
+                        Value += hyperFormDate.UketsukeBangoFrom.PadLeft(10, '0') + FromToSymbol;
+                    }
+                    if (hyperFormDate.UketsukeBangoTo != null)
+                    {
+                        Value += (hyperFormDate.UketsukeBangoFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.UketsukeBangoTo.PadLeft(10, '0');
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 団体名
+                if (StartRow == BeginRow + 5)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["DantaiNm"]).Split('：', ':'));
+                    FilterItemValueArea.Value = hyperFormDate.DantaiNm;
+                }
+
+                // 予約区分
+                if (StartRow == BeginRow + 6)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["ReservationClassification"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.YoyakuFrom != null)
+                    {
+                        Value += hyperFormDate.YoyakuFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.YoyakuTo != null)
+                    {
+                        Value += (hyperFormDate.YoyakuFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.YoyakuTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 営業担当
+                if (StartRow == BeginRow + 7)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["SalesStaff"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.EigyoTantoShaFrom != null)
+                    {
+                        Value += hyperFormDate.EigyoTantoShaFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.EigyoTantoShaTo != null)
+                    {
+                        Value += (hyperFormDate.EigyoTantoShaFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.EigyoTantoShaTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 受付営業所
+                if (StartRow == BeginRow + 8)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["RegistrationOffice"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.UketsukeEigyoJoFrom != null)
+                    {
+                        Value += hyperFormDate.UketsukeEigyoJoFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.UketsukeEigyoJoTo != null)
+                    {
+                        Value += (hyperFormDate.UketsukeEigyoJoFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.UketsukeEigyoJoTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 入力担当
+                if (StartRow == BeginRow + 9)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["InputStaff"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.NyuryokuTantoShaFrom != null)
+                    {
+                        Value += hyperFormDate.NyuryokuTantoShaFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.NyuryokuTantoShaTo != null)
+                    {
+                        Value += (hyperFormDate.NyuryokuTantoShaFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.NyuryokuTantoShaTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 得意先
+                if (StartRow == BeginRow + 10)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["Customer"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.TokiskTokuiSakiFrom != null)
+                    {
+                        Value += hyperFormDate.TokiskTokuiSakiFrom.Text;
+                    }
+                    if (hyperFormDate.TokiStTokuiSakiFrom != null)
+                    {
+                        Value += " " + hyperFormDate.TokiStTokuiSakiFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.TokiskTokuiSakiTo != null)
+                    {
+                        Value += ((hyperFormDate.TokiskTokuiSakiFrom == null || hyperFormDate.TokiStTokuiSakiFrom == null) ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.TokiskTokuiSakiTo.Text;
+                    }
+                    if (hyperFormDate.TokiStTokuiSakiTo != null)
+                    {
+                        Value += " " + hyperFormDate.TokiStTokuiSakiTo.Text + FromToSymbol;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 仕入先
+                if (StartRow == BeginRow + 11)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["Supplier"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.TokiskShiireSakiFrom != null)
+                    {
+                        Value += hyperFormDate.TokiskShiireSakiFrom.Text;
+                    }
+                    if (hyperFormDate.TokiStShiireSakiFrom != null)
+                    {
+                        Value += " " + hyperFormDate.TokiStShiireSakiFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.TokiskShiireSakiTo != null)
+                    {
+                        Value += ((hyperFormDate.TokiskShiireSakiFrom == null || hyperFormDate.TokiStShiireSakiFrom == null) ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.TokiskShiireSakiTo.Text;
+                    }
+                    if (hyperFormDate.TokiStShiireSakiTo != null)
+                    {
+                        Value += " " + hyperFormDate.TokiStShiireSakiTo.Text + FromToSymbol;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 団体区分
+                if (StartRow == BeginRow + 12)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["GroupClassification"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.DantaiKbnFrom != null)
+                    {
+                        Value += hyperFormDate.DantaiKbnFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.DantaiKbnTo != null)
+                    {
+                        Value += (hyperFormDate.DantaiKbnFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.DantaiKbnTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 客種区分
+                if (StartRow == BeginRow + 13)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["CustomerTypeClassification"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.KyakuDaneKbnFrom != null)
+                    {
+                        Value += hyperFormDate.KyakuDaneKbnFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.KyakuDaneKbnTo != null)
+                    {
+                        Value += (hyperFormDate.KyakuDaneKbnFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.KyakuDaneKbnTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 行先
+                if (StartRow == BeginRow + 14)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["Destination"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.YukiSakiFrom != null)
+                    {
+                        Value += hyperFormDate.YukiSakiFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.YukiSakiTo != null)
+                    {
+                        Value += (hyperFormDate.YukiSakiFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.YukiSakiTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 配車地
+                if (StartRow == BeginRow + 15)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["DispatchPlace"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.HaishaChiFrom != null)
+                    {
+                        Value += hyperFormDate.HaishaChiFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.HaishaChiTo != null)
+                    {
+                        Value += (hyperFormDate.HaishaChiFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.HaishaChiTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 発生地
+                if (StartRow == BeginRow + 16)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["OccurrencePlace"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.HasseiChiFrom != null)
+                    {
+                        Value += hyperFormDate.HasseiChiFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.HasseiChiTo != null)
+                    {
+                        Value += (hyperFormDate.HasseiChiFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.HasseiChiTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // エリア
+                if (StartRow == BeginRow + 17)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["Area"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.AreaFrom != null)
+                    {
+                        Value += hyperFormDate.AreaFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.AreaTo != null)
+                    {
+                        Value += (hyperFormDate.AreaFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.AreaTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 車種
+                if (StartRow == BeginRow + 18)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["BusType"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.ShashuFrom != null)
+                    {
+                        Value += hyperFormDate.ShashuFrom.Text + FromToSymbol;
+                    }
+                    if (hyperFormDate.ShashuTo != null)
+                    {
+                        Value += (hyperFormDate.ShashuFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.ShashuTo.Text;
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+
+                // 車種単価
+                if (StartRow == BeginRow + 19)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["BusTypePrice"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.ShashuTankaFrom != null)
+                    {
+                        Value += CommonUtil.CurencyFormat(hyperFormDate.ShashuTankaFrom) + FromToSymbol;
+                    }
+                    if (hyperFormDate.ShashuTankaTo != null)
+                    {
+                        Value += (hyperFormDate.ShashuTankaFrom == null ? FromToSymbol : string.Empty);
+                        Value += CommonUtil.CurencyFormat(hyperFormDate.ShashuTankaTo);
+                    }
+                    FilterItemValueArea.Value = Value;
+                }
+
+                // 受付条件
+                if (StartRow == BeginRow + 20)
+                {
+                    FilterItemNameArea.Value = String.Join("", ((string)HyperMenuLang["ReceiptCondition"]).Split('：', ':'));
+                    string Value = string.Empty;
+                    if (hyperFormDate.UketsukeJokenFrom != null)
+                    {
+                        Value += hyperFormDate.UketsukeJokenFrom.CodeKbnNm + FromToSymbol;
+                    }
+                    if (hyperFormDate.UketsukeJokenTo != null)
+                    {
+                        Value += (hyperFormDate.UketsukeJokenFrom == null ? FromToSymbol : string.Empty);
+                        Value += hyperFormDate.UketsukeJokenTo.CodeKbnNm;
+                    }
+                    FilterItemValueArea.Value = Value;
+                    // End Loop
+                    FilterItemNameArea.Style.Border.Bottom.Style = ExcelBorderStyle.Medium;
+                    FilterItemValueArea.Style.Border.Bottom.Style = ExcelBorderStyle.Medium;
+                    break;
+                }
+                StartRow++;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+    private void SetTableDataForSaleQuantity(ExcelWorksheet worksheet, int StartIndex)
+    {
+        try
+        {
+            // Empty
+            ExcelRange EmptyArea = worksheet.Cells["S4:U4"];
+            EmptyArea.Merge = true;
+            // Header Label
+            ExcelRange HeaderArea = worksheet.Cells["V4:X4"];
+            worksheet.Cells["V4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["V4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(59, 185, 153));
+            worksheet.Cells["W4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["W4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 140, 0));
+            worksheet.Cells["X4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["X4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+            HeaderArea.Style.Font.Color.SetColor(Color.White);
+            HeaderArea.Style.Font.Bold = true;
+            HeaderArea.Style.Font.Size = 12;
+            HeaderArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            object[] Header = new object[] { SaleData[0].Time.Year.ToString(), (SaleData[0].Time.Year - 1).ToString(), Lang["CompareYear"] };
+            HeaderArea.LoadFromArrays(new List<object[]> { Header.ToArray() });
+            // Data
+            int IndexDifferent = 0;
+            for (int i = 0; i < SaleData.Count; i++)
+            {
+                // Date
+                ExcelRange DateRange = worksheet.Cells["S" + (StartIndex + i * 2) + ":T" + (StartIndex + i * 2 + 1)];
+                DateRange.Merge = true;
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 1)
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 205, 255));
+                }
+                else if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 2)
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(243, 78, 78));
+                }
+                else
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+                }
+                DateRange.Style.Font.Bold = true;
+                DateRange.Style.Font.Size = 11;
+                DateRange.Style.Font.Color.SetColor(Color.White);
+                DateRange.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                DateRange.Value = SaleData[i].Time.ToString(FormatStringDay);
+
+                // Count title
+                ExcelRange CountTitleRange = worksheet.Cells["U" + (StartIndex + i * 2)];
+                CountTitleRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 1)
+                {
+                    CountTitleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 205, 255));
+                }
+                else if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 2)
+                {
+                    CountTitleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(243, 78, 78));
+                }
+                else
+                {
+                    CountTitleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+                }
+                CountTitleRange.Style.Font.Size = 11;
+                CountTitleRange.Style.Font.Color.SetColor(Color.White);
+                CountTitleRange.Value = Lang["CountTitle"];
+
+                // Sale title
+                ExcelRange SaleTitleRange = worksheet.Cells["U" + (StartIndex + i * 2 + 1)];
+                SaleTitleRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleTitleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+                SaleTitleRange.Style.Font.Size = 11;
+                SaleTitleRange.Style.Font.Color.SetColor(Color.White);
+                SaleTitleRange.Value = Lang["SaleTitle"];
+
+                // Count Value of this year
+                ExcelRange CountValueThisYearRange = worksheet.Cells["V" + (StartIndex + i * 2)];
+                CountValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                CountValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                CountValueThisYearRange.Style.Font.Size = 11;
+                CountValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                CountValueThisYearRange.Value = SaleData[i].Count;
+
+                string CountValueLastYear = "";
+                string PercentCountValue = "";
+                string SaleValueLastYear = "";
+                string PercentSaleValue = "";
+                if (SaleData[i].Time.Month == 2 && SaleData[i].Time.Day == 29)
+                {
+                    IndexDifferent = 1;
+                    CountValueLastYear = "_";
+                    PercentCountValue = "_";
+                    SaleValueLastYear = "_";
+                    PercentSaleValue = "_";
+                }
+                else
+                {
+                    PercentCountValue = LastYearSaleData[i - IndexDifferent].Count == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Count / LastYearSaleData[i - IndexDifferent].Count), 1)) + "%";
+                    PercentSaleValue = LastYearSaleData[i - IndexDifferent].Sale == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Sale / LastYearSaleData[i - IndexDifferent].Sale), 1)) + "%";
+                }
+
+                // Count Value of last year
+                ExcelRange CountValueLastYearRange = worksheet.Cells["W" + (StartIndex + i * 2)];
+                CountValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                CountValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                CountValueLastYearRange.Style.Font.Size = 11;
+                CountValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                if (CountValueLastYear == string.Empty)
+                {
+                    CountValueLastYearRange.Value = LastYearSaleData[i - IndexDifferent].Count;
+                }
+                else
+                {
+                    CountValueLastYearRange.Value = CountValueLastYear;
+                }
+
+
+                // 前年比
+                ExcelRange PercentCountRange = worksheet.Cells["X" + (StartIndex + i * 2)];
+                PercentCountRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                PercentCountRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                PercentCountRange.Style.Font.Size = 11;
+                PercentCountRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                PercentCountRange.Value = PercentCountValue;
+
+                // Sale Value of this year
+                string CurrrencySymbol = NumberFormatInfo.CurrentInfo.CurrencySymbol;
+                ExcelRange SaleValueThisYearRange = worksheet.Cells["V" + (StartIndex + i * 2 + 1)];
+                SaleValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueThisYearRange.Style.Font.Size = 11;
+                SaleValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueThisYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueThisYearRange.Value = SaleData[i].Sale;
+
+                // Sale Value of last year
+                ExcelRange SaleValueLastYearRange = worksheet.Cells["W" + (StartIndex + i * 2 + 1)];
+                SaleValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueLastYearRange.Style.Font.Size = 11;
+                SaleValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueLastYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueLastYearRange.Value = SaleValueLastYear;
+                if (SaleValueLastYear == string.Empty)
+                {
+                    SaleValueLastYearRange.Value = LastYearSaleData[i - IndexDifferent].Sale;
+                }
+                else
+                {
+                    SaleValueLastYearRange.Value = SaleValueLastYear;
+                }
+
+                // 前年比
+                ExcelRange PercentSaleRange = worksheet.Cells["X" + (StartIndex + i * 2 + 1)];
+                PercentSaleRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                PercentSaleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                PercentSaleRange.Style.Font.Size = 11;
+                PercentSaleRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                PercentSaleRange.Value = PercentSaleValue;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+    private void SetGraphForSaleQuantity(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "";
+            string RangeForCountThisYear = "";
+            string RangeForCountLastYear = "";
+            string RangeForSaleThisYear = "";
+            string RangeForSaleLastYear = "";
+            for (int i = 0; i < SaleData.Count; i++)
+            {
+                RangeForDate += ("S" + (i * 2 + StartIndex));
+                RangeForCountThisYear += ("V" + (i * 2 + StartIndex));
+                RangeForCountLastYear += ("W" + (i * 2 + StartIndex));
+                RangeForSaleThisYear += ("V" + (i * 2 + 1 + StartIndex));
+                RangeForSaleLastYear += ("W" + (i * 2 + 1 + StartIndex));
+                if (i != SaleData.Count - 1)
+                {
+                    RangeForDate += ",";
+                    RangeForCountThisYear += ",";
+                    RangeForCountLastYear += ",";
+                    RangeForSaleThisYear += ",";
+                    RangeForSaleLastYear += ",";
+                }
+            }
+
+            ExcelBarChart barChart = worksheet.Drawings.AddChart("barChart", eChartType.ColumnClustered) as ExcelBarChart;
+            barChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.Title.Text = Title;
+            barChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            barChart.Series[0].Header = SaleData[0].Time.Year + " " + Lang["SaleTitle"];
+            barChart.Series[0].Fill.Color = Color.FromArgb(59, 185, 153);
+            if (LineSaleCountSeriesLY)
+            {
+                barChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                barChart.Series[1].Header = SaleData[0].Time.Year - 1 + " " + Lang["SaleTitle"];
+                barChart.Series[1].Fill.Color = Color.FromArgb(255, 140, 0);
+            }
+            ExcelLineChart lineChart = barChart.PlotArea.ChartTypes.Add(eChartType.Line) as ExcelLineChart;
+            ExcelLineChartSerie lineChartSeries = (ExcelLineChartSerie)lineChart.Series.Add(worksheet.Cells[RangeForCountThisYear], worksheet.Cells[RangeForDate]);
+            lineChartSeries.Header = SaleData[0].Time.Year + " " + Lang["CountTitle"];
+            lineChartSeries.LineColor = Color.FromArgb(186, 237, 176);
+            if (LineSaleCountSeriesLY)
+            {
+                ExcelLineChartSerie xlineChartSeries = (ExcelLineChartSerie)lineChart.Series.Add(worksheet.Cells[RangeForCountLastYear], worksheet.Cells[RangeForDate]);
+                xlineChartSeries.Header = SaleData[0].Time.Year - 1 + " " + Lang["CountTitle"];
+                xlineChartSeries.LineColor = Color.FromArgb(79, 195, 247);
+            }
+            lineChart.UseSecondaryAxis = true;
+            lineChart.Axis[1].Title.Text = Lang["SaleTitle"];
+            lineChart.Axis[1].Title.Font.Size = 11;
+            lineChart.Axis[3].Title.Text = Lang["CountTitle"];
+            lineChart.Axis[3].Title.Font.Size = 11;
+            lineChart.Axis[3].Title.Rotation = 90;
+            barChart.Legend.Position = eLegendPosition.Bottom;
+            barChart.SetSize(579, 400);
+            barChart.SetPosition(5, 0, 8, 0);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetTableDataForSale(ExcelWorksheet worksheet, int StartIndex)
+    {
+        try
+        {
+            // Empty
+            ExcelRange EmptyArea = worksheet.Cells["S4:T4"];
+            EmptyArea.Merge = true;
+            // Header Label
+            ExcelRange HeaderArea = worksheet.Cells["U4:W4"];
+            worksheet.Cells["U4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["U4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(59, 185, 153));
+            worksheet.Cells["V4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["V4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 140, 0));
+            worksheet.Cells["W4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["W4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+            HeaderArea.Style.Font.Color.SetColor(Color.White);
+            HeaderArea.Style.Font.Bold = true;
+            HeaderArea.Style.Font.Size = 12;
+            HeaderArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            object[] Header = new object[] { SaleData[0].Time.Year.ToString(), (SaleData[0].Time.Year - 1).ToString(), Lang["CompareYear"] };
+            HeaderArea.LoadFromArrays(new List<object[]> { Header.ToArray() });
+            // Data
+            int IndexDifferent = 0;
+            for (int i = 0; i < SaleData.Count; i++)
+            {
+                // Date
+                ExcelRange DateRange = worksheet.Cells["S" + (StartIndex + i) + ":T" + (StartIndex + i)];
+                DateRange.Merge = true;
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 1)
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 205, 255));
+                }
+                else if ((int.Parse(type) == 1 || int.Parse(type) == 3 || int.Parse(type) == 7 || int.Parse(type) == 9) && CheckWeeken(SaleData[i].Time) == 2)
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(243, 78, 78));
+                }
+                else
+                {
+                    DateRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(120, 138, 151));
+                }
+                DateRange.Style.Font.Bold = true;
+                DateRange.Style.Font.Size = 11;
+                DateRange.Style.Font.Color.SetColor(Color.White);
+                DateRange.Value = SaleData[i].Time.ToString(FormatStringDay);
+
+                string SaleValueLastYear = "";
+                string PercentSaleValue = "";
+                if (SaleData[i].Time.Month == 2 && SaleData[i].Time.Day == 29)
+                {
+                    IndexDifferent = 1;
+                    SaleValueLastYear = "_";
+                    PercentSaleValue = "_";
+                }
+                else
+                {
+                    PercentSaleValue = LastYearSaleData[i - IndexDifferent].Sale == 0 ? "_" : string.Format("{0:#,##0.0}", Math.Round((100.0 * SaleData[i].Sale / LastYearSaleData[i - IndexDifferent].Sale), 1)) + "%";
+                }
+
+                // Sale Value of this year
+                string CurrrencySymbol = NumberFormatInfo.CurrentInfo.CurrencySymbol;
+                ExcelRange SaleValueThisYearRange = worksheet.Cells["U" + (StartIndex + i)];
+                SaleValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueThisYearRange.Style.Font.Size = 11;
+                SaleValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueThisYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueThisYearRange.Value = SaleData[i].Sale;
+
+                // Sale Value of last year
+                ExcelRange SaleValueLastYearRange = worksheet.Cells["V" + (StartIndex + i)];
+                SaleValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueLastYearRange.Style.Font.Size = 11;
+                SaleValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueLastYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueLastYearRange.Value = SaleValueLastYear;
+                if (SaleValueLastYear == string.Empty)
+                {
+                    SaleValueLastYearRange.Value = LastYearSaleData[i - IndexDifferent].Sale;
+                }
+                else
+                {
+                    SaleValueLastYearRange.Value = SaleValueLastYear;
+                }
+
+                // 前年比
+                ExcelRange PercentSaleRange = worksheet.Cells["W" + (StartIndex + i)];
+                PercentSaleRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                PercentSaleRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                PercentSaleRange.Style.Font.Size = 11;
+                PercentSaleRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                PercentSaleRange.Value = PercentSaleValue;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetGraphForSale(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "S" + StartIndex + ":S" + (StartIndex + SaleData.Count - 1);
+            string RangeForSaleThisYear = "U" + StartIndex + ":U" + (StartIndex + SaleData.Count - 1);
+            string RangeForSaleLastYear = "V" + StartIndex + ":V" + (StartIndex + SaleData.Count - 1);
+
+            ExcelLineChart lineChart = worksheet.Drawings.AddChart("lineChart", eChartType.Line) as ExcelLineChart;
+            lineChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            lineChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            lineChart.Title.Text = Title;
+            ExcelLineChartSerie lineChartSeries = (ExcelLineChartSerie)lineChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            lineChartSeries.Header = SaleData[0].Time.Year + " " + Lang["SaleTitle"];
+            lineChartSeries.LineColor = Color.FromArgb(59, 185, 153);
+            if (LineSaleCountSeriesLY)
+            {
+                ExcelLineChartSerie xlineChartSeries = (ExcelLineChartSerie)lineChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                xlineChartSeries.Header = SaleData[0].Time.Year - 1 + " " + Lang["SaleTitle"];
+                xlineChartSeries.LineColor = Color.FromArgb(255, 140, 0);
+            }
+            lineChart.Legend.Position = eLegendPosition.Bottom;
+            lineChart.SetSize(579, 400);
+            lineChart.SetPosition(5, 0, 8, 0);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetTableDataForSalePerStaff(ExcelWorksheet worksheet, int StartIndex)
+    {
+
+        try
+        {
+            // Empty
+            ExcelRange EmptyArea = worksheet.Cells["S4:T4"];
+            EmptyArea.Merge = true;
+            // Header Label
+            ExcelRange HeaderArea = worksheet.Cells["U4:V4"];
+            worksheet.Cells["U4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["U4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(59, 185, 153));
+            worksheet.Cells["V4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["V4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 140, 0));
+            HeaderArea.Style.Font.Color.SetColor(Color.White);
+            HeaderArea.Style.Font.Bold = true;
+            HeaderArea.Style.Font.Size = 12;
+            HeaderArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            object[] Header = new object[] { SaleData[0].Time.Year.ToString(), (SaleData[0].Time.Year - 1).ToString() };
+            HeaderArea.LoadFromArrays(new List<object[]> { Header.ToArray() });
+            // Data
+            for (int i = 0; i <= SalePerStaffDayData.Count; i++)
+            {
+                // Name
+                ExcelRange DateRange = worksheet.Cells["S" + (StartIndex + i) + ":T" + (StartIndex + i)];
+                DateRange.Merge = true;
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                Color BorderColor = BarStaffSeriesLY || i == SalePerStaffDayData.Count ? Color.FromArgb(120, 138, 151) : HyperDataService.GetColorByIndex(i);
+                DateRange.Style.Fill.BackgroundColor.SetColor(BorderColor);
+                DateRange.Style.Font.Bold = true;
+                DateRange.Style.Font.Size = 11;
+                DateRange.Style.Font.Color.SetColor(Color.White);
+                DateRange.Value = i < SalePerStaffDayData.Count ? SalePerStaffDayData[i].StaffName : Lang["Total"];
+
+                // Sale Value of this year
+                string CurrrencySymbol = NumberFormatInfo.CurrentInfo.CurrencySymbol;
+                ExcelRange SaleValueThisYearRange = worksheet.Cells["U" + (StartIndex + i)];
+                SaleValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueThisYearRange.Style.Font.Size = 11;
+                SaleValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueThisYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueThisYearRange.Value = i < SalePerStaffDayData.Count ? SalePerStaffDayData[i].Sale : TotalByStaff;
+
+                // Sale Value of last year
+                ExcelRange SaleValueLastYearRange = worksheet.Cells["V" + (StartIndex + i)];
+                SaleValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueLastYearRange.Style.Font.Size = 11;
+                SaleValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueLastYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueLastYearRange.Value = i < SalePerStaffDayData.Count ? SalePerStaffDayDataLastYear[i].Sale : TotalByStaffLastYear;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetGraphForSalePerStaff(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "S" + StartIndex + ":S" + (StartIndex + SalePerStaffDayData.Count - 1);
+            string RangeForSaleThisYear = "U" + StartIndex + ":U" + (StartIndex + SalePerStaffDayData.Count - 1);
+            string RangeForSaleLastYear = "V" + StartIndex + ":V" + (StartIndex + SalePerStaffDayData.Count - 1);
+
+            ExcelBarChart barChart = worksheet.Drawings.AddChart("barChart", eChartType.ColumnClustered) as ExcelBarChart;
+            barChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.Title.Text = Title;
+            barChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            if (BarStaffSeriesLY)
+            {
+                barChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                barChart.Series[0].Fill.Color = Color.FromArgb(59, 185, 153);
+                barChart.Series[1].Fill.Color = Color.FromArgb(255, 140, 0);
+            }
+            else
+            {
+                SetChartPointColors(barChart.ChartXml, worksheet, barChart.Series[0], barChart.Name, SalePerStaffDayData.Count);
+            }
+            barChart.Legend.Remove();
+            barChart.SetSize(579, 400);
+            barChart.SetPosition(5, 0, 8, 0);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetTableDataForSalePerCustomer(ExcelWorksheet worksheet, int StartIndex)
+    {
+        try
+        {
+            // Empty
+            ExcelRange EmptyArea = worksheet.Cells["S4:T4"];
+            EmptyArea.Merge = true;
+            // Header Label
+            ExcelRange HeaderArea = worksheet.Cells["U4:V4"];
+            worksheet.Cells["U4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["U4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(59, 185, 153));
+            worksheet.Cells["V4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["V4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 140, 0));
+            HeaderArea.Style.Font.Color.SetColor(Color.White);
+            HeaderArea.Style.Font.Bold = true;
+            HeaderArea.Style.Font.Size = 12;
+            HeaderArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            object[] Header = new object[] { SaleData[0].Time.Year.ToString(), (SaleData[0].Time.Year - 1).ToString() };
+            HeaderArea.LoadFromArrays(new List<object[]> { Header.ToArray() });
+            // Data
+            for (int i = 0; i <= SalePerCustomerDayData.Count; i++)
+            {
+                // Name
+                ExcelRange DateRange = worksheet.Cells["S" + (StartIndex + i) + ":T" + (StartIndex + i)];
+                DateRange.Merge = true;
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                Color BorderColor = BarStaffSeriesLY || i == SalePerCustomerDayData.Count ? Color.FromArgb(120, 138, 151) : HyperDataService.GetColorByIndex(i);
+                DateRange.Style.Fill.BackgroundColor.SetColor(BorderColor);
+                DateRange.Style.Font.Bold = true;
+                DateRange.Style.Font.Size = 11;
+                DateRange.Style.Font.Color.SetColor(Color.White);
+                DateRange.Value = i < SalePerCustomerDayData.Count ? SalePerCustomerDayData[i].CustomerName + ' ' + SalePerCustomerDayData[i].BranchName : Lang["Total"];
+
+                // Sale Value of this year
+                string CurrrencySymbol = NumberFormatInfo.CurrentInfo.CurrencySymbol;
+                ExcelRange SaleValueThisYearRange = worksheet.Cells["U" + (StartIndex + i)];
+                SaleValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueThisYearRange.Style.Font.Size = 11;
+                SaleValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueThisYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueThisYearRange.Value = i < SalePerCustomerDayData.Count ? SalePerCustomerDayData[i].Sale : TotalByCustomer;
+
+                // Sale Value of last year
+                ExcelRange SaleValueLastYearRange = worksheet.Cells["V" + (StartIndex + i)];
+                SaleValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueLastYearRange.Style.Font.Size = 11;
+                SaleValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueLastYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueLastYearRange.Value = i < SalePerCustomerDayData.Count ? SalePerCustomerDayDataLastYear[i].Sale : TotalByCustomerLastYear;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+
+    private void SetGraphForSalePerCustomer(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "S" + StartIndex + ":S" + (StartIndex + SalePerCustomerDayData.Count - 1);
+            string RangeForSaleThisYear = "U" + StartIndex + ":U" + (StartIndex + SalePerCustomerDayData.Count - 1);
+            string RangeForSaleLastYear = "V" + StartIndex + ":V" + (StartIndex + SalePerCustomerDayData.Count - 1);
+
+            ExcelBarChart barChart = worksheet.Drawings.AddChart("barChart", eChartType.ColumnClustered) as ExcelBarChart;
+            barChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.Title.Text = Title;
+            barChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            if (BarCustomerSeriesLY)
+            {
+                barChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                barChart.Series[0].Fill.Color = Color.FromArgb(59, 185, 153);
+                barChart.Series[1].Fill.Color = Color.FromArgb(255, 140, 0);
+            }
+            else
+            {
+                SetChartPointColors(barChart.ChartXml, worksheet, barChart.Series[0], barChart.Name, SalePerCustomerDayData.Count);
+            }
+            barChart.Legend.Remove();
+            barChart.SetSize(579, 400);
+            barChart.SetPosition(5, 0, 8, 0);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetTableDataForSalePerGroup(ExcelWorksheet worksheet, int StartIndex)
+    {
+
+        try
+        {
+            // Empty
+            ExcelRange EmptyArea = worksheet.Cells["S4:T4"];
+            EmptyArea.Merge = true;
+            // Header Label
+            ExcelRange HeaderArea = worksheet.Cells["U4:V4"];
+            worksheet.Cells["U4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["U4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(59, 185, 153));
+            worksheet.Cells["V4"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+            worksheet.Cells["V4"].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 140, 0));
+            HeaderArea.Style.Font.Color.SetColor(Color.White);
+            HeaderArea.Style.Font.Bold = true;
+            HeaderArea.Style.Font.Size = 12;
+            HeaderArea.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            object[] Header = new object[] { SaleData[0].Time.Year.ToString(), (SaleData[0].Time.Year - 1).ToString() };
+            HeaderArea.LoadFromArrays(new List<object[]> { Header.ToArray() });
+            // Data
+            for (int i = 0; i <= SalePerGroupClassificationDayData.Count; i++)
+            {
+
+                // Name
+                ExcelRange DateRange = worksheet.Cells["S" + (StartIndex + i) + ":T" + (StartIndex + i)];
+                DateRange.Merge = true;
+                DateRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                Color BorderColor = BarStaffSeriesLY || i == SalePerGroupClassificationDayData.Count ? Color.FromArgb(120, 138, 151) : HyperDataService.GetColorByIndex(i);
+                DateRange.Style.Fill.BackgroundColor.SetColor(BorderColor);
+                DateRange.Style.Font.Bold = true;
+                DateRange.Style.Font.Size = 11;
+                DateRange.Style.Font.Color.SetColor(Color.White);
+                DateRange.Value = i < SalePerGroupClassificationDayData.Count ? SalePerGroupClassificationDayData[i].GroupClassificationName : Lang["Total"];
+
+                // Sale Value of this year
+                string CurrrencySymbol = NumberFormatInfo.CurrentInfo.CurrencySymbol;
+                ExcelRange SaleValueThisYearRange = worksheet.Cells["U" + (StartIndex + i)];
+                SaleValueThisYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueThisYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueThisYearRange.Style.Font.Size = 11;
+                SaleValueThisYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueThisYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueThisYearRange.Value = i < SalePerGroupClassificationDayData.Count ? SalePerGroupClassificationDayData[i].Sale : TotalByGroupClassification;
+
+                // Sale Value of last year
+                ExcelRange SaleValueLastYearRange = worksheet.Cells["V" + (StartIndex + i)];
+                SaleValueLastYearRange.Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.White);
+                SaleValueLastYearRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(249, 248, 249));
+                SaleValueLastYearRange.Style.Font.Size = 11;
+                SaleValueLastYearRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                SaleValueLastYearRange.Style.Numberformat.Format = CurrrencySymbol + "#,##";
+                SaleValueLastYearRange.Value = i < SalePerGroupClassificationDayData.Count ? SalePerGroupClassificationDayDataLastYear[i].Sale : TotalByGroupClassificationLastYear;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void SetBarGraphForSalePerGroup(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "S" + StartIndex + ":S" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+            string RangeForSaleThisYear = "U" + StartIndex + ":U" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+            string RangeForSaleLastYear = "V" + StartIndex + ":V" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+
+            ExcelBarChart barChart = worksheet.Drawings.AddChart("barChart", eChartType.ColumnClustered) as ExcelBarChart;
+            barChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            barChart.Title.Text = Title;
+            barChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            if (BarGroupClassificationSeriesLY)
+            {
+                barChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                barChart.Series[0].Fill.Color = Color.FromArgb(59, 185, 153);
+                barChart.Series[1].Fill.Color = Color.FromArgb(255, 140, 0);
+            }
+            else
+            {
+                SetChartPointColors(barChart.ChartXml, worksheet, barChart.Series[0], barChart.Name, SalePerGroupClassificationDayData.Count);
+            }
+            barChart.Legend.Remove();
+            barChart.SetSize(579, 400);
+            barChart.SetPosition(5, 0, 8, 0);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetPieGraphForSalePerGroup(ExcelWorksheet worksheet, string Title, int StartIndex)
+    {
+        try
+        {
+            string RangeForDate = "S" + StartIndex + ":S" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+            string RangeForSaleThisYear = "U" + StartIndex + ":U" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+            string RangeForSaleLastYear = "V" + StartIndex + ":V" + (StartIndex + SalePerGroupClassificationDayData.Count - 1);
+
+            ExcelPieChart pieChart = worksheet.Drawings.AddChart("pieChart", eChartType.Pie) as ExcelPieChart;
+            pieChart.Fill.Color = Color.FromArgb(255, 248, 228);
+            pieChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+            pieChart.Title.Text = Title + "(" + (SalePerGroupClassificationDayData.Count > 0 ? SalePerGroupClassificationDayData[0].Time.Year.ToString() : string.Empty) + ")";
+            pieChart.Series.Add(worksheet.Cells[RangeForSaleThisYear], worksheet.Cells[RangeForDate]);
+            SetChartPointColors(pieChart.ChartXml, worksheet, pieChart.Series[0], pieChart.Name, SalePerGroupClassificationDayData.Count);
+            pieChart.Legend.Position = eLegendPosition.Bottom;
+            pieChart.SetSize(579, 400);
+            pieChart.SetPosition(5, 0, 8, 0);
+            if (PieGroupClassificationSeriesLY)
+            {
+                ExcelPieChart xPieChart = worksheet.Drawings.AddChart("pieChart2", eChartType.Pie) as ExcelPieChart;
+                xPieChart.Fill.Color = Color.FromArgb(255, 248, 228);
+                xPieChart.PlotArea.Fill.Color = Color.FromArgb(255, 248, 228);
+                xPieChart.Title.Text = Title + "(" + (SalePerGroupClassificationDayDataLastYear.Count > 0 ? SalePerGroupClassificationDayDataLastYear[0].Time.Year.ToString() : string.Empty) + ")";
+                xPieChart.Series.Add(worksheet.Cells[RangeForSaleLastYear], worksheet.Cells[RangeForDate]);
+                SetChartPointColors(xPieChart.ChartXml, worksheet, xPieChart.Series[0], pieChart.Name, SalePerGroupClassificationDayData.Count);
+                xPieChart.Legend.Position = eLegendPosition.Bottom;
+                xPieChart.SetSize(579, 400);
+                xPieChart.SetPosition(26, 0, 8, 0);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void SetChartPointColors(XmlDocument chartXml, ExcelWorksheet worksheet, ExcelChartSerie serie, string name, int Length)
+    {
+        try
+        {
+            string nsa = worksheet.Drawings.NameSpaceManager.LookupNamespace("a");
+            string nsuri = chartXml.DocumentElement.NamespaceURI;
+            XmlNamespaceManager nsm = new XmlNamespaceManager(chartXml.NameTable);
+            nsm.AddNamespace("a", nsa);
+            nsm.AddNamespace("c", nsuri);
+            XmlNode serieNode = chartXml.SelectSingleNode(@"c:chartSpace/c:chart/c:plotArea/c:" + name + "/c:ser[c:idx[@val='0']]", nsm);
+            for (int i = 0; i < Length; i++)
+            {
+                XmlNode dPt = chartXml.CreateNode(XmlNodeType.Element, "dPt", nsuri);
+                XmlNode idx = chartXml.CreateNode(XmlNodeType.Element, "idx", nsuri);
+                XmlAttribute att = chartXml.CreateAttribute("val", nsuri);
+                att.Value = i.ToString();
+                idx.Attributes.Append(att);
+                dPt.AppendChild(idx);
+
+                XmlNode srgbClr = chartXml.CreateNode(XmlNodeType.Element, "srgbClr", nsa);
+                att = chartXml.CreateAttribute("val");
+
+                Color color = HyperDataService.GetColorByIndex(i);
+                att.Value = $"{color.R:X2}{color.G:X2}{color.B:X2}";
+                srgbClr.Attributes.Append(att);
+
+                XmlNode solidFill = chartXml.CreateNode(XmlNodeType.Element, "solidFill", nsa);
+                solidFill.AppendChild(srgbClr);
+
+                XmlNode spPr = chartXml.CreateNode(XmlNodeType.Element, "spPr", nsuri);
+                spPr.AppendChild(solidFill);
+
+                dPt.AppendChild(spPr);
+                serieNode.AppendChild(dPt);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup(Lang["Error"], ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private int CheckWeeken(DateTime cDay) // 0: nomal day, 1: Saturday, 2: Sunday
+    {
+        switch (cDay.DayOfWeek)
+        {
+            case DayOfWeek.Monday:
+            case DayOfWeek.Tuesday:
+            case DayOfWeek.Wednesday:
+            case DayOfWeek.Thursday:
+            case DayOfWeek.Friday:
+                return 0;
+            case DayOfWeek.Saturday:
+                return 1;
+            case DayOfWeek.Sunday:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+}

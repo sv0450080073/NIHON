@@ -1,0 +1,102 @@
+﻿@inherits StaffScheduleMobileDetailsBase
+@layout LayoutTempleteMobile
+
+<div id="content-schedule-staff-details">
+    @if (scheduleStaffData != null)
+    {
+        <div class="staff-details">
+            <div class="description-schedule-sfmbcf">
+                <label class="lbl-details-title-sfmb">@(isShowFooter ? scheduleStaffData.Text + "(" + Lang["NotAccept"] + ")" : scheduleStaffData.Text)</label>
+                <div class="d-flex d-inline-block type-lable-meeting-display-sfmb">
+                    <lable class="lbl-mr-r lable-meeting row-sfmb-color-@(scheduleStaffData.DataType.ToString() + scheduleStaffData.Typelabel.LabelType.ToString())">@(scheduleStaffData.Typelabel.LabelText)</lable>
+                    @if (scheduleStaffData.AttachedLable != null && scheduleStaffData.AttachedLable.Count > 0)
+                    {
+                        foreach (LabelList label in scheduleStaffData.AttachedLable)
+                        {
+                            if (label.LabelType == 1)
+                            {
+                                <label class="lable-group-absolute" style="background-color: #d2302f">@Lang["Absolute"]</label>
+                            }
+                            else
+                            {
+                                <label class="lable-group-hope" style="background-color: #1a76d2">@Lang["Hope"]</label>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+            <div class="date-sfmbcf">
+                @if (scheduleStaffData.AllDayKbn == 1)
+                {
+                    <label>@Lang["AllDay"]</label>
+                }
+                else
+                {
+                    <label class="custom-size-sfmb">@scheduleStaffData.StartDateDisplay.ToString(formatDate)</label>
+                    <label class="custom-size-sfmb">～</label>
+                    <label class="custom-size-sfmb">@scheduleStaffData.EndDateDisplay.ToString(formatDate)</label>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(scheduleStaffData.RecurrenceRule))
+            {
+                <div class="repetition-sfmbcf">
+                    <p>@displayRecurrenceRule</p>
+                </div>
+            }
+            <div class="creator-area-sfmbcf">
+                <div class="lbl-title-sfmbcf">
+                    <label>@Lang["Creator"]</label>
+                </div>
+                <div class="value-creator-sfmbcf">
+                    <label>@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)</label>
+                </div>
+            </div>
+            <div class="detail-schedule-sfmbcf">
+                <div class="lbl-title-sfmbcf">
+                    <label>@Lang["Note"]</label>
+                </div>
+                <p class="note-sfmbcf">
+                    @scheduleStaffData.DetailAppoitment
+                </p>
+            </div>
+        </div>
+        @if (isShowFooter)
+        {
+            <div class="footer-detail-sfmb">
+                <div class="content-sfmbdt">
+                    <div>
+                        <label>@Lang["ApprovalStatus"]</label>
+                    </div>
+                    <div class="value-sfmbdt">
+                        <label>@Lang["Defuse"]</label>
+                    </div>
+                </div>
+                <div class="content-sfmbdt">
+                    <div>
+                        <label>@Lang["RemarkApprover"]</label>
+                    </div>
+                    <div class="value-sfmbdt">
+                        <label>@scheduleStaffData.YoteiInfo.ShoRejBiko</label>
+                    </div>
+                </div>
+                <div class="content-sfmbdt">
+                    <div>
+                        <label>@Lang["Authorizer"]</label>
+                    </div>
+                    <div class="value-sfmbdt">
+                        <label>@scheduleStaffData.YoteiInfo.ShoSyainNm</label>
+                    </div>
+                </div>
+                <div class="content-sfmbdt">
+                    <div>
+                        <label>@Lang["TimeApprover"]</label>
+                    </div>
+                    <div class="value-sfmbdt">
+                        <label>@(DateDisplayValue(scheduleStaffData.YoteiInfo.ShoDateTime.Substring(0, 8)).Value.ToString(formatDate) + " " + scheduleStaffData.YoteiInfo.ShoDateTime.Substring(8, 2) + ":" + scheduleStaffData.YoteiInfo.ShoDateTime.Substring(10, 2))</label>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+

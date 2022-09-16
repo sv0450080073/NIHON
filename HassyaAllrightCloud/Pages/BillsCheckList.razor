@@ -1,0 +1,623 @@
+﻿@inherits BillsCheckListBase
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<DxPopup @bind-Visible="@ShowErrorPopup">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> @Lang["Error"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@ErrorMessage</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(() => ShowErrorPopup = false)">OK</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+<div class="bill-checklist-page">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center">
+            <h5 class="mb-0">@Lang["Title"]</h5>
+        </div>
+        <div id="div-color" class="d-flex flex-wrap align-items-center">
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-1">@Lang["Deposited"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-@((int)BillCheckListColorPattern.Coupon)">@Lang["Coupon"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-@((int)BillCheckListColorPattern.Some)">@Lang["Some"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-@((int)BillCheckListColorPattern.PartialEntry)">@Lang["PartialEntry"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-@((int)BillCheckListColorPattern.OverPayment)">@Lang["OverPayment"]</span>
+            <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-@((int)BillCheckListColorPattern.NotPayment)">@Lang["NotPayment"]</span>
+        </div>
+        <button class="btn btn-sm btn-danger btnclear" @onclick="ClearConditionFunction">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            @Lang["EraseAll"]
+        </button>
+    </div>
+    <div>
+        <ul class="validation-errors">
+            @if (IsValid && IsNoData)
+            {
+                btnReportActive = false;
+                <li class="validation-message">@Lang["BI_T006"]</li>
+
+            }
+        </ul>
+    </div>
+</div>
+@if (isInitComplete)
+{
+    <div class="title-section mb-2 bill-list-title-section">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+    </div>
+    <div class="express-condition mb-2 bill-title-height" style="display: none">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["FilterCondition"]"></DxTab>
+            <DxTab Text="@Lang["TabTitle1"]"></DxTab>
+            <DxTab Text="@Lang["TabReport"]"></DxTab>
+        </DxTabs>
+        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+            <div class="card-body bills-checklist-form">
+                <EditForm Model="@billCheckListForm" Context="formContext" id="bills-check-list-form">
+                    <DataAnnotationsValidator />
+                    <FluentValidator TValidator="BillCheckListFormValidator" />
+                    <div class="form-row form-bill-focus" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["BillPeriod"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.BillPeriodFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm"
+                                                Date="@billCheckListForm.BillPeriodFrom"
+                                                DateExpression="@(() => billCheckListForm.BillPeriodFrom)"
+                                                Format=@dateFormat
+                                                DateChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillPeriodFrom), newValue, formContext))"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+
+                                    </DxDateEdit>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.BillPeriodTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm"
+                                                Date="@billCheckListForm.BillPeriodTo"
+                                                DateExpression="@(() => billCheckListForm.BillPeriodTo)"
+                                                Format=@dateFormat
+                                                DateChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillPeriodTo), newValue, formContext))"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                                    </DxDateEdit>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["BillOffice"]</label>
+                                <div class="item-inline custom-bill-choose-box">
+                                    <DxComboBox Data="@billOfficeList"
+                                                CssClass="filter-inline date-sm custom-bill-combo-box"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@billCheckListForm.BillOffice"
+                                                SelectedItemExpression="@(() => billCheckListForm.BillOffice)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillOffice), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap" id="cmb-custom-1">
+                                <label class="col-form-label condition-bill-label">@Lang["BillAddress"]</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultTokiskNullText="@Lang["BillAddressNullText"]"
+                                                       DefaultGyosya="@(billCheckListForm.GyosyaTokuiSakiFrom != null ? billCheckListForm.GyosyaTokuiSakiFrom.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@billCheckListForm.GyosyaTokuiSakiFrom"
+                                                       GyosyaExpression="@(() => billCheckListForm.GyosyaTokuiSakiFrom)"
+                                                       SelectedGyosyaChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.GyosyaTokuiSakiFrom), newValue, formContext))"
+                                                       DefaultTokisk="@(billCheckListForm.TokiskTokuiSakiFrom != null ? billCheckListForm.TokiskTokuiSakiFrom.TokuiSeq : 0)"
+                                                       SelectedTokisk="@billCheckListForm.TokiskTokuiSakiFrom"
+                                                       TokiskExpression="@(() => billCheckListForm.TokiskTokuiSakiFrom)"
+                                                       SelectedTokiskChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.TokiskTokuiSakiFrom), newValue, formContext))"
+                                                       DefaultTokiSt="@(billCheckListForm.TokiStTokuiSakiFrom != null ? billCheckListForm.TokiStTokuiSakiFrom.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@billCheckListForm.TokiStTokuiSakiFrom"
+                                                       TokiStExpression="@(() => billCheckListForm.TokiStTokuiSakiFrom)"
+                                                       SelectedTokiStChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.TokiStTokuiSakiFrom), newValue, formContext))"></CustomerComponent>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap" id="cmb-custom-1">
+                                <label class="col-form-label condition-bill-label lbl-customer-hpf">～</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultTokiskNullText="@Lang["BillAddressNullText"]"
+                                                       DefaultGyosya="@(billCheckListForm.GyosyaTokuiSakiTo != null ? billCheckListForm.GyosyaTokuiSakiTo.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@billCheckListForm.GyosyaTokuiSakiTo"
+                                                       GyosyaExpression="@(() => billCheckListForm.GyosyaTokuiSakiTo)"
+                                                       SelectedGyosyaChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.GyosyaTokuiSakiTo), newValue, formContext))"
+                                                       DefaultTokisk="@(billCheckListForm.TokiskTokuiSakiTo != null ? billCheckListForm.TokiskTokuiSakiTo.TokuiSeq : 0)"
+                                                       SelectedTokisk="@billCheckListForm.TokiskTokuiSakiTo"
+                                                       TokiskExpression="@(() => billCheckListForm.TokiskTokuiSakiTo)"
+                                                       SelectedTokiskChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.TokiskTokuiSakiTo), newValue, formContext))"
+                                                       DefaultTokiSt="@(billCheckListForm.TokiStTokuiSakiTo != null ? billCheckListForm.TokiStTokuiSakiTo.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@billCheckListForm.TokiStTokuiSakiTo"
+                                                       TokiStExpression="@(() => billCheckListForm.TokiStTokuiSakiTo)"
+                                                       SelectedTokiStChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.TokiStTokuiSakiTo), newValue, formContext))"></CustomerComponent>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["ReceiptNumber"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.StartReceiptNumber)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm length10 text-bill bill-check-list-invoice-number"
+                                               maxlength="10"
+                                               Text="@CommonUtil.FormatCodeNumber(billCheckListForm.StartReceiptNumber)"
+                                               TextExpression="@(() => billCheckListForm.StartReceiptNumber)"
+                                               TextChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.StartReceiptNumber), newValue, formContext))">
+                                    </DxTextBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.EndReceiptNumber)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm length10 text-bill bill-check-list-invoice-number"
+                                               maxlength="10"
+                                               Text="@CommonUtil.FormatCodeNumber(billCheckListForm.EndReceiptNumber)"
+                                               TextExpression="@(() => billCheckListForm.EndReceiptNumber)"
+                                               TextChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.EndReceiptNumber), newValue, formContext))">
+                                    </DxTextBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["ReservationClassification"]</label>
+                                <div class="item-inline">
+                                    <ReservationClassComponent LangDic="@LangDic"
+                                                               isAddNullItem="true"
+                                                               DefaultValue="@(billCheckListForm.YoyakuFrom != null ? billCheckListForm.YoyakuFrom.YoyaKbnSeq : 0)"
+                                                               SelectedReservationClass="@billCheckListForm.YoyakuFrom"
+                                                               ReservationClassExpression="@(() => billCheckListForm.YoyakuFrom)"
+                                                               SelectedReservationClassChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.YoyakuFrom), newValue, formContext))">
+                                    </ReservationClassComponent>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline">
+                                    <ReservationClassComponent LangDic="@LangDic"
+                                                               isAddNullItem="true"
+                                                               DefaultValue="@(billCheckListForm.YoyakuTo != null ? billCheckListForm.YoyakuTo.YoyaKbnSeq : 0)"
+                                                               SelectedReservationClass="@billCheckListForm.YoyakuTo"
+                                                               ReservationClassExpression="@(() => billCheckListForm.YoyakuTo)"
+                                                               SelectedReservationClassChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.YoyakuTo), newValue, formContext))">
+                                    </ReservationClassComponent>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["BillClassification"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.StartBillClassification)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@billClassificationList" CssClass="filter-inline date-sm custom-bill-combo-box"
+                                                NullText="@Lang["ReservationClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@billCheckListForm.StartBillClassification"
+                                                SelectedItemExpression="@(() => billCheckListForm.StartBillClassification)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.StartBillClassification), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => billCheckListForm.EndBillClassification)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@billClassificationList" CssClass="filter-inline date-sm custom-bill-combo-box"
+                                                NullText="@Lang["ReservationClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@billCheckListForm.EndBillClassification"
+                                                SelectedItemExpression="@(() => billCheckListForm.EndBillClassification)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.EndBillClassification), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-bill-label">@Lang["billIssuedClassification"]</label>
+                                <div class="item-inline custom-bill-choose-box" id="dropdown-bg-1">
+                                    <DxComboBox Data="@lstBillIssuedClassification" CssClass="filter-inline date-sm custom-bill-combo-box"
+                                                TextFieldName="StringValue"
+                                                AllowUserInput="false"
+                                                SelectedItem="@billCheckListForm.BillIssuedClassification"
+                                                SelectedItemExpression="@(() => billCheckListForm.BillIssuedClassification)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillIssuedClassification), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">@Lang["BillOderByGrid"]</label>
+                                <div class="item-inline custom-bill-choose-box bill-item" id="dropdown-bg-2">
+                                    <DxComboBox Id="dropdown" Data="lstBillTypeSortGridData" CssClass="filter-inline date-sm custom-bill-combo-box"
+                                                TextFieldName="StringValue"
+                                                AllowUserInput="false"
+                                                SelectedItem="@billCheckListForm.BillTypeOrder"
+                                                SelectedItemExpression="@(() => billCheckListForm.BillTypeOrder)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillTypeOrder), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group d-sm-flex flex-nowrap align-items-center">
+                                <label class="col-form-label condition-bill-label">@Lang["billTypeLabel"] </label>
+                                <div class="my-checkbox d-flex flex-nowrap align-items-center">
+                                    <DxCheckBox Checked="@billCheckListForm.itemFare" CheckedExpression="@(() => billCheckListForm.itemFare)" CheckedChanged="@(async (value)=> await CheckedValueChanged(nameof( billCheckListForm.itemFare), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemFare"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemIncidental" CheckedExpression="@(() => billCheckListForm.itemIncidental)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemIncidental), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemIncidental"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemTollFee" CheckedExpression="@(() => billCheckListForm.itemTollFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemTollFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemTollFee"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemArrangementFee" CheckedExpression="@(() => billCheckListForm.itemArrangementFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemArrangementFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemArrangementFee"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemGuideFee" CheckedExpression="@(() => billCheckListForm.itemGuideFee)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemGuideFee), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemGuideFee"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemShippingCharge" CheckedExpression="@(() => billCheckListForm.itemShippingCharge)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemShippingCharge), value))" CssClass="mr-1 width--90 d-inline-block label-font-weight-normal">@Lang["ItemShippingCharge"] </DxCheckBox>
+                                    <DxCheckBox Checked="@billCheckListForm.itemCancellationCharge" CheckedExpression="@(() => billCheckListForm.itemCancellationCharge)" CheckedChanged="(async (value)=> await CheckedValueChanged(nameof(billCheckListForm.itemCancellationCharge), value))" CssClass="mr-1 width--110 d-inline-block label-font-weight-normal">@Lang["ItemCancellationCharge"] </DxCheckBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                        <div class="col-sm-8">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label width--100">@Lang["WidthChange"]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                <nav class="nav nav-pills">
+                                    <a href="javascript:void(0)" class="nav-link @(billCheckListForm.ActiveV == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(billCheckListForm.ActiveV == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(billCheckListForm.ActiveV == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 list-button">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label width--100">@Lang["lblButton"]</label>
+                                <nav class="nav nav-pills">
+                                    <a href="javascript:void(0)" class="mr-2 nav-link @(billCheckListForm.lstActiveTypeTotal.Count == 3 ? "active" : null)" @onclick="@(e => clickChooseTypeTotal(e, (int)TypeBillTotal.All))">@Lang["btnAll"]</a>
+                                    <a href="javascript:void(0)" class="mr-2 nav-link @(billCheckListForm.lstActiveTypeTotal.Contains((int)TypeBillTotal.Choice) || billCheckListForm.lstActiveTypeTotal.Count == 3 ? "active" : null)" @onclick="@(e => clickChooseTypeTotal(e, (int)TypeBillTotal.Choice))">@Lang["btnChoice"]</a>
+                                    <a href="javascript:void(0)" class="mr-2 nav-link @(billCheckListForm.lstActiveTypeTotal.Contains((int)TypeBillTotal.PageTotal) || billCheckListForm.lstActiveTypeTotal.Count == 3 ? "active" : null)" @onclick="@(e => clickChooseTypeTotal(e, (int)TypeBillTotal.PageTotal))">@Lang["btnPageTotal"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(billCheckListForm.lstActiveTypeTotal.Contains((int)TypeBillTotal.Cumulative) || billCheckListForm.lstActiveTypeTotal.Count == 3 ? "active" : null)" @onclick="@(e => clickChooseTypeTotal(e, (int)TypeBillTotal.Cumulative))">@Lang["btnCumulative"]</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="@(ActiveTabIndex != 2 ? "display: none;" : "")">
+                        <div class="report-check-list-tab col-11">
+                            <div class="row">
+                                <div class="col-1 ml-3">
+                                    @Lang["TabReport"]
+                                </div>
+                                <div class="col-9">
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", billCheckListForm.OutputType == OutputReportType.Preview ? "active":string.Empty))"
+                                            @onclick="(e) => ActiveButtonReport = OutputReportType.Preview">
+                                        @Lang["Btn_preview"]
+                                    </button>
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", billCheckListForm.OutputType == OutputReportType.ExportPdf ? "active":string.Empty))"
+                                            @onclick="(e) => ActiveButtonReport = OutputReportType.ExportPdf">
+                                        @Lang["Btn_pdf"]
+                                    </button>
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mw-7rem {0}", billCheckListForm.OutputType == OutputReportType.CSV ? "active":string.Empty))"
+                                            @onclick="(e) => ActiveButtonReport = OutputReportType.CSV">
+                                        @Lang["Btn_csv"]
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-1 ml-3 pt-3">
+                                    @Lang["PageSizeTitle"]
+                                </div>
+                                <div class="col-4">
+                                    <div class="csv-group-btns-clrp">
+                                        <div class="row">
+                                            <div class="col-12 d-flex">
+                                                <div class="mw-6rem">@Lang["PageSize"]</div>
+                                                <DxComboBox ReadOnly="billCheckListForm.OutputType == OutputReportType.CSV"
+                                                            Data="@lstPageSize"
+                                                            TextFieldName="@nameof(billCheckListForm.PageSize.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="billCheckListForm.PageSize"
+                                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(billCheckListForm.PageSize), v)"
+                                                            SelectedItemExpression="() => billCheckListForm.PageSize"
+                                                            CssClass="ml-3"></DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3 csv-group-clrp">
+                                <div class="col-1 pt-3 lbl-bcl-report">
+                                    @Lang["CSVGroupControlsTitle"]
+                                </div>
+                                <div class="col-10 div-billcl-report">
+                                    <div class="csv-group-btns-clrp ml-1">
+                                        <div class="row">
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-5rem">
+                                                    @Lang["ShowHeaderTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="@(billCheckListForm.OutputType != OutputReportType.CSV)"
+                                                            Data="@lstOutType"
+                                                            TextFieldName="@nameof(billCheckListForm.ActiveHeaderOption.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="billCheckListForm.ActiveHeaderOption"
+                                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(billCheckListForm.ActiveHeaderOption), v)"
+                                                            SelectedItemExpression="() => billCheckListForm.ActiveHeaderOption"
+                                                            CssClass="cmb-first-clrp">
+                                                </DxComboBox>
+                                            </div>
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-5rem">
+                                                    @Lang["EncloseTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="billCheckListForm.OutputType != OutputReportType.CSV"
+                                                            Data="@lstGroupType"
+                                                            TextFieldName="@nameof(billCheckListForm.GroupType.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="billCheckListForm.GroupType"
+                                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(billCheckListForm.GroupType), v)"
+                                                            SelectedItemExpression="() => billCheckListForm.GroupType"
+                                                            CssClass="ml-2">
+                                                </DxComboBox>
+                                            </div>
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-9rem">
+                                                    @Lang["SeparatorTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="billCheckListForm.OutputType != OutputReportType.CSV"
+                                                            Data="@lstDelimiterType"
+                                                            TextFieldName="@nameof(billCheckListForm.DelimiterType.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="billCheckListForm.DelimiterType"
+                                                            SelectedItemChanged="async v => await UpdateFormModel(nameof(billCheckListForm.DelimiterType), v)"
+                                                            SelectedItemExpression="() => billCheckListForm.DelimiterType"
+                                                            CssClass="ml-2">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3 text-center mb-3">
+                                <div class="col-12">
+                                    <DxButton Enabled="@btnReportActive" CssClass="btn btn-primary width-7rem"
+                                              Text="@Lang["StartBtn"]" Click="(e) => ExportBtnClicked()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <div class="form-group d-flex flex-nowrap align-items-center mb-2">
+        <div class="item-inline d-flex flex-nowrap align-items-center col-11 pl-0" id="cmb-custom-2">
+            <label class="col-form-label width--56">@Lang["BillAddress"]</label>
+            <DxComboBox Data="@billAddressListDistinct" CssClass="filter-inline date-sm custom-bill-combo-box width--250 mr-2 mt-1"
+                        FilteringMode="@DataGridFilteringMode.Contains"
+                        AllowUserInput="false"
+                        ReadOnly="@NotActiveBillAdress"
+                        TextFieldName="Text"
+                        SelectedItem="@billCheckListForm.BillAdress"
+                        SelectedItemExpression="@(() => billCheckListForm.BillAdress)"
+                        SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(billCheckListForm.BillAdress), newValue, null))">
+            </DxComboBox>
+            <DxButton Click="@((e) => OnClickButtonPre(e))" Enabled="@(!(!billAddressListDistinct.Any() || billAddressListDistinct.IndexOf(billCheckListForm.BillAdress) == 0))" CssClass="btn btn-sm fa fa-chevron-circle-left mr-1"></DxButton>
+            <DxButton Click="@((e) => OnClickButtonNext(e))" Enabled="@(!(billAddressListDistinct.IndexOf(billCheckListForm.BillAdress) == billAddressListDistinct.Count - 1))" CssClass="btn btn-sm fa fa-chevron-circle-right"></DxButton>
+        </div>
+        <div class="list-button col-1">
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="@Lang["btnInvoice"]" CssClass="bill-display-button mx-1 btn btn-secondary width--100" Enabled="@ReportActive" Click="@((e) => OnClickButtonBillPrint(e))" />
+        </div>
+    </div>
+    <div class="table-bill-wrapper grid-@billCheckListForm.ActiveV" id="table-bill-wrapper">
+        <table class="table-bill-layout table-layout">
+            <thead>
+                <tr class="header-row">
+                    <th class="check-box align-items-center">
+                        <div class="align-items-center ">
+                            <DxCheckBox Checked="@itemCheckAll" CheckedExpression="@(() => itemCheckAll)" CheckedChanged="@(async (value)=> await CheckedItemAllChanged(value))" CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                        </div>
+                    </th>
+                    <th class="bill-no">@Lang["No"]</th>
+                    <th class="bill-date">@Lang["GridBillDate"]</th>
+                    <th class="bill-office">@Lang["GridOffice"]</th>
+                    <th class="bill-address">@Lang["GridBillAddress"]</th>
+                    <th class="bill-name">
+                        <div>@Lang["GridGroupName"]</div>
+                        <div>@Lang["GridDestinationName"]</div>
+                    </th>
+                    <th class="bill-date-da">
+                        <div>@Lang["GridDispatchDate"]</div>
+                        <div>@Lang["GridArrivalDate"]</div>
+                    </th>
+                    <th class="bill-incident">@Lang["GridBillIncidentTypeName"]</th>
+                    <th class="incident-load">@Lang["GridIncidentLoadingGoodsName"]</th>
+                    <th class="payment-name">@Lang["GridPaymentName"]</th>
+                    <th class="bill-quantity">@Lang["GridQuantity"]</th>
+                    <th class="bus-type">@Lang["GridBusType"]</th>
+                    <th class="bill-price">@Lang["GridPrice"]</th>
+                    <th class="bill-amount">@Lang["GridBillAmount"]</th>
+                    <th class="deposit-date">@Lang["GridDepositDate"]</th>
+                    <th class="deposit-amount">@Lang["GridDepositAmount"]</th>
+                    <th class="unpaid-amount">@Lang["GridUnpaidAmount"]</th>
+                    <th class="sales-amount">@Lang["GridSalesAmount"]</th>
+                    <th class="tax-amount">@Lang["GridTaxAmount"]</th>
+                    <th class="commission-rate">@Lang["GridCommissionRate"]</th>
+                    <th class="commission-amount">@Lang["GridCommissionAmount"]</th>
+                    <th class="bill-oi">
+                        <div>@Lang["GridOccurrenceDate"]</div>
+                        <div>@Lang["GridIssuedDate"]</div>
+                    </th>
+                    <th class="receipt-number">@Lang["GridReceiptNumber"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (GridDisplay != null)
+                {
+                    @foreach (var data in GridDisplay.Select((value, i) => new { i, value }))
+                    {
+                        <tr class="body-bill-row-1 @(lstItemGridCheckPerPage[data.i] ? "selected-row " : " ")grid-bill-color-@GetColorPattern(data.value)">
+                            <td class="row-2 check-box align-items-center sticky-col first-sticky-col" rowspan="2">
+                                <div class="align-items-center ">
+                                    <DxCheckBox Checked="@lstItemGridCheckPerPage[data.i]" CheckedExpression="@(() => lstItemGridCheckPerPage[data.i])" CheckedChanged="@(async (value)=> await CheckedValueGridChanged((CurrentPage * RecordsPerPage + data.i + 1), data.i, data.value, value))" CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                                </div>
+                            </td>
+                            <td class="row-2 order-no sticky-col second-sticky-col" rowspan="2">@(CurrentPage * RecordsPerPage + data.i + 1)</td>
+                            <td class="row-2 bill-date" rowspan="2">@string.Format("{0:yyyy/MM/dd}", data.value.BillDate)</td>
+                            <td class="row-2 bill-office" rowspan="2">@(data.value.Office)</td>
+                            <td class="row-2 bill-address" rowspan="2">@(data.value.BillAddress)</td>
+                            <td class="bill-name">@(data.value.GroupName)</td>
+                            <td class="bill-date-da">@string.Format("{0:yyyy/MM/dd(ddd)}", data.value.DispatchDate)</td>
+                            <td class="row-2 bill-incident" rowspan="2">@(data.value.BillIncidentTypeName)</td>
+                            <td class="row-2 incident-load" rowspan="2">@(data.value.IncidentLoadingGoodsName)</td>
+                            <td class="row-2 payment-name" rowspan="2">@(data.value.PaymentName)</td>
+                            <td class="row-2 bill-quantity" rowspan="2">@(data.value.Quantity)</td>
+                            <td class="row-2 bus-type" rowspan="2">@(data.value.BusType)</td>
+                            <td class="row-2 bill-price" rowspan="2">@string.Format("{0:#,0}", data.value.Price)</td>
+                            <td class="row-2 bill-amount" rowspan="2">@string.Format("{0:#,0}", data.value.BillAmount)</td>
+                            <td class="row-2 deposit-date" rowspan="2">@string.Format("{0:yyyy/MM/dd}", data.value.DepositDate)</td>
+                            <td class="row-2 deposit-amount" rowspan="2">@string.Format("{0:#,0}", data.value.DepositAmount)</td>
+                            <td class="row-2 unpaid-amount" rowspan="2">@string.Format("{0:#,0}", data.value.UnpaidAmount)</td>
+                            <td class="row-2 sales-amount" rowspan="2">@string.Format("{0:#,0}", data.value.SalesAmount)</td>
+                            <td class="row-2 tax-amount" rowspan="2">@string.Format("{0:#,0}", data.value.TaxAmount)</td>
+                            <td class="row-2 commission-rate" rowspan="2">@(data.value.CommissionRate.ToString() + "%")</td>
+                            <td class="row-2 commission-amount" rowspan="2">@string.Format("{0:#,0}", data.value.CommissionAmount)</td>
+                            <td class="bill-oi">@string.Format("{0:yyyy/MM/dd}", data.value.OccurrenceDate)</td>
+                            <td class="row-2 receipt-number" rowspan="2">@(data.value.ReceiptNumber)</td>
+                        </tr>
+                        <tr class="body-bill-row-2 @(lstItemGridCheckPerPage[data.i] ? "selected-row " : " ")grid-bill-color-@GetColorPattern(data.value)">
+                            <td class="destination">@(data.value.DestinationName)</td>
+                            <td class="arrival-date">@string.Format("{0:yyyy/MM/dd(ddd)}", data.value.ArrivalDate)</td>
+                            <td class="issued">@string.Format("{0:yyyy/MM/dd}", data.value.IssuedDate)</td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <div id="pagination-bill-area">
+        @if (GridDatas != null && GridDatas.Count > 0)
+        {
+            <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="SelectPage" ItemPerPage="@RecordsPerPage" OnChangeItemPerPage="ChangePageSize"
+                                                             TotalCount="GridDatas.Count()" @ref="paging">
+            </HassyaAllrightCloud.Pages.Components.Pagination>
+        }
+    </div>
+    <div id="total-bill-area" class="total-bill-table">
+        @if (billCheckListForm.lstActiveTypeTotal.Count > 0)
+        {
+            <table>
+                <tr>
+                    <th class="blank" id="blank"></th>
+                    <th class="bill-amount">@Lang["GridBillAmount"]</th>
+                    <th class="deposit-amount">@Lang["GridDepositAmount"]</th>
+                    <th class="unpaid-amount">@Lang["GridUnpaidAmount"]</th>
+                    <th class="sales-amount">@Lang["GridSalesAmount"]</th>
+                    <th class="tax-amount">@Lang["GridTaxAmount"]</th>
+                    <th class="commission-amount">@Lang["GridCommissionAmount"]</th>
+                </tr>
+                @foreach (var i in billCheckListForm.lstActiveTypeTotal)
+                {
+                    BillCheckListTotalData item0 = null;
+                    BillCheckListTotalData item1 = null;
+                    BillCheckListTotalData item2 = null;
+                    BillCheckListTotalData item3 = null;
+                    BillCheckListTotalData item4 = null;
+                    BillCheckListTotalData item5 = null;
+                    BillCheckListTotalData item6 = null;
+                    BillCheckListTotalData item7 = null;
+                    @if (CurrentTotal != null)
+                    {
+                        item0 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 0).FirstOrDefault();
+                        item1 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 1).FirstOrDefault();
+                        item2 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 2).FirstOrDefault();
+                        item3 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 3).FirstOrDefault();
+                        item4 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 4).FirstOrDefault();
+                        item5 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 5).FirstOrDefault();
+                        item6 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 6).FirstOrDefault();
+                        item7 = CurrentTotal.Where(x => x.Type == i && x.SeiFutSyu == 7).FirstOrDefault();
+                    }
+                    <tr id="tr-total-@i" class="tr-total-head">
+                        <td class="blank">@(i == 1 ? Lang["Selector"] : (i == 2 ? Lang["btnPageTotal"] : Lang["btnCumulative"]))<i class="dropdown-toggle" aria-hidden="true"></i></td>
+                        <td>@(item0 == null || (item0 != null && item0.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item0.BillAmountTotal))</td>
+                        <td>@(item0 == null || (item0 != null && item0.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item0.DepositAmountTotal))</td>
+                        <td>@(item0 == null || (item0 != null && item0.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item0.UnpaidAmountTotal))</td>
+                        <td>@(item0 == null || (item0 != null && item0.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item0.SalesAmountTotal))</td>
+                        <td>@(item0 == null || (item0 != null && item0.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item0.TaxAmountTotal))</td>
+                        <td>@(item0 == null || (item0 != null && item0.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item0.CommissionAmount))</td>
+                    </tr>
+
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemFare"]</div></td>
+                        <td class="bill-amount"><div>@(item1 == null || (item1 != null && item1.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item1.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item1 == null || (item1 != null && item1.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item1.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item1 == null || (item1 != null && item1.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item1.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item1 == null || (item1 != null && item1.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item1.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item1 == null || (item1 != null && item1.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item1.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item1 == null || (item1 != null && item1.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item1.CommissionAmount))</div></td>
+                    </tr>
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemIncidental"]</div></td>
+                        <td class="bill-amount"><div>@(item2 == null || (item2 != null && item2.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item2.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item2 == null || (item2 != null && item2.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item2.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item2 == null || (item2 != null && item2.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item2.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item2 == null || (item2 != null && item2.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item2.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item2 == null || (item2 != null && item2.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item2.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item2 == null || (item2 != null && item2.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item2.CommissionAmount))</div></td>
+                    </tr>
+
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemTollFee"]</div></td>
+                        <td class="bill-amount"><div>@(item3 == null || (item3 != null && item3.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item3.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item3 == null || (item3 != null && item3.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item3.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item3 == null || (item3 != null && item3.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item3.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item3 == null || (item3 != null && item3.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item3.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item3 == null || (item3 != null && item3.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item3.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item3 == null || (item3 != null && item3.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item3.CommissionAmount))</div></td>
+                    </tr>
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemArrangementFee"]</div></td>
+                        <td class="bill-amount"><div>@(item4 == null || (item4 != null && item4.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item4.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item4 == null || (item4 != null && item4.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item4.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item4 == null || (item4 != null && item4.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item4.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item4 == null || (item4 != null && item4.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item4.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item4 == null || (item4 != null && item4.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item4.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item4 == null || (item4 != null && item4.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item4.CommissionAmount))</div></td>
+                    </tr>
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemGuideFee"]</div></td>
+                        <td class="bill-amount"><div>@(item5 == null || (item5 != null && item5.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item5.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item5 == null || (item5 != null && item5.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item5.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item5 == null || (item5 != null && item5.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item5.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item5 == null || (item5 != null && item5.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item5.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item5 == null || (item5 != null && item5.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item5.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item5 == null || (item5 != null && item5.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item5.CommissionAmount))</div></td>
+                    </tr>
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemShippingChargeTotal"]</div></td>
+                        <td class="bill-amount"><div>@(item6 == null || (item6 != null && item6.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item6.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item6 == null || (item6 != null && item6.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item6.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item6 == null || (item6 != null && item6.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item6.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item6 == null || (item6 != null && item6.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item6.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item6 == null || (item6 != null && item6.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item6.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item6 == null || (item6 != null && item6.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item6.CommissionAmount))</div></td>
+                    </tr>
+                    <tr class="tr-child-@i">
+                        <td class="blank"><div>@Lang["ItemCancellationChargeToTal"]</div></td>
+                        <td class="bill-amount"><div>@(item7 == null || (item7 != null && item7.BillAmountTotal == null) ? "¥0" : string.Format("{0:C}", item7.BillAmountTotal))</div></td>
+                        <td class="deposit-amount"><div>@(item7 == null || (item7 != null && item7.DepositAmountTotal == null) ? "¥0" : string.Format("{0:C}", item7.DepositAmountTotal))</div></td>
+                        <td class="unpaid-amount"><div>@(item7 == null || (item7 != null && item7.UnpaidAmountTotal == null) ? "¥0" : string.Format("{0:C}", item7.UnpaidAmountTotal))</div></td>
+                        <td class="sales-amount"><div>@(item7 == null || (item7 != null && item7.SalesAmountTotal == null) ? "¥0" : string.Format("{0:C}", item7.SalesAmountTotal))</div></td>
+                        <td class="tax-amount"><div>@(item7 == null || (item7 != null && item7.TaxAmountTotal == null) ? "¥0" : string.Format("{0:C}", item7.TaxAmountTotal))</div></td>
+                        <td class="commission-amount"><div>@(item7 == null || (item7 != null && item7.CommissionAmount == null) ? "¥0" : string.Format("{0:C}", item7.CommissionAmount))</div></td>
+                    </tr>
+                }
+            </table>
+        }
+
+    </div>
+}
+

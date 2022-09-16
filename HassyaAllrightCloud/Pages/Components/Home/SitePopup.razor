@@ -1,0 +1,134 @@
+﻿@inject IStringLocalizer<SitePopup> Lang
+@inject ITKD_FavoriteSiteService TKD_FavoriteSiteService
+@inject IErrorHandlerService errorModalService
+
+<EditForm EditContext="@editFormContext" Context="formContext">
+    <FluentValidator TValidator="SitePopupValidator" />
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-3 width--90 pl-2">@Lang["Name"]</label>
+        <div class="has-tooltip-error" style="width: 400px">
+            <Tooltip ValueExpressions="@(() => createSite.FavoriteSite_SiteTitle)"
+                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+            <DxTextBox CssClass="flex-grow-1 focus"
+                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                       TextChanged="@((newValue) => UpdateSiteTitle(newValue))"
+                       Text="@createSite.FavoriteSite_SiteTitle"
+                       TextExpression="@(() => createSite.FavoriteSite_SiteTitle)">
+            </DxTextBox>
+        </div>
+    </div>
+    <div class="form-group d-flex flex-nowrap">
+        <label class="col-form-label-sm mr-3 width--90 pl-2">@Lang["Link"]</label>
+        <div class="has-tooltip-error" style="width: 400px">
+            <Tooltip ValueExpressions="@(() => createSite.FavoriteSite_SiteUrl)"
+                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+            <DxTextBox CssClass="flex-grow-1 focus"
+                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                       TextChanged="@((newValue) => UpdateSiteLink(newValue))"
+                       Text="@createSite.FavoriteSite_SiteUrl"
+                       TextExpression="@(() => createSite.FavoriteSite_SiteUrl)">
+            </DxTextBox>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public int SiteId { get; set; }
+
+    string content;
+    public TKD_FavoriteSiteData createSite;
+    public EditContext editFormContext { get; set; }
+    public Dictionary<string, string> LangDic = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            LoadData();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            if (SiteId != 0)
+            {
+                createSite = await TKD_FavoriteSiteService.GetFavoriteSiteById(Convert.ToInt32(SiteId));
+                StateHasChanged();
+            }
+            else
+            {
+                createSite = new TKD_FavoriteSiteData()
+                {
+                    FavoriteSite_SiteTitle = "",
+                    FavoriteSite_SiteUrl = ""
+                };
+            }
+            editFormContext = new EditContext(createSite);
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public async Task<string> Save()
+    {
+        try
+        {
+            if (editFormContext.Validate())
+            {
+                if (SiteId != 0)
+                {
+                    return await TKD_FavoriteSiteService.UpdateFavoriteSite(createSite);
+                }
+                else
+                {
+                    return await TKD_FavoriteSiteService.CreateFavoriteSite(createSite);
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+            return "";
+        }
+    }
+
+    public void UpdateSiteTitle(string title)
+    {
+        try
+        {
+            createSite.FavoriteSite_SiteTitle = title;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    public void UpdateSiteLink(string link)
+    {
+        try
+        {
+            createSite.FavoriteSite_SiteUrl = link;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+}

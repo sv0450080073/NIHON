@@ -1,0 +1,831 @@
+﻿@page "/simplequotation"
+@using HassyaAllrightCloud.Pages.Components.Popup
+@using HassyaAllrightCloud.Pages.Components.CommonComponents 
+@inject IStringLocalizer<SimpleQuotation> Lang
+@inject IJSRuntime JSRuntime
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_EigyosDataListService BranchDataService
+@inject ICustomerListService CustomerService
+@inject ISimpleQuotationService SimpleQuotationService
+@inject IFilterCondition FilterServices
+@inject AppSettingsService AppSettingsService
+@inject IErrorHandlerService ErrorModalService
+
+<MyPopup Model="MyPopup" OnClose="HandleClosePopup" />
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>@Lang["PageTitle"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="async () => await HandleResetSearchOption()">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["clear"]
+    </button>
+</div>
+
+@if (IsFirstLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    @if (IsLoading)
+    {
+        <div class="loader">
+            <div class="loader-icon"></div>
+        </div>
+    }
+    <div class="main-top mb-2">
+        <EditForm EditContext="@FormContext" id="simpleQuotationForm">
+            <DataAnnotationsValidator />
+            <FluentValidator TValidator="SimpleQuotationValidator" />
+            <div class="express-condition mb-3 border-dotted">
+                <div class="card border-0">
+                    <div class="card-body py-3 pl-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>@Lang["block1"]</h5>
+                        </div>
+                        <div class="pl-3">
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["ExportTypes"]</label>
+                                    <div>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="btn withtabindex nav-link @(FilterData.ExportType == OutputReportType.Preview ? "active" : null)" @onclick="@(e => HandleExportTypeClicked(OutputReportType.Preview))">@Lang["PreviewReport"]</a>
+                                            <a href="javascript:void(0)" class="btn withtabindex nav-link @(FilterData.ExportType == OutputReportType.ExportPdf ? "active" : null)" @onclick="@(e => HandleExportTypeClicked(OutputReportType.ExportPdf))">@Lang["ExportPdf"]</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="express-condition mb-3 border-dotted">
+                <div class="card border-0">
+                    <div class="card-body py-3 pl-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>@Lang["block2"]</h5>
+                        </div>
+                        <div class="pl-3">
+                            <div class="d-flex">
+                                <div class="mr-5">
+                                    <div class="form-group d-flex flex-nowrap ">
+                                        <label class="col-form-label-sm width--100 mr-3">@Lang["PickupDate"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.StartPickupDate)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxDateEdit Date="@FilterData.StartPickupDate"
+                                                        Format="yyyy/MM/dd"
+                                                        DateChanged="@((newValue) => HandlePickupDateChanged(newValue))"
+                                                        DateExpression="@(() => FilterData.StartPickupDate)"
+                                                        CssClass="width--120 withtabindex" />
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.StartPickupDate)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxDateEdit Date="@FilterData.EndPickupDate"
+                                                        Format="yyyy/MM/dd"
+                                                        DateChanged="@((newValue) => HandlePickupDateChanged(newValue, false))"
+                                                        DateExpression="@(() => FilterData.StartPickupDate)"
+                                                        CssClass="width--120 withtabindex" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap ">
+                                        <label class="col-form-label-sm width--100 mr-3">@Lang["ArrivalDate"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.StartArrivalDate)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxDateEdit Date="@FilterData.StartArrivalDate"
+                                                        Format="yyyy/MM/dd"
+                                                        DateChanged="@((newValue) => HandleArrivalDateChanged(newValue))"
+                                                        DateExpression="@(() => FilterData.StartArrivalDate)"
+                                                        CssClass="width--120 withtabindex" />
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.StartArrivalDate)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxDateEdit Date="@FilterData.EndArrivalDate"
+                                                        Format="yyyy/MM/dd"
+                                                        DateChanged="@((newValue) => HandleArrivalDateChanged(newValue, false))"
+                                                        DateExpression="@(() => FilterData.StartArrivalDate)"
+                                                        CssClass="width--120 withtabindex" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["Service"]</label>
+                                        <div class="item-inline width--160">
+                                            <ReservationClassComponent LangDic="@LangDic"
+                                                                       CssClass="withtabindex"
+                                                                       isAddNullItem="true"
+                                                                       DefaultValue="@(FilterData.YoyakuFrom != null ? FilterData.YoyakuFrom.YoyaKbnSeq : 0)"
+                                                                       SelectedReservationClass="@FilterData.YoyakuFrom"
+                                                                       ReservationClassExpression="@(() => FilterData.YoyakuFrom)"
+                                                                       SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(FilterData.YoyakuFrom), newValue, FormContext))">
+                                            </ReservationClassComponent>
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="item-inline width--160">
+                                            <ReservationClassComponent LangDic="@LangDic"
+                                                                       CssClass="withtabindex"
+                                                                       isAddNullItem="true"
+                                                                       DefaultValue="@(FilterData.YoyakuTo != null ? FilterData.YoyakuTo.YoyaKbnSeq : 0)"
+                                                                       SelectedReservationClass="@FilterData.YoyakuTo"
+                                                                       ReservationClassExpression="@(() => FilterData.YoyakuTo)"
+                                                                       SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(FilterData.YoyakuTo), newValue, FormContext))">
+                                            </ReservationClassComponent>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["QuoteNumber"]</label>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.UkeCdFrom)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxTextBox Text="@(FilterData.UkeCdFrom)"
+                                                       TextChanged="@((newValue) => HandleUkeCdChanged(newValue))"
+                                                       TextExpression="@(() => FilterData.UkeCdFrom)"
+                                                       CssClass="width--160 code-number withtabindex number"
+                                                       maxlength="10" />
+                                        </div>
+                                        <span class="mx-3">～</span>
+                                        <div class="has-tooltip-error">
+                                            <Tooltip ValueExpressions="@(() => FilterData.UkeCdFrom)" Lang="@LangDic"
+                                                     Text="" Position="PositionTooltip.top" />
+                                            <DxTextBox Text="@(FilterData.UkeCdTo)"
+                                                       TextChanged="@((newValue) => HandleUkeCdChanged(newValue, false))"
+                                                       TextExpression="()=> FilterData.UkeCdFrom"
+                                                       CssClass="width--160 code-number withtabindex number"
+                                                       maxlength="10" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--100 mr-3">@Lang["Customer"]</label>
+                                    <div class="col-12" style="flex: unset">
+                                        <div class="row">
+                                            <div class="has-tooltip-error w-100 mb-2">
+                                                <CustomerComponent LangDic="@LangDic" VehicleClassification="1"
+                                                                   GyosyaCssClass="withtabindex"
+                                                                   TokiskCssClass="withtabindex"
+                                                                   TokiStCssClass="withtabindex"
+                                                                   isGyosyaAddNull="true"
+                                                                   isTokiskAddNull="true"
+                                                                   isTokiStAddNull="true"
+                                                                   DefaultGyosya="@(FilterData.GyosyaShiireSakiFrom != null ? FilterData.GyosyaShiireSakiFrom.GyosyaCdSeq : 0)"
+                                                                   SelectedGyosya="@FilterData.GyosyaShiireSakiFrom"
+                                                                   GyosyaExpression="@(() => FilterData.GyosyaShiireSakiFrom)"
+                                                                   SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(FilterData.GyosyaShiireSakiFrom), newValue, FormContext))"
+                                                                   DefaultTokisk="@(FilterData.TokiskShiireSakiFrom != null ? FilterData.TokiskShiireSakiFrom.TokuiSeq : 0)"
+                                                                   SelectedTokisk="@FilterData.TokiskShiireSakiFrom"
+                                                                   TokiskExpression="@(() => FilterData.TokiskShiireSakiFrom)"
+                                                                   SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(FilterData.TokiskShiireSakiFrom), newValue, FormContext))"
+                                                                   DefaultTokiSt="@(FilterData.TokiStShiireSakiFrom != null ? FilterData.TokiStShiireSakiFrom.SitenCdSeq : 0)"
+                                                                   SelectedTokiSt="@FilterData.TokiStShiireSakiFrom"
+                                                                   TokiStExpression="@(() => FilterData.TokiStShiireSakiFrom)"
+                                                                   SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(FilterData.TokiStShiireSakiFrom), newValue, FormContext))">
+                                                </CustomerComponent>
+                                            </div>
+                                            <span class="text-center p-1 position-absolute" style="left: -2rem; top: 2.5rem">～</span>
+                                            <div class="has-tooltip-error w-100">
+                                                <CustomerComponent LangDic="@LangDic" VehicleClassification="1"
+                                                                   GyosyaCssClass="withtabindex"
+                                                                   TokiskCssClass="withtabindex"
+                                                                   TokiStCssClass="withtabindex"
+                                                                   isGyosyaAddNull="true"
+                                                                   isTokiskAddNull="true"
+                                                                   isTokiStAddNull="true"
+                                                                   DefaultGyosya="@(FilterData.GyosyaShiireSakiTo != null ? FilterData.GyosyaShiireSakiTo.GyosyaCdSeq : 0)"
+                                                                   SelectedGyosya="@FilterData.GyosyaShiireSakiTo"
+                                                                   GyosyaExpression="@(() => FilterData.GyosyaShiireSakiTo)"
+                                                                   SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(FilterData.GyosyaShiireSakiTo), newValue, FormContext))"
+                                                                   DefaultTokisk="@(FilterData.TokiskShiireSakiTo != null ? FilterData.TokiskShiireSakiTo.TokuiSeq : 0)"
+                                                                   SelectedTokisk="@FilterData.TokiskShiireSakiTo"
+                                                                   TokiskExpression="@(() => FilterData.TokiskShiireSakiTo)"
+                                                                   SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(FilterData.TokiskShiireSakiTo), newValue, FormContext))"
+                                                                   DefaultTokiSt="@(FilterData.TokiStShiireSakiTo != null ? FilterData.TokiStShiireSakiTo.SitenCdSeq : 0)"
+                                                                   SelectedTokiSt="@FilterData.TokiStShiireSakiTo"
+                                                                   TokiStExpression="@(() => FilterData.TokiStShiireSakiTo)"
+                                                                   SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(FilterData.TokiStShiireSakiTo), newValue, FormContext))">
+                                                </CustomerComponent>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--100 mr-3">@Lang["Office"]</label>
+                                <div class="@string.Format("has-tooltip-error {0}", BranchEmpty ? "custom-invalid" : "")">
+                                    <Tooltip ValueExpressions="@(() => FilterData.BranchStart)"
+                                             Lang="@LangDic"
+                                             Text="@(BranchEmpty ? BranchEmptyMessage : "")"
+                                             Position="PositionTooltip.top" />
+                                    <DxComboBox NullText="@Lang["BranchNullText"]"
+                                                Data="@Branches"
+                                                TextFieldName="BranchText"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="@FilterData.BranchStart"
+                                                SelectedItemChanged="@((newBranch) => HandleSaleBranchChanged(newBranch))"
+                                                SelectedItemExpression="@(() => FilterData.BranchStart)"
+                                                CssClass="width--336 withtabindex" />
+                                </div>
+                                <span class="mx-3">～</span>
+                                <div class="@string.Format("has-tooltip-error {0}", BranchEmpty ? "custom-invalid" : "")">
+                                    <Tooltip ValueExpressions="@(() => FilterData.BranchEnd)"
+                                             Lang="@LangDic"
+                                             Text="@(BranchEmpty ? BranchEmptyMessage : "")"
+                                             Position="PositionTooltip.top" />
+                                    <DxComboBox NullText="@Lang["BranchNullText"]"
+                                                Data="@Branches"
+                                                TextFieldName="BranchText"
+                                                AllowUserInput="false"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SelectedItem="@FilterData.BranchEnd"
+                                                SelectedItemChanged="@((newBranch) => HandleSaleBranchChanged(newBranch, false))"
+                                                SelectedItemExpression="@(() => FilterData.BranchEnd)"
+                                                CssClass="width--336 withtabindex" />
+                                </div>
+                            </div>
+                            <div class="form-group d-flex align-items-center flex-nowrap">
+                                <label class="col-form-label-sm width--100 mr-3">@Lang["Fare"]</label>
+                                <DxCheckBox Checked="@FilterData.Fare"
+                                            CheckedChanged="@((bool value) => HandleCheckeFareChanged(value))"
+                                            CheckedExpression="@(() => FilterData.Fare)"
+                                            CssClass="mr-3 withtabindex">@Lang["Indicate"]</DxCheckBox>
+                                        </div>
+                                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-dotted text-center">
+                <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                          CssClass="width--100 withtabindex"
+                          @onclick="@(async (e) => await HandleButtonReportClicked())"
+                          Enabled="@IsExportEnable()"
+                          Text="@Lang["BtnExport"]" />
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    protected bool IsFirstLoading { get; set; } = true;
+    protected EditContext FormContext { get; set; }
+    protected SimpleQuotationData FilterData;
+    protected List<LoadSaleBranch> Branches { get; set; } = new List<LoadSaleBranch>();
+    protected Dictionary<string, string> LangDic { get; set; }
+    protected MyPopupModel MyPopup { get; set; }
+    protected bool IsLoading { get; set; }
+
+    protected bool BranchEmpty => (Branches?.Count ?? 0) == 0;
+    protected bool IsExporting;
+
+    private string baseUrl;
+    private bool isFilterApply;
+    private string filterConditionFormName = "MK1500";
+    private int userLoginId = (new ClaimModel()).SyainCdSeq;
+    private int tenantId = (new ClaimModel()).TenantID;
+    private string popupTitleInfo;
+    private string close;
+
+    protected string BranchEmptyMessage;
+    protected string FilterDataEmptyMessage;
+
+    #region Localization string
+
+    /// <summary>
+    /// Init value for Localization text
+    /// </summary>
+    private void LocalizationInit()
+    {
+        try
+        {
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+
+            BranchEmptyMessage = Lang[Constants.ErrorMessage.SQ_BranchGetErrorOrEmpty];
+            FilterDataEmptyMessage = Lang[Constants.ErrorMessage.SQ_SubmitGetErrorOrEmpty];
+
+            popupTitleInfo = Lang["popupTitleInfo"];
+            close = Lang["close"];
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    #endregion
+
+    #region Component Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            FilterData = new SimpleQuotationData(tenantId, userLoginId);
+            MyPopup = new MyPopupModel();
+            LocalizationInit();
+            baseUrl = AppSettingsService.GetBaseUrl();
+            FormContext = new EditContext(FilterData);
+
+            await LoadBranchAsync();
+
+            await ApplyFilter();
+
+            IsFirstLoading = false;
+            await base.OnInitializedAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            JSRuntime.InvokeAsync<object>("browserResize.collapseButtonFixedBottom");
+            JSRuntime.InvokeAsync<string>("loadPageScript", "simpleQuotationPage", "tabKey");
+            JSRuntime.InvokeAsync<string>("loadPageScript", "simpleQuotationPage", "enterKey");
+            JSRuntime.InvokeVoidAsync("setEventforCodeNumberField");
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion
+
+    #region Load Data
+
+    /// <summary>
+    /// LoadBookingType for booking type combobox
+    /// </summary>
+    protected async Task LoadBranchAsync()
+    {
+        try
+        {
+            Branches = await BranchDataService.GetBranchDataByTenantId(new ClaimModel().TenantID);
+            if(Branches?.Count > 0) InsertSelectAll(Branches);
+            FilterData.BranchStart = Branches.FirstOrDefault();
+            FilterData.BranchEnd = Branches.FirstOrDefault();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception)
+        {
+            // TODO: Error load branch
+            Branches = new List<LoadSaleBranch>();
+            throw;
+        }
+    }
+
+    #endregion
+
+    #region Value changed method
+
+    /// <summary>
+    /// Clear button action handler
+    /// </summary>
+    protected async Task HandleResetSearchOption()
+    {
+        try
+        {
+            FilterData.SimpleCloneProperties(new SimpleQuotationData(FilterData.TenantId, FilterData.UserLoginId));
+            await FilterServices.DeleteCustomFilerCondition(userLoginId, 1, filterConditionFormName);
+            FormContext.MarkAsUnmodified();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Changed export type preview and pdf
+    /// </summary>
+    /// <param name="exportType">New export type</param>
+    protected void HandleExportTypeClicked(OutputReportType exportType)
+    {
+        try
+        {
+            FilterData.ExportType = exportType;
+            if(!isFilterApply)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Change pickup from to date value
+    /// </summary>
+    /// <param name="newBranch">New selected PickupDate</param>
+    /// <param name="isFrom">true is PickupDate from, false is PickupDate to</param>
+    protected async void HandlePickupDateChanged(DateTime? newDate, bool isFrom = true)
+    {
+        try
+        {
+            if(isFrom)
+            {
+                FilterData.StartPickupDate = newDate;
+            }
+            else
+            {
+                FilterData.EndPickupDate = newDate;
+            }
+
+            if(!isFilterApply)
+            {
+                //IsLoading = true;
+                // load data customer
+                //await LoadCustomerAsync().ContinueWith(t => IsLoading = false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Change arrival from to date value
+    /// </summary>
+    /// <param name="newDate">New selected ArrivalDate</param>
+    /// <param name="isFrom">true is ArrivalDate from, false is ArrivalDate to</param>
+    protected async void HandleArrivalDateChanged(DateTime? newDate, bool isFrom = true)
+    {
+        try
+        {
+            if(isFrom)
+            {
+                FilterData.StartArrivalDate = newDate;
+            }
+            else
+            {
+                FilterData.EndArrivalDate = newDate;
+            }
+
+            if (!isFilterApply)
+            {
+                //IsLoading = true;
+                // load data customer
+                //await LoadCustomerAsync().ContinueWith(t => IsLoading = false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch(Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private void ChangeValueForm(string ValueName, dynamic value, EditContext formContext)
+    {
+        try
+        {
+            var propertyInfo = FilterData.GetType().GetProperty(ValueName);
+            propertyInfo.SetValue(FilterData, value, null);
+            formContext.Validate();
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Change ukecd value
+    /// </summary>
+    /// <param name="newUkeCd">New ukecd</param>
+    /// <param name="isFrom">true is ukecd from, false is ukecd to</param>
+    protected void HandleUkeCdChanged(string newUkeCd, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                FilterData.UkeCdFrom = newUkeCd;
+            }
+            else
+            {
+                FilterData.UkeCdTo = newUkeCd;
+            }
+
+            if (!isFilterApply)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Change branch selected item
+    /// </summary>
+    /// <param name="newBranch">New selected branch</param>
+    /// <param name="isFrom">true is branch from, false is branch to</param>
+    protected void HandleSaleBranchChanged(LoadSaleBranch newBranch, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                FilterData.BranchStart = newBranch;
+            }
+            else
+            {
+                FilterData.BranchEnd = newBranch;
+            }
+
+            if (!isFilterApply)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Check or uncheck is display min max fare in report
+    /// </summary>
+    /// <param name="value">Check or uncheck</param>
+    protected void HandleCheckeFareChanged(bool value)
+    {
+        try
+        {
+            FilterData.Fare = value;
+            if (!isFilterApply)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Handle user submit
+    /// </summary>
+    protected async Task HandleButtonReportClicked()
+    {
+        try
+        {
+            if(IsExportEnable())
+            {
+                IsExporting = true;
+                await SaveCurrentFilter();
+
+                var bookingKeys = await SimpleQuotationService.GetBookingKeyListAsync(FilterData);
+                if (bookingKeys != null && bookingKeys.Any())
+                {
+                    var param = new SimpleQuotationReportFilter(bookingKeys, tenantId, FilterData.Fare);
+                    switch (FilterData.ExportType)
+                    {
+                        case OutputReportType.Preview:
+                            HandlePreviewReport(param);
+                            IsExporting = false;
+                            break;
+                        case OutputReportType.ExportPdf:
+                            await HandleExportPDFReport(param).ContinueWith(t => IsExporting = false);
+                            break;
+                        default:
+                            IsExporting = false;
+                            break;
+                    }
+                }
+                else
+                {
+                    IsExporting = false;
+                    MyPopup.Build()
+                        .WithTitle(popupTitleInfo)
+                        .WithBody(FilterDataEmptyMessage)
+                        .WithIcon(MyPopupIconType.Info)
+                        .AddButton(new MyPopupFooterButton(close, HandleClosePopup))
+                        .Show();
+                }
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Handle preview report data
+    /// </summary>
+    /// <param name="param">Bookingkeys of filter form, tenantId, is display min max fare</param>
+    private void HandlePreviewReport(SimpleQuotationReportFilter param)
+    {
+        try
+        {
+            var searchString = EncryptHelper.EncryptToUrl(param);
+            JSRuntime.InvokeVoidAsync("open", "SimpleQuotationReportPreview?searchString=" + searchString, "_blank");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Handle export pdf report data
+    /// </summary>
+    /// <param name="param">Bookingkeys of filter form, tenantId, is display min max fare</param>
+    private async Task HandleExportPDFReport(SimpleQuotationReportFilter param)
+    {
+        try
+        {
+            var rpData = await SimpleQuotationService.GetSimpleQuotationListReportAsync(param);
+            if (rpData != null && rpData.Any())
+            {
+                var report = new Reports.ReportTemplate.SimpleQuotation.SimpleQuotation();
+                report.DataSource = rpData;
+
+                await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                {
+                    report.CreateDocument();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        report.ExportToPdf(ms);
+                        byte[] exportedFileBytes = ms.ToArray();
+                        string myExportString = Convert.ToBase64String(exportedFileBytes);
+                        JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "SimpleQuotationReport");
+                    }
+                });
+            }
+            else
+            {
+                MyPopup.Build()
+                    .WithTitle(popupTitleInfo)
+                    .WithBody(FilterDataEmptyMessage)
+                    .WithIcon(MyPopupIconType.Info)
+                    .AddButton(new MyPopupFooterButton(close, HandleClosePopup))
+                    .Show();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    #endregion
+
+    #region Action
+
+    /// <summary>
+    /// Handle close popup
+    /// </summary>
+    private void HandleClosePopup()
+    {
+        try
+        {
+            MyPopup.Hide();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Check if form data is valid to submit
+    /// </summary>
+    protected bool IsExportEnable()
+    {
+        try
+        {
+            return !IsExporting
+                    //&& !BookingTypeEmpty
+                    //&& !CustomerEmpty
+                    && !BranchEmpty
+                    && FormContext.Validate();
+        }
+        catch (Exception ex)
+        {
+            // show
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+            return false;
+        }
+    }
+
+
+    #endregion
+
+    #region Helper
+
+    /// <summary>
+    /// Save form filter
+    /// </summary>
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(
+                SimpleQuotationService.GetFieldValues(FilterData),
+                filterConditionFormName,
+                userLoginId
+            );
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Apply filter if page have saved filter in db
+    /// </summary>
+    private async Task ApplyFilter()
+    {
+        try
+        {
+            var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, userLoginId))
+                                        .ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues()
+                                        .ConvertMultipleToSingleValues();
+            if (filterValues.Count > 0)
+            {
+                isFilterApply = true;
+                SimpleQuotationService.ApplyFilter(ref FilterData, filterValues);
+
+                HandlePickupDateChanged(FilterData.StartPickupDate);
+                HandlePickupDateChanged(FilterData.EndPickupDate, false);
+                HandleArrivalDateChanged(FilterData.StartArrivalDate);
+                HandleArrivalDateChanged(FilterData.EndArrivalDate, false);
+                HandleSaleBranchChanged(FilterData.BranchStart == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == FilterData.BranchStart.EigyoCdSeq));
+                HandleSaleBranchChanged(FilterData.BranchEnd == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == FilterData.BranchEnd.EigyoCdSeq), false);
+                HandleUkeCdChanged(FilterData.UkeCdFrom);
+                HandleUkeCdChanged(FilterData.UkeCdTo, false);
+                HandleExportTypeClicked(FilterData.ExportType);
+                HandleCheckeFareChanged(FilterData.Fare);
+
+                isFilterApply = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Add null item to first position for combobox data list
+    /// </summary>
+    /// <param name="source">Data list of combobox</param>
+    private void InsertSelectAll<T>(List<T> source) where T : class
+    {
+        try
+        {
+            if (source.Any(item => item is null))
+                return;
+            source.Insert(0, null);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    #endregion
+}

@@ -1,0 +1,178 @@
+﻿@inject IJSRuntime JSRuntime
+
+    <div class="zoom-bar @(Param.Mode != (int)BusLineMode.Zoom ? "d-none" : null)">
+        <button id="minus" value="@range" @onclick="ZoomOut" disabled="@isDisable">-</button>
+        <input id="range" type="range" step="1" min="1" max="8" value="@range" @onchange="ChangeMode" disabled="@isDisable">
+        <button id="plus" value="@range" @onclick="ZoomIn" disabled="@isDisable">+</button>
+        @*<span class="range-percent">
+            @(range * 12.5)%
+        </span>*@
+    </div>
+
+@code {
+    [Parameter] public ConfigBusSchedule Param { get; set; }
+    [Parameter] public EventCallback<string> OnCallBackUpdatedZoom { get; set; }
+    public int range = 5;
+    bool isDisable = false;
+
+    protected override void OnParametersSet()
+    {
+        if (Param.ActiveP == (int)DayMode.OneDay && Param.ActiveCPT == (int)TimeMode.Minute)
+        {
+            range = 1;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.OneDay && Param.ActiveCPT == (int)TimeMode.OneHour)
+        {
+            range = 2;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.OneDay && Param.ActiveCPT == (int)TimeMode.ThreeHours)
+        {
+            range = 3;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.OneDay && Param.ActiveCPT == (int)TimeMode.SixHours)
+        {
+            range = 4;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.ThreeDays && Param.ActiveCPT == (int)TimeMode.ThreeHours)
+        {
+            range = 5;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.ThreeDays && Param.ActiveCPT == (int)TimeMode.SixHours)
+        {
+            range = 6;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.Week && Param.ActiveCPT == (int)TimeMode.Day)
+        {
+            range = 7;
+            return;
+        }
+        if (Param.ActiveP == (int)DayMode.Month && Param.ActiveCPT == (int)TimeMode.Day)
+        {
+            range = 8;
+            return;
+        }
+    }
+
+    public async Task setModeZoom(int mode)
+    {
+        if (mode == (int)ZoomMode.Zoom1d15)
+        {
+            Param.ActiveP = (int)DayMode.OneDay;
+            Param.ActiveCPT = (int)TimeMode.Minute;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgrid");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d1h)
+        {
+            Param.ActiveP = (int)DayMode.OneDay;
+            Param.ActiveCPT = (int)TimeMode.OneHour;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d3h)
+        {
+            Param.ActiveP = (int)DayMode.OneDay;
+            Param.ActiveCPT = (int)TimeMode.ThreeHours;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1d6h)
+        {
+            Param.ActiveP = (int)DayMode.OneDay;
+            Param.ActiveCPT = (int)TimeMode.SixHours;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom3d3h)
+        {
+            Param.ActiveP = (int)DayMode.ThreeDays;
+            Param.ActiveCPT = (int)TimeMode.ThreeHours;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom3d6h)
+        {
+            Param.ActiveP = (int)DayMode.ThreeDays;
+            Param.ActiveCPT = (int)TimeMode.SixHours;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1w1d)
+        {
+            Param.ActiveP = (int)DayMode.Week;
+            Param.ActiveCPT = (int)TimeMode.Day;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }
+        if (mode == (int)ZoomMode.Zoom1m1d)
+        {
+            Param.ActiveP = (int)DayMode.Month;
+            Param.ActiveCPT = (int)TimeMode.Day;
+            await OnCallBackUpdatedZoom.InvokeAsync("reloadgird");
+            await EnableButton();
+            StateHasChanged();
+            return;
+        }        
+    }
+
+    private async Task EnableButton()
+    {
+        await Task.Delay(300);
+        isDisable = false;
+    }
+
+    public async Task ChangeMode(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        range = Convert.ToInt32(e.Value);
+        isDisable = true;
+        await setModeZoom(range);
+    }
+
+    public async Task ZoomOut()
+    {
+        if (range == 1)
+        {
+            return;
+        }
+        else
+        {
+            range -= 1;
+        }
+        isDisable = true;
+        await setModeZoom(range);
+    }
+
+    public async Task ZoomIn()
+    {
+        if (range == 8)
+        {
+            return;
+        }
+        else
+        {
+            range += 1;
+        }
+        isDisable = true;
+        await setModeZoom(range);
+    }
+}

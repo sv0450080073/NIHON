@@ -1,0 +1,1634 @@
+﻿@page "/staff"
+@using HassyaAllrightCloud.Pages.Components
+@using HassyaAllrightCloud.Pages.Components.Staff
+@implements IDisposable
+@inject BrowserResizeService BrowserResizeService
+@inject BusScheduleHelper BusScheduleHelper
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Staff> Lang
+@using System.Data
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <BlazorContextMenu.ContextMenu Id="menuChangeJob" CssClass="contextmenu">
+        <Item OnClick="HandleClickMenu">
+            <i class="fa fa-retweet" aria-hidden="true"></i>
+            @Lang["return_to_unallocated_work"]
+        </Item>
+    </BlazorContextMenu.ContextMenu>
+
+    <div class="main-top d-flex flex-column flex-grow-1">
+        <div class="d-sm-flex justify-content-between align-items-center pb-2">
+            <h5 class="mb-lg-0">@Lang["Title Page"]</h5>
+            <div class="date-section d-flex align-items-center mb-2 mb-lg-0">
+                <a class="nav-link py-0 px-0" href="javascript:void(0)" @onclick="@((e) => onPrevious(e))">
+                    <i class="fa fa-caret-left" aria-hidden="true"></i> @Lang["Date Prev"]
+                </a>
+                <DxDateEdit Date="@Date" DateChanged="@((newValue) => OnDateChanged(newValue))" Format="yyyy/MM/dd" CssClass="width--120 mx-2 right"></DxDateEdit>
+                <a class="nav-link py-0 px-0" href="javascript:void(0)" @onclick="@((e) => onNext(e))">
+                    @Lang["Date Next"] <i class="fa fa-caret-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <StaffContainer Staffs="ListStaff" Jobs="listJob" Date="@Date" Params="@Param" Width="@Width" OnStatusUpdated="HandleStatusUpdated" OnStatusSwaped="HandleStatusSwaped" OnProcessing="OnProcessing" @ref="Container">
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <ul class="validation-errors pl-4">
+                    <li class="validation-message">@ErrorMessage</li>
+                </ul>
+            }
+            <div class="staff-grid">
+                <div class="staff-grid-item">
+                    <div id="control-tab" class="title-section mb-2">
+                        <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["Title Condition"]
+                    </div>
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="col-auto">
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--120">@Lang["Group"]</label>
+                                            <nav class="nav nav-pills">
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Group == (int)GroupMode.All ? "active" : null)" @onclick="@(e => clickGroupMode(e, (int)GroupMode.All))">@Lang["Group All"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Group == (int)GroupMode.Branch ? "active" : null)" @onclick="@(e => clickGroupMode(e, (int)GroupMode.Branch))">@Lang["Group Branch"]</a>
+                                                @*<a href="javascript:void(0)" class="nav-link @(Param.Group == (int)GroupMode.Company ? "active" : null)" @onclick="@(e => clickGroupMode(e, (int)GroupMode.Company))">@Lang["Group Company"]</a>*@
+                                            </nav>
+                                        </div>
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--120">@Lang["Time"]</label>
+                                            <nav class="nav nav-pills">
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Time == (int)TimeMode.OneHour ? "active" : null)" @onclick="@(e => clickTimeMode(e, (int)TimeMode.OneHour))">@Lang["One Hour"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Time == (int)TimeMode.ThreeHours ? "active" : null)" @onclick="@(e => clickTimeMode(e, (int)TimeMode.ThreeHours))">@Lang["Three Hours"]</a>
+                                            </nav>
+                                        </div>
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--120">@Lang["ShowTimeGrid"]</label>
+                                            <nav class="nav nav-pills">
+                                                <a href="javascript:void(0)" class="nav-link @(Param.ShowTimeGrid == (int)ShowTime.IsShowTime ? "active" : null)" @onclick="@(e => clickShowTimeGrid(e, (int)ShowTime.IsShowTime))">@Lang["Show"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.ShowTimeGrid == (int)ShowTime.IsNotShowTime ? "active" : null)" @onclick="@(e => clickShowTimeGrid(e, (int)ShowTime.IsNotShowTime))">@Lang["NotShow"]</a>
+                                            </nav>
+                                        </div>
+                                        @*<div class="form-group d-sm-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--100 text-right">@Lang["Line"]</label>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Large))">@Lang["Line Large"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Medium))">@Lang["Line Medium"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Small))">@Lang["Line Small"]</a>
+                                        </nav>
+                                    </div>*@
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--100">@Lang["Sort"]</label>
+                                            <nav class="nav nav-pills">
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Sort == (int)StaffSortOrder.Earlier ? "active" : null)" @onclick="@(e => clickStaffSortOrder(e, (int)StaffSortOrder.Earlier))">@Lang["Earlier Order"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Sort == (int)StaffSortOrder.Rolling ? "active" : null)" @onclick="@(e => clickStaffSortOrder(e, (int)StaffSortOrder.Rolling))">@Lang["Rolling Order"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Sort == (int)StaffSortOrder.Work ? "active" : null)" @onclick="@(e => clickStaffSortOrder(e, (int)StaffSortOrder.Work))">@Lang["Work Order"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.Sort == (int)StaffSortOrder.Job ? "active" : null)" @onclick="@(e => clickStaffSortOrder(e, (int)StaffSortOrder.Job))">@Lang["Job Order"]</a>
+                                            </nav>
+                                        </div>
+                                        <div class="form-group d-sm-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--100">@Lang["Line"]</label>
+                                            <nav class="nav nav-pills">
+                                                <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Large))">@Lang["Line Large"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Medium))">@Lang["Line Medium"]</a>
+                                                <a href="javascript:void(0)" class="nav-link @(Param.View == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickStaffLine(e, (int)ViewMode.Small))">@Lang["Line Small"]</a>
+                                            </nav>
+                                        </div>
+                                        @*<div class="form-group d-sm-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--100 text-right">@Lang["Display"]</label>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(Param.Display == (int)StaffDisplay1.Assigned ? "active" : null)" @onclick="@(e => clickStaffDisplay1(e, (int)StaffDisplay1.Assigned))">@Lang["Assigned Work"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.Display == (int)StaffDisplay1.Employee ? "active" : null)" @onclick="@(e => clickStaffDisplay1(e, (int)StaffDisplay1.Employee))">@Lang["Employee"]</a>
+                                        </nav>
+                                    </div>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Param.Group == (int)GroupMode.All)
+                    {
+                        <StaffGrid List="ListStaff"
+                                   numberOfVehile="listNumberOfVehicle.Sum(_ => _.SyaRyoNum)"
+                                   listVehicleAllocation="listVehicleAllocation"
+                                   listDriver="listDriver"
+                                   listGuider="listGuider"
+                                   listCrewDataAcquisition="listCrewDataAcquisition.ToList()"
+                                   AllowedStatuses="@(new Flag[] { Flag.Job })"></StaffGrid>
+                    }
+                    else if (Param.Group == (int)GroupMode.Branch)
+                    {
+                        foreach (var i in listStaffEigyo)
+                        {
+                            <div class="title-section mb-2">
+                                <i class="fa fa-angle-up" aria-hidden="true"></i> @i.EigyoName
+                            </div>
+                            <StaffGrid List="ListStaff.Where(x => x.EigyoCdSeq == i.EigyoCdSeq).ToList()"
+                                       numberOfVehile="listNumberOfVehicle.FirstOrDefault(_ => _.EigyoCdSeq == i.EigyoCdSeq)?.SyaRyoNum"
+                                       listVehicleAllocation="listVehicleAllocation.Where(_ => _.EigyoCdSeq == i.EigyoCdSeq).ToList()"
+                                       listDriver="listDriver.Where(_ => _.EigyoCdSeq == i.EigyoCdSeq).ToList()"
+                                       listGuider="listGuider.Where(_ => _.EigyoCdSeq == i.EigyoCdSeq).ToList()"
+                                       listCrewDataAcquisition="listCrewDataAcquisition.Where(_ => _.EigyoCdSeq == i.EigyoCdSeq).ToList()"
+                                       AllowedStatuses="@(new Flag[] { Flag.Job })"></StaffGrid>
+                        }
+                    }
+                    @*else if (Param.Group == (int)GroupMode.Company)
+                {
+                    foreach (var i in lstCompanyType)
+                    {
+                        <div class="title-section mb-2">
+                            <i class="fa fa-angle-up" aria-hidden="true"></i> @i.BusCompanyName
+                        </div>
+                        <StaffGrid List="ListStaff.Where(x => x.CompanyID == i.BusCompanyID && x.Status == Flag.Todo).ToList()"
+                                   numberOfVehile="listNumberOfVehicle.FirstOrDefault(_ => _.EigyoCdSeq == Param.Eigyo.EigyoCdSeq)"
+                                   listVehicleAllocation="listVehicleAllocation.Where(_ => _.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()"
+                                   listCrewDataAcquisition="listCrewDataAcquisition.Where(_ => _.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()"></StaffGrid>
+                    }
+                }*@
+                </div>
+                <div class="staff-grid-item d-flex flex-column">
+                    <div id="control-tab" class="title-section mb-2">
+                        <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["Title Condition"]
+                    </div>
+                    <div class="express-condition mb-2" style="min-height: 6rem">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3 width--110">@Lang["Crew Sort Order"]</label>
+                                    <nav class="nav nav-pills">
+                                        <a href="javascript:void(0)" class="nav-link @(Param.CrewSort == (int)StaffCrewSortOrder.EmployeeCodeOrder ? "active" : null)" @onclick="@(e => clickStaffCrewSortOrder(e, (int)StaffCrewSortOrder.EmployeeCodeOrder))">@Lang["Employee code order"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(Param.CrewSort == (int)StaffCrewSortOrder.PreviousDayEndTime ? "active" : null)" @onclick="@(e => clickStaffCrewSortOrder(e, (int)StaffCrewSortOrder.PreviousDayEndTime))">@Lang["Previous day end time"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(Param.CrewSort == (int)StaffCrewSortOrder.AscendingTimeForOneWeek ? "active" : null)" @onclick="@(e => clickStaffCrewSortOrder(e, (int)StaffCrewSortOrder.AscendingTimeForOneWeek))">@Lang["AscendingTimeForOneWeek"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(Param.CrewSort == (int)StaffCrewSortOrder.FourWeeksLessTime ? "active" : null)" @onclick="@(e => clickStaffCrewSortOrder(e, (int)StaffCrewSortOrder.FourWeeksLessTime))">@Lang["FourWeeksLessTime"]</a>
+                                    </nav>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div class="form-group d-sm-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3 width--110">@Lang["Work Sort Order"]</label>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(Param.WorkSort == (int)StaffWorkSortOrder.Earlier ? "active" : null)" @onclick="@(e => clickStaffWorkSortOrder(e, (int)StaffWorkSortOrder.Earlier))">@Lang["Earlier Order"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.WorkSort == (int)StaffWorkSortOrder.Time ? "active" : null)" @onclick="@(e => clickStaffWorkSortOrder(e, (int)StaffWorkSortOrder.Time))">@Lang["Time later"]</a>
+                                        </nav>
+                                    </div>
+                                    <div class="form-group d-sm-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["Display"]</label>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(Param.Display2 == (int)StaffDisplay2.Driver ? "active" : null)" @onclick="@(e => clickStaffDisplay2(e, (int)StaffDisplay2.Driver))">@Lang["Driver"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.Display2 == (int)StaffDisplay2.GuideDriver ? "active" : null)" @onclick="@(e => clickStaffDisplay2(e, (int)StaffDisplay2.GuideDriver))">@Lang["Driver"]＋@Lang["Guide"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(Param.Display2 == (int)StaffDisplay2.DriverInHouse ? "active" : null)" @onclick="@(e => clickStaffDisplay2(e, (int)StaffDisplay2.DriverInHouse))">@Lang["Driver"]＋@Lang["BO"]</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label-sm mr-3 width--110">@Lang["ShowTime"]</label>
+                                    <nav class="nav nav-pills">
+                                        <a href="javascript:void(0)" class="nav-link @(Param.ShowTime == (int)ShowTime.IsShowTime ? "active" : null)" @onclick="@(e => clickShowTime(e, (int)ShowTime.IsShowTime))">@Lang["Show"]</a>
+                                        <a href="javascript:void(0)" class="nav-link @(Param.ShowTime == (int)ShowTime.IsNotShowTime ? "active" : null)" @onclick="@(e => clickShowTime(e, (int)ShowTime.IsNotShowTime))">@Lang["NotShow"]</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row m-0 mb-2">
+                        <label class="col-form-label-sm mr-2">@Lang["Eigyo"]</label>
+                        <div class="col-8">
+                            <div class="row">
+                                <DxComboBox Data="listEigyo"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            CssClass="w-50"
+                                            TextFieldName="Text"
+                                            SelectedItem="Param.Eigyo"
+                                            SelectedItemExpression="@(() => Param.Eigyo)"
+                                            SelectedItemChanged="@(e => OnEigyoChanged(e))">
+                                </DxComboBox>
+                                <DxButton Click="@((e) => OnChangeEigyo(0))" Enabled="@checkEnableButton(0)" CssClass="btn btn-sm fa fa-chevron-circle-left ml-1 mr-1"></DxButton>
+                                <DxButton Click="@((e) => OnChangeEigyo(1))" Enabled="@checkEnableButton(1)" CssClass="btn btn-sm fa fa-chevron-circle-right"></DxButton>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-todo custom-scroll">
+                        <div class="grid-todo-column" style="max-width: 240px">
+                            <div class="grid-todo__item mb-3">
+                                <div class="title">@Lang["Unallocated"]<br />@Lang["Driver"]（@ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && (x.SyokumuKbn == 1 || x.SyokumuKbn == 2) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).Count()）</div>
+                                <StaffList List="ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && (x.SyokumuKbn == 1 || x.SyokumuKbn == 2) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()" AllowedStatuses="@(new Flag[] { Flag.Holiday, Flag.Job } )" Height="26.25"></StaffList>
+                            </div>
+                            @if (Param.Display2 == (int)StaffDisplay2.GuideDriver)
+                            {
+                                <div class="grid-todo__item staff-guide mb-3 guider">
+                                    <div class="title">@Lang["Unallocated"]<br />@Lang["Guide"]（@ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && (x.SyokumuKbn == 3 || x.SyokumuKbn == 4) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).Count()）</div>
+                                    <StaffList List="ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && (x.SyokumuKbn == 3 || x.SyokumuKbn == 4) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()" AllowedStatuses="@(new Flag[] { Flag.Holiday, Flag.Job } )" Height="13"></StaffList>
+                                </div>
+                            }
+                            else if (Param.Display2 == (int)StaffDisplay2.DriverInHouse)
+                            {
+                                <div class="grid-todo__item staff-bo mb-3 driver">
+                                    <div class="title">@Lang["Unallocated"]<br />@Lang["BO"]（@ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && x.SyokumuKbn > 4 && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).Count())</div>
+                                    <StaffList List="ListStaff.Where(x => x.JobID.Count == 0 && x.HolidayID == 0 && x.SyokumuKbn > 4 && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()" AllowedStatuses="@(new Flag[] { Flag.Holiday, Flag.Job } )" Height="13"></StaffList>
+                                </div>
+                            }
+                        </div>
+                        <div class="grid-todo-column" style="max-width: 160px">
+                            <div class="grid-todo__item">
+                                <div class="title">@Lang["Unallocated"]<br />@Lang["Work"]（@listJob.Where(x => x.IsDoing == false).Count()）</div>
+                                <JobList List="listJob.Where(x => x.IsDoing == false).ToList()"></JobList>
+                            </div>
+                        </div>
+                        <div class="grid-todo-column" style="max-width: 225px">
+                            <div class="grid-todo__item">
+                                <div class="title">@Lang["Absence"]（@ListStaff.Where(x => (x.HolidayID != 0 || x.isAssignHoliday) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).Count()）</div>
+                                <StaffList List="@ListStaff.Where(x => x.JobID.Count == 0 && (x.HolidayID != 0 || x.isAssignHoliday) && x.EigyoCdSeq == Param.Eigyo.EigyoCdSeq).ToList()" AllowedStatuses="@(new Flag[] { Flag.Work, Flag.Job } )" Height="26.25"></StaffList>
+                            </div>
+                        </div>
+                        <div class="grid-todo-column">
+                            <div class="grid-todo__item mb-2">
+                                <div class="title">@Lang["Holidays"]</div>
+                                <HolidayList List="listWorkLeave.Where(_ => _.KinKyuKbn == 2).ToList()"></HolidayList>
+                            </div>
+                            <div class="grid-todo__item">
+                                <div class="title">@Lang["Service item"]</div>
+                                <WorkList List="listWorkLeave.Where(_ => _.KinKyuKbn == 1).ToList()"></WorkList>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </StaffContainer>
+    </div>
+    @if (Processing)
+    {
+        <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+            <div style="top: 50%; position: relative;">
+                <div class="loader">
+                    <div class="loader-icon"></div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code{
+    [Parameter] public string SelectedDate { get; set; }
+    public ConfigStaff Param = new ConfigStaff();
+    public DateTime Date { get; set; } = DateTime.Today;
+    int activeTabIndex = 0;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; StateHasChanged(); } }
+    public static List<StaffData> ListStaff = new List<StaffData>();
+    public static List<JobData> ListJobs = new List<JobData>();
+    public static List<HolidayData> ListHoliday = new List<HolidayData>();
+    public static List<WorkData> ListWork = new List<WorkData>();
+    public double Width { get; set; }
+    bool isLoading { get; set; } = true;
+    string d = DateTime.Today.ToString(CommonConstants.FormatYMD);
+    bool Processing { get; set; } = false;
+
+    List<EigyoStaffItem> listEigyo = new List<EigyoStaffItem>();
+    List<WorkLeaveItem> listWorkLeave = new List<WorkLeaveItem>();
+    List<WorkHolidayItem> listWorkHoliday = new List<WorkHolidayItem>();
+    List<VehicleAllocationItem> listVehicleAllocation = new List<VehicleAllocationItem>();
+    List<CrewDataAcquisitionItem> listCrewDataAcquisition = new List<CrewDataAcquisitionItem>();
+    List<DrvJinItem> listDriver = new List<DrvJinItem>();
+    List<GuiJinItem> listGuider = new List<GuiJinItem>();
+    List<JobItem> listJob = new List<JobItem>();
+    List<NumberOfVehicle> listNumberOfVehicle = new List<NumberOfVehicle>();
+    List<StaffEigyo> listStaffEigyo = new List<StaffEigyo>();
+    List<PopupData> listRule = new List<PopupData>();
+    List<PopupValue> listRuleValue = new List<PopupValue>();
+
+    [Inject] protected IStaffListService _staffService { get; set; }
+    [Inject] protected IErrorHandlerService errorModalService { get; set; }
+    [Inject] protected IFilterCondition FilterConditionService { get; set; }
+    [Inject] protected IGenerateFilterValueDictionary GenerateFilterValueDictionaryService { get; set; }
+    [Inject] protected NavigationManager navigationManager { get; set; }
+
+    public bool isFinished = false;
+    public string ErrorMessage { get; set; }
+    public StaffContainer Container = new StaffContainer();
+    public string HaiinYmdTime { get; set; }
+
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            if(SelectedDate != null)
+            {
+                Date = DateTime.ParseExact(SelectedDate, CommonConstants.FormatYMD, CultureInfo.InvariantCulture);
+            }
+            JSRuntime.InvokeVoidAsync("loadPageScript", "staffPage");
+        }
+        catch(Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+
+        base.OnParametersSet();
+    }
+
+    private async void OnDateChanged(DateTime newValue)
+    {
+        try
+        {
+            navigationManager.NavigateTo("Staff?SelectedDate=" + newValue.ToString(CommonConstants.FormatYMD));
+            Date = newValue;
+            Processing = true;
+            await Task.Delay(100);
+            await InvokeAsync(StateHasChanged);
+
+            await OnLoadInitData();
+
+            await Task.Run(() =>
+            {
+                Loadpage().Wait();
+                Processing = false;
+            });
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Processing = false;
+            listNumberOfVehicle = new List<NumberOfVehicle>();
+            listVehicleAllocation = new List<VehicleAllocationItem>();
+            listDriver = new List<DrvJinItem>();
+            listGuider = new List<GuiJinItem>();
+            errorModalService.HandleError(ex);
+            StateHasChanged();
+        }
+    }
+
+    private async void onPrevious(MouseEventArgs e)
+    {
+        try
+        {
+            navigationManager.NavigateTo("Staff?SelectedDate=" + Date.AddDays(-1).ToString(CommonConstants.FormatYMD));
+            Date = Date.AddDays(-1);
+            Processing = true;
+            await Task.Delay(100);
+            await InvokeAsync(StateHasChanged);
+
+            await OnLoadInitData();
+
+            await Task.Run(() =>
+            {
+                Loadpage().Wait();
+                Processing = false;
+            });
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Processing = false;
+            listNumberOfVehicle = new List<NumberOfVehicle>();
+            listVehicleAllocation = new List<VehicleAllocationItem>();
+            listDriver = new List<DrvJinItem>();
+            listGuider = new List<GuiJinItem>();
+            errorModalService.HandleError(ex);
+            StateHasChanged();
+        }
+    }
+
+    private async void onNext(MouseEventArgs e)
+    {
+        try
+        {
+            navigationManager.NavigateTo("Staff?SelectedDate=" + Date.AddDays(1).ToString(CommonConstants.FormatYMD));
+            Date = Date.AddDays(1);
+            Processing = true;
+            await Task.Delay(100);
+            await InvokeAsync(StateHasChanged);
+
+            await OnLoadInitData();
+
+            await Task.Run(() =>
+            {
+                Loadpage().Wait();
+                Processing = false;
+            });
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Processing = false;
+            listNumberOfVehicle = new List<NumberOfVehicle>();
+            listVehicleAllocation = new List<VehicleAllocationItem>();
+            listDriver = new List<DrvJinItem>();
+            listGuider = new List<GuiJinItem>();
+            errorModalService.HandleError(ex);
+            StateHasChanged();
+        }
+    }
+
+    void clickGroupMode(MouseEventArgs e, int number)
+    {
+        try
+        {
+            if (number == (int)GroupMode.Branch)
+            {
+                listStaffEigyo.Clear();
+                var temp = ListStaff.DistinctBy(_ => _.EigyoCdSeq).Where(_ => _.CompanyCdSeq == new ClaimModel().CompanyID).ToList();
+                foreach (var item in temp)
+                {
+                    listStaffEigyo.Add(new StaffEigyo() { EigyoCdSeq = item.EigyoCdSeq, EigyoName = item.EigyoName });
+                }
+            }
+            else
+            {
+                listStaffEigyo.Clear();
+            }
+            Param.Group = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickTimeMode(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.Time = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickShowTimeGrid(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.ShowTimeGrid = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickShowTime(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.ShowTime = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffLine(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.View = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffSortOrder(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.Sort = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffDisplay1(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.Display = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffCrewSortOrder(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.CrewSort = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffWorkSortOrder(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.WorkSort = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    void clickStaffDisplay2(MouseEventArgs e, int number)
+    {
+        try
+        {
+            Param.Display2 = number;
+            SaveFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    public async Task Loadpage()
+    {
+        Container.ErrorMessage.Clear();
+        if (Param.Group == (int)GroupMode.Branch)
+        {
+            listStaffEigyo.Clear();
+            var temp = ListStaff.DistinctBy(_ => _.EigyoCdSeq).Where(_ => _.CompanyCdSeq == new ClaimModel().CompanyID).ToList();
+            foreach (var item in temp)
+            {
+                listStaffEigyo.Add(new StaffEigyo() { EigyoCdSeq = item.EigyoCdSeq, EigyoName = item.EigyoName });
+            }
+        }
+
+        foreach (var job in listJob)
+        {
+            DateTime start, end;
+            DateTime.TryParseExact(job.SyuKoYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture, DateTimeStyles.None, out start);
+            DateTime.TryParseExact(job.KikYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture, DateTimeStyles.None, out end);
+            if (DateTime.Compare(start, Date) <= 0 && DateTime.Compare(end, Date) >= 0)
+            {
+                var staff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == job.SyainCdSeq);
+                if (staff != null)
+                {
+                    job.IsDoing = true;
+                    if (!staff.JobID.Contains(job.JobID))
+                        staff.JobID.Add(job.JobID);
+                }
+                else
+                {
+                    job.IsDoing = false;
+                }
+            }
+            else
+            {
+                job.IsDoing = true;
+            }
+            job.Width = BusScheduleHelper.calwidth(Width, job.SyuKoYmd, job.SyuKoTime, job.KikYmd, job.KikTime, 1);
+            job.Left = BusScheduleHelper.calleft(Width, job.SyuKoYmd, job.SyuKoTime, 1, Date);
+        }
+
+        foreach (var staff in ListStaff)
+        {
+            if (staff.JobID.Count > 0)
+            {
+                staff.Status = Flag.Todo;
+            }
+            else
+            {
+                if (staff.HolidayID != 0)
+                {
+                    staff.Status = Flag.Absense;
+                }
+                else
+                {
+                    staff.Status = Flag.NotTodo;
+                }
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void SaveFilter()
+    {
+        var keyValueFilterPairs = GenerateFilterValueDictionaryService.GenerateForStaffSearchData(Param);
+        FilterConditionService.SaveFilterCondtion(keyValueFilterPairs, FormFilterName.Staff, 0, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (DateTime.TryParseExact(SelectedDate, CommonConstants.FormatYMD, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+            {
+                Date = date;
+            }
+            Param = new ConfigStaff();
+            var conditions = await FilterConditionService.GetFilterCondition(FormFilterName.Staff, 0, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+            if (conditions.Any())
+            {
+                Param.Group = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.Group))?.JoInput ?? ((int)GroupMode.All).ToString());
+                Param.Time = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.Time))?.JoInput ?? ((int)TimeMode.ThreeHours).ToString());
+                Param.View = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.View))?.JoInput ?? ((int)ViewMode.Large).ToString());
+                Param.Sort = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.Sort))?.JoInput ?? ((int)StaffSortOrder.Earlier).ToString());
+                Param.Display = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.Display))?.JoInput ?? ((int)StaffDisplay1.Assigned).ToString());
+                Param.CrewSort = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.CrewSort))?.JoInput ?? ((int)StaffCrewSortOrder.EmployeeCodeOrder).ToString());
+                Param.WorkSort = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.WorkSort))?.JoInput ?? ((int)StaffWorkSortOrder.Earlier).ToString());
+                Param.Display2 = int.Parse(conditions.FirstOrDefault(_ => _.ItemNm == nameof(ConfigStaff.Display2))?.JoInput ?? ((int)StaffDisplay2.Driver).ToString());
+            }
+            else
+            {
+                Param.Group = (int)GroupMode.All;
+                Param.Time = (int)TimeMode.ThreeHours;
+                Param.View = (int)ViewMode.Large;
+                Param.Sort = (int)StaffSortOrder.Earlier;
+                Param.Display = (int)StaffDisplay1.Assigned;
+                Param.CrewSort = (int)StaffCrewSortOrder.EmployeeCodeOrder;
+                Param.WorkSort = (int)StaffWorkSortOrder.Earlier;
+                Param.Display2 = (int)StaffDisplay2.Driver;
+            }
+
+            isLoading = true;
+            await OnLoadInitData();
+
+            await Task.Run(() =>
+            {
+                Loadpage().Wait();
+                isLoading = false;
+                isFinished = true;
+            });
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            isLoading = false;
+            listNumberOfVehicle = new List<NumberOfVehicle>();
+            listVehicleAllocation = new List<VehicleAllocationItem>();
+            listDriver = new List<DrvJinItem>();
+            listGuider = new List<GuiJinItem>();
+            errorModalService.HandleError(ex);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnLoadInitData()
+    {
+        listJob = new List<JobItem>();
+        ListStaff = new List<StaffData>();
+        listDriver = new List<DrvJinItem>();
+        listGuider = new List<GuiJinItem>();
+        var taskEigyo = _staffService.GetListEigyo(new ClaimModel().CompanyID);
+        var taskWorkLeave = _staffService.GetListWorkLeave();
+        var taskWorkHoliday = _staffService.GetListWorkHoliday(Param.CompanyCdSeq, Date.ToString(CommonConstants.FormatYMD));
+        var taskVehicleAllocation = _staffService.GetListVehicleAllocation(Param.TenantCdSeq, Date.ToString(CommonConstants.FormatYMD));
+        var taskCrewDataAcquisition = _staffService.GetListCrewDataAcquisition(Param.CompanyCdSeq, Date.ToString(CommonConstants.FormatYMD));
+        var taskVehicle = _staffService.GetListNumberOfVehicle(Param.CompanyCdSeq, Date.ToString(CommonConstants.FormatYMD));
+        var taskPreDayEndTime = _staffService.GetListPreDayEndTime(Date.AddDays(-1).ToString(CommonConstants.FormatYMD), Date.ToString(CommonConstants.FormatYMD), new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+
+        var timeSearchParam = new TimeSearchParam();
+        timeSearchParam.Times = 1;
+        timeSearchParam.DriverNaikinOnly = 1;
+        timeSearchParam.UnkYmd = Date.ToString(CommonConstants.FormatYMD);
+        timeSearchParam.SyainCdSeq = 0;
+        CreateTable(timeSearchParam);
+        var taskWorkTime1Week = _staffService.GetRestraintTime(timeSearchParam, 7);
+        var taskWorkTime4Week = _staffService.GetRestraintTime(timeSearchParam, 28);
+        var taskOnDay = _staffService.GetRestraintTime(timeSearchParam, 1);
+        var taskDayBefore = _staffService.GetRestPeriod(timeSearchParam);
+        var taskRule = _staffService.GetListRule();
+        var taskRuleValue = _staffService.GetListRuleValue(new ClaimModel().TenantID);
+
+        await Task.WhenAll(taskEigyo, taskWorkLeave, taskWorkHoliday, taskVehicleAllocation, taskCrewDataAcquisition, taskVehicle,
+            taskPreDayEndTime, taskWorkTime1Week, taskWorkTime4Week, taskOnDay, taskDayBefore, taskRule, taskRuleValue);
+
+        listEigyo = taskEigyo.Result;
+        listWorkLeave = taskWorkLeave.Result;
+        listWorkHoliday = taskWorkHoliday.Result;
+        listVehicleAllocation = taskVehicleAllocation.Result;
+        listCrewDataAcquisition = taskCrewDataAcquisition.Result;
+        listNumberOfVehicle = taskVehicle.Result;
+        var listPreDayEndTime = taskPreDayEndTime.Result;
+        var listWorkTime1Week = taskWorkTime1Week.Result;
+        if(listWorkTime1Week == null)
+        {
+            ErrorMessage = Lang["BI_T006"];
+            listWorkTime1Week = new List<RestraintTime>();
+        }
+        var listWorkTime4Week = taskWorkTime4Week.Result;
+        if(listWorkTime4Week == null)
+        {
+            ErrorMessage = Lang["BI_T006"];
+            listWorkTime4Week = new List<RestraintTime>();
+        }
+        var listOnday = taskOnDay.Result;
+        if(listOnday == null)
+        {
+            ErrorMessage = Lang["BI_T006"];
+            listOnday = new List<RestraintTime>();
+        }
+        var listDayBefore = taskDayBefore.Result;
+        listRule = taskRule.Result;
+        listRuleValue = taskRuleValue.Result;
+
+        if (listEigyo.Count > 0)
+            Param.Eigyo = listEigyo[0];
+
+        var listPopup = await GetListPopupData(0);
+        GetListStaff(listPreDayEndTime, listWorkTime1Week, listWorkTime4Week, listOnday, listDayBefore, listPopup);
+
+        GetListJob();
+    }
+
+    private void GetListStaff(List<PreDayEndTimeItem> listPreDayEndTime, List<RestraintTime> listWorkTime1Week, List<RestraintTime> listWorkTime4Week,
+        List<RestraintTime> listOnday, List<RestPeriod> listDayBefore, List<PopupDisplay> listPopup)
+    {
+        foreach (var crewData in listCrewDataAcquisition)
+        {
+            StaffData staff = new StaffData();
+            staff.CompanyCdSeq = crewData.CompanyCdSeq;
+            staff.SyokumuKbn = crewData.SyokumuKbn;
+            staff.SyokumuNm = crewData.SyokumuNm;
+            staff.SyainNm = crewData.SyainNm;
+            staff.SyainCdSeq = crewData.SyainCdSeq;
+            staff.SyainCd = crewData.SyainCd;
+            staff.EigyoCdSeq = crewData.EigyoCdSeq;
+            staff.EigyoName = crewData.EigyoNm;
+            staff.TenkoNo = crewData.TenkoNo;
+            staff.PreDayEndTime = listPreDayEndTime.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.ZenjituTaiknTime ?? string.Empty;
+            staff.WorkTime = listWorkTime1Week.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+            staff.WorkTime4Week = listWorkTime4Week.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+            staff.Onday = listOnday.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+            staff.DayBefore = listDayBefore.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KyusokuMinute ?? 0;
+
+            if(staff.SyokumuKbn != 3 && staff.SyokumuKbn != 4)
+            {
+                var staffToolTip = listPopup.Where(_ => _.SyainCdSeq == staff.SyainCdSeq).ToList();
+                var listToolTip = new List<PopupDisplay>();
+                foreach (var item in listRule)
+                {
+                    var data = staffToolTip.FirstOrDefault(_ => _.KijunSeq == item.KijunSeq);
+                    if (data == null)
+                        listToolTip.Add(new PopupDisplay() { KijunSeq = item.KijunSeq, KijunNm = item.KijunNm, KijunValue = "-", SyainCdSeq = staff.SyainCdSeq });
+                    else
+                        listToolTip.Add(new PopupDisplay() { KijunSeq = data.KijunSeq, KijunNm = data.KijunNm, KijunValue = data.KijunValue, SyainCdSeq = staff.SyainCdSeq });
+                }
+                staff.ToolTip = listToolTip;
+            }
+
+            var holiday = listWorkHoliday.FirstOrDefault(_ => _.SyainCdSeq == crewData.SyainCdSeq);
+            if (holiday != null)
+            {
+                staff.ColKinKyu = holiday.ColKinKyu;
+                if (holiday.KinKyuKbn == 2)
+                {
+                    staff.HolidayID = holiday.KinKyuTblCdSeq;
+                    staff.HolidayNm = holiday.RyakuNm;
+                }
+                else
+                {
+                    staff.WorkID = holiday.KinKyuTblCdSeq;
+                    staff.WorkNm = holiday.RyakuNm;
+                }
+            }
+            staff.KobanUpdYmd = listWorkHoliday.OrderByDescending(_ => _.UpdYmd).ThenByDescending(_ => _.UpdTime).FirstOrDefault(_ => _.SyainCdSeq == crewData.SyainCdSeq)?.UpdYmd ?? string.Empty;
+            staff.KobanUpdTime = listWorkHoliday.OrderByDescending(_ => _.UpdYmd).ThenByDescending(_ => _.UpdTime).FirstOrDefault(_ => _.SyainCdSeq == crewData.SyainCdSeq)?.UpdTime ?? string.Empty;
+            ListStaff.Add(staff);
+        }
+    }
+
+    private async Task<List<PopupDisplay>> GetListPopupData(int syainCdSeq)
+    {
+        var listPopup = new List<PopupDisplay>();
+        var timeSearchParam = new TimeSearchParam();
+        timeSearchParam.Times = 1;
+        timeSearchParam.DriverNaikinOnly = 1;
+        timeSearchParam.UnkYmd = Date.ToString(CommonConstants.FormatYMD);
+        timeSearchParam.SyainCdSeq = syainCdSeq;
+        CreateTable(timeSearchParam);
+        foreach (var item in listRule)
+        {
+            if (item.PeriodUnit == 1 || item.PeriodUnit == 2)
+            {
+                var popupValue = listRuleValue.Where(_ => _.KijunSeq == item.KijunSeq).ToList();
+                foreach(var value in popupValue)
+                {
+                    if (value.RestrictedTarget == 1)
+                    {
+                        await HandleRestrictedTarget1(item, timeSearchParam, popupValue, 0, listPopup);
+                    }
+                    else if(value.RestrictedTarget == 2)
+                    {
+                        await HandleRestrictedTarget2(item, timeSearchParam, popupValue, 0, listPopup);
+                    }
+                    else if(value.RestrictedTarget == 3)
+                    {
+                        await HandleRestrictedTarget3(item, timeSearchParam, 0, listPopup);
+                    }
+                }
+            }
+            else if(item.PeriodUnit == 3)
+            {
+                var popupValue = listRuleValue.Where(_ => _.KijunSeq == item.KijunSeq).ToList();
+                foreach(var value in popupValue)
+                {
+                    if (value.RestrictedTarget == 6)
+                    {
+                        var temp = listRuleValue.Where(_ => _.KijunSeq == item.KijunRef).ToList();
+                        foreach (var t in temp)
+                        {
+                            if (t.RestrictedTarget == 1)
+                            {
+                                await HandleRestrictedTarget1(item, timeSearchParam, temp, 1, listPopup);
+                            }
+                            else if (t.RestrictedTarget == 2)
+                            {
+                                await HandleRestrictedTarget2(item, timeSearchParam, temp, 1, listPopup);
+                            }
+                            else if (t.RestrictedTarget == 3)
+                            {
+                                await HandleRestrictedTarget3(item, timeSearchParam, 1, listPopup);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return listPopup;
+    }
+
+    private void CreateTable(TimeSearchParam timeSearchParam)
+    {
+        timeSearchParam.KobanTableType = new DataTable();
+        timeSearchParam.KobanTableType.Columns.Add("UnkYmd", typeof(string));
+        timeSearchParam.KobanTableType.Columns.Add("UkeNo", typeof(string));
+        timeSearchParam.KobanTableType.Columns.Add("UnkRen", typeof(short));
+        timeSearchParam.KobanTableType.Columns.Add("TeiDanNo", typeof(short));
+        timeSearchParam.KobanTableType.Columns.Add("BunkRen", typeof(short));
+        timeSearchParam.KobanTableType.Columns.Add("SyukinYmd", typeof(string));
+        timeSearchParam.KobanTableType.Columns.Add("SyukinTime", typeof(string));
+        timeSearchParam.KobanTableType.Columns.Add("TaikinYmd", typeof(string));
+        timeSearchParam.KobanTableType.Columns.Add("TaiknTime", typeof(string));
+    }
+
+    private async Task HandleRestrictedTarget1(PopupData item, TimeSearchParam timeSearchParam, List<PopupValue> popupValue, byte type, List<PopupDisplay> listPopup)
+    {
+        var periodUnit = type == 0 ? item.PeriodUnit : item.RefPeriodUnit;
+        var periodValue = type == 0 ? item.PeriodValue : item.RefPeriodValue;
+        if (periodUnit == 1)
+        {
+            var popupData = await _staffService.GetRestraintTime(timeSearchParam, 7 * periodValue);
+            if(popupData != null)
+            {
+                foreach (var p in popupData)
+                {
+                    AddData(p.SyainCdSeq, item.KijunSeq, item.KijunNm, GetTime(p.KousokuMinute), listPopup);
+                }
+            }
+            else
+            {
+                ErrorMessage = Lang["BI_T006"];
+            }
+        }
+        else if (periodUnit == 2)
+        {
+            var popupData = await _staffService.GetRestraintTime(timeSearchParam, periodValue);
+            if(popupData != null)
+            {
+                if (popupData.Any())
+                {
+                    var minDrvJin = int.Parse(string.IsNullOrEmpty(popupData.Min(_ => _.DrvJin)) || string.IsNullOrWhiteSpace(popupData.Min(_ => _.DrvJin)) ? "0" : popupData.Min(_ => _.DrvJin));
+                    var maxDrvJin = int.Parse(string.IsNullOrEmpty(popupData.Max(_ => _.DrvJin)) || string.IsNullOrWhiteSpace(popupData.Max(_ => _.DrvJin)) ? "0" : popupData.Max(_ => _.DrvJin));
+                    foreach (var p in popupData)
+                    {
+                        string KijunValue = "-";
+                        int count = 0;
+                        var checkData = popupValue.Where(_ => _.RestrictedTarget == 4).ToList();
+                        foreach (var check in checkData)
+                        {
+                            if (check.RestrictedTarget == 4)
+                            {
+                                int drvJin = string.IsNullOrEmpty(p.DrvJin) || string.IsNullOrWhiteSpace(p.DrvJin) ? 0 : int.Parse(p.DrvJin);
+                                if (type == 0)
+                                {
+                                    KijunValue = HandleRestrictedTarget45(check.RestrictedExp, check.RestrictedValue, drvJin, p.KousokuMinute, minDrvJin, maxDrvJin, type);
+                                }
+                                else
+                                {
+                                    count += int.Parse(HandleRestrictedTarget45(check.RestrictedExp, check.RestrictedValue, drvJin, p.KousokuMinute, minDrvJin, maxDrvJin, type));
+                                }
+                            }
+                        }
+                        AddData(p.SyainCdSeq, item.KijunSeq, item.KijunNm, type == 0 ? KijunValue : string.Format("{0}{1}", count, Lang["count"]), listPopup);
+                    }
+                }
+            }
+            else
+            {
+                ErrorMessage = Lang["BI_T006"];
+            }
+        }
+    }
+
+    private async Task HandleRestrictedTarget2(PopupData item, TimeSearchParam timeSearchParam, List<PopupValue> popupValue, byte type, List<PopupDisplay> listPopup)
+    {
+        var periodUnit = type == 0 ? item.PeriodUnit : item.RefPeriodUnit;
+        if (periodUnit == 2)
+        {
+            var listPeriod = await _staffService.GetRestPeriod(timeSearchParam);
+            if (listPeriod.Any())
+            {
+                var minDrvJin = int.Parse(string.IsNullOrEmpty(listPeriod.Min(_ => _.DrvJin)) || string.IsNullOrWhiteSpace(listPeriod.Min(_ => _.DrvJin)) ? "0" : listPeriod.Min(_ => _.DrvJin));
+                var maxDrvJin = int.Parse(string.IsNullOrEmpty(listPeriod.Max(_ => _.DrvJin)) || string.IsNullOrWhiteSpace(listPeriod.Max(_ => _.DrvJin)) ? "0" : listPeriod.Max(_ => _.DrvJin));
+                foreach (var period in listPeriod)
+                {
+                    string KijunValue = "-";
+                    var checkData = popupValue.Where(_ => _.RestrictedTarget == 4 || _.RestrictedTarget == 5).ToList();
+                    foreach (var check in checkData)
+                    {
+                        if (check.RestrictedTarget == 4)
+                        {
+                            int drvJin = string.IsNullOrEmpty(period.DrvJin) || string.IsNullOrWhiteSpace(period.DrvJin) ? 0 : int.Parse(period.DrvJin);
+                            KijunValue = HandleRestrictedTarget45(check.RestrictedExp, check.RestrictedValue, drvJin, period.KyusokuMinute, minDrvJin, maxDrvJin, 0);
+                        }
+                        else if (check.RestrictedTarget == 5)
+                        {
+                            KijunValue = HandleRestrictedTarget45(check.RestrictedExp, check.RestrictedValue, period.KyusoCnt, period.KyusokuMinute, period.KyusoCnt, period.KyusoCnt, 0);
+                        }
+                    }
+                    AddData(period.SyainCdSeq, item.KijunSeq, item.KijunNm, KijunValue, listPopup);
+                }
+            }
+        }
+    }
+
+    private string HandleRestrictedTarget45(byte RestrictedExp, int RestrictedValue, int Compare, int data, int minData, int maxData, byte type)
+    {
+        switch (RestrictedExp)
+        {
+            case 1:
+                if (RestrictedValue == Compare) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            case 2:
+                if (RestrictedValue != Compare) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            case 3:
+                if (RestrictedValue < minData) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            case 4:
+                if (RestrictedValue <= minData) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            case 5:
+                if (RestrictedValue >= maxData) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            case 6:
+                if (RestrictedValue > maxData) return type == 0 ? GetTime(data) : "1";
+                else return type == 0 ? "-" : "0";
+            default:
+                return type == 0 ? "-" : "0";
+        }
+    }
+
+    private string GetTime(int KyusokuMinute)
+    {
+        return string.Format("{0}:{1}", KyusokuMinute / 60, KyusokuMinute % 60);
+    }
+
+    private async Task HandleRestrictedTarget3(PopupData item, TimeSearchParam timeSearchParam, byte type, List<PopupDisplay> listPopup)
+    {
+        var periodUnit = type == 0 ? item.PeriodUnit : item.RefPeriodUnit;
+        var periodValue = type == 0 ? item.PeriodValue : item.RefPeriodValue;
+        if (periodUnit == 1)
+        {
+            var popupData = await _staffService.GetHoliday(timeSearchParam, 7 * periodValue);
+            if(popupData != null)
+            {
+                foreach (var p in popupData)
+                {
+                    AddData(p.SyainCdSeq, item.KijunSeq, item.KijunNm, string.Format("{0}{1}", p.LeaveCnt, Lang["leave_count"]), listPopup);
+                }
+            }
+            else
+            {
+                ErrorMessage = Lang["BI_T006"];
+            }
+        }
+    }
+
+    private void AddData(int SyainCdSeq, int KijunSeq, string KijunNm, string KijunValue, List<PopupDisplay> listPopup)
+    {
+        PopupDisplay data = new PopupDisplay();
+        data.SyainCdSeq = SyainCdSeq;
+        data.KijunSeq = KijunSeq;
+        data.KijunNm = KijunNm;
+        data.KijunValue = KijunValue;
+        listPopup.Add(data);
+    }
+
+    private float GetHour(List<WorkTimeItem> tempweek)
+    {
+        float time = 0;
+        float duplicate = 0;
+        WorkTimeItem prev = null;
+        tempweek = tempweek.OrderBy(_ => _.SyukinTime).ToList();
+        if (tempweek.Count > 0)
+        {
+            foreach(var item in tempweek)
+            {
+                if(!string.IsNullOrEmpty(item.TaiknTime.Replace(" ", string.Empty)) && !string.IsNullOrEmpty(item.SyukinTime.Replace(" ", string.Empty)))
+                {
+                    bool IsDuplicate = false;
+                    if (prev != null)
+                    {
+                        if (item.SyukinTime.CompareTo(prev.TaiknTime) < 0)
+                        {
+                            if (item.TaiknTime.CompareTo(prev.TaiknTime) < 1)
+                            {
+                                duplicate += (int.Parse(item.TaiknTime.Substring(0, 2)) + float.Parse(item.TaiknTime.Substring(2)) / 60) - (int.Parse(item.SyukinTime.Substring(0, 2)) + float.Parse(item.SyukinTime.Substring(2)) / 60);
+                            }
+                            else
+                            {
+                                duplicate += (int.Parse(prev.TaiknTime.Substring(0, 2)) + float.Parse(prev.TaiknTime.Substring(2)) / 60) - (int.Parse(item.SyukinTime.Substring(0, 2)) + float.Parse(item.SyukinTime.Substring(2)) / 60);
+                                prev.SyukinTime = prev.TaiknTime;
+                                prev.TaiknTime = item.TaiknTime;
+                            }
+                            IsDuplicate = true;
+                        }
+
+                        if (!IsDuplicate)
+                        {
+                            prev = new WorkTimeItem();
+                            prev.SyukinTime = item.SyukinTime;
+                            prev.TaiknTime = item.TaiknTime;
+                        }
+                    }
+                    else
+                    {
+                        prev = new WorkTimeItem();
+                        prev.SyukinTime = item.SyukinTime;
+                        prev.TaiknTime = item.TaiknTime;
+                    }
+                    time += (int.Parse(item.TaiknTime.Substring(0, 2)) + float.Parse(item.TaiknTime.Substring(2)) / 60) - (int.Parse(item.SyukinTime.Substring(0, 2)) + float.Parse(item.SyukinTime.Substring(2)) / 60);
+                }
+            }
+            return time - duplicate;
+        }
+        return 0;
+    }
+
+    private void GetListJob()
+    {
+        int count = 1;
+        List<JobItem> listJobTemp = new List<JobItem>();
+        foreach (var vehicleAllocation in listVehicleAllocation)
+        {
+            var driver = listDriver.FirstOrDefault(_ => _.UkeNo == vehicleAllocation.UkeNo && _.UnkRen == vehicleAllocation.UnkRen
+                                                     && _.TeiDanNo == vehicleAllocation.TeiDanNo && _.BunkRen == vehicleAllocation.BunkRen);
+
+            if (driver == null)
+            {
+                listDriver.Add(new DrvJinItem()
+                {
+                    UkeNo = vehicleAllocation.UkeNo,
+                    UnkRen = vehicleAllocation.UnkRen,
+                    TeiDanNo = vehicleAllocation.TeiDanNo,
+                    BunkRen = vehicleAllocation.BunkRen,
+                    DrvJin = vehicleAllocation.DrvJin,
+                    EigyoCdSeq = vehicleAllocation.EigyoCdSeq,
+                    SyainCdSeq = vehicleAllocation.SyainCdSeq
+                });
+            }
+            else if(driver.SyainCdSeq != 0)
+            {
+                var tempStaff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == driver.SyainCdSeq);
+                if(tempStaff != null && ((vehicleAllocation.SyokumuKbn == 1 || vehicleAllocation.SyokumuKbn == 2) || (vehicleAllocation.SyokumuKbn == 0 && (tempStaff.SyokumuKbn == 1 || tempStaff.SyokumuKbn == 2))))
+                    driver.DrvJin = driver.DrvJin - 1;
+            }
+
+            var guider = listGuider.FirstOrDefault(_ => _.UkeNo == vehicleAllocation.UkeNo && _.UnkRen == vehicleAllocation.UnkRen
+                                                     && _.TeiDanNo == vehicleAllocation.TeiDanNo && _.BunkRen == vehicleAllocation.BunkRen);
+
+            if (guider == null)
+            {
+                listGuider.Add(new GuiJinItem()
+                {
+                    UkeNo = vehicleAllocation.UkeNo,
+                    UnkRen = vehicleAllocation.UnkRen,
+                    TeiDanNo = vehicleAllocation.TeiDanNo,
+                    BunkRen = vehicleAllocation.BunkRen,
+                    GuiSu = vehicleAllocation.GuiSu,
+                    EigyoCdSeq = vehicleAllocation.EigyoCdSeq,
+                    SyainCdSeq = vehicleAllocation.SyainCdSeq
+                });
+            }
+            else if (guider.SyainCdSeq != 0)
+            {
+                var tempGuider = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == guider.SyainCdSeq);
+                if (tempGuider != null && ((vehicleAllocation.SyokumuKbn == 3 || vehicleAllocation.SyokumuKbn == 4) || (vehicleAllocation.SyokumuKbn == 0 && (tempGuider.SyokumuKbn == 3 || tempGuider.SyokumuKbn == 4))))
+                    guider.GuiSu = guider.GuiSu - 1;
+            }
+
+            JobItem job = new JobItem();
+            job.JobID = count++;
+            job.UkeNo = vehicleAllocation.UkeNo;
+            job.UnkRen = vehicleAllocation.UnkRen;
+            job.TeiDanNo = vehicleAllocation.TeiDanNo;
+            job.BunkRen = vehicleAllocation.BunkRen;
+            job.HaiInRen = vehicleAllocation.HaiInRen;
+            job.DanTaNm = vehicleAllocation.DanTaNm;
+            job.SyainCdSeq = vehicleAllocation.SyainCdSeq;
+            job.SyuKoYmd = vehicleAllocation.SyuKoYmd;
+            job.SyuKoTime = vehicleAllocation.SyuKoTime;
+            job.KikYmd = vehicleAllocation.KikYmd;
+            job.KikTime = vehicleAllocation.KikTime;
+            job.HaiSYmd = vehicleAllocation.HaiSYmd;
+            job.TouYmd = vehicleAllocation.TouYmd;
+            job.SyaSyuRen = vehicleAllocation.SyaSyuRen;
+            job.UnkoJKbn = vehicleAllocation.UnkoJKbn;
+            job.Kotei_SyukoTime = vehicleAllocation.KoteiSyukoTime;
+            job.Kotei_KikTime = vehicleAllocation.KoteiKikTime;
+            job.EigyoCdSeq = vehicleAllocation.EigyoCdSeq;
+            job.SyokumuKbn = (byte)vehicleAllocation.SyokumuKbn;
+            job.SyokumuNm = vehicleAllocation.SyokumuKbn == 1 || vehicleAllocation.SyokumuKbn == 2 ? Lang["driver_job"] : vehicleAllocation.SyokumuKbn == 3 || vehicleAllocation.SyokumuKbn == 4 ? Lang["guider_job"] : string.Empty;
+
+            if (vehicleAllocation.HaiSKbn == 2)
+            {
+                job.ColorLine = "staff-color-1";
+            }
+            else if (!string.IsNullOrEmpty(vehicleAllocation.KaktYmd.Replace(" ", string.Empty)))
+            {
+                job.ColorLine = "staff-color-2";
+            }
+            else if (vehicleAllocation.KaknKais == 1)
+            {
+                job.ColorLine = "staff-color-3";
+            }
+            else if (vehicleAllocation.KaknKais == 0 && vehicleAllocation.KSKbn == 2)
+            {
+                job.ColorLine = "staff-color-4";
+            }
+
+            job.HaishaUpdYmdTime = vehicleAllocation.HaishaUpdYmdTime;
+            job.HaiinUpdYmdTime = vehicleAllocation.HaiinUpdYmdTime;
+
+            var staff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == job.SyainCdSeq);
+            if (staff != null)
+            {
+                listJob.Add(job);
+            }
+
+            listJobTemp.Add(job);
+        }
+
+        foreach(var job in listJobTemp.Where(_ => _.SyainCdSeq != 0))
+        {
+            if(job.SyokumuKbn == 1 || job.SyokumuKbn == 2)
+            {
+                var driver = listDriver.FirstOrDefault(_ => _.SyainCdSeq == job.SyainCdSeq);
+                if (driver != null) driver.DrvJin = driver.DrvJin - 1;
+            }
+            else if(job.SyokumuKbn == 3 || job.SyokumuKbn == 4)
+            {
+                var guider = listGuider.FirstOrDefault(_ => _.SyainCdSeq == job.SyainCdSeq);
+                if (guider != null) guider.GuiSu = guider.GuiSu - 1;
+            }
+        }
+
+        CopyJobDriver(listJobTemp, ref count);
+        CopyJobGuider(listJobTemp, ref count);
+    }
+
+    private void CopyJobDriver(List<JobItem> listTemp, ref int count)
+    {
+        foreach (var driver in listDriver)
+        {
+            if (driver.DrvJin > 0)
+            {
+                var job = listTemp.FirstOrDefault(_ => _.UkeNo == driver.UkeNo && _.UnkRen == driver.UnkRen && _.TeiDanNo == driver.TeiDanNo && _.BunkRen == driver.BunkRen);
+                if (job != null)
+                {
+                    for (int i = 0; i < driver.DrvJin; i++)
+                    {
+                        JobItem jobTemp = new JobItem();
+                        jobTemp.JobID = count++;
+                        jobTemp.HaiInRen = 0;
+                        jobTemp.SyainCdSeq = 0;
+                        jobTemp.SyokumuKbn = 1;
+                        jobTemp.SyokumuNm = "運転手";
+                        jobTemp.UkeNo = job.UkeNo;
+                        jobTemp.UnkRen = job.UnkRen;
+                        jobTemp.TeiDanNo = job.TeiDanNo;
+                        jobTemp.BunkRen = job.BunkRen;
+                        jobTemp.DanTaNm = job.DanTaNm;
+                        jobTemp.SyuKoYmd = job.SyuKoYmd;
+                        jobTemp.SyuKoTime = job.SyuKoTime;
+                        jobTemp.KikYmd = job.KikYmd;
+                        jobTemp.KikTime = job.KikTime;
+                        jobTemp.HaiSYmd = job.HaiSYmd;
+                        jobTemp.TouYmd = job.TouYmd;
+                        jobTemp.ColorLine = job.ColorLine;
+                        jobTemp.SyaSyuRen = job.SyaSyuRen;
+                        jobTemp.UnkoJKbn = job.UnkoJKbn;
+                        jobTemp.Kotei_SyukoTime = job.Kotei_SyukoTime;
+                        jobTemp.Kotei_KikTime = job.Kotei_KikTime;
+                        jobTemp.EigyoCdSeq = job.EigyoCdSeq;
+                        jobTemp.HaishaUpdYmdTime = job.HaishaUpdYmdTime;
+                        jobTemp.HaiinUpdYmdTime = job.HaiinUpdYmdTime;
+                        listJob.Add(jobTemp);
+                    }
+                }
+            }
+        }
+    }
+
+    private void CopyJobGuider(List<JobItem> listTemp, ref int count)
+    {
+        foreach (var guider in listGuider)
+        {
+            if (guider.GuiSu > 0)
+            {
+                var job = listTemp.FirstOrDefault(_ => _.UkeNo == guider.UkeNo && _.UnkRen == guider.UnkRen && _.TeiDanNo == guider.TeiDanNo && _.BunkRen == guider.BunkRen);
+                if (job != null)
+                {
+                    for (int i = 0; i < guider.GuiSu; i++)
+                    {
+                        JobItem jobTemp = new JobItem();
+                        jobTemp.JobID = count++;
+                        jobTemp.HaiInRen = 0;
+                        jobTemp.SyainCdSeq = 0;
+                        jobTemp.SyokumuKbn = 3;
+                        jobTemp.SyokumuNm = "ガイド";
+                        jobTemp.UkeNo = job.UkeNo;
+                        jobTemp.UnkRen = job.UnkRen;
+                        jobTemp.TeiDanNo = job.TeiDanNo;
+                        jobTemp.BunkRen = job.BunkRen;
+                        jobTemp.DanTaNm = job.DanTaNm;
+                        jobTemp.SyuKoYmd = job.SyuKoYmd;
+                        jobTemp.SyuKoTime = job.SyuKoTime;
+                        jobTemp.KikYmd = job.KikYmd;
+                        jobTemp.KikTime = job.KikTime;
+                        jobTemp.HaiSYmd = job.HaiSYmd;
+                        jobTemp.TouYmd = job.TouYmd;
+                        jobTemp.ColorLine = job.ColorLine;
+                        jobTemp.SyaSyuRen = job.SyaSyuRen;
+                        jobTemp.UnkoJKbn = job.UnkoJKbn;
+                        jobTemp.Kotei_SyukoTime = job.Kotei_SyukoTime;
+                        jobTemp.Kotei_KikTime = job.Kotei_KikTime;
+                        jobTemp.EigyoCdSeq = job.EigyoCdSeq;
+                        jobTemp.HaishaUpdYmdTime = job.HaishaUpdYmdTime;
+                        jobTemp.HaiinUpdYmdTime = job.HaiinUpdYmdTime;
+                        listJob.Add(jobTemp);
+                    }
+                }
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("scroll");
+            await JSRuntime.InvokeVoidAsync("loadPageScript", "staffPage", "setHeightTopGrid");
+            if (isFinished)
+            {
+                isFinished = false;
+                BrowserResizeService.OnResize += BrowserHasResized;
+                await JSRuntime.InvokeAsync<object>("browserResize.registerResizeCallback");
+                BrowserResizeService.OnCallbackWidth += BrowserHasCallbackWidth;
+                await JSRuntime.InvokeAsync<object>("browserResize.registerWidthCallback");
+                Width = (double)await BrowserResizeService.GetInnerWidthStaff();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    private async Task BrowserHasResized()
+    {
+        Width = (double)await BrowserResizeService.GetInnerWidthStaff();
+        StateHasChanged();
+    }
+
+    private async Task BrowserHasCallbackWidth()
+    {
+        Width = (double)await BrowserResizeService.GetCallbackInnerWidthStaff();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        BrowserResizeService.OnResize -= BrowserHasResized;
+        BrowserResizeService.OnCallbackWidth -= BrowserHasCallbackWidth;
+    }
+
+    async Task HandleStatusUpdated(StaffData updatedStaff)
+    {
+        try
+        {
+            var staff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == updatedStaff.SyainCdSeq);
+            if (staff != null)
+            {
+                staff = updatedStaff;
+                await GetTimeUpd(staff);
+                if (staff.SyokumuKbn != 3 && staff.SyokumuKbn != 4)
+                {
+                    await GetStaffTooltip(staff);
+                }
+            }
+
+            var listJobTemp = listJob.Where(_ => _.SyainCdSeq == updatedStaff.SyainCdSeq).ToList();
+            foreach (var job in listJobTemp)
+            {
+                job.IsDoing = true;
+            }
+
+            Processing = false;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+            Processing = false;
+        }
+        StateHasChanged();
+    }
+
+    async Task HandleStatusSwaped(JobItem swapJob)
+    {
+        try
+        {
+            if(swapJob.SyainCdSeq != 0)
+            {
+                var listPopup = await GetListPopupData(swapJob.SyainCdSeq);
+                var staff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == swapJob.SyainCdSeq);
+                if (staff != null)
+                {
+                    await GetTimeUpd(staff);
+                    if (staff.SyokumuKbn != 3 && staff.SyokumuKbn != 4)
+                    {
+                        await GetStaffTooltip(staff);
+                    }
+                }
+            }
+
+            var job = listJob.FirstOrDefault(_ => _.JobID == swapJob.JobID);
+            if (job != null)
+            {
+                var listPopup = await GetListPopupData(job.SyainCdSeq);
+                var staff = ListStaff.FirstOrDefault(_ => _.SyainCdSeq == job.SyainCdSeq);
+                if (staff != null)
+                {
+                    await GetTimeUpd(staff);
+                    if (staff.SyokumuKbn != 3 && staff.SyokumuKbn != 4)
+                    {
+                        await GetStaffTooltip(staff);
+                    }
+                }
+                job.IsDoing = true;
+                job.SyainCdSeq = swapJob.SyainCdSeq;
+                await GetUpdData(job);
+            }
+
+            Processing = false;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+            Processing = false;
+        }
+        StateHasChanged();
+    }
+
+    private async Task HandleClickMenu(ItemClickEventArgs e)
+    {
+        try
+        {
+            ErrorMessage = string.Empty;
+            Processing = true;
+            await Task.Delay(100);
+            await InvokeAsync(StateHasChanged);
+
+            if (e.Data != null)
+            {
+                var currentJob = e.Data as JobItem;
+                var haitaCheck = await HaitaCheckDelete(currentJob);
+                if (haitaCheck)
+                {
+                    var result = await _staffService.HandleUnassignWork(currentJob);
+                    if (result)
+                    {
+                        var staff = ListStaff.FirstOrDefault(_ => _.JobID.Contains(currentJob.JobID));
+                        if (staff != null)
+                        {
+                            await GetTimeUpd(staff);
+                            if (staff.SyokumuKbn != 3 && staff.SyokumuKbn != 4)
+                            {
+                                await GetStaffTooltip(staff);
+                            }
+                            staff.JobID.RemoveAt(staff.JobID.IndexOf(currentJob.JobID));
+                        }
+
+                        var job = listJob.FirstOrDefault(_ => _.JobID == currentJob.JobID);
+                        if (job != null)
+                        {
+                            job.SyainCdSeq = 0;
+                            await GetUpdData(job);
+                        }
+                    }
+                }
+                else
+                {
+                    ErrorMessage = Lang["BI_T008"];
+                }
+            }
+
+            await Task.Run(() =>
+            {
+                Loadpage().Wait();
+                Processing = false;
+            });
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+            Processing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetUpdData(JobItem job)
+    {
+        var updData = await _staffService.GetHaitaCheck(job.UkeNo, job.UnkRen, job.TeiDanNo, job.BunkRen);
+        if (updData != null)
+        {
+            var list = listJob.Where(_ => _.UkeNo == job.UkeNo && _.UnkRen == job.UnkRen && _.TeiDanNo == job.TeiDanNo && _.BunkRen == job.BunkRen).ToList();
+            foreach(var item in list)
+            {
+                item.HaishaUpdYmdTime = updData.HaishaUpdYmd + updData.HaishaUpdTime;
+                item.HaiinUpdYmdTime = updData.HaiinUpdYmdTime;
+            }
+        }
+    }
+
+    private async Task GetTimeUpd(StaffData staff)
+    {
+        var timeSearchParam = new TimeSearchParam();
+        timeSearchParam.Times = 1;
+        timeSearchParam.DriverNaikinOnly = 1;
+        timeSearchParam.UnkYmd = Date.ToString(CommonConstants.FormatYMD);
+        timeSearchParam.SyainCdSeq = staff.SyainCdSeq;
+        CreateTable(timeSearchParam);
+        var taskWorkTime1Week = _staffService.GetRestraintTime(timeSearchParam, 7);
+        var taskWorkTime4Week = _staffService.GetRestraintTime(timeSearchParam, 28);
+        var taskOnDay = _staffService.GetRestraintTime(timeSearchParam, 1);
+        var taskDayBefore = _staffService.GetRestPeriod(timeSearchParam);
+        var taskPreDayEndTime = _staffService.GetListPreDayEndTime(Date.AddDays(-1).ToString(CommonConstants.FormatYMD), Date.ToString(CommonConstants.FormatYMD), new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+
+        await Task.WhenAll(taskWorkTime1Week, taskWorkTime4Week, taskOnDay, taskDayBefore, taskPreDayEndTime);
+
+        var listPreDayEndTime = taskPreDayEndTime.Result;
+        var listWorkTime1Week = taskWorkTime1Week.Result;
+        var listWorkTime4Week = taskWorkTime4Week.Result;
+        var listOnday = taskOnDay.Result;
+        var listDayBefore = taskDayBefore.Result;
+
+        staff.PreDayEndTime = listPreDayEndTime.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.ZenjituTaiknTime ?? string.Empty;
+        staff.WorkTime = listWorkTime1Week.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+        staff.WorkTime4Week = listWorkTime4Week.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+        staff.Onday = listOnday.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KousokuMinute ?? 0;
+        staff.DayBefore = listDayBefore.FirstOrDefault(_ => _.SyainCdSeq == staff.SyainCdSeq)?.KyusokuMinute ?? 0;
+    }
+
+    private async Task GetStaffTooltip(StaffData staff)
+    {
+        var listPopup = await GetListPopupData(staff.SyainCdSeq);
+        var staffToolTip = listPopup.Where(_ => _.SyainCdSeq == staff.SyainCdSeq).ToList();
+        var listToolTip = new List<PopupDisplay>();
+        foreach (var item in listRule)
+        {
+            var data = staffToolTip.FirstOrDefault(_ => _.KijunSeq == item.KijunSeq);
+            if (data == null)
+                listToolTip.Add(new PopupDisplay() { KijunSeq = item.KijunSeq, KijunNm = item.KijunNm, KijunValue = "-", SyainCdSeq = staff.SyainCdSeq });
+            else
+                listToolTip.Add(new PopupDisplay() { KijunSeq = data.KijunSeq, KijunNm = data.KijunNm, KijunValue = data.KijunValue, SyainCdSeq = staff.SyainCdSeq });
+        }
+        staff.ToolTip = listToolTip;
+    }
+
+    private async Task<bool> HaitaCheckDelete(JobItem job)
+    {
+        var haitaData = await _staffService.GetHaitaCheck(job.UkeNo, job.UnkRen, job.TeiDanNo, job.BunkRen);
+        if (job.HaishaUpdYmdTime != haitaData.HaishaUpdYmd + haitaData.HaishaUpdTime ||
+            job.HaiinUpdYmdTime.Trim() != haitaData.HaiinUpdYmdTime) return false;
+        return true;
+    }
+
+    protected bool checkEnableButton(byte type)
+    {
+        var index = listEigyo.IndexOf(Param.Eigyo);
+        if (type == 0)
+        {
+            return index > 0;
+        }
+        else
+        {
+            return index < listEigyo.Count - 1;
+        }
+    }
+
+    protected void OnEigyoChanged(EigyoStaffItem item)
+    {
+        try
+        {
+            Param.Eigyo = item;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    protected void OnChangeEigyo(byte type)
+    {
+        try
+        {
+            if (listEigyo.Count > 0)
+            {
+                var index = listEigyo.IndexOf(Param.Eigyo);
+                if (type == 0)
+                {
+                    if (index - 1 > -1)
+                    {
+                        OnEigyoChanged(listEigyo[index - 1]);
+                    }
+                    else
+                    {
+                        OnEigyoChanged(listEigyo[listEigyo.Count - 1]);
+                    }
+                }
+                else
+                {
+                    if (index + 1 < listEigyo.Count)
+                    {
+                        OnEigyoChanged(listEigyo[index + 1]);
+                    }
+                    else
+                    {
+                        OnEigyoChanged(listEigyo[0]);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    protected void OnProcessing(bool value)
+    {
+        Processing = value;
+        StateHasChanged();
+    }
+}

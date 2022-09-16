@@ -1,0 +1,547 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="TransportDailyReportA4" Landscape="true" Margins="25, 25, 146, 56" PaperKind="A3" PageWidth="1654" PageHeight="1169" Version="20.1" DataSource="#Ref-0" Font="MS PGothic, 10pt, charSet=0">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="146.388885">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label8" Multiline="true" TextAlignment="TopRight" SizeF="50,20" LocationFloat="1503.99988,25" Font="MS PGothic, 11pt, charSet=0" Padding="2,4,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="4" EventName="BeforePrint" PropertyName="Text" Expression="[Page] + '/' + [TotalPage]" />
+          </ExpressionBindings>
+          <StylePriority Ref="5" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="6" ControlType="XRLabel" Name="label7" Multiline="true" Text="ページ" SizeF="50,20" LocationFloat="1553.99988,25" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="7" UseFont="false" />
+        </Item2>
+        <Item3 Ref="8" ControlType="XRLabel" Name="label6" Multiline="true" SizeF="177.756836,20.0000038" LocationFloat="1326.243,25" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="9" EventName="BeforePrint" PropertyName="Text" Expression="[CurrentDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="10" UseFont="false" />
+        </Item3>
+        <Item4 Ref="11" ControlType="XRLabel" Name="label3" Multiline="true" SizeF="207.8749,20.0000076" LocationFloat="9.999763,90.00001" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="12" EventName="BeforePrint" PropertyName="Text" Expression="[UnkoDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="13" UseFont="false" />
+        </Item4>
+        <Item5 Ref="14" ControlType="XRLabel" Name="label2" Multiline="true" SizeF="207.87471,20" LocationFloat="9.999932,69.99999" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="15" EventName="BeforePrint" PropertyName="Text" Expression="[EigyoNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="16" UseFont="false" />
+        </Item5>
+        <Item6 Ref="17" ControlType="XRLabel" Name="label1" Multiline="true" Text="運　　　　輸　　　　日　　　　報" TextAlignment="MiddleCenter" SizeF="305.059631,23" LocationFloat="647.907349,25" Font="MS PGothic, 18pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="18" UseFont="false" UseTextAlignment="false" />
+        </Item6>
+      </Controls>
+    </Item1>
+    <Item2 Ref="19" ControlType="DetailBand" Name="detailBand1" HeightF="0" />
+    <Item3 Ref="20" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="55.69424">
+      <Controls>
+        <Item1 Ref="21" ControlType="XRLabel" Name="label10" Multiline="true" TextAlignment="MiddleLeft" SizeF="155.980469,20" LocationFloat="1445.485,10.0000172" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="22" EventName="BeforePrint" PropertyName="Text" Expression="[SyainNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="23" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="24" ControlType="XRLabel" Name="label9" Multiline="true" TextAlignment="MiddleLeft" SizeF="100,20" LocationFloat="1345.48511,10.0000172" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="25" EventName="BeforePrint" PropertyName="Text" Expression="[SyainCd]" />
+          </ExpressionBindings>
+          <StylePriority Ref="26" UseFont="false" UseTextAlignment="false" />
+        </Item2>
+      </Controls>
+    </Item3>
+    <Item4 Ref="27" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="Data" DataSource="#Ref-0" PageBreak="AfterBand">
+      <Bands>
+        <Item1 Ref="28" ControlType="DetailBand" Name="Detail" HeightF="40">
+          <Controls>
+            <Item1 Ref="29" ControlType="XRTable" Name="table2" TextAlignment="MiddleLeft" SizeF="1600.48511,40" LocationFloat="0,0" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,96" Borders="Right, Bottom">
+              <Rows>
+                <Item1 Ref="30" ControlType="XRTableRow" Name="tableRow3" Weight="1">
+                  <Cells>
+                    <Item1 Ref="31" ControlType="XRTableCell" Name="tableCell5" Weight="0.53440571768780276" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="32" EventName="BeforePrint" PropertyName="Text" Expression="[No]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="33" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="34" ControlType="XRTableCell" Name="tableCell10" Weight="0.8221627219219737" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[SyaRyoNm]" />
+                      </ExpressionBindings>
+                    </Item2>
+                    <Item3 Ref="36" ControlType="XRTableCell" Name="tableCell12" Weight="0.534405678484033" TextFormatString="{0:#,##0}" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="37" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([UkeNo]) And [TeiCnt] != 0, [TeiCnt], '')" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="38" ControlType="XRTableCell" Name="tableCell15" Weight="1.2332447894030749" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="39" EventName="BeforePrint" PropertyName="Text" Expression="Iif([SyokumuKbn1] = 1  Or [SyokumuKbn1] = 2, [SyainNm1], '') + ' ' + &#xA;Iif([SyokumuKbn2] = 1  Or [SyokumuKbn2] = 2, [SyainNm2], '') + ' ' + &#xA;Iif([SyokumuKbn3] = 1  Or [SyokumuKbn3] = 2, [SyainNm3], '') + ' ' + &#xA;Iif([SyokumuKbn4] = 1  Or [SyokumuKbn4] = 2, [SyainNm4], '') + ' ' + &#xA;Iif([SyokumuKbn5] = 1  Or [SyokumuKbn5] = 2, [SyainNm5], '')&#xA;" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="40" ControlType="XRTableCell" Name="tableCell16" Weight="1.2332449462181547" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="41" EventName="BeforePrint" PropertyName="Text" Expression="Iif([SyokumuKbn1] = 3  Or [SyokumuKbn1] = 4, [SyainNm1], '') + ' ' + &#xA;Iif([SyokumuKbn2] = 3  Or [SyokumuKbn2] = 4, [SyainNm2], '') + ' ' + &#xA;Iif([SyokumuKbn3] = 3  Or [SyokumuKbn3] = 4, [SyainNm3], '') + ' ' + &#xA;Iif([SyokumuKbn4] = 3  Or [SyokumuKbn4] = 4, [SyainNm4], '') + ' ' + &#xA;Iif([SyokumuKbn5] = 3  Or [SyokumuKbn5] = 4, [SyainNm5], '')&#xA;" />
+                      </ExpressionBindings>
+                    </Item5>
+                    <Item6 Ref="42" ControlType="XRTableCell" Name="tableCell18" Weight="1.2332427508070385" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="43" EventName="BeforePrint" PropertyName="Text" Expression="[Tokui_RyakuNm] + NewLine() + [Siten_RyakuNm]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="44" ControlType="XRTableCell" Name="tableCell19" Weight="3.6997344500257885" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="45" EventName="BeforePrint" PropertyName="Text" Expression="[DanTaNm] + ' ' + [DanTaNm2] + NewLine() + [IkNm]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="46" ControlType="XRTableCell" Name="tableCell20" Weight="0.53440254218243843" Multiline="true" TextAlignment="MiddleCenter">
+                      <ExpressionBindings>
+                        <Item1 Ref="47" EventName="BeforePrint" PropertyName="Text" Expression="[Hihaku]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="48" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="49" ControlType="XRTableCell" Name="tableCell47" Weight="0.41108324188968781" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="50" EventName="BeforePrint" PropertyName="Text" Expression="Substring([SyuKoTime], 0, 2)" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="51" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="52" ControlType="XRTableCell" Name="tableCell48" Weight="0.41107885106745468" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="53" EventName="BeforePrint" PropertyName="Text" Expression="Substring([SyuKoTime], 2)&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="54" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="55" ControlType="XRTableCell" Name="tableCell49" Weight="0.41108261462936879" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="56" EventName="BeforePrint" PropertyName="Text" Expression="Substring([KikTime], 0, 2)&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="57" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="58" ControlType="XRTableCell" Name="tableCell50" Weight="0.41108261462936924" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="59" EventName="BeforePrint" PropertyName="Text" Expression="Substring([KikTime], 2)&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="60" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="61" ControlType="XRTableCell" Name="tableCell51" Weight="0.53440818752530828" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="62" EventName="BeforePrint" PropertyName="Text" Expression="[JyoSyaJin] + NewLine() + [PlusJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="63" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="64" ControlType="XRTableCell" Name="tableCell52" Weight="1.4387859586523091" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="65" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([UkeNo]), [SyaRyoUnc], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="66" UseTextAlignment="false" />
+                    </Item14>
+                    <Item15 Ref="67" ControlType="XRTableCell" Name="tableCell53" Weight="1.4387821200918796" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="68" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([UkeNo]), [SyaRyoTes], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="69" UseTextAlignment="false" />
+                    </Item15>
+                    <Item16 Ref="70" ControlType="XRTableCell" Name="tableCell54" Weight="1.4387809405697571" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="71" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([UkeNo]), [SyaRyoUnc] - [SyaRyoTes], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="72" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="73" ControlType="XRTableCell" Name="tableCell55" Weight="0.82216264521894555" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="74" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Total_JisaIPKm] != '0.00', [Total_JisaIPKm], '') + NewLine() + [Total_JisaKSKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="75" UseTextAlignment="false" />
+                    </Item17>
+                    <Item18 Ref="76" ControlType="XRTableCell" Name="tableCell56" Weight="0.82216134979002575" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="77" EventName="BeforePrint" PropertyName="Text" Expression="[Total_KisoIPKm] + NewLine() + [Total_KisoKSKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="78" UseTextAlignment="false" />
+                    </Item18>
+                    <Item19 Ref="79" ControlType="XRTableCell" Name="tableCell57" Weight="0.8221664462801177" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="80" EventName="BeforePrint" PropertyName="Text" Expression="[Total_OthKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="81" UseTextAlignment="false" />
+                    </Item19>
+                    <Item20 Ref="82" ControlType="XRTableCell" Name="tableCell58" Weight="0.822161349790026" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="83" EventName="BeforePrint" PropertyName="Text" Expression="[Total_TotalKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="84" UseTextAlignment="false" />
+                    </Item20>
+                    <Item21 Ref="85" ControlType="XRTableCell" Name="tableCell59" Weight="1.1184538454478543" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="86" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Nenryo1] != '0.00', [Nenryo1RyakuNm] + NewLine() + [Nenryo1], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="87" UseTextAlignment="false" />
+                    </Item21>
+                    <Item22 Ref="88" ControlType="XRTableCell" Name="tableCell60" Weight="1.1184538597215461" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Nenryo2] != '0.00', [Nenryo2RyakuNm] + NewLine() + [Nenryo2], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="90" UseTextAlignment="false" />
+                    </Item22>
+                    <Item23 Ref="91" ControlType="XRTableCell" Name="tableCell61" Weight="1.1041117986039044" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="92" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Nenryo3] != '0.00', [Nenryo3RyakuNm] + NewLine() + [Nenryo3], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="93" UseTextAlignment="false" />
+                    </Item23>
+                  </Cells>
+                </Item1>
+              </Rows>
+              <StylePriority Ref="94" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="95" ControlType="ReportHeaderBand" Name="ReportHeader" HeightF="40">
+          <Controls>
+            <Item1 Ref="96" ControlType="XRTable" Name="table1" TextAlignment="MiddleCenter" SizeF="1600.485,40" LocationFloat="0,0" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,96" Borders="Top, Right, Bottom">
+              <Rows>
+                <Item1 Ref="97" ControlType="XRTableRow" Name="tableRow1" Weight="1">
+                  <Cells>
+                    <Item1 Ref="98" ControlType="XRTableCell" Name="tableCell1" Weight="0.53440571768780276" RowSpan="2" Multiline="true" Text="番号" Borders="All">
+                      <StylePriority Ref="99" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="100" ControlType="XRTableCell" Name="tableCell2" Weight="0.8221626435144338" RowSpan="2" Multiline="true" Text="車号" />
+                    <Item3 Ref="101" ControlType="XRTableCell" Name="tableCell3" Weight="0.53440571768780276" RowSpan="2" Multiline="true" Text="定員" />
+                    <Item4 Ref="102" ControlType="XRTableCell" Name="tableCell4" Weight="2.466487870621874" Multiline="true" Text="乗　 務　 員" />
+                    <Item5 Ref="103" ControlType="XRTableCell" Name="tableCell6" Weight="1.233243926920141" RowSpan="2" Multiline="true" Text="旅行業者名" />
+                    <Item6 Ref="104" ControlType="XRTableCell" Name="tableCell7" Weight="3.6997316032535967" RowSpan="2" Multiline="true" Text="団　体　名　／　行　先　名" />
+                    <Item7 Ref="105" ControlType="XRTableCell" Name="tableCell8" Weight="0.53440568072625438" RowSpan="2" Multiline="true" Text="日帰&#xA;宿泊" />
+                    <Item8 Ref="106" ControlType="XRTableCell" Name="tableCell9" Weight="0.8221625634023858" Multiline="true" Text="出庫" />
+                    <Item9 Ref="107" ControlType="XRTableCell" Name="tableCell11" Weight="0.822162563402388" Multiline="true" Text="帰庫" />
+                    <Item10 Ref="108" ControlType="XRTableCell" Name="tableCell13" Weight="0.53440568072625372" RowSpan="2" Multiline="true" Text="乗車&#xA;人員" />
+                    <Item11 Ref="109" ControlType="XRTableCell" Name="tableCell14" Weight="4.31635376467462" Multiline="true" Text="運　　送　　収　　入" />
+                    <Item12 Ref="110" ControlType="XRTableCell" Name="tableCell17" Weight="3.2886504172426743" Multiline="true" Text="走行粁(一般/高速)" />
+                    <Item13 Ref="111" ControlType="XRTableCell" Name="tableCell21" Weight="1.118453998828544" RowSpan="2" Multiline="true" Text="燃料１" />
+                    <Item14 Ref="112" ControlType="XRTableCell" Name="tableCell22" Weight="1.1184540133956025" RowSpan="2" Multiline="true" Text="燃料２" />
+                    <Item15 Ref="113" ControlType="XRTableCell" Name="tableCell23" Weight="1.1041152634831311" RowSpan="2" Multiline="true" Text="燃料３" />
+                  </Cells>
+                </Item1>
+                <Item2 Ref="114" ControlType="XRTableRow" Name="tableRow2" Weight="1">
+                  <Cells>
+                    <Item1 Ref="115" ControlType="XRTableCell" Name="tableCell24" Weight="0.53440697220844069" Multiline="true" Text="tableCell24" />
+                    <Item2 Ref="116" ControlType="XRTableCell" Name="tableCell25" Weight="0.82216138899379609" Multiline="true" Text="tableCell25" />
+                    <Item3 Ref="117" ControlType="XRTableCell" Name="tableCell26" Weight="0.53440697220844047" Multiline="true" Text="tableCell26" />
+                    <Item4 Ref="118" ControlType="XRTableCell" Name="tableCell27" Weight="1.2332438765052862" Multiline="true" Text="運 転 士" />
+                    <Item5 Ref="119" ControlType="XRTableCell" Name="tableCell28" Weight="1.2332439157090516" Multiline="true" Text="ガ イ ド" />
+                    <Item6 Ref="120" ControlType="XRTableCell" Name="tableCell29" Weight="1.2332426723994514" Multiline="true" Text="tableCell29" />
+                    <Item7 Ref="121" ControlType="XRTableCell" Name="tableCell30" Weight="3.6997341907023222" Multiline="true" Text="tableCell30" />
+                    <Item8 Ref="122" ControlType="XRTableCell" Name="tableCell31" Weight="0.53440254442469393" Multiline="true" Text="tableCell31" />
+                    <Item9 Ref="123" ControlType="XRTableCell" Name="tableCell32" Weight="0.41108130130307907" Multiline="true" Text="時" />
+                    <Item10 Ref="124" ControlType="XRTableCell" Name="tableCell33" Weight="0.41107879226194066" Multiline="true" Text="分" />
+                    <Item11 Ref="125" ControlType="XRTableCell" Name="tableCell34" Weight="0.41108128170119507" Multiline="true" Text="時" />
+                    <Item12 Ref="126" ControlType="XRTableCell" Name="tableCell35" Weight="0.41108524128174229" Multiline="true" Text="分" />
+                    <Item13 Ref="127" ControlType="XRTableCell" Name="tableCell36" Weight="0.53440818976739335" Multiline="true" Text="tableCell36" />
+                    <Item14 Ref="128" ControlType="XRTableCell" Name="tableCell37" Weight="1.4387845882248782" Multiline="true" Text="運送料金収入" />
+                    <Item15 Ref="129" ControlType="XRTableCell" Name="tableCell38" Weight="1.4387845098173409" Multiline="true" Text="斡旋手数料" />
+                    <Item16 Ref="130" ControlType="XRTableCell" Name="tableCell39" Weight="1.4387808246631655" Multiline="true" Text="差引収入" />
+                    <Item17 Ref="131" ControlType="XRTableCell" Name="tableCell40" Weight="0.82216260431066324" Multiline="true" Text="実車粁" />
+                    <Item18 Ref="132" ControlType="XRTableCell" Name="tableCell41" Weight="0.82216260431066457" Multiline="true" Text="空車粁" />
+                    <Item19 Ref="133" ControlType="XRTableCell" Name="tableCell42" Weight="0.82216260431066368" Multiline="true" Text="その他" />
+                    <Item20 Ref="134" ControlType="XRTableCell" Name="tableCell43" Weight="0.82216260431066412" Multiline="true" Text="合計" />
+                    <Item21 Ref="135" ControlType="XRTableCell" Name="tableCell44" Weight="1.1184540573892488" Multiline="true" Text="tableCell44" />
+                    <Item22 Ref="136" ControlType="XRTableCell" Name="tableCell45" Weight="1.1184540205329276" Multiline="true" Text="tableCell45" />
+                    <Item23 Ref="137" ControlType="XRTableCell" Name="tableCell46" Weight="1.1041156682304512" Multiline="true" Text="tableCell46" />
+                  </Cells>
+                </Item2>
+              </Rows>
+              <StylePriority Ref="138" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item2>
+        <Item3 Ref="139" ControlType="ReportFooterBand" Name="ReportFooter1" HeightF="220">
+          <Controls>
+            <Item1 Ref="140" ControlType="XRTable" Name="table4" TextAlignment="MiddleCenter" SizeF="1469.5957,120" LocationFloat="131.87,100" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,96" Borders="Top, Right, Bottom">
+              <Rows>
+                <Item1 Ref="141" ControlType="XRTableRow" Name="tableRow6" Weight="1">
+                  <Cells>
+                    <Item1 Ref="142" ControlType="XRTableCell" Name="tableCell86" Weight="3.5053526702851143" Multiline="true" Text="車　　　　　輌　　　　　数" Borders="All">
+                      <StylePriority Ref="143" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="144" ControlType="XRTableCell" Name="tableCell91" Weight="2.7575448248843717" Multiline="true" Text="団　　　　体　　　　内　　　　訳" />
+                    <Item3 Ref="145" ControlType="XRTableCell" Name="tableCell94" Weight="2.4070128503073267" Multiline="true" Text="運　　　　行　　　　回　　　　数" />
+                    <Item4 Ref="146" ControlType="XRTableCell" Name="tableCell97" Weight="3.3095128645830174" Multiline="true" />
+                  </Cells>
+                </Item1>
+                <Item2 Ref="147" ControlType="XRTableRow" Name="tableRow7" Weight="1">
+                  <Cells>
+                    <Item1 Ref="148" ControlType="XRTableCell" Name="tableCell98" Weight="0.70106752984363585" RowSpan="2" Multiline="true" Text="実在車輌数" Borders="All">
+                      <StylePriority Ref="149" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="150" ControlType="XRTableCell" Name="tableCell99" Weight="1.4021419684866039" Multiline="true" Text="実働車輌数" />
+                    <Item3 Ref="151" ControlType="XRTableCell" Name="tableCell101" Weight="0.70107109567554948" RowSpan="2" Multiline="true" Text="臨時増車" />
+                    <Item4 Ref="152" ControlType="XRTableCell" Name="tableCell102" Weight="0.70107109567554948" RowSpan="2" Multiline="true" Text="在車輌" />
+                    <Item5 Ref="153" ControlType="XRTableCell" Name="tableCell103" Weight="1.0048675388533048" RowSpan="2" Multiline="true" Text="団 体 件 数" />
+                    <Item6 Ref="154" ControlType="XRTableCell" Name="tableCell104" Weight="0.934762481124863" RowSpan="2" Multiline="true" Text="う　ち&#xA;本　社　扱" />
+                    <Item7 Ref="155" ControlType="XRTableCell" Name="tableCell105" Weight="0.817915518072587" RowSpan="2" Multiline="true" Text="う　　　ち&#xA;斡旋業者" />
+                    <Item8 Ref="156" ControlType="XRTableCell" Name="tableCell106" Weight="0.81791623123896962" RowSpan="2" Multiline="true" Text="運 行 回 数" />
+                    <Item9 Ref="157" ControlType="XRTableCell" Name="tableCell107" Weight="0.79454719521170569" RowSpan="2" Multiline="true" Text="う　ち&#xA;本　社　扱" />
+                    <Item10 Ref="158" ControlType="XRTableCell" Name="tableCell108" Weight="0.794546482045323" RowSpan="2" Multiline="true" Text="う　　　ち&#xA;斡旋業者" />
+                    <Item11 Ref="159" ControlType="XRTableCell" Name="tableCell109" Weight="3.3095160738317397" RowSpan="3" Multiline="true" Text="(注)同じ車番であっても、一仕業(団体)毎に本欄に記入すること。" TextAlignment="TopLeft" Font="MS PGothic, 10pt, style=Underline, charSet=0" Padding="4,2,2,0,100">
+                      <StylePriority Ref="160" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item11>
+                  </Cells>
+                </Item2>
+                <Item3 Ref="161" ControlType="XRTableRow" Name="tableRow8" Weight="1">
+                  <Cells>
+                    <Item1 Ref="162" ControlType="XRTableCell" Name="tableCell110" Weight="0.70106752984363585" Multiline="true" Text="tableCell110" />
+                    <Item2 Ref="163" ControlType="XRTableCell" Name="tableCell111" Weight="0.6777009898987113" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="164" EventName="BeforePrint" PropertyName="Text" Expression="[DisplayLabel]" />
+                      </ExpressionBindings>
+                    </Item2>
+                    <Item3 Ref="165" ControlType="XRTableCell" Name="tableCell112" Weight="0.72444102316079162" Multiline="true" Text="泊分" />
+                    <Item4 Ref="166" ControlType="XRTableCell" Name="tableCell113" Weight="0.70107145225874057" Multiline="true" Text="tableCell113" />
+                    <Item5 Ref="167" ControlType="XRTableCell" Name="tableCell114" Weight="0.7010714522587409" Multiline="true" Text="tableCell114" />
+                    <Item6 Ref="168" ControlType="XRTableCell" Name="tableCell115" Weight="1.0048674942804055" Multiline="true" Text="tableCell115" />
+                    <Item7 Ref="169" ControlType="XRTableCell" Name="tableCell116" Weight="0.9347624811248626" Multiline="true" Text="tableCell116" />
+                    <Item8 Ref="170" ControlType="XRTableCell" Name="tableCell117" Weight="0.81791551807258711" Multiline="true" Text="tableCell117" />
+                    <Item9 Ref="171" ControlType="XRTableCell" Name="tableCell118" Weight="0.817914804906204" Multiline="true" Text="tableCell118" />
+                    <Item10 Ref="172" ControlType="XRTableCell" Name="tableCell119" Weight="0.794549334710854" Multiline="true" Text="tableCell119" />
+                    <Item11 Ref="173" ControlType="XRTableCell" Name="tableCell120" Weight="0.79454505571255785" Multiline="true" Text="tableCell120" />
+                    <Item12 Ref="174" ControlType="XRTableCell" Name="tableCell121" Weight="3.3095160738317393" Multiline="true" Text="tableCell121" />
+                  </Cells>
+                </Item3>
+                <Item4 Ref="175" ControlType="XRTableRow" Name="tableRow9" Weight="1">
+                  <Cells>
+                    <Item1 Ref="176" ControlType="XRTableCell" Name="tableCell122" Weight="0.70106752984363585" Multiline="true" TextAlignment="MiddleRight" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="177" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalActualSyaryo] + ' 両', '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="178" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="179" ControlType="XRTableCell" Name="tableCell123" Weight="0.67770098989871141" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="180" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalWorkStock] + ' 両', '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="181" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="182" ControlType="XRTableCell" Name="tableCell124" Weight="0.72444102316079151" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="183" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalWorkNight] + ' 両', '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="184" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="185" ControlType="XRTableCell" Name="tableCell125" Weight="0.70107145225874035" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="186" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TempIncrease] + ' 両', '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="187" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="188" ControlType="XRTableCell" Name="tableCell126" Weight="0.70107145225874068" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="189" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;ToInt(Replace([TotalData].[TotalActualSyaryo], ',', '')) -&#xA;ToInt(Replace([TotalData].[TotalWorkStock], ',', '')) -&#xA;ToInt(Replace([TotalData].[TotalWorkNight], ',', '')) +&#xA;ToInt(Replace([TotalData].[TempIncrease], ',', '')) + ' 両',&#xA; '')&#xA;&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="190" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="191" ControlType="XRTableCell" Name="tableCell127" Weight="1.004867405134608" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="192" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;ToInt(Replace([TotalData].[TotalDantaiHeadOffice], ',', '')) + ToInt(Replace([TotalData].[TotalDantaiMediator], ',', '')) + ' 件',&#xA; '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="193" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="194" ControlType="XRTableCell" Name="tableCell128" Weight="0.934762570270661" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="195" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalDantaiHeadOffice] + ' 件', '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="196" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="197" ControlType="XRTableCell" Name="tableCell129" Weight="0.817914894052002" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="198" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalDantaiMediator] + ' 件', '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="199" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="200" ControlType="XRTableCell" Name="tableCell130" Weight="0.817914894052002" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="201" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;ToInt(Replace([TotalData].[TotalUnkoHeadOffice], ',', '')) + ToInt(Replace([TotalData].[TotalUnkoMediator], ',', '')) + ' 回',&#xA; '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="202" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="203" ControlType="XRTableCell" Name="tableCell131" Weight="0.7945494238566515" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="204" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalUnkoHeadOffice] + ' 回', '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="205" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="206" ControlType="XRTableCell" Name="tableCell132" Weight="0.79454871069026911" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="207" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[TotalUnkoMediator] + ' 回', '')&#xA;&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="208" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="209" ControlType="XRTableCell" Name="tableCell133" Weight="3.309512864583017" Multiline="true" Text="tableCell133" TextAlignment="MiddleRight">
+                      <StylePriority Ref="210" UseTextAlignment="false" />
+                    </Item12>
+                  </Cells>
+                </Item4>
+              </Rows>
+              <StylePriority Ref="211" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="212" ControlType="XRTable" Name="table3" TextAlignment="MiddleLeft" SizeF="916.3052,80" LocationFloat="684.18,0" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,96" Borders="Right, Bottom">
+              <Rows>
+                <Item1 Ref="213" ControlType="XRTableRow" Name="tableRow4" Weight="1">
+                  <Cells>
+                    <Item1 Ref="214" ControlType="XRTableCell" Name="tableCell62" Weight="1.0185274340663166" Multiline="true" Text="当月分" TextAlignment="MiddleCenter" Borders="Left, Right, Bottom">
+                      <StylePriority Ref="215" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="216" ControlType="XRTableCell" Name="tableCell63" Weight="0.32817142988257453" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="217" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthJyoSyaJin], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="218" UsePadding="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="219" ControlType="XRTableCell" Name="tableCell64" Weight="0.88353423592758717" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="220" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthSyaRyoUnc], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="221" UsePadding="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="222" ControlType="XRTableCell" Name="tableCell65" Weight="0.88353476866928848" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="223" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthSyaRyoTes], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="224" UsePadding="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="225" ControlType="XRTableCell" Name="tableCell66" Weight="0.88353367915360159" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="226" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;ToInt(Replace([TotalData].[CurMonthSyaRyoUnc], ',', '')) - ToInt(Replace([TotalData].[CurMonthSyaRyoTes], ',', ''))&#xA;, '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="227" UsePadding="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="228" ControlType="XRTableCell" Name="tableCell67" Weight="0.50487656172448947" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="229" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;[TotalData].[CurMonthJisaIPKm] + NewLine() + [TotalData].[CurMonthJisaKSKm]&#xA;, '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="230" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="231" ControlType="XRTableCell" Name="tableCell68" Weight="0.50487978347735274" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="232" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], &#xA;[TotalData].[CurMonthKisoIPKm] + NewLine() + [TotalData].[CurMonthKisoKOKm]&#xA;, '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="233" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="234" ControlType="XRTableCell" Name="tableCell69" Weight="0.50487870856909856" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="235" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthOthKm], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="236" UsePadding="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="237" ControlType="XRTableCell" Name="tableCell70" Weight="0.50487657480800541" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="238" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthTotalKm], '')" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="239" UsePadding="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="240" ControlType="XRTableCell" Name="tableCell71" Weight="0.68682553435919969" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="241" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthNenryo1], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="242" UsePadding="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="243" ControlType="XRTableCell" Name="tableCell72" Weight="0.68682553574807292" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="244" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthNenryo2], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="245" UsePadding="false" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="246" ControlType="XRTableCell" Name="tableCell73" Weight="0.67802002113554216" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="247" EventName="BeforePrint" PropertyName="Text" Expression="Iif([isDisplayTotal], [TotalData].[CurMonthNenryo3], '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="248" UsePadding="false" UseTextAlignment="false" />
+                    </Item12>
+                  </Cells>
+                </Item1>
+                <Item2 Ref="249" ControlType="XRTableRow" Name="tableRow5" Weight="1">
+                  <Cells>
+                    <Item1 Ref="250" ControlType="XRTableCell" Name="tableCell74" Weight="1.0185274340663166" Multiline="true" Text="合計" TextAlignment="MiddleCenter" Borders="Left, Right, Bottom">
+                      <StylePriority Ref="251" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="252" ControlType="XRTableCell" Name="tableCell75" Weight="0.32817142988257453" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="253" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumJyoSyaJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="254" UsePadding="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="255" ControlType="XRTableCell" Name="tableCell76" Weight="0.88353423592758717" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="256" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumSyaRyoUnc]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="257" UsePadding="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="258" ControlType="XRTableCell" Name="tableCell77" Weight="0.88353476866928848" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="259" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumSyaRyoTes]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="260" UsePadding="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="261" ControlType="XRTableCell" Name="tableCell78" Weight="0.88353367915360159" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="262" EventName="BeforePrint" PropertyName="Text" Expression="ToInt(Replace([TotalData].[SumSyaRyoUnc], ',', '')) - ToInt(Replace([TotalData].[SumSyaRyoTes], ',', ''))" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="263" UsePadding="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="264" ControlType="XRTableCell" Name="tableCell79" Weight="0.50487656172448947" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="265" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumJisaIPKm] + NewLine() + [TotalData].[SumJisaKSKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="266" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="267" ControlType="XRTableCell" Name="tableCell80" Weight="0.50487978347735274" Multiline="true" TextAlignment="MiddleRight">
+                      <ExpressionBindings>
+                        <Item1 Ref="268" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumKisoIPKm] + NewLine() + [TotalData].[SumKisoKOKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="269" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="270" ControlType="XRTableCell" Name="tableCell81" Weight="0.50487870856909856" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="271" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumOthKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="272" UsePadding="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="273" ControlType="XRTableCell" Name="tableCell82" Weight="0.50487657480800541" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="274" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumTotalKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="275" UsePadding="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="276" ControlType="XRTableCell" Name="tableCell83" Weight="0.68682553435919969" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="277" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumNenryo1]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="278" UsePadding="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="279" ControlType="XRTableCell" Name="tableCell84" Weight="0.68682553574807292" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="280" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumNenryo2]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="281" UsePadding="false" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="282" ControlType="XRTableCell" Name="tableCell85" Weight="0.67802002113554216" Multiline="true" TextAlignment="BottomRight" Padding="2,2,0,5,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="283" EventName="BeforePrint" PropertyName="Text" Expression="[TotalData].[SumNenryo3]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="284" UsePadding="false" UseTextAlignment="false" />
+                    </Item12>
+                  </Cells>
+                </Item2>
+              </Rows>
+              <StylePriority Ref="285" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item3>
+      </Bands>
+    </Item4>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5UcmFuc3BvcnREYWlseVJlcG9ydFBERiwgSGFzc3lhQWxscmlnaHRDbG91ZCwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwiIC8+PC9PYmplY3REYXRhU291cmNlPg==" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

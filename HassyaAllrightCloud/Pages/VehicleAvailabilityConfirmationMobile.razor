@@ -1,0 +1,103 @@
+﻿@inherits VehicleAvailabilityConfirmationMobileBase
+@using HassyaAllrightCloud.Commons
+@layout SPLayout
+
+<div class="form-group d-flex flex-nowrap align-items-center vh-header-content">
+    <div class="col-md-5 pl-1">
+        <button type="button" @onclick="async (e) => await OnSetCurrentDate()" class="btn btn-sm bg-light float-left">@_lang["today"]</button>
+    </div>
+    <div class="col-md-2">
+        <DxComboBox SelectedItem="busTypeSelected"
+                    SelectedItemExpression="@(() => busTypeSelected)"
+                    Data="@busTypes"
+                    NullText="@_lang["BusTypeNullText"]"
+                    AllowUserInput="false"
+                    TextFieldName="@nameof(BusType.DisplayName)"
+                    FilteringMode="DataGridFilteringMode.Contains"
+                    SelectedItemChanged="async item => await BusTypeChanged(item)"></DxComboBox>
+    </div>
+    <div class="col-md-5 pr-0">
+        <button type="button" class="btn btn-sm vh-btn-refresh fa fa-refresh float-right" @onclick="async () => await OnRefresh()"></button>
+    </div>
+</div>
+<div class="row m-0 setting-date">
+    <table class="w-100" style="height: 40px">
+        <tr>
+            <th class="w-50 pl-2">@selectedMonth.ToString(DateTimeFormat.yyyyM_JP)</th>
+            <th class="pr-2 w-50 text-right">
+                <button class="calendar-button" @onclick="async () => await NextPrevMonth(0)"><i class="fa fa-chevron-circle-left"></i></button>
+                <button class="calendar-button" @onclick="async () => await NextPrevMonth(1)"><i class="fa fa-chevron-circle-right"></i></button>
+            </th>
+        </tr>
+    </table>
+</div>
+<div class="row m-0">
+    <ul class="p-0 list-unstyled mb-0 text-center w-100">
+        <li class="calendar-header">@_lang["sun"]</li>
+        <li class="calendar-header">@_lang["mon"]</li>
+        <li class="calendar-header">@_lang["tue"]</li>
+        <li class="calendar-header">@_lang["wen"]</li>
+        <li class="calendar-header">@_lang["thu"]</li>
+        <li class="calendar-header">@_lang["fri"]</li>
+        <li class="calendar-header">@_lang["sat"]</li>
+    </ul>
+</div>
+<div class="row m-0" id="vh-schedule-mobile">
+    <ul class="p-0 list-unstyled mb-0 text-center w-100">
+        @foreach (var item in listDate.Select((value, i) => new { i, value }))
+        {
+            <li class="@string.Format("calendar-item{0}{1}{2}{3}",
+                    lastItem.Contains(item.i) ? " calendar-item-border-right" : string.Empty,
+                    item.i > 34 ? " calendar-item-border-btm" : string.Empty,
+                    selectedDate == item.value ? " selected-date" : string.Empty,
+                    item.value.Month < selectedMonth.Month || item.value.Month > selectedMonth.Month ? " opacity05 " : string.Empty) "
+                @onclick="async () => await OnSelectDate(item.value)">
+                <div class="calendar-child-item">@(item.value.Day < 10 ? string.Format("0{0}", item.value.Day) : item.value.Day.ToString())</div>
+            </li>
+        }
+    </ul>
+</div>
+<div class="vh-header-detail-content">
+    <div class="float-left">
+        <label class="custome-size-device" style="margin-left: 7px;margin-right: 7px;">@(IsYesterday ? _lang["yesterday"] : IsToday ? _lang["today"] : IsTomorrow ? _lang["tomorrow"] : string.Empty)</label>
+        <label class="custome-size-device">空 運 転 手 @EmptyLargeDriverCount 人 (@AbsenceLargeDriverCount/@LargeDriverCount)</label>
+    </div>
+    <div class="float-right">
+        <label class="custome-size-device">@selectedDate.ToString(DateTimeFormat.yyyyMMdd_ddd_JP)</label>
+        <button type="button" class="btn btn-sm fa fa-chevron-circle-left vh-btn-custom-sfmb btn-custom-sfmb-left" @onclick="() => NextPrevDate(0)"></button>
+        <button type="button" class="btn btn-sm fa fa-chevron-circle-right vh-btn-custom-sfmb" @onclick="() => NextPrevDate(1)"></button>
+    </div>
+</div>
+
+<div id="tableVhScheduleMB" class="lst-sfmb-table tableVhScheduleMB">
+    @if (groupBusInfo != null && groupBusInfo?.Count > 0)
+    {
+        @foreach (var item in groupBusInfo)
+        {
+            <div class="vh-schedule-mobile-title-section">
+                <i class="fa fa-angle-down vh-lbl-title-header-sfmb" aria-hidden="true"></i>
+                <label style="width: 70px">@item.BusTypeName</label>
+                <label>空台数：</label>
+                <label style="width: 40px;">@item.UnUseBusCount</label>
+                <label>(@item.InUseBusCount /@item.BusCount)</label>
+                <button class="btn btn-sm vh-btn-plus-right-sfmb"> <i class="fa fa-plus"></i> </button>
+            </div>
+
+            <div class="vh-group-schedule-sfmbg">
+                @if (item.BusDetails != null && item.BusDetails?.Count > 0)
+                {
+                    @foreach (var itemx in item.BusDetails)
+                    {
+                        <div id="otherGroupScheduleList" class="group-schedule-sfmb" @onclick="() => OnNavigate(itemx)">
+                            <a>
+                                <label style="width: 90px;" class="float-left vh-lbl-left-sfmb">@itemx.BusTypeNameDetail</label>
+                                <label class="vh-lbl-left-sfmb">@itemx.Status</label>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    }
+</div>
+

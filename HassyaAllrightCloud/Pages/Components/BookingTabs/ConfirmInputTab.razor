@@ -1,0 +1,120 @@
+﻿@inherits ConfirmInputTabBase
+@using HassyaAllrightCloud.Pages.Components.Popup
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+<EditForm EditContext="FormContext">
+    <MyPopup Model="MyPopup" OnClose="HandleClosePopup" />
+
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BookingFormValidator" />
+
+    <div class="@(BookingData.IsDisableEdit||CopyMode==true ? "disabled-content" : "")">
+        <div class="text-center mb-2">
+            @if (BookingData != null && BookingData.ConfirmationTabDataList != null)
+            {
+                <DxButton CssClass="btn btn-sm"
+                          Click="async (a) => await HandleConfirmSubmit()"
+                          Enabled="!BookingData.IsDisableEdit"
+                          Context="formContext">
+                    @(ConfirmStatus == ConfirmStatus.Fixed ? Lang["ButtonConfirmed"] : Lang["ButtonNotConfirm"])
+                </DxButton>
+            }
+        </div>
+        <div class="table-sticky mb-2 @(ConfirmStatus == ConfirmStatus.Fixed ? "disabled-content" : "")">
+            <table class="table table-bordered table-sm mb-2 text-center">
+                <thead class="thead-primary">
+                    <tr>
+                        <th scope="col">@Lang["Confirmation date"]</th>
+                        <th scope="col">@Lang["Confirmation partner"]</th>
+                        <th scope="col">@Lang["Confirmed number"]</th>
+                        <th scope="col">@Lang["Departs"]</th>
+                        <th scope="col">@Lang["Number of units"]</th>
+                        <th scope="col">@Lang["Amount"]</th>
+                        <th scope="col">@Lang["Schedule"]</th>
+                        @if (ConfirmStatus != ConfirmStatus.Fixed)
+                        {
+                            <th class="bg-white" scope="col">
+                                <button @onclick="HandleAddConfirmationTab"
+                                        class="@("custom-hyper font-weight-bold btn-addrow" + (ConfirmStatus == ConfirmStatus.Fixed || BookingData.IsDisableEdit||CopyMode==true ? " disabled" : " enabled"))">
+                                    追加
+                                </button>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var confirmationData in BookingData.ConfirmationTabDataList)
+                    {
+                        <tr>
+                            <td>
+                                <DxDateEdit CssClass="width--130" Date="@confirmationData.KaknYmd"
+                                            DateExpression="@(() => confirmationData.KaknYmd)"
+                                            DateChanged="@((newValue) => HandleChangeKaknYmd(newValue, confirmationData.FixDataNo))"
+                                            Format="yyyy/MM/dd" />
+                            </td>
+                            <td class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => confirmationData.KaknAit)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox Text="@confirmationData.KaknAit"
+                                           CssClass="@("MyComboBox text-left " + (FormContext.GetCustomCss(() => confirmationData.KaknAit)))"
+                                           TextExpression="() => confirmationData.KaknAit"
+                                           maxlength="20"
+                                           TextChanged="(newValue) => HandleChangedKaknAit(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            <td>
+                                <DxTextBox Text="@confirmationData.KaknNin" CssClass="text-center length3" maxlength="3"
+                                           TextExpression="() => confirmationData.KaknNin"
+                                           TextChanged="(newValue) => HandleChangedKaknNin(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            <td>
+                                <DxCheckBox Checked="@confirmationData.SaikFlg"
+                                            CheckedExpression="() => confirmationData.SaikFlg"
+                                            CheckedChanged="(newValue) => HandleSaikFlgChanged(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            <td>
+                                <DxCheckBox Checked="@confirmationData.DaiSuFlg"
+                                            CheckedExpression="() => confirmationData.DaiSuFlg"
+                                            CheckedChanged="(newValue) => HandleDaiSuFlgChanged(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            <td>
+                                <DxCheckBox Checked="@confirmationData.KingFlg"
+                                            CheckedExpression="() => confirmationData.KingFlg"
+                                            CheckedChanged="(newValue) => HandleKingFlgChanged(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            <td>
+                                <DxCheckBox Checked="@confirmationData.NitteFlag"
+                                            CheckedExpression="() => confirmationData.NitteFlag"
+                                            CheckedChanged="(newValue) => HandleNitteChanged(newValue, confirmationData.FixDataNo)" />
+                            </td>
+                            @if (ConfirmStatus != ConfirmStatus.Fixed)
+                            {
+                                <td>
+                                    <a href="javascript:void(0)" class="text-danger">
+                                        <i class="fa fa-times" @onclick="@(() => HandleConfirmDelete(confirmationData.FixDataNo) )" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-2 mb-2">
+            <DxButton CssClass="width--100 btnbookingform"
+                      SubmitFormOnClick="false"
+                      Text="@Lang["UpdateButton"]"
+                      IconCssClass="fa fa-check"
+                      @onclick="async () => await HandleSaveConfirmationDataList()"
+                      RenderStyle="@ButtonRenderStyle.Primary"
+                      Enabled="IsEnableSubmitButton()">
+            </DxButton>
+        </div>
+    </div>
+</EditForm>
+}

@@ -1,0 +1,20 @@
+USE [HOC_Master]
+GO
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'10', N'配員情報通知', N'配員通知', N'乗務', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'11', N'交番情報通知', N'交番通知', N'乗務', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'20', N'関係予定通知', N'予定通知', N'予定・申請', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'21', N'申請通知', N'申請通知', N'予定・申請', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'22', N'申請承認結果通知', N'承認通知', N'予定・申請', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'30', N'一斉通知', N'一斉通知', N'一斉', 1, N'20200918', N'000000', 1, N'KOBO      ')
+
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'USERLANGUAGE', N'1', N'日本語', N'日本語', N'', 1, N'20200925', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'USERLANGUAGE', N'2', N'English', N'English', N'', 1, N'20200925', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'10', N'配員情報通知', N'配員通知', N'乗務', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'11', N'交番情報通知', N'交番通知', N'乗務', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'20', N'関係予定通知', N'予定通知', N'予定・申請', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'21', N'申請通知', N'申請通知', N'予定・申請', 1, N'20200918', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'NOTICONTENTKBN', N'30', N'一斉通知', N'一斉通知', N'一斉', 1, N'20200918', N'000000', 1, N'KOBO      ')
+
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'USERLANGUAGE', N'1', N'日本語', N'日本語', N'', 1, N'20200925', N'000000', 1, N'KOBO      ')
+INSERT [dbo].[TPM_CodeKb] ([TenantCdSeq], [CodeSyu], [CodeKbn], [CodeKbnNm], [RyakuNm], [CodeSeiKbn], [SiyoKbn], [UpdYmd], [UpdTime], [UpdSyainCd], [UpdPrgID]) VALUES (0, N'USERLANGUAGE', N'2', N'English', N'English', N'', 1, N'20200925', N'000000', 1, N'KOBO      ')
+GO												

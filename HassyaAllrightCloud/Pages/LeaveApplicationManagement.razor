@@ -1,0 +1,1021 @@
+﻿@using HassyaAllrightCloud.Domain.Dto
+@inject IStringLocalizer<LeaveApplicationManagement> Lang
+@inject IJSRuntime JSRuntime
+@inject IBlazorContextMenuService blazorContextMenuService
+@inject IScheduleManageService IScheduleManageService
+@inject IScheduleCustomGroupService ScheduleCustomGroupService
+@inject IStaffListService SyainService
+@inject IErrorHandlerService errorModalService
+@inject IGenerateFilterValueDictionary GenerateFilterValueDictionaryService
+@inject IFilterCondition FilterConditionService
+
+<div id="schedule-apply-management">
+    @if (isLoading)
+    {
+        <div class="loader">
+            <div class="loader-icon"></div>
+        </div>
+    }
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center">
+            <h5 class="mb-0">@Lang["Title"]</h5>
+        </div>
+        <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            @Lang["EraseAll"]
+        </button>
+    </div>
+    <div class="title-section mb-2">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+    </div>
+    <div class="express-condition mb-2" style="display: none">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@(Lang["FilterCondition1"])"></DxTab>
+            <DxTab Text="@Lang["DisplaySetting"]"></DxTab>
+        </DxTabs>
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="@scheduleMagafeForm" Context="formContext" id="schedule-manage-form">
+                    <ul class="validation-errors">
+                        @foreach (var message in Errors.Distinct())
+                        {
+                            <li class="validation-message">@Lang[message]</li>
+                        }
+                    </ul>
+                    <DataAnnotationsValidator />
+                    <FluentValidator TValidator="ScheduleManageFormValidatior" />
+                    <div class="form-row" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                        <div class="form-row">
+                            <div class="col-sm-6" style="padding-right:150px">
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label condition-leave-label schedule-text-right ml-2">@Lang["TimeRange"]</label>
+                                    <div class="ml-2 w-250 has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => scheduleMagafeForm.StartDate)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit CssClass="w-250"
+                                                    Date="@scheduleMagafeForm.StartDate"
+                                                    DateExpression="@(() => scheduleMagafeForm.StartDate)"
+                                                    Format=@dateFormat
+                                                    DateChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.StartDate), newValue))"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+
+                                        </DxDateEdit>
+                                    </div>
+                                    <label class="col-form-label from-to">～</label>
+                                    <div class="w-250 has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => scheduleMagafeForm.EndDate)"
+                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit CssClass="w-250"
+                                                    Date="@scheduleMagafeForm.EndDate"
+                                                    DateExpression="@(() => scheduleMagafeForm.EndDate)"
+                                                    Format=@dateFormat
+                                                    DateChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.EndDate), newValue))"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                                        </DxDateEdit>
+                                    </div>
+                                </div>
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label condition-leave-label schedule-text-right ml-2">@Lang["ApprovalStatus"]</label>
+                                    <div class="ml-2 has-tooltip-error">
+                                        <DxComboBox Data="@ApprovalStatus"
+                                                    CssClass="w-250"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="Text"
+                                                    SelectedItem="@scheduleMagafeForm.ApprovalStatus"
+                                                    SelectedItemExpression="@(() => @scheduleMagafeForm.ApprovalStatus)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.ApprovalStatus), newValue))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label condition-leave-label schedule-text-right ml-2">@Lang["Staff"]</label>
+                                    <div class="ml-2 has-tooltip-error">
+                                        <DxComboBox Data="@staffsDropdown"
+                                                    CssClass="w-250"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["EmployeeNullText"]"
+                                                    TextFieldName="Name"
+                                                    SelectedItem="@scheduleMagafeForm.Staff"
+                                                    SelectedItemExpression="@(() => @scheduleMagafeForm.Staff)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.Staff), newValue))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="padding-left:150px">
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label condition-leave-label schedule-text-right">@Lang["Branch"]</label>
+                                    <div class="ml-5 has-tooltip-error">
+                                        <DxComboBox Data="@branchesDropdown"
+                                                    CssClass="w-250"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="Text"
+                                                    NullText="@Lang["SaleOfficeNullText"]"
+                                                    SelectedItem="@scheduleMagafeForm.Branch"
+                                                    SelectedItemExpression="@(() => @scheduleMagafeForm.Branch)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.Branch), newValue))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label style="width: 120px !important" class="col-form-label condition-leave-label schedule-text-right">@Lang["CustomGroup"]</label>
+                                    <div class="ml-2 has-tooltip-error">
+                                        <DxComboBox Data="@customGroupsDropdown"
+                                                    CssClass="w-250"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="Text"
+                                                    SelectedItem="@scheduleMagafeForm.CustomGroup"
+                                                    SelectedItemExpression="@(() => @scheduleMagafeForm.CustomGroup)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(scheduleMagafeForm.CustomGroup), newValue))">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="" style="margin-left:20px">
+                                        <DxButton @onclick="AddCustomGroup" Text="+" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label width--100">@Lang["WidthChange"]</label>
+                                <nav class="nav nav-pills">
+                                    <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <div class="row company-margin-top-1rem @(string.Format("kobo-grid-size-{0}", (int)ActiveV))">
+        <div class="col-12">
+            <div style="width:100%">
+                <KoboSimpleGrid Body="Body" Header="Header" OnRowClick="async e => await RowClick(e)" DataItems="DataSource.ToList()" CssClass="grid-flex-1"></KoboSimpleGrid>
+            </div>
+            <div class="mt-2 mb-2">
+                <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                                 TotalCount="Count" @ref="paging">
+                </HassyaAllrightCloud.Pages.Components.Pagination>
+            </div>
+        </div>
+    </div>
+    <ContextMenu Id="gridRowsClickMenu" CssClass="contextmenu">
+        <Item OnClick="@(ShowScheduleDetail)"><i class="fa fa-calendar" aria-hidden="true"></i> @Lang["ScheduleDetail"]</Item>
+        <Item OnClick="@(AcceptSchedule)"><i class="fa fa-check" aria-hidden="true"></i> @Lang["Accept"]</Item>
+        <Item OnClick="@(RefuseSchedule)"><i class="fa fa-times" aria-hidden="true"></i> @Lang["Refuse"]</Item>
+    </ContextMenu>
+    <DxPopup Id="schedule-detail" @bind-Visible="isShowDetailSchedulePopup">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100 schedule-manage-padding">
+                @Lang["ScheduleDetailPopup"]
+                <a class="close-button oi oi-x text-white float-right" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => isShowDetailSchedulePopup = false)"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["Staff"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>@scheduleDetail.SyainCd @scheduleDetail.SyainNm</p>
+                        </div>
+                    </div>
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["Office"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>@scheduleDetail.EigyoNm</p>
+                        </div>
+                    </div>
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["UpdDay"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>@scheduleDetail.UpdYmd.Insert(4, "/").Insert(7, "/") @Lang["DayUp"] @scheduleDetail.UpdTime.Insert(2, ":").Insert(5, ":").Substring(0, 5)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["LeaveType"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>@scheduleDetail.YoteiTypeNm</p>
+                        </div>
+                    </div>
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["HolidayType"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>@scheduleDetail.KinkyuNm</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["TitleDetail"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p style="margin-bottom:-3px">@scheduleDetail.Title</p>
+                            @if (@scheduleDetail.TukiLabKbn.Contains("1") && !@scheduleDetail.TukiLabKbn.Contains("2"))
+                            {
+                                <div class="sure-label-1">@Lang["Sure"]</div>
+                            }
+                            @if (@scheduleDetail.TukiLabKbn.Contains("2") && !@scheduleDetail.TukiLabKbn.Contains("1"))
+                            {
+                                <div class="unsure-label-1">@Lang["UnSure"]</div>
+                            }
+                            @if (@scheduleDetail.TukiLabKbn.Contains("1") && @scheduleDetail.TukiLabKbn.Contains("2"))
+                            {
+                                <div class="d-flex">
+                                    <div class="sure-label-1">@Lang["Sure"]</div>
+                                    <div class="unsure-label-1">@Lang["UnSure"]</div>
+                                </div>
+                            }
+                        </div>
+                    </div><div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["Note"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>
+                                @scheduleDetail.YoteiBiko
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-10px">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["LeaveDay"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <p>
+                                @scheduleDetail.StartTime @Lang["To"] @scheduleDetail.EndTime
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["ApprovalStatus"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <DxComboBox Data="@ApprovalStatusForApprover"
+                                        CssClass="filter-inline date-sm custom-bill-combo-box w-17"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItem="@scheduleDetail.ApprovalStatus"
+                                        SelectedItemExpression="@(() => scheduleDetail.ApprovalStatus)"
+                                        SelectedItemChanged="@(async (newValue) => await ChangeValueScheduleDetail(nameof(scheduleDetail.ApprovalStatus), newValue))">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="row h-100">
+                        <div class="col-4 schedule-text-right">
+                            @if (@scheduleDetail.ApprovalStatus.status == StaffScheduleConstants.Refuse)
+                            {
+                                <p>@Lang["ApprovalNote"]<b style="color:red">*</b>：</p>
+                            }
+                            else
+                            {
+                                <p>@Lang["ApprovalNote"]：</p>
+                            }
+                        </div>
+                        <div class="col-8">
+                            @if (required)
+                            {
+                                <textarea rows="3" class="b-note" @bind-value="@scheduleDetail.ShoRejBiko" @bind-value:event="oninput" @onchange="@(async (newValue) => await ChangeValueScheduleDetail(nameof(scheduleDetail.ShoRejBiko), newValue))" />
+                            }
+                            else
+                            {
+                                <textarea style="resize:none" rows="3" class="a-note" @bind-value="@scheduleDetail.ShoRejBiko" @bind-value:event="oninput" @onchange="@(async (newValue) => await ChangeValueScheduleDetail(nameof(scheduleDetail.ShoRejBiko), newValue))" />
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["Approver"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <div class="d-flex">
+                                <DxTextBox Text="@scheduleDetail.ShoSyainCd" ReadOnly="true" CssClass="width--120 mr-30px"></DxTextBox>
+                                <DxTextBox Text="@scheduleDetail.ShoSyainNm" ReadOnly="true" CssClass="width--120"></DxTextBox>
+                            </div>
+                        </div>
+                    </div><div class="row">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["ApproveDay"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <div>
+                                <DxTextBox Text="@scheduleDetail.ShoUpdYmd" ReadOnly="true" CssClass="width--120"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 schedule-text-right">
+                            <p>@Lang["ApproveTime"]：</p>
+                        </div>
+                        <div class="col-8">
+                            <div>
+                                <DxTextBox Text="@scheduleDetail.ShoUpdTime.Substring(0,5)" ReadOnly="true" CssClass="width--120"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <DxButton RenderStyle="ButtonRenderStyle.None" CssClass="border" @onclick="@(() => isShowDetailSchedulePopup = false)" Text=@Lang["Cancel"] />
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => SaveScheduleDetail())" Text=@Lang["Save"] />
+        </FooterTemplate>
+    </DxPopup>
+
+    <DxPopup @bind-Visible="@PopupGroupScheduleAdd">
+        <HeaderTemplate>
+            <div class="schedule-popup-wrapper">
+                <div class="schedule-popup-title">@Lang["CustomGroupScheduleAdd"]</div>
+                <a class="schedule-popup-close" href="javascript:void(0)" @onclick="@(() => PopupGroupScheduleAdd = false)">
+                    <i class="fa fa-window-close" aria-hidden="true"></i>
+                </a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <EditForm Context="formContext" Model="@customGroupScheduleForm">
+                <DataAnnotationsValidator />
+                <FluentValidator TValidator="CustomGroupScheduleFormValidator" />
+                @*<ul class="validation-errors">
+                    @foreach (var message in formContext.GetValidationMessages().Distinct())
+                    {
+                        <li class="validation-message">@Lang[message]</li>
+                    }
+                </ul>*@
+                <DxFormLayout CssClass="schedule-popup-content">
+                    <DxFormLayoutItem Caption="@Lang["GroupName"]" ColSpanMd="12">
+                        <Template>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => customGroupScheduleForm.GroupName)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox CssClass="length50"
+                                           Text="@customGroupScheduleForm.GroupName"
+                                           TextExpression="@(() => customGroupScheduleForm.GroupName)"
+                                           TextChanged="@((newValue) => ChangeGroupName(newValue))"></DxTextBox>
+                            </div>
+                        </Template>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="@Lang["GroupMemberAdd"]" ColSpanMd="12">
+                        <Template>
+                            <DxTagBox Data="@StaffList"
+                                      TextFieldName="Text"
+                                      FilteringMode="@DataGridFilteringMode.StartsWith"
+                                      ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                      SelectedItems="@customGroupScheduleForm.StaffList"
+                                      SelectedItemsExpression="@(() => customGroupScheduleForm.StaffList)"
+                                      SelectedItemsChanged="@((newValue) => ChangeMemberList(newValue))"></DxTagBox>
+                        </Template>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </Content>
+        <FooterTemplate>
+            <div>
+                <button class="btn btn-primary" @onclick="@(() => PopupGroupScheduleAdd = false)">@Lang["Cancel"]</button>
+                <button class="btn btn-primary" disabled="@(string.IsNullOrEmpty(customGroupScheduleForm.GroupName) || string.IsNullOrEmpty(customGroupScheduleForm.GroupName.Trim()) || customGroupScheduleForm.StaffList.Count() == 0 ? "disabled" : null)" @onclick="SaveGroupSchedule">@Lang["Save"]</button>
+            </div>
+        </FooterTemplate>
+    </DxPopup>
+
+</div>
+
+
+@code {
+    protected byte itemPerPage { get; set; } = Common.DefaultPageSize;
+    protected HeaderTemplate Header;
+    protected BodyTemplate Body;
+    public CultureInfo culture = new System.Globalization.CultureInfo("ja-JP");
+    public Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    Dictionary<string, string> keyValueFilterPairs = new Dictionary<string, string>();
+    string dateFormat = "yyyy/MM/dd";
+    ScheduleManageForm scheduleMagafeForm { get; set; }
+    ScheduleDetail scheduleDetail = new ScheduleDetail();
+    List<Status> ApprovalStatus = new List<Status>();
+    List<Status> ApprovalStatusForApprover = new List<Status>();
+    IEnumerable<Branch> branches = new List<Branch>();
+    IEnumerable<Staffs> staffs = new List<Staffs>();
+    IEnumerable<CustomGroup> customGroups = new List<CustomGroup>();
+    List<Branch> branchesDropdown = new List<Branch>();
+    List<Staffs> staffsDropdown = new List<Staffs>();
+    List<CustomGroup> customGroupsDropdown = new List<CustomGroup>();
+    CustomGroupScheduleForm customGroupScheduleForm = new CustomGroupScheduleForm();
+    IEnumerable<ScheduleManageGridData> DataSource = new List<ScheduleManageGridData>();
+    bool isShowDetailSchedulePopup = false;
+    bool PopupGroupScheduleAdd = false;
+    List<StaffsData> StaffList;
+    List<string> Errors = new List<string>();
+    int? CurrentClick { get; set; } = null;
+    int? CurrentScroll { get; set; }
+    bool isLoading = false;
+    bool IsValid = true;
+    public int ActiveV { get; set; }
+    int scheduleId = 0;
+    bool required;
+    int activeTabIndex = 0;
+    int ActiveTabIndex
+    {
+        get => activeTabIndex;
+        set
+        {
+            activeTabIndex = value;
+            AdjustHeightWhenTabChanged();
+        }
+    }
+    private void clickV(MouseEventArgs e, int number)
+    {
+        try
+        {
+            ActiveV = number;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    private async void AdjustHeightWhenTabChanged()
+    {
+        try
+        {
+            await Task.Run(() =>
+            {
+                InvokeAsync(StateHasChanged).Wait();
+                JSRuntime.InvokeVoidAsync("AdjustHeight");
+            });
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            JSRuntime.InvokeAsync<string>("addMaxLength", "length", 50);
+            JSRuntime.InvokeVoidAsync("inputNumber", ".number", true);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    public string FormName = FormFilterName.LeaveManagement;
+    protected Pagination paging;
+    public int Count { get; set; }
+    protected override async void OnInitialized()
+    {
+        try
+        {
+            InitTable();
+            scheduleMagafeForm = new ScheduleManageForm();
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+            ActiveV = (int)ViewMode.Medium;
+            ApprovalStatus.Add(null);
+            ApprovalStatus.Add(new Status()
+            {
+                status = StaffScheduleConstants.Pending
+            });
+            ApprovalStatus.Add(new Status()
+            {
+                status = StaffScheduleConstants.Accept
+            });
+            ApprovalStatus.Add(new Status()
+            {
+                status = StaffScheduleConstants.Refuse
+            });
+            ApprovalStatusForApprover.Add(new Status()
+            {
+                status = StaffScheduleConstants.Pending
+            });
+            ApprovalStatusForApprover.Add(new Status()
+            {
+                status = StaffScheduleConstants.Accept
+            });
+            ApprovalStatusForApprover.Add(new Status()
+            {
+                status = StaffScheduleConstants.Refuse
+            });
+
+            staffs = IScheduleManageService.GetScheduleStaff().Result;
+            branches = IScheduleManageService.GetStaffOffice().Result;
+            customGroups = IScheduleManageService.GetScheduleCustomGroup().Result;
+            staffsDropdown = staffs.ToList();
+            staffsDropdown.Insert(0, null);
+            branchesDropdown = branches.ToList();
+            branchesDropdown.Insert(0, null);
+            customGroupsDropdown = customGroups.ToList();
+            customGroupsDropdown.Insert(0, null);
+            StaffList = await SyainService.Get(new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+            List<TkdInpCon> filterValues = FilterConditionService.GetFilterCondition(FormName, 0, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).Result;
+            if (filterValues.Count > 0)
+            {
+                scheduleMagafeForm = GenerateFilterModel(filterValues);
+            }
+            scheduleMagafeForm.PageSize = 25;
+            scheduleMagafeForm.PageNum = 0;
+
+            (DataSource, Count) = IScheduleManageService.GetScheduleDataGrid(scheduleMagafeForm).Result;
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    private void InitTable()
+    {
+        Header = new HeaderTemplate()
+        {
+            Rows = new List<RowHeaderTemplate>()
+        {
+                    new RowHeaderTemplate()
+                    {
+                        Columns = new List<ColumnHeaderTemplate>()
+                    {
+                            new ColumnHeaderTemplate(){ ColName = @Lang["No"], Width = 40 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["StaffId"], Width = 110 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["StaffName"], Width = 80 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["Office"], Width = 160 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["ScheduleType"], Width = 80},
+                            new ColumnHeaderTemplate(){ ColName = @Lang["EventType"], Width = 80 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["Label"], Width = 80 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["Titlegrid"], Width = 220 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["StartDate"], Width = 170 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["EndDate"], Width = 170 },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["Status"], Width = 95  },
+                            new ColumnHeaderTemplate(){ ColName = @Lang["UpdateStaffId"], Width = 110 },
+
+                            new ColumnHeaderTemplate(){ ColName = @Lang["UpdateStaffName"], Width = 95 },
+
+                            new ColumnHeaderTemplate(){ ColName = @Lang["UpdateTime"], Width = 150 },
+                        }
+                    }
+            }
+        };
+
+        Body = new BodyTemplate()
+        {
+            Rows = new List<RowBodyTemplate>()
+        {
+                    new RowBodyTemplate()
+                    {
+                        Columns = new List<ColumnBodyTemplate>()
+                    {
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Center, DisplayFieldName = nameof(ScheduleManageGridData.No)},
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.SyainCd)},
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.SyainNm)},
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.EigyoNm) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.YoteiTypeNm) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.KinkyuNm) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.TukiLabKbn) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.Title) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.StartDate) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.EndDate) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.YoteiShoKbn) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.ShoSyainCd) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.ShoSyainNm) },
+                            new ColumnBodyTemplate(){ AlignCol = AlignColEnum.Left, DisplayFieldName = nameof(ScheduleManageGridData.UpdateTime) }
+                        }
+                    }
+            }
+        };
+    }
+    protected void OnChangePage(int page)
+    {
+        try
+        {
+            scheduleMagafeForm.PageNum = page;
+            ReloadData();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    protected void OnChangeItemPerPage(byte _itemPerPage)
+    {
+        try
+        {
+            itemPerPage = _itemPerPage;
+            scheduleMagafeForm.PageSize = _itemPerPage;
+            ReloadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    protected async Task RowClick(RowClickEventArgs<ScheduleManageGridData> e)
+    {
+        try
+        {
+            scheduleId = e.SelectedItem.ScheduleId;
+            var LastXClicked = Convert.ToInt32(e.Event.ClientX);
+            var LastYClicked = Convert.ToInt32(e.Event.ClientY);
+            if (!e.Event.ShiftKey && !e.Event.CtrlKey)
+            {
+                blazorContextMenuService.ShowMenu("gridRowsClickMenu", LastXClicked, LastYClicked);
+            }
+            else
+            {
+                blazorContextMenuService.HideMenu("gridRowClickMenu");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    private ScheduleManageForm GenerateFilterModel(List<TkdInpCon> filterValues)
+    {
+        ScheduleManageForm result = new ScheduleManageForm();
+
+        foreach (var item in filterValues)
+        {
+            switch (item.ItemNm)
+            {
+                case nameof(ScheduleManageForm.StartDate):
+                    if (string.IsNullOrWhiteSpace(item.JoInput))
+                    {
+                        result.StartDate = null;
+                    }
+                    else
+                    {
+                        result.StartDate = DateTime.ParseExact(item.JoInput, "yyyyMMdd", null);
+                    }
+                    break;
+                case nameof(ScheduleManageForm.EndDate):
+                    if (string.IsNullOrWhiteSpace(item.JoInput))
+                    {
+                        result.EndDate = null;
+                    }
+                    else
+                    {
+                        result.EndDate = DateTime.ParseExact(item.JoInput, "yyyyMMdd", null);
+                    }
+                    break;
+                case nameof(ScheduleManageForm.ApprovalStatus):
+                    result.ApprovalStatus = string.IsNullOrWhiteSpace(item.JoInput) ? ApprovalStatus[1] : ApprovalStatus.Where(x => x != null && x.status == item.JoInput).FirstOrDefault();
+                    break;
+                case nameof(ScheduleManageForm.Staff):
+                    result.Staff = string.IsNullOrWhiteSpace(item.JoInput) ? null : staffs.Where(x => x != null && x.Seg == Int32.Parse(item.JoInput)).FirstOrDefault();
+                    break;
+                case nameof(ScheduleManageForm.Branch):
+                    result.Branch = string.IsNullOrWhiteSpace(item.JoInput) ? null : branches.Where(x => x != null && x.Seg == Int32.Parse(item.JoInput)).FirstOrDefault();
+                    break;
+                case nameof(ScheduleManageForm.CustomGroup):
+                    result.CustomGroup = string.IsNullOrWhiteSpace(item.JoInput) ? null : customGroups.Where(x => x != null && x.CusGrpSeq == Int32.Parse(item.JoInput)).FirstOrDefault();
+                    break;
+            }
+        }
+        return result;
+    }
+
+    async Task ChangeValueScheduleDetail(string ValueName, dynamic value)
+    {
+        try
+        {
+            required = false;
+            if (ValueName == StaffScheduleConstants.NoteName)
+            {
+                var propertyInfo = scheduleDetail.GetType().GetProperty(ValueName);
+                propertyInfo.SetValue(scheduleDetail, value.Value, null);
+            }
+            else
+            {
+                if (value is string && string.IsNullOrEmpty(value))
+                {
+                    value = null;
+                }
+                var propertyInfo = scheduleDetail.GetType().GetProperty(ValueName);
+                propertyInfo.SetValue(scheduleDetail, value, null);
+            }
+
+            if (scheduleDetail.ApprovalStatus.status == StaffScheduleConstants.Refuse && scheduleDetail.ShoRejBiko == string.Empty)
+            {
+                required = true;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+
+    async Task ChangeValueForm(string ValueName, dynamic value)
+    {
+        try
+        {
+            if (value is string && string.IsNullOrEmpty(value))
+            {
+                value = null;
+            }
+            var propertyInfo = scheduleMagafeForm.GetType().GetProperty(ValueName);
+            propertyInfo.SetValue(scheduleMagafeForm, value, null);
+            isLoading = true;
+            await Task.Run(() =>
+            {
+                InvokeAsync(StateHasChanged).Wait();
+                isLoading = false;
+                ReloadData().Wait();
+            });
+            if (DataSource.Any())
+            {
+                Errors.Remove("BI_T002");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    void SaveScheduleDetail()
+    {
+        try
+        {
+            if (scheduleDetail.ApprovalStatus.status == StaffScheduleConstants.Refuse && scheduleDetail.ShoRejBiko == string.Empty)
+            {
+                required = true;
+            }
+            else
+            {
+                required = false;
+                var result = IScheduleManageService.UpdateScheduleDetail(scheduleDetail).Result;
+                isShowDetailSchedulePopup = false;
+            }
+            ReloadData().Wait();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    async Task ReloadData()
+    {
+        try
+        {
+            if (IsValid)
+            {
+                isLoading = true;
+                InvokeAsync(StateHasChanged).Wait();
+                (DataSource, Count) = IScheduleManageService.GetScheduleDataGrid(scheduleMagafeForm).Result;
+                if (DataSource == null || !DataSource.Any())
+                {
+                    Count = 0;
+                    if (!Errors.Contains("BI_T002"))
+                    {
+                        Errors.Add("BI_T002");
+                    }
+                }
+                else
+                {
+                    Errors.Remove("BI_T002");
+                }
+                isLoading = false;
+                InvokeAsync(StateHasChanged).Wait();
+                keyValueFilterPairs = GenerateFilterValueDictionaryService.GenerateForLeaveManagement(scheduleMagafeForm).Result;
+                FilterConditionService.SaveFilterCondtion(keyValueFilterPairs, FormFilterName.LeaveManagement, 0, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).Wait();
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    void ShowScheduleDetail()
+    {
+        try
+        {
+            scheduleDetail = IScheduleManageService.GetScheduleDeTail(scheduleId).Result;
+            var approver = IScheduleManageService.GetApprover(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).Result;
+            scheduleDetail.ShoUpdYmd = DateTime.Now.ToString().Substring(0, 10);
+            scheduleDetail.ShoUpdTime = DateTime.Now.TimeOfDay.ToString().Substring(0, 8);
+            scheduleDetail.ShoSyainCd = approver.SyainCd;
+            scheduleDetail.ShoSyainNm = approver.Name;
+            scheduleDetail.SyainCdSeq = approver.Seg;
+            var sDayOfWeek = culture.DateTimeFormat.GetDayName(DateTime.ParseExact(scheduleDetail.YoteiSYmd, "yyyyMMdd", null).DayOfWeek);
+            var eDayOfWeek = culture.DateTimeFormat.GetDayName(DateTime.ParseExact(scheduleDetail.YoteiEYmd, "yyyyMMdd", null).DayOfWeek);
+            scheduleDetail.StartTime = scheduleDetail.AllDayKbn == 1 ? (scheduleDetail.YoteiSYmd.Insert(4, "/").Insert(7, "/") + "(" + sDayOfWeek + ")" + StaffScheduleConstants.Day) : (scheduleDetail.YoteiSYmd.Insert(4, "/").Insert(7, "/") + "(" + sDayOfWeek + ")" + " " + scheduleDetail.YoteiSTime.Insert(2, ":").Insert(5, ":").Substring(0, 5));
+            scheduleDetail.EndTime = scheduleDetail.AllDayKbn == 1 ? (scheduleDetail.YoteiEYmd.Insert(4, "/").Insert(7, "/") + "(" + eDayOfWeek + ")" + StaffScheduleConstants.Day) : (scheduleDetail.YoteiEYmd.Insert(4, "/").Insert(7, "/") + "(" + eDayOfWeek + ")" + " " + scheduleDetail.YoteiETime.Insert(2, ":").Insert(5, ":").Substring(0, 5));
+            if (scheduleDetail.YoteiShoKbn == 1)
+            {
+                scheduleDetail.ApprovalStatus = new Status()
+                {
+                    status = StaffScheduleConstants.Pending
+                };
+            }
+            else if (scheduleDetail.YoteiShoKbn == 2)
+            {
+                scheduleDetail.ApprovalStatus = new Status()
+                {
+                    status = StaffScheduleConstants.Accept
+                };
+            }
+            else
+            {
+                scheduleDetail.ApprovalStatus = new Status()
+                {
+                    status = StaffScheduleConstants.Refuse
+                };
+            }
+            isShowDetailSchedulePopup = true;
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    void AcceptSchedule()
+    {
+        try
+        {
+            scheduleDetail = IScheduleManageService.GetScheduleDeTail(scheduleId).Result;
+            var approver = IScheduleManageService.GetApprover(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).Result;
+            scheduleDetail.ShoUpdYmd = DateTime.Now.ToString().Substring(0, 10);
+            scheduleDetail.ShoUpdTime = DateTime.Now.TimeOfDay.ToString().Substring(0, 8);
+            scheduleDetail.ShoSyainCd = approver.SyainCd;
+            scheduleDetail.ShoSyainNm = approver.Name;
+            scheduleDetail.SyainCdSeq = approver.Seg;
+            scheduleDetail.ShoRejBiko = scheduleDetail.ShoRejBiko == null ? string.Empty : scheduleDetail.ShoRejBiko;
+            scheduleDetail.ApprovalStatus = new Status()
+            {
+                status = StaffScheduleConstants.Accept
+            };
+            var result = IScheduleManageService.UpdateScheduleDetail(scheduleDetail).Result;
+            ReloadData().Wait();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    void RefuseSchedule()
+    {
+        try
+        {
+            scheduleDetail = IScheduleManageService.GetScheduleDeTail(scheduleId).Result;
+            var approver = IScheduleManageService.GetApprover(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).Result;
+            scheduleDetail.ShoUpdYmd = DateTime.Now.ToString().Substring(0, 10);
+            scheduleDetail.ShoUpdTime = DateTime.Now.TimeOfDay.ToString().Substring(0, 8);
+            scheduleDetail.ShoSyainCd = approver.SyainCd;
+            scheduleDetail.ShoSyainNm = approver.Name;
+            scheduleDetail.SyainCdSeq = approver.Seg;
+            scheduleDetail.ShoRejBiko = scheduleDetail.ShoRejBiko == null ? string.Empty : scheduleDetail.ShoRejBiko;
+            scheduleDetail.ApprovalStatus = new Status()
+            {
+                status = StaffScheduleConstants.Refuse
+            };
+            var result = IScheduleManageService.UpdateScheduleDetail(scheduleDetail).Result;
+            ReloadData().Wait();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    IEnumerable<string> Store(IEnumerable<string> errorMessage)
+    {
+        if (errorMessage.Count() > 0)
+        {
+            IsValid = false;
+        }
+        else
+        {
+            IsValid = true;
+        }
+        return errorMessage;
+    }
+    void ChangeGroupName(string NewName)
+    {
+        try
+        {
+            customGroupScheduleForm.GroupName = NewName.Trim();
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    void ChangeMemberList(IEnumerable<StaffsData> NewMemberList)
+    {
+        try
+        {
+            customGroupScheduleForm.StaffList = (NewMemberList == null ? new List<StaffsData>() : NewMemberList.ToList());
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    void AddCustomGroup()
+    {
+        try
+        {
+            PopupGroupScheduleAdd = true;
+            customGroupScheduleForm = new CustomGroupScheduleForm();
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    private async void SaveGroupSchedule()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(customGroupScheduleForm.GroupName) || string.IsNullOrEmpty(customGroupScheduleForm.GroupName.Trim()) || customGroupScheduleForm.StaffList.Count() == 0)
+            {
+                return;
+            }
+            if(customGroupScheduleForm.GroupName.Length > 50)
+            {
+                customGroupScheduleForm.GroupName = customGroupScheduleForm.GroupName.Substring(0, 50);
+            }
+            isLoading = true;
+            await Task.Run(() =>
+            {
+                InvokeAsync(StateHasChanged).Wait();
+                bool IsUpdateSuccessfully = ScheduleCustomGroupService.Update(customGroupScheduleForm).Result;
+                customGroups = IScheduleManageService.GetScheduleCustomGroup().Result;
+                customGroupsDropdown = customGroups.ToList();
+                isLoading = false;
+                PopupGroupScheduleAdd = false;
+                InvokeAsync(StateHasChanged);
+            });
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    private void ResetForm()
+    {
+        try
+        {
+            scheduleMagafeForm = new ScheduleManageForm();
+            ReloadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+}

@@ -1,0 +1,71 @@
+﻿@inherits ListDataBase
+
+<div id="table-container" class="mb-2 w-100 overflow-auto" style="display: flex; flex: 1; flex-direction: column;">
+    <table class="table normal-table table-sm vehicle-table fixed-header mb-0 table-layout"
+            style="min-width: 1970px; table-layout: fixed; border-collapse: separate; border-spacing: 0">
+        <thead>
+            <tr>
+                <th style="width: 50px" class="sticky header-sticky"></th>
+                <th style="width: 50px; left: 50px !important; border-right: 1px solid #dee2e6 !important" class="sticky header-sticky">@_lang["No"]</th>
+                <th style="width: 140px; z-index: 1">@_lang["Receipt_number"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Vehicle_dispatch_date"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Arrival_date"]</th>
+                <th style="width: 130px; z-index: 1">@_lang["Customer"]</th>
+                <th style="width: 130px; z-index: 1">@_lang["Branch_name"]</th>
+                <th style="width: 200px; z-index: 1">@_lang["Group_name"]</th>
+                <th style="width: 130px; z-index: 1">@_lang["Destination_name"]</th>
+                <th style="width: 150px; z-index: 1">@_lang["Drivers_guides"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Fare"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Fee"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Unit_price"]</th>
+                <th style="width: 70px; z-index: 1">@_lang["Number_of_units"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Bus_fare"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Guide_unit_price"]</th>
+                <th style="width: 120px; z-index: 1">@_lang["Guide_fee"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (listDataDisplay.Count > 0)
+            {
+                var count = 1;
+                @foreach (var item in listDataDisplay)
+                {
+                    <tr>
+                        <td class="text-center sticky col-sticky"><i class="fa fa-times remove-item" @onclick="@(async () => await OnRemoveItem(item))"></i></td>
+                        <td class="text-center sticky col-sticky" style="left: 50px !important">@(count++)</td>
+                        <td class="text-left">@item.UkeNo.Substring(5)</td>
+                        <td class="text-left">
+                            @(string.IsNullOrEmpty(item.HaiSYmd) ? string.Empty : DateTime.ParseExact(item.HaiSYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture).ToString(CommonConstants.FormatYMDWithSlash))
+                        </td>
+                        <td class="text-left">
+                            @(string.IsNullOrEmpty(item.TouYmd) ? string.Empty : DateTime.ParseExact(item.TouYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture).ToString(CommonConstants.FormatYMDWithSlash))
+                        </td>
+                        <td class="text-left">@item.TokisakiNm</td>
+                        <td class="text-left">@item.TokisitenNm</td>
+                        <td class="text-left">@item.DanTaNm</td>
+                        <td class="text-left">@item.IkNm</td>
+                        <td class="text-right">@item.DriverNum / @item.GuiderNum</td>
+                        <td class="text-right">@item.Unchin.ToString("N0")</td>
+                        <td class="text-right">@item.Ryokin.ToString("N0")</td>
+                        <td class="text-right">@item.SyaSyuTan.ToString("N0")</td>
+                        <td class="text-right">@item.SyaSyuDai</td>
+                        <td class="text-right">@item.SyaRyoUnc.ToString("N0")</td>
+                        <td class="text-right">@item.UnitGuiderPrice.ToString("N0")</td>
+                        <td class="text-right">@item.UnitGuiderFee.ToString("N0")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="17">@_lang["tablehasnorows"]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="mb-2">
+    <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                     TotalCount="listData.Count" @ref="paging">
+    </HassyaAllrightCloud.Pages.Components.Pagination>
+</div>

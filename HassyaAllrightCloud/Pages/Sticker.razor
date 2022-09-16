@@ -1,0 +1,662 @@
+﻿@page "/sticker"
+@inject IStringLocalizer<Sticker> Lang
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient Http
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupDelete">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["TitlePopupDelete"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => PopupDelete = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i> @Lang["TextConfirmDelete"]
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="Delete" Text="@Lang["Yes"]" CssClass="width--75" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" @onclick="@(() => PopupDelete = false)" Text="@Lang["No"]" CssClass="width--75" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-lg" @bind-Visible="@IsShowPreviewReport">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["TitlePopupPreview"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => IsShowPreviewReport = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="form-group d-flex flex-nowrap">
+            <label class="col-form-label-sm mr-3 width--90">@Lang["DetailedType"]</label>
+            <div class="d-flex flex-nowrap justify-content-between align-items-center">
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioOriginal" name="customRadioDetailedType" checked>
+                    <label class="custom-control-label" for="radioOriginal">@Lang["Original"]</label>
+                </div>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioSticker" name="customRadioDetailedType" disabled>
+                    <label class="custom-control-label" for="radioSticker">@Lang["Sticker"]</label>
+                </div>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioSideSticker" name="customRadioDetailedType" disabled>
+                    <label class="custom-control-label" for="radioSideSticker">@Lang["SideSticker"]</label>
+                </div>
+            </div>
+        </div>        
+        <div class="mt-4 d-flex justify-content-center align-items-center">
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Preview"]" @onclick="Print"></DxButton>
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Close"]" @onclick="@(() => IsShowPreviewReport = false)"></DxButton>
+        </div>
+    </Content>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-lg" @bind-Visible="@IsShowOptionPrintReport">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["TitlePopupPrint"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => IsShowOptionPrintReport = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="form-group d-flex flex-nowrap">
+            <label class="col-form-label-sm mr-3 width--90">@Lang["OutputClassification"]</label>
+            <div class="d-flex flex-nowrap justify-content-between align-items-center">
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioSingleOuput" name="customRadioOutputClassification" checked>
+                    <label class="custom-control-label" for="radioSingleOuput">@Lang["SingleOuput"]</label>
+                </div>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioFullOutput" name="customRadioOutputClassification">
+                    <label class="custom-control-label" for="radioFullOutput">@Lang["FullOutput"]</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group d-flex flex-nowrap">
+            <label class="col-form-label-sm mr-3 width--90">@Lang["RecreatedCategory"]</label>
+            <div class="d-flex flex-nowrap justify-content-between align-items-center">
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioOriginal" name="customRadioRecreatedCategory" checked disabled>
+                    <label class="custom-control-label" for="radioOriginal">@Lang["Original"]</label>
+                </div>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioSticker" name="customRadioRecreatedCategory" disabled>
+                    <label class="custom-control-label" for="radioSticker">@Lang["Sticker"]</label>
+                </div>
+                <div class="custom-control custom-radio mr-4">
+                    <input type="radio" class="custom-control-input" id="radioSideSticker" name="customRadioRecreatedCategory" disabled>
+                    <label class="custom-control-label" for="radioSideSticker">@Lang["SideSticker"]</label>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-center align-items-center">
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Export"]" @onclick="Export"></DxButton>
+            <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Close"]" @onclick="@(() => IsShowOptionPrintReport = false)"></DxButton>
+        </div>
+    </Content>
+</DxPopup>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>@Lang["PageTitle"]</h5>
+</div>
+
+<div class="main-top mb-2">
+    <div id="control-tab" class="title-section mb-2">
+        <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["ConditionSetting"]
+    </div>
+    <div class="express-condition mb-2">
+        <div class="card">
+            <div class="card-body">
+                <EditForm EditContext="@formContext" OnSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <FluentValidator TValidator="StickerValidator" />
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--90 text-right">@Lang["ProcessingDivision"]：</label>
+                        <DxComboBox Data="@processingdivisionlst"
+                                    AllowUserInput="false"
+                                    SelectedItem="data.ProcessingDivision"
+                                    SelectedItemChanged="@OnSelectProcessingVivisionItemChanged"
+                                    SelectedItemExpression="@(() => data.ProcessingDivision)"
+                                    CssClass="width--130">
+                        </DxComboBox>
+                    </div>
+                    <div class="d-flex flex-nowrap">
+                        <div class="form-group d-flex flex-nowrap mr-3">
+                            <label class="col-form-label-sm mr-3 width--90 text-right">@Lang["DateOfDispatch"]：</label>
+                            <DxDateEdit Date="data.DateOfDispatch"
+                                        Format="yy/MM/dd"
+                                        DateChanged="@((newValue) => OnDateOfDispatchChanged(newValue))"
+                                        DateExpression="@(() => data.DateOfDispatch)"
+                                        CssClass="width--130">
+                            </DxDateEdit>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-3 width--100 text-right">@Lang["ReservationClassification"]：</label>
+                            <div class="dropdown dropdown-listbox">
+                                <div class="input-group input-group-sm dx-listbox width--140 multi-combobox dropdown-toggle" id="lstcompany" data-toggle="dropdown">
+                                    <p class="form-control form-control-sm text-overflow">@DisplayBookingTypeCmb</p>
+                                    <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                                        <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                                    <DxListBox Data="@reservationlst"
+                                               TextFieldName="BookingTypeName"
+                                               SelectionMode="ListBoxSelectionMode.Multiple"
+                                               SelectedItems="@BookingTypesSelected"
+                                               SelectedItemsChanged="@OnBookingTypesChanged"
+                                               SelectedItemsExpression="@(() => data.BookingTypes)"
+                                               ShowCheckboxes="true"
+                                               CssClass="width--140">
+                                    </DxListBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-nowrap">
+                        <div class="form-group d-flex flex-nowrap mr-3">
+                            <label class="col-form-label-sm mr-3 width--90 text-right">@Lang["CategoryName"]：</label>
+                            <DxComboBox Data="@categorynamelst"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.CategoryName"
+                                        SelectedItemChanged="OnCategoryNameChanged"
+                                        SelectedItemExpression="@(() => data.CategoryName)"
+                                        CssClass="width--130">
+                            </DxComboBox>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-3 width--100 text-right">@Lang["DisplayOrder"]：</label>
+                            <DxComboBox Data="@displayorderlst"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.DisplayOrder"
+                                        SelectedItemChanged="OnDisplayOrderChanged"
+                                        SelectedItemExpression="@(() => data.DisplayOrder)"
+                                        CssClass="width--140">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--90 text-right">@Lang["SalesOffice"]：</label>
+                        <DxComboBox Data="@salebranchlst"
+                                    TextFieldName="BranchInfo"
+                                    AllowUserInput="false"
+                                    SelectedItem="@data.ReceptionOffice"
+                                    SelectedItemChanged="@(e => OnReceptionOfficeChanged(e))"
+                                    SelectedItemExpression="@(() => data.ReceptionOffice)"
+                                    CssClass="width-25rem">
+                        </DxComboBox>
+                    </div>
+                    <div class="form-group d-sm-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--90 text-right">@Lang["CarDestination"]：</label>
+                        <DxComboBox Data="@customerlst"
+                                    TextFieldName="TextReport"
+                                    AllowUserInput="false"
+                                    SelectedItem="@data.CustomerFrom"
+                                    SelectedItemChanged="@OnCustomerFromChanged"
+                                    SelectedItemExpression="@(() => data.CustomerFrom)"
+                                    CssClass="width-25rem">
+                        </DxComboBox>
+                        <span class="mx-2">～</span>
+                        <DxComboBox Data="@customerlst"
+                                    TextFieldName="TextReport"
+                                    AllowUserInput="false"
+                                    SelectedItem="@data.CustomerTo"
+                                    SelectedItemChanged="@OnCustomerToChanged"
+                                    SelectedItemExpression="@(() => data.CustomerTo)"
+                                    CssClass="width-25rem">
+                        </DxComboBox>
+                    </div>
+                    <div class="form-group d-flex justify-content-end align-items-center">
+                        <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90" Text="@Lang["Start"]" @onclick="Search"></DxButton>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (SearchResult)
+{
+    <table class="table table-sm table-bordered mb-2">
+        <thead class="thead-light">
+            <tr>
+                <th class="text-center" width="50px">No.</th>
+                @if (FlagProcessing == 1)
+                {
+                    <th>@Lang["Organization"]</th>
+                    <th>@Lang["CarNumber"]</th>
+                    <th>@Lang["DeliveryTime"]</th>
+                    <th>@Lang["Customer"]</th>
+                    <th>@Lang["ReservationGroupName"]</th>
+                    <th>@Lang["BasicSizeUsed"]</th>
+                }
+                else {
+                    <th>@Lang["StickerNumber"]</th>
+                }
+                <th>@Lang["Sticker"]</th>
+                <th>@Lang["StickerSize"]</th>
+                <th>@Lang["SideSticker"]</th>
+                <th>@Lang["SideUseSize"]</th>
+                <th>@Lang["Detail"]</th>
+                @if (FlagProcessing == 1)
+                {
+                    <th colspan="4" width="90px"></th>
+                }
+                else { 
+                    <th colspan="4" width="120px" class="text-center"><a href="javascript:void(0" @onclick="@(() => IsSignUp = true)">@Lang["SignUp"]</a></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (IsSignUp)
+            {
+                <tr>
+                    <EditStickerBooking data="data"
+                                        categorynamelst="categorynamelst"
+                                        stickerusedlst="stickerusedlst"
+                                        fontnamelst="fontnamelst"
+                                        fontstylelst="fontstylelst"
+                                        fontsizelst="fontsizelst"
+                                        fontscriptlst="fontscriptlst"
+                                        IsEditMode="false"
+                                        OnSubmit="HandleAddSticker"
+                                        OnCancel="HandleCancelCreateSticker">
+                    </EditStickerBooking>
+                </tr>
+            }
+            @foreach (var item in StickerList)
+            {
+                <tr>
+                    @if (IsEdit)
+                    {
+                        <EditStickerBooking data="data"
+                                            categorynamelst="categorynamelst"
+                                            stickerusedlst="stickerusedlst"
+                                            fontnamelst="fontnamelst"
+                                            fontstylelst="fontstylelst"
+                                            fontsizelst="fontsizelst"
+                                            fontscriptlst="fontscriptlst"
+                                            IsEditMode="true"
+                                            OnSubmit="HandleSaveEditSticker"
+                                            OnCancel="HandleCancelEditSticker">
+                        </EditStickerBooking>
+                    }
+                    else
+                    {
+                        <td class="text-center">1</td>
+                        @if (FlagProcessing == 1)
+                        {
+                            <td>@item.Organization</td>
+                            <td>@item.CarNumber</td>
+                            <td>@item.DeliveryTime</td>
+                            <td>@item.Customer</td>
+                            <td>@item.ReservationGroupName</td>
+                            <td>@item.BasicSizeUsed</td>
+                        }
+                        else
+                        {
+                            <td>@item.StickerNumber</td>
+                        }
+                        <td>@item.Sticker</td>
+                        <td>@item.StickerSize</td>
+                        <td>@item.SideSticker</td>
+                        <td>@item.SideUseSize</td>
+                        <td>@item.Detail</td>
+                        <td class="text-center" width="30px">
+                            <a href="javascript:void(0" @onclick="@(() => IsEdit = true)" title="@Lang["Edit"]">
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                        <td class="text-center" width="30px">
+                            <a href="javascript:void(0" @onclick="@(() => IsShowPreviewReport = true)" title="@Lang["Preview"]">
+                                <i class="fa fa-desktop" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                        <td class="text-center" width="30px">
+                            <a href="javascript:void(0" @onclick="@(() => IsShowOptionPrintReport = true)" title="@Lang["Print"]">
+                                <i class="fa fa-print" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                        @if (FlagProcessing != 1)
+                        {
+                            <td class="text-center" width="30px">
+                                <a href="javascript:void(0" @onclick="@(() => PopupDelete = true)" title="@Lang["Delete"]" class="text-danger">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>       
+}
+
+@code {
+    public StickerData data = new StickerData();
+    EditContext formContext;
+    string baseUrl;
+
+    List<ReservationData> reservationlst = new List<ReservationData>();
+    List<LoadCustomerList> customerlst = new List<LoadCustomerList>();
+    List<LoadSaleBranch> salebranchlst = new List<LoadSaleBranch>();
+    List<string> processingdivisionlst = new List<string>();
+    List<string> categorynamelst = new List<string>();
+    List<string> displayorderlst = new List<string>();
+    List<string> stickerusedlst = new List<string>();
+    List<string> fontnamelst = new List<string>();
+    List<string> fontstylelst = new List<string>();
+    List<string> fontsizelst = new List<string>();
+    List<string> fontscriptlst = new List<string>();
+    List<LoadSticker> StickerList = new List<LoadSticker>();
+
+    bool SearchResult { get; set; } = false;
+    bool IsShowPreviewReport { get; set; } = false;
+    bool IsShowOptionPrintReport { get; set; } = false;
+    bool IsEdit { get; set; } = false;
+    bool IsSignUp { get; set; } = false;
+    bool PopupDelete { get; set; } = false;
+    bool PopupEdit { get; set; } = false;    
+
+    int FlagProcessing { get; set; }
+
+    string DisplayBookingTypeCmb = string.Empty;
+    bool IsSelectedAll = true;
+    IEnumerable<ReservationData> BookingTypesSelected { get; set; } = new List<ReservationData>();
+
+    #region Component Lifecycle
+    /// <summary>
+    /// Invoked once, after OnInit is finished.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        formContext = new EditContext(data);
+        baseUrl = AppSettingsService.GetBaseUrl();
+        reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+        reservationlst.Insert(0, new ReservationData());
+        customerlst = await Http.GetJsonAsync<List<LoadCustomerList>>(baseUrl + "/api/Customer/get");
+        salebranchlst = await Http.GetJsonAsync<List<LoadSaleBranch>>(baseUrl + "/api/ReceiveBookingSaleBranch/" + new ClaimModel().TenantID);
+        processingdivisionlst = new List<string>(){
+            "予約データ",
+            "手入力データ",
+        };
+        categorynamelst = new List<string>(){
+            "すべて",
+            "ツア",
+            "学校",
+        };
+        displayorderlst = new List<string>(){
+            "すべて",
+            "出庫時間順",
+            "得意先順",
+        };
+        stickerusedlst = new List<string>() {
+            "東急観光​",
+        };
+        fontnamelst = new List<string>() {
+            "ＭＳ 明朝",
+        };
+        fontstylelst = new List<string>() {
+            "太字",
+        };
+        fontsizelst = new List<string>() {
+            "12",
+        };
+        fontscriptlst = new List<string>() {
+            "japanese",
+        };
+        StickerList.Add(new LoadSticker {
+            Organization = "1台中1号車",
+            CarNumber = "01",
+            DeliveryTime = "10:00",
+            Customer = "網走バス",
+            ReservationGroupName = "予約書団体名",
+            BasicSizeUsed = "",
+            StickerNumber = 5,
+            Sticker = "ステッカー",
+            StickerSize = "東急観光​",
+            SideSticker = "サイドステッカー",
+            SideUseSize = "東急観光​",
+            Detail = "詳細",
+        });
+
+        data.ProcessingDivision = processingdivisionlst.First();
+        data.DateOfDispatch = DateTime.Today;
+        data.ReceptionOffice = salebranchlst.First();
+        data.CustomerFrom = customerlst.First();
+        data.CustomerTo = customerlst.First();
+        data.DisplayOrder = displayorderlst.First();
+        data.CategoryName = categorynamelst.First();
+        data.StickerUsed = stickerusedlst.First();
+        data.FontName = fontnamelst.First();
+        data.FontStyle = fontstylelst.First();
+        data.FontSize = fontsizelst.First();
+        data.FontScript = fontscriptlst.First();
+
+        BookingTypesSelected = reservationlst;
+    }
+    #endregion
+
+    #region Value changed methods
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnSelectProcessingVivisionItemChanged(string selectedItem)
+    {
+        data.ProcessingDivision = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newDate"></param>
+    void OnDateOfDispatchChanged(DateTime newDate)
+    {
+        data.DateOfDispatch = newDate;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="reservations"></param>
+    private void OnBookingTypesChanged(IEnumerable<ReservationData> reservations)
+    {
+        int newCount = reservations.Count();
+        int maxCount = reservationlst.Count();
+
+        BookingTypesSelected = reservations;
+
+        if (newCount == 1 && (!BookingTypesSelected.FirstOrDefault()?.BookingTypeName?.Equals(Constants.SelectedAll) ?? false))
+        {
+            DisplayBookingTypeCmb = BookingTypesSelected.FirstOrDefault()?.BookingTypeName ?? string.Empty;
+        }
+        else if (newCount == maxCount)
+        {
+            DisplayBookingTypeCmb = Constants.SelectedAll;
+        }
+        else
+        {
+            DisplayBookingTypeCmb = $"{Lang["Choices"]}：{newCount}";
+        }
+
+        bool isContainSelectAll = BookingTypesSelected.Where(_ => _.BookingTypeName.Equals(Constants.SelectedAll)).Any();
+
+        if (IsSelectedAll == true)
+        {
+            if (!isContainSelectAll)
+            {
+                BookingTypesSelected = BookingTypesSelected.Take(0);
+                IsSelectedAll = false;
+            }
+            else if (isContainSelectAll && newCount < maxCount)
+            {
+                BookingTypesSelected = BookingTypesSelected.Where(_ => !_.BookingTypeName.Equals(Constants.SelectedAll));
+                IsSelectedAll = false;
+            }
+        }
+        else
+        {
+            if (isContainSelectAll || (!isContainSelectAll && newCount == maxCount - 1))
+            {
+                BookingTypesSelected = reservationlst;
+                IsSelectedAll = true;
+            }
+        }
+
+        data.BookingTypes = BookingTypesSelected.ToList();
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnReceptionOfficeChanged(LoadSaleBranch e)
+    {
+        data.ReceptionOffice = e ?? new LoadSaleBranch();
+        formContext.Validate();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnCustomerFromChanged(LoadCustomerList e)
+    {
+        data.CustomerFrom = e ?? new LoadCustomerList();
+        formContext.Validate();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnCustomerToChanged(LoadCustomerList e)
+    {
+        data.CustomerTo = e ?? new LoadCustomerList();
+        formContext.Validate();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnCategoryNameChanged(string selectedItem)
+    {
+        data.CategoryName = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnDisplayOrderChanged(string selectedItem)
+    {
+        data.DisplayOrder = selectedItem;
+        StateHasChanged();
+    }
+    #endregion
+
+    #region Button Action
+    /// <summary>
+    ///
+    /// </summary>
+    void Search()
+    {
+        SearchResult = true;
+        IsEdit = false;
+        IsSignUp = false;
+        if (data.ProcessingDivision == "予約データ")
+        {
+            FlagProcessing = 1;
+        }
+        else
+        {
+            FlagProcessing = 2;
+        }
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    private void HandleValidSubmit()
+    {
+        // To do
+    }    
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Print()
+    {
+        // To do
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Export()
+    {
+        // To do
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Delete()
+    {
+        // To do
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected void HandleAddSticker()
+    {
+        //to do
+        IsSignUp = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="index"></param>
+    protected void HandleSaveEditSticker(int index)
+    {
+        //to do
+        IsEdit = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected void HandleCancelCreateSticker()
+    {
+        IsSignUp = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>    
+    protected void HandleCancelEditSticker()
+    {
+        IsEdit = false;
+        StateHasChanged();
+    }
+    #endregion
+}

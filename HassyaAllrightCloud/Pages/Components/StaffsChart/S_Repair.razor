@@ -1,0 +1,39 @@
+﻿@inject IVPM_KinKyuDataService VPM_KinKyuDataService
+<div class="staffrepair-bar">
+    <h5 class="text-center mb-0 p-2">勤務休日項目</h5>
+    @if (KinKyulst.Count() != 0)
+    {
+    <DxListBox Data="@KinKyulst"
+               ListRenderMode="ListRenderMode.Entire"
+               TextFieldName="KinKyuNm"
+               SelectedItems="KinKyuItem"
+               SelectedItemsChanged="@((e) => OnSelectedKinKyuItemChanged(e))"
+               CssClass="demo-listbox"
+               style="max-height: 500px;">
+    </DxListBox>
+    }
+</div>
+
+@code {
+    IEnumerable<VpmKinKyuData> KinKyulst { get; set; }
+    IEnumerable<VpmKinKyuData> KinKyuItem { get; set; }
+    [Parameter] public EventCallback<VpmKinKyuData> OnCallBackRepair { get; set; }
+   
+    protected override async Task OnInitializedAsync()
+    {
+        KinKyulst = new List<VpmKinKyuData>();
+        KinKyulst = await VPM_KinKyuDataService.GetDataKinKyu();
+        if (KinKyulst.Count() > 0)
+        {
+            KinKyuItem = Enumerable.Empty<VpmKinKyuData>();
+            KinKyuItem = KinKyulst.Take(1);
+            await OnCallBackRepair.InvokeAsync(KinKyulst.ToList().First());
+        }
+    }
+
+    public async Task OnSelectedKinKyuItemChanged(IEnumerable<VpmKinKyuData> selectedItem)
+    {
+        KinKyuItem = selectedItem;
+        await OnCallBackRepair.InvokeAsync(selectedItem.ToList().First());
+    }
+}

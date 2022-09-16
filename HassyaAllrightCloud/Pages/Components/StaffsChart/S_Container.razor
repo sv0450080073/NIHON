@@ -1,0 +1,117 @@
+﻿<div class="mouse-event group-@Param.Grouping">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public ConfigStaffsChart Param { get; set; }
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public double Width { get; set; }
+    [Parameter] public List<StaffData> StaffsName { get; set; }
+    [Parameter] public List<StaffData> StaffsNameUnassigned { get; set; }
+    [Parameter] public List<ItemStaff> StaffsLines { get; set; }
+    [Parameter] public List<ItemStaff> Jobs { get; set; }
+    [Parameter] public EventCallback<BusLineData> UpdateLineHeight { get; set; }
+    [Parameter] public EventCallback<ItemStaff> OnStatusUpdated { get; set; }
+    [Parameter] public EventCallback<ItemStaff> OnShowMenu { get; set; }
+    [Parameter] public EventCallback<string> OnUpdateLineCut { get; set; }
+
+    public ItemStaff Payload { get; set; }
+    public bool OnMouseDown { get; set; } = false;
+    public bool IsCreating { get; set; } = false;
+
+
+    #region Component Lifecycle
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    /// <returns></returns>
+    protected override void OnParametersSet()
+    {
+        // 文字表示切替
+        foreach (var i in StaffsLines)
+        {
+            if (Param.DisplayedCharacters == (int)DisplayLineMode.Custom)
+            {
+                i.Name = i.Text.ToString();
+            }
+            if (Param.DisplayedCharacters == (int)DisplayLineMode.Organization)
+            {
+                i.Name = i.DanTaNm;
+            }
+            if (Param.DisplayedCharacters == (int)DisplayLineMode.Destination)
+            {
+                i.Name = i.IkNm;
+            }
+            if (Param.DisplayedCharacters == (int)DisplayLineMode.Customer)
+            {
+                i.Name = i.TokiSk_RyakuNm + "　" + i.TokiSt_RyakuNm;
+            }
+            if (Param.DisplayedCharacters == (int)DisplayLineMode.None)
+            {
+                i.Name = "";
+            }
+        }
+
+        // 予約区分
+        if (Param.BookingCategory == 0)
+        {
+            StaffsLines = StaffsLines.ToList();
+        }
+        else if (Param.BookingCategory != 0)
+        {
+            StaffsLines = StaffsLines.Where(t => t.BookingType == Param.BookingCategory).ToList();
+        }
+    }
+    #endregion
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lstbus"></param>
+    /// <returns></returns>
+    public async Task UpdateHeightAsync(BusLineData bus)
+    {
+        await UpdateLineHeight.InvokeAsync(bus);
+    }
+    public async Task CreatedJobAsync(ItemStaff itemStaff)
+    {
+        Jobs.Add(itemStaff);
+        Payload = itemStaff;
+        OnMouseDown = true;
+        IsCreating = true;
+        await OnStatusUpdated.InvokeAsync(itemStaff);
+    }
+    public async Task UpdateJobAsync(string newLine,int BusVehicle, bool isGray)
+    {
+        var task = Jobs.FirstOrDefault(x => x.BookingId == Payload.BookingId && x.TeiDanNo==Payload.TeiDanNo && x.BunkRen==Payload.BunkRen && x.HaUnkRen==Payload.HaUnkRen);
+        if(Payload.BookingId=="0")
+        {
+            task = Jobs.SingleOrDefault(x => x.KinKyuTblCdSeq == Payload.KinKyuTblCdSeq);
+        }
+        if (task != null)
+        {
+            //task.BusLine = newLine;
+            //task.BusVehicle = BusVehicle;
+            ItemStaff tmp = new ItemStaff();
+            tmp = Payload;
+            tmp.BusLine = newLine;
+            tmp.BusVehicle =BusVehicle;
+            tmp.isGray = isGray;
+            Payload = new ItemStaff();
+            await OnStatusUpdated.InvokeAsync(tmp);
+        }
+    }
+
+    public async Task UpdateMenuAsync(ItemStaff item)
+    {
+        await OnShowMenu.InvokeAsync(item);
+    }
+
+    public async Task UpdateLineCutAsync(string text)
+    {
+        await OnUpdateLineCut.InvokeAsync(text);
+    }
+}

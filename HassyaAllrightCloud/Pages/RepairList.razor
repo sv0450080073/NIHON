@@ -1,0 +1,1077 @@
+﻿@page "/repairlist"
+@inject IStringLocalizer<RepairList> Lang
+@inject ITPM_EigyosDataListService EigyosDataService
+@inject ITPM_YoyKbnDataListService YoyKbnDataService
+@inject IVPM_SyaRyoListService SyaRyoDataService
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject IRepairDivisionService RepairDivisionService
+@inject IRepairListReportService RepairListReportService
+@inject AppSettingsService AppSettingsService
+@inject IJSRuntime JSRuntime
+@inject IFilterCondition FilterServices
+@inject IErrorHandlerService ErrorModalService
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupCheckData" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["TitlePopupInfo"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => PopupCheckData = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>  @Lang["BI_T005"]
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => PopupCheckData = false)" Text="OK" />
+    </FooterTemplate>
+</DxPopup>
+<div class="d-flex justify-content-between align-items-center pb-2">
+    <h5 class="mb-0">@Lang["PageTitle"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["Clear"]
+    </button>
+</div>
+@if (isExporting)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<EditForm EditContext="@formContext" id="repairlistrp" OnSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="RepairListValidator" />
+    <div class="express-condition mb-3 border-dotted">
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputSettings"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@Lang["OutputInstruction"]</label>
+                        <nav class="nav nav-pills">
+                            <a href="javascript:void(0)" class="btn nav-link withtabindex @(data.OutputSetting == OutputInstruction.Preview ? "active" : null)" @onclick="@(e => data.OutputSetting = OutputInstruction.Preview)">@Lang["Preview"]</a>
+                            <a href="javascript:void(0)" class="btn nav-link withtabindex @(data.OutputSetting == OutputInstruction.Pdf ? "active" : null)" @onclick="@(e => data.OutputSetting = OutputInstruction.Pdf)">@Lang["Export"]</a>
+                        </nav>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@Lang["SizeOfPaper"]</label>
+                        <DxComboBox Data="@PaperSizeOptions"
+                                    AllowUserInput="false"
+                                    SelectedItem="@data.PaperSize"
+                                    SelectedItemChanged="@OnPaperSizeChanged"
+                                    SelectedItemExpression="@(() => data.PaperSize)"
+                                    CssClass="width--90 withtabindex"></DxComboBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="express-condition mb-3 border-dotted"  >
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputConditions"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap ">
+                        <label class="col-form-label-sm width--120 mr-3">@Lang["RepairDate"]</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.EndDate )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text=""></Tooltip>
+                            <DxDateEdit Date="@data.StartDate"
+                                        Format="yyyy/MM/dd"
+                                        DateChanged="@((newValue) => OnStartDateChanged(newValue))"
+                                        DateExpression="@(() => data.EndDate)"
+                                        CssClass="width--120 withtabindex"></DxDateEdit>
+                        </div>
+                        <span class="mx-3">～</span>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.EndDate )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text=""></Tooltip>
+                            <DxDateEdit Date="@data.EndDate"
+                                        Format="yyyy/MM/dd"
+                                        DateChanged="@((newValue) => OnEndDateChanged(newValue))"
+                                        DateExpression="@(() => data.EndDate)"
+                                        CssClass="width--120 withtabindex"></DxDateEdit>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--120">@Lang["Company"]</label>
+                        <div class="dropdown dropdown-listbox">
+                            <div class=@("has-tooltip-error custom-listbox-invalid" + (IsSelectEmptyCompany ? " invalid" : ""))>
+                                @if (IsSelectEmptyCompany)
+                                {
+                                    <HassyaAllrightCloud.Pages.Components.Tooltip Lang="@LangDic" ValueExpressions="@(() =>SelectedCompanyItems.FirstOrDefault())"
+                                                                                  Text="@(IsSelectEmptyCompany ?  EmptySelectCompanyMessage :"" )" Position="PositionTooltip.top"> </HassyaAllrightCloud.Pages.Components.Tooltip>
+                                }
+                                <div class="input-group input-group-sm dx-listbox width--290 multi-combobox dropdown-toggle" id="lstcompany" data-toggle="dropdown">
+                                    @*<p class="form-control form-control-sm">@GetSelectedCompanyText()</p>*@
+                                    <input class="form-control form-control-sm withtabindex" value="@GetSelectedCompanyText()">
+                                    <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                                        <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle " type="button">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                                    <DxListBox Data="@companychartlst"
+                                               TextFieldName="TextReport"
+                                               ListRenderMode="ListRenderMode.Entire "
+                                               SelectionMode="ListBoxSelectionMode.Multiple"
+                                               SelectedItems="@SelectedCompanyItems"
+                                               SelectedItemsChanged="@OnSelectedCompanyItemsChanged"
+                                               SelectedItemsExpression="@(() => data.CompanyChartData)"
+                                               ShowCheckboxes="true"
+                                               CssClass=" width--290 ">
+                                    </DxListBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm width--120 mr-3">@Lang["Branch"]</label>
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyBranch ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.BranchTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyBranch?emptyItemMessage[nameof(EmptyBranchMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@vehicledispatchofficelst"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        NullText="@Lang["BranchesNullText"]"
+                                        TextFieldName="EigyoCodeName"
+                                        SelectedItem="@data.BranchFrom"
+                                        SelectedItemChanged="@((newValue)=> OnBranchSelectedItemChanged(newValue))"
+                                        SelectedItemExpression="@(()=>@data.BranchTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+                        <span class="mx-3">～</span>
+
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyBranch ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.BranchTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyBranch?emptyItemMessage[nameof(EmptyBranchMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@vehicledispatchofficelst"
+                                        NullText="@Lang["BranchesNullText"]"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        TextFieldName="EigyoCodeName"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.BranchTo"
+                                        SelectedItemChanged="@((newValue)=> OnBranchSelectedItemChanged(newValue, false))"
+                                        SelectedItemExpression="@(()=>@data.BranchTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm width--120 mr-3">@Lang["Vehicle"]</label>
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyVehicle ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.VehicleTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyVehicle?emptyItemMessage[nameof(EmptyVehicleMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@Vehicles"
+                                        NullText="@Lang["VehiclesNullText"]"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        TextFieldName="VehicleInfo"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.VehicleFrom"
+                                        SelectedItemChanged="@((newValue)=> OnVehicleSelectedItemChanged(newValue))"
+                                        SelectedItemExpression="@(()=>@data.VehicleTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+                        <span class="mx-3">～</span>
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyVehicle ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.VehicleTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyVehicle?emptyItemMessage[nameof(EmptyVehicleMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@Vehicles"
+                                        NullText="@Lang["VehiclesNullText"]"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        TextFieldName="VehicleInfo"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.VehicleTo"
+                                        SelectedItemChanged="@((newValue)=> OnVehicleSelectedItemChanged(newValue, false))"
+                                        SelectedItemExpression="@(()=>@data.VehicleTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm width--120 mr-3">@Lang["Booking"]</label>
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyRepairDivision ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.RepairTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyRepairDivision?emptyItemMessage[nameof(EmptyRepairDivisionMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@RepairDivisionList"
+                                        NullText="@Lang["RepairTypeNullText"]"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        TextFieldName="RepairText"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.RepairFrom"
+                                        SelectedItemChanged="@((newValue)=> OnRepairDivisionSelectedItemChanged(newValue))"
+                                        SelectedItemExpression="@(()=>@data.RepairTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+                        <span class="mx-3">～</span>
+
+                        <div class=@("has-tooltip-error custom-listbox-invalid" + (IsEmptyRepairDivision ? " invalid" : ""))>
+                            <Tooltip ValueExpressions="@(() => data.RepairTo )"
+                                     Lang="@LangDic" Position="PositionTooltip.top" Text="@(IsEmptyRepairDivision?emptyItemMessage[nameof(EmptyRepairDivisionMessage)] :"" )"></Tooltip>
+                            <DxComboBox Data="@RepairDivisionList"
+                                        NullText="@Lang["RepairTypeNullText"]"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        TextFieldName="RepairText"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.RepairTo"
+                                        SelectedItemChanged="@((newValue)=> OnRepairDivisionSelectedItemChanged(newValue, false))"
+                                        SelectedItemExpression="@(()=>@data.RepairTo)"
+                                        CssClass="width--250 custom-combo-box withtabindex">
+                            </DxComboBox>
+                        </div>
+
+                    </div>
+                    <div class="d-flex flex-nowrap">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm width--120 mr-3">@Lang["OutputOrder"]</label>
+                            <DxComboBox Data="@OutputOrderOptions"
+                                        TextFieldName="StringValue"
+                                        AllowUserInput="false"
+                                        SelectedItem="@data.OutputOrder"
+                                        SelectedItemChanged="@OnOutputOrderChanged"
+                                        SelectedItemExpression="@(() => data.OutputOrder)"
+                                        CssClass="width--160 withtabindex">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="border-dotted button-fixed-bottom">
+        <DxButton Text="@Lang["Output"]"
+                  RenderStyle="@ButtonRenderStyle.Primary"
+                  CssClass="width--100 btnSubmit withtabindex"
+                  @onclick="() => BtnSubmitClick()"
+                  disabled="@((formContext.GetValidationMessages().Distinct().Any()  || IsSelectEmptyCompany || isExporting ))">
+        </DxButton>
+    </div>
+</EditForm>
+
+@code {
+    int activeTabIndex = 0;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; StateHasChanged(); } }
+    EditContext formContext;
+    RepairListData data = new RepairListData();
+    private List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+    private List<DepartureOfficeData> vehicledispatchofficelst = new List<DepartureOfficeData>();
+    private List<TPM_SyaRyoData> Vehicles = new List<TPM_SyaRyoData>();
+    RepairListDataUri RepairListDataUri = new RepairListDataUri();
+    private List<RepairDivision> RepairDivisionList = new List<RepairDivision>();
+    private List<RepairOutputOrderData> OutputOrderOptions = new List<RepairOutputOrderData>();
+    private List<PaperSize> PaperSizeOptions = new List<PaperSize>();
+    IEnumerable<CompanyChartData> SelectedCompanyItems;
+
+    DepartureOfficeData allBranch = new DepartureOfficeData();
+    CompanyChartData allCompany = new CompanyChartData();
+    RepairDivision allRepairDivision = new RepairDivision();
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    Dictionary<string, string> emptyItemMessage = new Dictionary<string, string>();
+    VpmSyain SyainNmItem = new VpmSyain();
+    private bool IsSelectedAll = true;
+    bool checkCompanyAll { get; set; } = true;
+    bool PopupCheckData { get; set; } = false;
+    bool IsSelectEmptyCompany { get; set; } = false;
+    bool IsDataNull { get; set; } = false;
+    bool IsEmptyBranch { get; set; } = false;
+    bool IsEmptyVehicle { get; set; } = false;
+    bool IsEmptyRepairDivision { get; set; } = false;
+    bool IsFilterApply { get; set; }
+    bool isExporting;
+    string EmptySelectCompanyMessage = "";
+    string EmptyCompanyMessage = "";
+    string EmptyBranchMessage = "";
+    string EmptyVehicleMessage = "";
+    string EmptyRepairDivisionMessage = "";
+    string filterConditionFormName = "KU1500";
+    string showSelectedCompany = "";
+    private int SyainCdSeqLogin { get; set; } = (new ClaimModel()).SyainCdSeq;
+    private int TenantCdSeqLogin { get; set; } = (new ClaimModel()).TenantID;
+
+    #region Component Lifecycle
+    private void LocalizationInit()
+    {
+        try
+        {
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+            EmptyCompanyMessage = Lang["BI_T001"]; //todo company
+            EmptyBranchMessage = Lang["BI_T006"];
+            EmptyVehicleMessage = Lang["BI_T007"];
+            EmptyRepairDivisionMessage = Lang["BI_T010"];
+            EmptySelectCompanyMessage = Lang["CompanyEmpty"];
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            LocalizationInit();
+            formContext = new EditContext(data);
+            LoadOutputSetting();
+            await LoadCompany();
+            await LoadBranch();
+            LoadVehicle();
+            LoadRepairDivision();
+            LoadOutputOrder();
+            LoadPaperSize();
+            SyainNmItem = await TPM_CompnyDataService.GetSyainNmBySyainCdSeq(SyainCdSeqLogin);
+            data.SyainNmItem = SyainNmItem;
+            data.TenantCdSeq = TenantCdSeqLogin;
+            await ApplyFilter();
+            formContext.Validate();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            JSRuntime.InvokeAsync<string>("loadPageScript", "repairlistPage", "tabKey");
+            JSRuntime.InvokeAsync<string>("loadPageScript", "repairlistPage", "enterKey");
+            JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Load Data
+    /// <summary>
+    /// Company
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadCompany()
+    {
+        try
+        {
+            companychartlst = await TPM_CompnyDataService.GetCompanyListBox(TenantCdSeqLogin);
+            if (companychartlst == null || !companychartlst.Any())
+            {
+                IsDataNull = true;
+                companychartlst = new List<CompanyChartData>();
+                emptyItemMessage[nameof(EmptyCompanyMessage)] = EmptyCompanyMessage;
+            }
+            else
+            {
+                companychartlst.Insert(0, allCompany);
+            }
+            SelectedCompanyItems = companychartlst;
+            data.CompanyChartData = SelectedCompanyItems.ToList();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Branch
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadBranch()
+    {
+        try
+        {
+            vehicledispatchofficelst = await TPM_EigyosDataService.GetAllBranchData(TenantCdSeqLogin);
+            if (vehicledispatchofficelst == null || !vehicledispatchofficelst.Any())
+            {
+                IsDataNull = true;
+                IsEmptyBranch = true;
+                vehicledispatchofficelst = new List<DepartureOfficeData>();
+                emptyItemMessage[nameof(EmptyBranchMessage)] = EmptyBranchMessage;
+            }
+            else
+            {
+                IsEmptyBranch = false;
+                vehicledispatchofficelst.Insert(0, allBranch);
+            }
+            data.BranchFrom = vehicledispatchofficelst.FirstOrDefault();
+            data.BranchTo = vehicledispatchofficelst.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    /// <summary>
+    /// Vehicle
+    /// </summary>
+    /// <returns></returns>
+    private void LoadVehicle()
+    {
+        try
+        {
+            Vehicles = SyaRyoDataService.GetSyaRyoRepairList(TenantCdSeqLogin, data.StartDate.ToString("yyyyMMdd"), data.EndDate.ToString("yyyyMMdd"));
+            if (Vehicles == null || !Vehicles.Any())
+            {
+                IsDataNull = true;
+                IsEmptyVehicle = true;
+                Vehicles = new List<TPM_SyaRyoData>();
+                emptyItemMessage[nameof(EmptyVehicleMessage)] = EmptyVehicleMessage;
+            }
+            else
+            {
+                IsEmptyVehicle = false;
+                InsertSelectAll(Vehicles, _ => _.IsSelectedAll, new TPM_SyaRyoData { IsSelectedAll = true });
+            }
+            data.VehicleFrom = Vehicles.FirstOrDefault();
+            data.VehicleTo = Vehicles.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Booking Type
+    /// </summary>
+    /// <returns></returns>
+    private void LoadRepairDivision()
+    {
+        try
+        {
+            RepairDivisionList = RepairDivisionService.GetRepairDivisionList(TenantCdSeqLogin);
+            if (RepairDivisionList == null || !RepairDivisionList.Any())
+            {
+                IsDataNull = true;
+                IsEmptyRepairDivision = true;
+                RepairDivisionList = new List<RepairDivision>();
+                emptyItemMessage[nameof(EmptyRepairDivisionMessage)] = EmptyRepairDivisionMessage;
+            }
+            else
+            {
+                IsEmptyRepairDivision = false;
+                RepairDivisionList.Insert(0, allRepairDivision);
+            }
+            data.RepairFrom = RepairDivisionList.FirstOrDefault();
+            data.RepairTo = RepairDivisionList.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    /// <summary>
+    /// Output Order
+    /// </summary>
+    private void LoadOutputOrder()
+    {
+        OutputOrderOptions = RepairOutputOrderListData.OutputOrderlst;
+        data.OutputOrder = OutputOrderOptions.FirstOrDefault();
+    }
+    private void LoadOutputSetting()
+    {
+        data.OutputSetting = OutputInstruction.Preview;
+    }
+    /// <summary>
+    /// Paper Size
+    /// </summary>
+    private void LoadPaperSize()
+    {
+        try
+        {
+            PaperSizeOptions = new List<PaperSize>
+{
+            PaperSize.A4,
+            PaperSize.A3,
+            PaperSize.B4,
+        };
+            data.PaperSize = PaperSizeOptions.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Value changed method
+    /// <summary>
+    /// Start Date
+    /// </summary>
+    /// <param name="newDate"></param>
+    private void OnStartDateChanged(DateTime newDate)
+    {
+        try
+        {
+            data.StartDate = newDate;
+            Vehicles = SyaRyoDataService.GetSyaRyoRepairList(TenantCdSeqLogin, data.StartDate.ToString("yyyyMMdd"), data.EndDate.ToString("yyyyMMdd"));
+            InsertSelectAll(Vehicles, _ => _.IsSelectedAll, new TPM_SyaRyoData { IsSelectedAll = true });
+            if (!IsFilterApply)
+            {
+                data.VehicleFrom = Vehicles.FirstOrDefault();
+                data.VehicleTo = Vehicles.FirstOrDefault();
+                StateHasChanged();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// End Date
+    /// </summary>
+    /// <param name="newDate"></param>
+    private void OnEndDateChanged(DateTime newDate)
+    {
+        try
+        {
+            data.EndDate = newDate;
+            Vehicles = SyaRyoDataService.GetSyaRyoRepairList(TenantCdSeqLogin, data.StartDate.ToString("yyyyMMdd"), data.EndDate.ToString("yyyyMMdd"));
+            InsertSelectAll(Vehicles, _ => _.IsSelectedAll, new TPM_SyaRyoData { IsSelectedAll = true });
+            if (!IsFilterApply)
+            {
+                data.VehicleFrom = Vehicles.FirstOrDefault();
+                data.VehicleTo = Vehicles.FirstOrDefault();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    void OnSelectedCompanyItemsChanged(IEnumerable<CompanyChartData> selectedCompanyItems)
+    {
+        try
+        {
+            SelectedCompanyItems= Enumerable.Empty<CompanyChartData>();
+            SelectedCompanyItems = selectedCompanyItems;
+            if (SelectedCompanyItems.Count() == 0)
+            {
+                showSelectedCompany = "選択項目：0";
+            }
+            else if (SelectedCompanyItems.Count() == 1)
+            {
+                foreach (var item in SelectedCompanyItems)
+                {
+                    showSelectedCompany = item.Text;
+                }
+            }
+            else  if (SelectedCompanyItems.Count() == companychartlst.Count())
+            {
+                showSelectedCompany = "すべて";
+                SelectedCompanyItems = companychartlst;
+            }
+            else if (SelectedCompanyItems.Count() > 1 && SelectedCompanyItems.Count() < companychartlst.Count())
+            {
+                showSelectedCompany = "選択項目：" + SelectedCompanyItems.Count().ToString();
+
+            }
+
+            if (!IsFilterApply)
+            {
+                if (checkCompanyAll == true && !SelectedCompanyItems.Contains(allCompany))
+                {
+                    SelectedCompanyItems = SelectedCompanyItems.Take(0);
+                    checkCompanyAll = false;
+                }
+                if (checkCompanyAll == false && (SelectedCompanyItems.Contains(allCompany) || (!SelectedCompanyItems.Contains(allCompany)
+                    && SelectedCompanyItems.Count() == companychartlst.Count() - 1)))
+                {
+                    SelectedCompanyItems = companychartlst;
+                    checkCompanyAll = true;
+                }
+                if (checkCompanyAll == true && SelectedCompanyItems.Contains(allCompany)
+                    && SelectedCompanyItems.Count() < companychartlst.Count())
+                {
+                    SelectedCompanyItems = SelectedCompanyItems.Where(t => t.CompanyCdSeq != allCompany.CompanyCdSeq);
+                    checkCompanyAll = false;
+                }
+            }
+            if (SelectedCompanyItems.Count() == 0)
+            {
+                IsSelectEmptyCompany = true;
+            }
+            else
+            {
+                IsSelectEmptyCompany = false;
+            }
+            data.CompanyChartData = SelectedCompanyItems.ToList();
+            vehicledispatchofficelst = TPM_EigyosDataService.GetBranchDataByIdCompany(data.CompanyChartData, TenantCdSeqLogin);
+            vehicledispatchofficelst.Insert(0, allBranch);
+            /* if (vehicledispatchofficelst.Any())
+             {
+                 vehicledispatchofficelst.Insert(0, allBranch);
+             }*/
+            if (!IsFilterApply)
+            {
+                data.BranchFrom = vehicledispatchofficelst.FirstOrDefault();
+                data.BranchTo = vehicledispatchofficelst.FirstOrDefault();
+            }
+            //isFilterApply = false;
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Branch
+    /// </summary>
+    /// <param name="newBranch"></param>
+    /// <param name="isFrom"></param>
+    private void OnBranchSelectedItemChanged(DepartureOfficeData newBranch, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+
+                data.BranchFrom = newBranch ?? new DepartureOfficeData();
+            }
+            else
+            {
+
+                data.BranchTo = newBranch ?? new DepartureOfficeData();
+
+            }
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Booking
+    /// </summary>
+    /// <param name="newValue"></param>
+    /// <param name="isFrom"></param>
+    private void OnRepairDivisionSelectedItemChanged(RepairDivision newValue, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.RepairFrom = newValue ?? new RepairDivision();
+            }
+            else
+            {
+
+                data.RepairTo = newValue ?? new RepairDivision();
+            }
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Vehicle
+    /// </summary>
+    /// <param name="newValue"></param>
+    /// <param name="isFrom"></param>
+    private void OnVehicleSelectedItemChanged(TPM_SyaRyoData newValue, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+
+                data.VehicleFrom = newValue ?? new TPM_SyaRyoData();
+            }
+            else
+            {
+
+                data.VehicleTo = newValue ?? new TPM_SyaRyoData();
+
+            }
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Output Order
+    /// </summary>
+    /// <param name="order"></param>
+    private void OnOutputOrderChanged(RepairOutputOrderData order)
+    {
+        try
+        {
+            data.OutputOrder = order;
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Paper Size
+    /// </summary>
+    /// <param name="newValue"></param>
+    private void OnPaperSizeChanged(PaperSize newSize)
+    {
+        try
+        {
+            data.PaperSize = newSize;
+            formContext.Validate();
+            if (!IsFilterApply) StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Action
+    /// <summary>
+    /// Handle Valid Submit
+    /// </summary>
+    private void HandleValidSubmit()
+    {
+        // to do
+    }
+
+    /// <summary>
+    /// Preview Report
+    /// </summary>
+    async void BtnSubmitClick()
+    {
+        try
+        {
+            if (formContext.Validate() && !IsSelectEmptyCompany && !IsDataNull)
+            {
+                isExporting = true;
+                await SaveCurrentFilter();
+                bool isDataExist = false;
+                isDataExist = await IsDataExistInDb(data);
+                if (isDataExist)
+                {
+                    if (data.OutputSetting == OutputInstruction.Preview)
+                    {
+
+                        RepairListDataUri = SetValueUri(data);
+                        string baseUrl = AppSettingsService.GetBaseUrl();
+                        var searchString = EncryptHelper.EncryptToUrl(RepairListDataUri);
+                        string url = baseUrl + "/repairListPreview";
+                        url = url + string.Format("/?SearchString={0}", searchString);
+                        JSRuntime.InvokeVoidAsync("open", url, "_blank");
+                        isExporting = false;
+                    }
+                    else if (data.OutputSetting == OutputInstruction.Pdf)
+                    {
+                        /*await Task.Run(() =>
+                        {
+                            ExportReportAsPdf(1, "").Wait();
+                            isExporting = false;
+
+                        });  */
+                        await ExportReportAsPdf(1, "").ContinueWith(t => isExporting = false);
+                    }
+                }
+                else
+                {
+                    isExporting = false;
+                    PopupCheckData = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        StateHasChanged();
+    }
+    async Task ExportReportAsPdf(int printMode, string uri)
+    {
+        try
+        {
+            var result = await RepairListReportService.GetPDFData(data);
+            DevExpress.XtraReports.UI.XtraReport report = new DevExpress.XtraReports.UI.XtraReport();
+            if (result != null && result.Count > 0)
+            {
+                switch (data.PaperSize)
+                {
+                    case PaperSize.A3:
+                        report = new Reports.ReportTemplate.RepairList.RepairListA3();
+                        break;
+                    case PaperSize.A4:
+                        report = new Reports.ReportTemplate.RepairList.RepairListA4();
+                        break;
+                    case PaperSize.B4:
+                        report = new Reports.ReportTemplate.RepairList.RepairListB4();
+                        break;
+                    default:
+                        break;
+                }
+                report.DataSource = result;
+                await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                {
+                    string fileType = "";
+                    report.CreateDocument();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        /*if (type == 1)
+                        {
+                            PrintToolBase tool = new PrintToolBase(report.PrintingSystem);
+                            tool.Print();
+                            return;
+                        }*/
+                        report.ExportToPdf(ms);
+                        byte[] exportedFileBytes = ms.ToArray();
+                        string myExportString = Convert.ToBase64String(exportedFileBytes);
+                        fileType = "pdf";
+                        JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, fileType, "RepairList");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+    async Task<bool> IsDataExistInDb(RepairListData searchParam)
+    {
+        try
+        {
+            List<CurrentRepairList> data = new List<CurrentRepairList>();
+            data = await RepairListReportService.GetListBusPairForSearch(searchParam);
+            if (data.Any())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+            return false;
+        }
+    }
+    /// <summary>
+    /// Downlowd File Report
+    /// </summary>
+    private RepairListDataUri SetValueUri(RepairListData data)
+    {
+        var result = new RepairListDataUri();
+        try
+        {
+            if (data != null)
+            {
+                result.StartDate = data.StartDate;
+                result.EndDate = data.EndDate;
+                result.CompanyChartDataID = string.Join('-', data.CompanyChartData.Select(_ => _.CompanyCdSeq));
+                result.BranchFrom = data.BranchFrom;
+                result.BranchTo = data.BranchTo;
+                result.VehicleFrom = data.VehicleFrom;
+                result.VehicleTo = data.VehicleTo;
+                result.RepairFrom = data.RepairFrom;
+                result.RepairTo = data.RepairTo;
+                result.OutputOrder = data.OutputOrder;
+                result.PaperSize = data.PaperSize;
+                result.OutputSetting = data.OutputSetting;
+                result.TenantCdSeq = data.TenantCdSeq;
+                result.SyainNmItem = data.SyainNmItem;
+            }
+        }
+        catch (Exception ex)
+        {
+
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+    protected string GetSelectedCompanyText()
+    {
+        string result = "";
+        try
+        {
+            if (SelectedCompanyItems.Count() == 1 && SelectedCompanyItems.FirstOrDefault().CompanyCdSeq != 0)
+            {
+                result = SelectedCompanyItems.First().Text;
+            }
+            else if (SelectedCompanyItems.Count() == companychartlst.Count())
+            {
+                result = "すべて";
+            }
+            else
+            {
+                result = "選択項目：" + SelectedCompanyItems.Count();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+    #endregion
+
+    #region Filter
+    private async Task ApplyFilter()
+    {
+        try
+        {
+            var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, SyainCdSeqLogin)).ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+            if (filterValues.Count > 0)
+            {
+                IsFilterApply = true;
+                RepairListReportService.ApplyFilter(ref data, companychartlst, vehicledispatchofficelst, Vehicles, RepairDivisionList, filterValues);
+
+                OnPaperSizeChanged(data.PaperSize);
+                OnStartDateChanged(data.StartDate);
+                OnEndDateChanged(data.EndDate);
+                Vehicles = SyaRyoDataService.GetSyaRyoRepairList(TenantCdSeqLogin, data.StartDate.ToString("yyyyMMdd"), data.EndDate.ToString("yyyyMMdd"));
+                InsertSelectAll(Vehicles, _ => _.IsSelectedAll, new TPM_SyaRyoData { IsSelectedAll = true });
+                var comIdList = data.CompanyChartData.Select(c => c.CompanyCdSeq).ToList();
+                SelectedCompanyItems = companychartlst.Where(c => comIdList.Contains(c.CompanyCdSeq));
+                data.CompanyChartData = SelectedCompanyItems.ToList();
+                vehicledispatchofficelst = TPM_EigyosDataService.GetBranchDataByIdCompany(data.CompanyChartData, TenantCdSeqLogin);
+                vehicledispatchofficelst.Insert(0, allBranch);
+                checkCompanyAll = data.CompanyChartData.Count == companychartlst.Count;
+                OnBranchSelectedItemChanged(vehicledispatchofficelst.Where(x => x.EigyoCdSeq == data.BranchFrom.EigyoCdSeq).FirstOrDefault());
+                OnBranchSelectedItemChanged(vehicledispatchofficelst.Where(x => x.EigyoCdSeq == data.BranchTo.EigyoCdSeq).FirstOrDefault(), false);
+                OnVehicleSelectedItemChanged(Vehicles.Where(x => x.SyaRyoCdSeq == data.VehicleFrom.SyaRyoCdSeq).FirstOrDefault());
+                OnVehicleSelectedItemChanged(Vehicles.Where(x => x.SyaRyoCdSeq == data.VehicleTo.SyaRyoCdSeq).FirstOrDefault(), false);
+                OnRepairDivisionSelectedItemChanged(data.RepairFrom);
+                OnRepairDivisionSelectedItemChanged(data.RepairTo, false);
+                OnOutputOrderChanged(data.OutputOrder);
+                // StateHasChanged() will execute OnSelectedCompanyItemsChanged() => set IsFilterApply = false in that
+                IsFilterApply = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(GetFieldValues(), filterConditionFormName, SyainCdSeqLogin);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+    }
+    private Dictionary<string, string> GetFieldValues()
+    {
+        var result = new Dictionary<string, string>();
+        try
+        {
+            result = RepairListReportService.GetFieldValues(data);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+    async void ResetForm()
+    {
+        try
+        {
+            data.OutputSetting = OutputInstruction.Preview;
+            data.StartDate = DateTime.Today;
+            data.EndDate = DateTime.Today;
+            SelectedCompanyItems = companychartlst;
+            data.CompanyChartData = SelectedCompanyItems.ToList();
+            data.BranchFrom = vehicledispatchofficelst.FirstOrDefault();
+            data.BranchTo = vehicledispatchofficelst.FirstOrDefault();
+            data.VehicleFrom = Vehicles.FirstOrDefault();
+            data.VehicleTo = Vehicles.FirstOrDefault();
+            data.RepairFrom = RepairDivisionList.FirstOrDefault();
+            data.RepairTo = RepairDivisionList.FirstOrDefault();
+            data.OutputOrder = OutputOrderOptions.FirstOrDefault();
+            data.PaperSize = PaperSizeOptions.FirstOrDefault();
+            data.TenantCdSeq = TenantCdSeqLogin;
+            checkCompanyAll = true;
+            IsSelectEmptyCompany = false;
+            await FilterServices.DeleteCustomFilerCondition(SyainCdSeqLogin, 1, filterConditionFormName);
+            formContext = new EditContext(data);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+    #endregion
+    #region Helper
+    /// <summary>
+    /// Insert SelectAll
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <param name="predicate"></param>
+    /// <param name="emptyObj"></param>
+    private void InsertSelectAll<T>(List<T> source, Func<T, bool> predicate, T emptyObj = null) where T : class
+    {
+        try
+        {
+            if (source.Any() && !source.Where(predicate).Any())
+                source.Insert(0, emptyObj != null ? emptyObj : (T)Activator.CreateInstance(typeof(T))); // Insert a item to mark choose all in first line
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+
+
+    #endregion
+}

@@ -1,0 +1,1774 @@
+﻿@page "/oldbusallocation"
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject IBusBookingDataListService BusBookingDataService
+@inject ITKD_HaishaDataListService TKD_HaishaDataService
+@inject IBusDataListService BusDataService
+@inject ITPM_CodeKbListService TPM_CodeKbnService
+@inject IJSRuntime JSRuntime
+@inject ITPM_SyokumDataListService TPM_SyokumDataService
+@inject BusScheduleHelper BusScheduleHelper
+@inject IStringLocalizer<BusAllocation> Lang
+<DxPopup @bind-Visible="@popupsaveFail" CssClass="custom-popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popupSaveFail"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => CancelSave(e))"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i> @message
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@((e) => CancelSaveFail(e))" Text="@Lang["btn_cancel"]" />
+    </FooterTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@popupsaveSuccess" CssClass="custom-popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popupSaveSuccess"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => CancelSave(e))"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>  @message
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@((e) => CancelSave(e))" Text="@Lang["btn_cancel"]" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@Popupwhenclick" CssClass="custom-popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popupInfo"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => CancelUpdateBus(e))"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>  @Lang["noti_when_clickgrid"]
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@((e) => UpdateBus(e))" Text="@Lang["btn_yes"]" CssClass="width--100" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" @onclick="@((e) => CancelUpdateBus(e))" Text="@Lang["btn_no"]" CssClass="width--100" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@Popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["header_popup"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="ClosePopup"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <table class="table-borderless w-100">
+            <thead class="thead-light">
+                <tr>
+                    <th>@Lang["crew"]</th>
+                    <th>@Lang["attendance/leave_work"]</th>
+                    <th>@Lang["boarding/getting_off_place_name"]</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in driverlst)
+                {
+                    <tr>
+                        <td rowspan="2" style="vertical-align: text-top;">
+                            <DxTextBox Text="@item.DriverName"
+                                       TextExpression="@(() => readOnlyText)"
+                                       ReadOnly></DxTextBox>
+                        </td>
+                        <td>
+                            <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 mx-auto"
+                                                                            ReadOnly="@(!submit)"
+                                                                            TimeChanged="@((newValue) => OnStartTimeTextChanged(newValue, item.index))"
+                                                                            ValueExpressions="@(() => readOnlyText)"
+                                                                            MyTimeAsString="@item.StartTime.ToString(@"hh\:mm")">
+                            </HassyaAllrightCloud.Pages.Components.InputTime>
+                        </td>
+                        <td>
+                            <DxComboBox Data="@depotNamelst"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItemChanged="@(e => StartdepotNameChanged(e, item.index))"
+                                        FilteringMode="@DataGridFilteringMode.Contains"></DxComboBox>
+                        </td>
+                        <td>
+                            <DxTextBox Text="@item.StartComment"
+                                       TextExpression="@(() => readOnlyText)"
+                                       CssClass="length50"
+                                       TextChanged="@((newValue) => StartCommentTextChange(newValue, item.index))"></DxTextBox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 mx-auto"
+                                                                            ReadOnly="@(!submit)"
+                                                                            TimeChanged="@((newValue) => EndTimeTextChange(newValue, item.index))"
+                                                                            ValueExpressions="@(() => readOnlyText)"
+                                                                            MyTimeAsString="@item.EndTime.ToString(@"hh\:mm")">
+                            </HassyaAllrightCloud.Pages.Components.InputTime>
+                        </td>
+                        <td>
+                            <DxComboBox Data="@depotNamelst"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItemChanged="@(e => EnddepotNameChanged(e, item.index))"
+                                        FilteringMode="@DataGridFilteringMode.Contains"></DxComboBox>
+                        </td>
+                        <td>
+                            <DxTextBox Text="@item.EndComment"
+                                       TextExpression="@(() => readOnlyText)"
+                                       CssClass="length50"
+                                       TextChanged="@((newValue) => EndCommentTextChange(newValue, item.index))"></DxTextBox>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="ClosePopup" Text="@Lang["configuration"]" CssClass="btnsummit width--100" />
+    </FooterTemplate>
+</DxPopup>
+
+<div class="busallocation mb-3">
+    <EditForm id="BusAllocationSearchForm" EditContext="@formContext">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BusAllocationValidatorSearch" />
+        <h5>@Lang["Page Title"]</h5>
+        <ul class="validation-errors">
+            @foreach (var message in formContext.GetValidationMessages().Distinct())
+            {
+                <li class="validation-message">@message</li>
+            }
+        </ul>
+        <div id="control-tab" class="title-section mb-2">
+            <i class="fa fa-angle-up" aria-hidden="true"></i> @Lang["condition"]
+        </div>
+        <div class="express-condition mb-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-auto">
+                            <h6>@Lang["target_date"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["date_specified"]：</label>
+                                <DxComboBox Data="@BusAllocationData.DateSpecified"
+                                            SelectedItem="@busAllocationSearchItem.DateSpecified"
+                                            SelectedItemChanged="@DateSpecifiedChanged"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.DateSpecified)"
+                                            CssClass="width--140"></DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["date"]　　：</label>
+                                <DxDateEdit Date="@pickupDate"
+                                            Format="yy/MM/dd" DateChanged="@((newValue) => OnPickupDateChanged(newValue))"
+                                            DateExpression="@(() => busAllocationSearchItem.pickupDate)"
+                                            CssClass="width--140"></DxDateEdit>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <h6>@Lang["time"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["start"]：</label>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--65 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnStartTimeChanged(newValue))"
+                                                                                ValueExpressions="@(() => busAllocationSearchItem.startTime)"
+                                                                                MyTimeAsString="@startTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["end"]：</label>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--65 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnEndTimeChanged(newValue))"
+                                                                                ValueExpressions="@(() => busAllocationSearchItem.endTime)"
+                                                                                MyTimeAsString="@endTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <h6>@Lang["receipt_number"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["start"]：</label>
+                                <DxTextBox Text="@bookingfrom.ToString("D10")"
+                                           TextChanged="@((newValue) => onBookingfromChange(newValue))"
+                                           TextExpression="@(() => busAllocationSearchItem.bookingfrom)"
+                                           CssClass="width--130 Is-number length10"></DxTextBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["end"]：</label>
+                                <DxTextBox Text="@bookingto.ToString("D10")"
+                                           TextChanged="@((newValue) => onBookingtoChange(newValue))"
+                                           TextExpression="@(() => busAllocationSearchItem.bookingto)"
+                                           CssClass="width--130 Is-number length10"></DxTextBox>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <h6>@Lang["reservation_classification"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["start"]：</label>
+                                <DxComboBox Data="@reservationlst"
+                                            SelectedItem="@busAllocationSearchItem.ReservationClassification1"
+                                            TextFieldName="Text"
+                                            SelectedItemChanged="@ReservationStartChanged"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.ReservationClassification1)"
+                                            CssClass="width--140 custom-combo-box-no"></DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["end"]：</label>
+                                <DxComboBox Data="@reservationlst"
+                                            SelectedItem="@busAllocationSearchItem.ReservationClassification2"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.ReservationClassification2)"
+                                            TextFieldName="Text"
+                                            SelectedItemChanged="@ReservationEndChanged"
+                                            CssClass="width--140 custom-combo-box-no"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <h6>@Lang["vehicle_affiliation"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["issuing_company"]　：</label>
+                                <DxComboBox Data="@companychartlst"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@busAllocationSearchItem.VehicleAffiliation1"
+                                            TextFieldName="Text"
+                                            SelectedItemChanged="@CompanyChanged"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.VehicleAffiliation1)"
+                                            CssClass="width--190 custom-combo-box"></DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["departure_office"]：</label>
+                                <DxComboBox Data="@branchchartlst"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@busAllocationSearchItem.VehicleAffiliation2"
+                                            TextFieldName="Text"
+                                            SelectedItemChanged="@BranchChaned"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.VehicleAffiliation2)"
+                                            CssClass="width--190 custom-combo-box"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <h6>@Lang["unprovisioned_vehicle_status"]</h6>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["not_in_the_car"]：</label>
+                                <DxComboBox Data="@BusAllocationData.UnprovisionedVehicle1"
+                                            SelectedItem="@busAllocationSearchItem.UnprovisionedVehicle1"
+                                            SelectedItemChanged="@UnprovisionedVehicleChanged"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.UnprovisionedVehicle1)"
+                                            CssClass="width--190"></DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap justify-content-between">
+                                <label class="col-form-label-sm mr-3">@Lang["output_order"]　　：</label>
+                                <DxComboBox Data="@BusAllocationData.OutputOrderListData.outputOrderlst"
+                                            TextFieldName="StringValue"
+                                            SelectedItem="@busAllocationSearchItem.UnprovisionedVehicle2"
+                                            SelectedItemChanged="@OrderbyChange"
+                                            SelectedItemExpression="@(() => busAllocationSearchItem.UnprovisionedVehicle2)"
+                                            CssClass="width--190 custom-combo-box"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="col-auto pl-0">
+                            <button type="button" disabled="@((formContext.GetValidationMessages().Distinct().Count() > 0 || checkClickSubmitOnly ))" class="btn btn-sm btn-primary mb-2 width--90 " @onclick="@((e) => btnSearchClick(e))">@Lang["btn_search"]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+    <EditForm id="BusAllocationForm" EditContext="@formContextedit">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BusAllocationValidator" />
+        <ul class="validation-errors">
+            @foreach (var message in formContextedit.GetValidationMessages().Distinct())
+            {
+                <li class="validation-message">@message</li>
+            }
+        </ul>
+        <div class="row flex-row-reverse">
+            <div class="col-5">
+                <div id="busallocationForm2">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 ml-1">@Lang["car"]　　　：</label>
+                        <DxTextBox Text="@busBookingDataAllocationItem.Haisha_GoSya.ToString("D4")" ReadOnly="@(!submit)" TextChanged="@((newValue) => OnHaisha_GoSyaChanged(newValue))" TextExpression="@(() => busBookingDataAllocationItem.GoSya)" CssClass="width--56 number length2 "></DxTextBox>
+                        <label class="col-form-label-sm mr-3 ml-3">@Lang["sales_office/vehicle"]　：</label>
+                        <DxComboBox Data="@busname"
+                                    AllowUserInput="false"
+                                    TextFieldName="Textforcbb"
+                                    SelectedItem="busBookingDataAllocationItem.Haisha_UkeNo == defaultid ? null : busname.Where(t => t.SyaRyoCdSeq == busBookingDataAllocationItem.Haisha_HaiSSryCdSeq).First()"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    SelectedItemChanged="@(e => OnSelectedbusnameChanged(e))"
+                                    SelectedItemExpression="@(() => busBookingDataAllocationItem.busnameItem)"
+                                    CssClass="flex-grow-1"
+                                    ReadOnly="@(!submit)"></DxComboBox>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 ml-1">@Lang["group_name"]２　：</label>
+                        <DxTextBox CssClass="flex-grow-1 length100" ReadOnly="@(!submit)" Text="@busBookingDataAllocationItem.Haisha_DanTaNm2" TextExpression="@(() => busBookingDataAllocationItem.Haisha_DanTaNm2)" TextChanged="@((newValue) => OnHaisha_DanTaNm2Changed(newValue))"></DxTextBox>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["departure_date_time"]　：</label>
+                            <div class="flex-grow-1 d-flex flex-nowrap flex-nowrap">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxDateEdit Date="busBookingDataAllocationItem.Haisha_UkeNo == defaultid ? DateTime.Today : DateTime.ParseExact(busBookingDataAllocationItem.Haisha_SyuKoYmd, dateformat, CultureInfo.InvariantCulture)"
+                                                DateChanged="@((newValue) => OnHaisha_SyuKoYmdChanged(newValue))"
+                                                Format="yy/MM/dd"
+                                                CssClass="width--140 mr-2"
+                                                DateExpression="@(() => busBookingDataAllocationItem.DepartureDate)"
+                                                ReadOnly="@(!submit)"></DxDateEdit>
+                                </div>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnHaisha_SyuKoTimeChanged(newValue))"
+                                                                                ValueExpressions="@(() => busBookingDataAllocationItem.Haisha_SyuKoTime)"
+                                                                                MyTimeAsString="@busBookingDataAllocationItem.DepartureTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["delivery_time"]　：</label>
+                            <div class="flex-grow-1 d-flex flex-nowrap flex-nowrap">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxDateEdit Date="busBookingDataAllocationItem.Haisha_UkeNo == defaultid ? DateTime.Today : DateTime.ParseExact(busBookingDataAllocationItem.Haisha_HaiSYmd, dateformat, CultureInfo.InvariantCulture)"
+                                                DateChanged="@((newValue) => OnHaisha_HaiSYmdChanged(newValue))"
+                                                DateExpression="@(() => busBookingDataAllocationItem.DeliveryDate)"
+                                                Format="yy/MM/dd" CssClass="width--140 mr-2"
+                                                ReadOnly="@(!submit)">
+                                    </DxDateEdit>
+                                </div>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnHaisha_HaiSTimeChanged(newValue))"
+                                                                                ValueExpressions="()=>busBookingDataAllocationItem.Haisha_HaiSTime"
+                                                                                MyTimeAsString="@busBookingDataAllocationItem.DeliveryTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap justify-content-between">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["departure_time"]　：</label>
+                            <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 "
+                                                                            ReadOnly="@(!submit)"
+                                                                            TimeChanged="@((newValue) => OnHaisha_SyuPaTimeChanged(newValue))"
+                                                                            ValueExpressions="()=>busBookingDataAllocationItem.Haisha_SyuPaTime"
+                                                                            MyTimeAsString="@busBookingDataAllocationItem.StartTime.ToString(@"hh\:mm")">
+                            </HassyaAllrightCloud.Pages.Components.InputTime>
+                        </div>
+                    </div>
+                    <div class="col pl-0">
+                        <div class="form-group d-flex flex-nowrap align-items-start flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["depot_name"]　：</label>
+                            <div class="flex-grow-1">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxComboBox Data="@depotNamelst"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                ReadOnly="@(!submit)"
+                                                SelectedItem="busBookingDataAllocationItem.Haisha_HaiSCdSeq == 0 ? null : depotNamelst.Where(t => t.HaiChi_HaiSCdSeq == busBookingDataAllocationItem.Haisha_HaiSCdSeq).First()"
+                                                SelectedItemChanged="@(e => depotNameChanged(e))"
+                                                SelectedItemExpression="@(() => busBookingDataAllocationItem.depotNamelstItem)"
+                                                FilteringMode="@DataGridFilteringMode.Contains" CssClass="mb-2 right custom-combo-box-no"></DxComboBox>
+                                </div>
+                                <DxTextBox Text="@busBookingDataAllocationItem.Haisha_HaiSNm" CssClass="length50" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_HaiSNm)" TextChanged="@((newValue) => OnHaisha_HaiSNmChanged(newValue))"></DxTextBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap align-items-start flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["depot_address"]：</label>
+                            <div class="flex-grow-1">
+                                <DxTextBox Text="@busBookingDataAllocationItem.Haisha_HaiSJyus1" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_HaiSJyus1)" TextChanged="@((newValue) => OnHaisha_HaiSJyus1Changed(newValue))" CssClass="mb-2 length30"></DxTextBox>
+                                <div class="d-flex flex-nowrap flex-nowrap justify-content-between">
+                                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_HaiSJyus2" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_HaiSJyus2)" TextChanged="@((newValue) => OnHaisha_HaiSJyus2Changed(newValue))" CssClass="length30"></DxTextBox>
+                                    <label class="col-form-label-sm mr-3 ml-3">記号：</label>
+                                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_HaiSKigou" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_HaiSKigou)" TextChanged="@((newValue) => OnHaisha_HaiSKigouChanged(newValue))" CssClass="length6"></DxTextBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["arrival_date"]　：</label>
+                            <div class="flex-grow-1 d-flex flex-nowrap flex-nowrap">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxDateEdit Date="busBookingDataAllocationItem.Haisha_UkeNo == defaultid ? DateTime.Today : DateTime.ParseExact(busBookingDataAllocationItem.Haisha_TouYmd, dateformat, CultureInfo.InvariantCulture)"
+                                                DateChanged="@((newValue) => OnHaisha_TouYmdChanged(newValue))"
+                                                Format="yy/MM/dd" CssClass="width--140 mr-2"
+                                                DateExpression=@(() => busBookingDataAllocationItem.ArrivalDate)
+                                                ReadOnly="@(!submit)"></DxDateEdit>
+                                </div>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnHaisha_TouChTimeChanged(newValue))"
+                                                                                ValueExpressions="()=>busBookingDataAllocationItem.Haisha_TouChTime"
+                                                                                MyTimeAsString="@busBookingDataAllocationItem.ArrivalTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["return_time"]　：</label>
+                            <div class="flex-grow-1 d-flex flex-nowrap flex-nowrap">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxDateEdit Date="busBookingDataAllocationItem.Haisha_UkeNo == defaultid ? DateTime.Today : DateTime.ParseExact(busBookingDataAllocationItem.Haisha_KikYmd, dateformat, CultureInfo.InvariantCulture)"
+                                                DateChanged="@((newValue) => OnHaisha_KikYmdChanged(newValue))"
+                                                Format="yy/MM/dd" CssClass="width--140 mr-2"
+                                                DateExpression=@(() => busBookingDataAllocationItem.ReturnDate)
+                                                ReadOnly="@(!submit)"></DxDateEdit>
+                                </div>
+                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                ReadOnly="@(!submit)"
+                                                                                TimeChanged="@((newValue) => OnHaisha_KikTimeChanged(newValue))"
+                                                                                ValueExpressions="()=>busBookingDataAllocationItem.Haisha_KikTime"
+                                                                                MyTimeAsString="@busBookingDataAllocationItem.ReturnTime.ToString(@"hh\:mm")">
+                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col pl-0">
+                        <div class="form-group d-flex flex-nowrap align-items-start flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["arrival_place_name"]　：</label>
+                            <div class="flex-grow-1">
+                                <div class="@(submit?"":"disabled-content")">
+                                    <DxComboBox Data="@depotNamelst"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="busBookingDataAllocationItem.Haisha_TouCdSeq == 0 ? null : depotNamelst.Where(t => t.HaiChi_HaiSCdSeq == busBookingDataAllocationItem.Haisha_TouCdSeq).First()"
+                                                SelectedItemChanged="@(e => depottouNameChanged(e))"
+                                                SelectedItemExpression="@(() => busBookingDataAllocationItem.depotNamelstItem1)"
+                                                FilteringMode="@DataGridFilteringMode.Contains" CssClass="mb-2 right custom-combo-box-no"
+                                                ReadOnly="@(!submit)"></DxComboBox>
+                                </div>
+                                <DxTextBox Text="@busBookingDataAllocationItem.Haisha_TouNm" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_TouNm)" TextChanged="@((newValue) => OnHaisha_TouNmChanged(newValue))" CssClass="length50"></DxTextBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap align-items-start flex-nowrap">
+                            <label class="col-form-label-sm mr-3 ml-1">@Lang["arrival_address"]：</label>
+                            <div class="flex-grow-1">
+                                <DxTextBox Text="@busBookingDataAllocationItem.Haisha_TouJyusyo1" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_TouJyusyo1)" TextChanged="@((newValue) => OnHaisha_TouJyusyo1Changed(newValue))" CssClass="mb-2 length30"></DxTextBox>
+                                <div class="d-flex flex-nowrap flex-nowrap justify-content-between">
+                                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_TouJyusyo2" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_TouJyusyo2)" TextChanged="@((newValue) => OnHaisha_TouJyusyo2Changed(newValue))" CssClass="length30"></DxTextBox>
+                                    <label class="col-form-label-sm mr-3 ml-3">記号：</label>
+                                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_TouKigou" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_TouKigou)" TextChanged="@((newValue) => OnHaisha_TouKigouChanged(newValue))" CssClass="length6"></DxTextBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group d-flex flex-nowrap">
+                    <label class="col-form-label-sm mr-3 ml-1">@Lang["passenger"]　：</label>
+                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_JyoSyaJin.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.JyoSyaJin)" TextChanged="@((newValue) => OnHaisha_JyoSyaJinChanged(newValue))" CssClass="width--56 number length4"></DxTextBox>
+                    <span class="mx-2 mr-3">人 +</span>
+                    <DxTextBox Text="@busBookingDataAllocationItem.Haisha_PlusJin.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.PlusJin)" TextChanged="@((newValue) => OnHaisha_PlusJinChanged(newValue))" CssClass="width--56 number length4"></DxTextBox>
+                    <span class="ml-2">人</span>
+                </div>
+                <div class="form-group d-flex flex-nowrap">
+                    <label class="col-form-label-sm mr-3 ml-1">@Lang["number_of_drivers"]　：</label>
+                    <div class="d-flex flex-nowrap">
+                        <DxTextBox Text="@busBookingDataAllocationItem.Haisha_DrvJin.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.DrvJin)" TextChanged="@((newValue) => OnHaisha_DrvJinChanged(newValue))" CssClass="width--56 number length4"></DxTextBox>
+                        <span class="mx-2">人</span>
+                    </div>
+                    <div class="d-flex flex-nowrap ml-3">
+                        <label class="col-form-label-sm mr-3 ml-1">@Lang["number_of_guides"]　：</label>
+                        <DxTextBox Text="@busBookingDataAllocationItem.Haisha_GuiSu.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.GuiSu)" TextChanged="@((newValue) => OnHaisha_GuiSuChanged(newValue))" CssClass="width--56 number length4"></DxTextBox>
+                        <span class="ml-2">人</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["plate_no"]：</label>
+                            <DxTextBox Text="@busBookingDataAllocationItem.Haisha_PlatNo" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.Haisha_PlatNo)" TextChanged="@((newValue) => OnHaisha_PlatNoChanged(newValue))" CssClass="flex-grow-1 length20"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["crew"]１　：</label>
+                            <div class="@(submit?"":"disabled-content")">
+                                <DxComboBox Data="@driverchartlst.Where(t => t.isView == true)"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="driverlst.Count < 1 ? null : driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == driverlst.First().SyainCdSeq).First()"
+                                            FilteringMode="@DataGridFilteringMode.Contains" CssClass="flex-grow-1 custom-combo-box-no ml-1"
+                                            SelectedItemChanged="@(e => driverchartlstChanged(e, 1))"
+                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.driverchartItem)"
+                                            ReadOnly="@(!submit)"
+                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["crew"]２　：</label>
+                            <div class="@(submit?"":"disabled-content")">
+                                <DxComboBox Data="@driverchartlst.Where(t => t.isView == true)"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="driverlst.Count < 2 ? null : driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == driverlst.Skip(1).Take(1).First().SyainCdSeq).First()"
+                                            FilteringMode="@DataGridFilteringMode.Contains" CssClass="flex-grow-1 custom-combo-box-no ml-1"
+                                            SelectedItemChanged="@(e => driverchartlstChanged(e, 2))"
+                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.driverchartItem1)"
+                                            ReadOnly="@(!submit)"
+                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["crew"]３　：</label>
+                            <div class="@(submit?"":"disabled-content")">
+                                <DxComboBox Data="@driverchartlst.Where(t => t.isView == true)"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="driverlst.Count < 3 ? null : driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == driverlst.Skip(2).Take(1).First().SyainCdSeq).First()"
+                                            FilteringMode="@DataGridFilteringMode.Contains" CssClass="flex-grow-1 custom-combo-box-no ml-1"
+                                            SelectedItemChanged="@(e => driverchartlstChanged(e, 3))"
+                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.driverchartItem2)"
+                                            ReadOnly="@(!submit)"
+                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["crew"]４　：</label>
+                            <div class="@(submit?"":"disabled-content")">
+                                <DxComboBox Data="@driverchartlst.Where(t => t.isView == true)"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="driverlst.Count < 4 ? null : driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == driverlst.Skip(3).Take(1).First().SyainCdSeq).First()"
+                                            FilteringMode="@DataGridFilteringMode.Contains" CssClass="flex-grow-1 right custom-combo-box-no"
+                                            SelectedItemChanged="@(e => driverchartlstChanged(e, 4))"
+                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.driverchartItem3)"
+                                            ReadOnly="@(!submit)"
+                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap flex-nowrap">
+                            <label class="col-form-label-sm mr-3">
+                                @Lang["crew"]５　：
+                            </label><div class="@(submit?"":"disabled-content")">
+                                <DxComboBox Data="@driverchartlst.Where(t => t.isView == true)"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            SelectedItem="driverlst.Count < 5 ? null : driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == driverlst.Skip(4).Take(1).First().SyainCdSeq).First()"
+                                            FilteringMode="@DataGridFilteringMode.Contains" CssClass="flex-grow-1 right custom-combo-box-no"
+                                            SelectedItemChanged="@(e => driverchartlstChanged(e, 5))"
+                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.driverchartItem4)"
+                                            ReadOnly="@(!submit)"
+                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary width--120 @(popupdisable==false? "disabled disabled-content" : "")" @onclick="OpenPopup">@Lang["btn_crew_assignment"]</button>
+                <a href="javascript:void(0)" class="btn btn-sm btn-primary width--90 @(((formContextedit.GetValidationMessages().Distinct().Count() > 0 || submit == false) ? "disabled" : ""))" @onclick="@((e) => UpdateHaisha(e))">@Lang["btn_save"]</a>
+            </div>
+            <div class="col-7 pr-0">
+                <div class="area-table mb-2">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>NO</th>
+                                <th>@Lang["receipt_number"]</th>
+                                <th>@Lang["car"]</th>
+                                <th>@Lang["sales_office"]</th>
+                                <th>@Lang["car_number"]／@Lang["car_model"]</th>
+                                <th>@Lang["group_name"]／@Lang["group_name"]２</th>
+                                <th>@Lang["departure_date_time"]／@Lang["return_time"]</th>
+                                <th>@Lang["delivery_time"]／@Lang["arrival_date"]</th>
+                                <th>@Lang["depot/arrival"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (busBookingDataAllocations.Any())
+                            {
+                                int i = 1;
+                                @foreach (BusBookingDataAllocation item in busBookingDataAllocations)
+                                {
+                                    DateTime.TryParseExact(item.Haisha_SyuKoYmd + item.Haisha_SyuKoTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out departuredate);
+                                    DateTime.TryParseExact(item.Haisha_KikYmd + item.Haisha_KikTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out returndate);
+                                    DateTime.TryParseExact(item.Haisha_HaiSYmd + item.Haisha_HaiSTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deliverydate);
+                                    DateTime.TryParseExact(item.Haisha_TouYmd + item.Haisha_TouChTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out arrivaldate);
+                                    <tr @onclick="() => TrClickedAtIndex(item.row)" class="@(item.row == indexitem ? "active" : null) @(item.row==indexitem ? " table-primary":"")">
+                                        <td class="text-center">@i</td>
+                                        <td>@item.Yyksho_UkeCd.ToString("D10")</td>
+                                        <td class="text-center">@item.Haisha_GoSya</td>
+                                        <td>@item.Eigyos_RyakuNm</td>
+                                        <td>
+                                            <div>@item.SyaRyo_SyaRyoNm</div>
+                                            <div>@item.SyaSyu_SyaSyuNm</div>
+                                        </td>
+                                        <td>
+                                            <div>@item.Unkobi_DanTaNm</div>
+                                            <div>@item.Haisha_DanTaNm2</div>
+                                        </td>
+                                        <td>
+                                            <div>@departuredate.ToString("yy/MM/dd（ddd）HH:mm")</div>
+                                            <div>@returndate.ToString("yy/MM/dd（ddd）HH:mm")</div>
+                                        </td>
+                                        <td>
+                                            <div>@deliverydate.ToString("yy/MM/dd（ddd）HH:mm")</div>
+                                            <div>@arrivaldate.ToString("yy/MM/dd（ddd）HH:mm")</div>
+                                        </td>
+                                        <td>
+                                            <div>@item.Haisha_HaiSNm</div>
+                                            <div>@item.Haisha_TouNm</div>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="9" class="text-center row-no-data">
+                                        @Lang["message_no_data"]
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="express-condition mb-2" tabindex="-1">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+                        <DxTab Text="@Lang["operating_day"]"></DxTab>
+                        <DxTab Text="@Lang["connecting_place"]"></DxTab>
+                        <DxTab Text="@Lang["other"]"></DxTab>
+                    </DxTabs>
+                    <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+                        <div class="card-body">
+                            @switch (ActiveTabIndex)
+                            {
+                                case 0:
+                                    DateTime.TryParseExact(busBookingDataAllocationItem.Haisha_HaiSYmd + busBookingDataAllocationItem.Haisha_HaiSTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out operatingdaystart);
+                                    DateTime.TryParseExact(busBookingDataAllocationItem.Haisha_TouYmd + busBookingDataAllocationItem.Haisha_TouChTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out operatingdayend);
+                                    <div class="form-group row">
+                                        <label class="col-form-label-sm mr-3 col-1">@Lang["receipt_number"]：</label>
+                                        <DxTextBox Text="@busBookingDataAllocationItem.Yyksho_UkeCd.ToString("D10")" TextExpression="@(() => validatestring)" ReadOnly="true" CssClass="width--130 ml-3"></DxTextBox>
+                                        <label class="col-form-label-sm mr-3 mr-0 col-1">@Lang["operating_day"]：</label>
+                                        <div class="col-auto d-flex flex-nowrap">
+                                            <DxTextBox Text="@operatingdaystart.ToString("yy/MM/dd（ddd）HH:mm")" TextExpression="@(() => validatestring)" ReadOnly></DxTextBox>
+                                            <span class="mx-2">～</span>
+                                            <DxTextBox Text="@operatingdayend.ToString("yy/MM/dd（ddd）HH:mm")" TextExpression="@(() => validatestring)" ReadOnly></DxTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label-sm mr-3 col-1">@Lang["car_model"]　　：</label>
+                                        <div class="col-auto flex-grow-1 pl-3">
+                                            <table class="table table-bordered table-sm mb-0 w-100">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th scope="col" class="text-center width--90">No</th>
+                                                        <th scope="col">@Lang["car_model"]</th>
+                                                        <th scope="col" class="text-center width--140">@Lang["type"]</th>
+                                                        <th scope="col" class="text-center width--90">@Lang["number_of_units"]</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (Cartypelst item in cartypelsts)
+                                                    {
+                                                        <tr>
+                                                            <td class="text-center">@item.No</td>
+                                                            <td>@item.Cartype</td>
+                                                            <td class="text-center">@item.Type</td>
+                                                            <td class="text-center">@item.Numberofunits</td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    break;
+                                case 1:
+                                    <div class="form-group d-flex flex-nowrap align-items-start">
+                                        <label class="col-form-label-sm mr-3">@Lang["depot_connection"]：</label>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex flex-nowrap mb-2">
+                                                <div class="@(submit?"":"disabled-content")">
+                                                    <DxComboBox Data="@depotConnectionlst"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                SelectedItem="busBookingDataAllocationItem.Haisha_HaiSBinCdSeq == 0 ? null : depotConnectionlst.Where(t => t.Bin_BinCdSeq == busBookingDataAllocationItem.Haisha_HaiSBinCdSeq).First()"
+                                                                SelectedItemChanged="@(e => CodeKbDataDepotChanged(e))"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                CssClass="flex-grow-1 mr-2 custom-combo-box-no"
+                                                                SelectedItemExpression="@(() => busBookingDataAllocationItem.depotConnectionItem)"
+                                                                ReadOnly="@(!submit)"
+                                                                DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                                </div>
+                                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                                ReadOnly="@(!submit)"
+                                                                                                TimeChanged="@((newValue) => OnHaisha_HaiSSetTimeChanged(newValue))"
+                                                                                                ValueExpressions="@(() => readOnlyText)"
+                                                                                                MyTimeAsString="@busBookingDataAllocationItem.Haisha_HaiSSetTime.ToString(@"hh\:mm")">
+                                                </HassyaAllrightCloud.Pages.Components.InputTime>                                            
+                                            </div>
+                                            <DxTextBox CssClass="length20" Text="@busBookingDataAllocationItem.HaishaExp_HaisBinNm" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.HaishaExp_HaisBinNm)" TextChanged="@((newValue) => OnHaishaExp_HaisBinNmChanged(newValue))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap align-items-start">
+                                        <label class="col-form-label-sm mr-3">@Lang["arrival_connection"]：</label>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex flex-nowrap mb-2">
+                                                <div class="@(submit?"":"disabled-content")">
+                                                    <DxComboBox Data="@depotConnectionlst"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                SelectedItem="busBookingDataAllocationItem.Haisha_TouBinCdSeq == 0 ? null : depotConnectionlst.Where(t => t.Bin_BinCdSeq == busBookingDataAllocationItem.Haisha_TouBinCdSeq).First()"
+                                                                SelectedItemChanged="@(e => CodeKbDataDepottouChanged(e))"
+                                                                SelectedItemExpression="@(() => busBookingDataAllocationItem.depotConnectionItem1)"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                CssClass="flex-grow-1 mr-2 custom-combo-box-no"
+                                                                ReadOnly="@(!submit)"
+                                                                DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                                </div>
+                                                <HassyaAllrightCloud.Pages.Components.InputTime CssClass="width--75 ml-2 mx-auto"
+                                                                                                ReadOnly="@(!submit)"
+                                                                                                TimeChanged="@((newValue) => OnHaisha_TouSetTimeChanged(newValue))"
+                                                                                                ValueExpressions="@(() => readOnlyText)"
+                                                                                                MyTimeAsString="@busBookingDataAllocationItem.Haisha_TouSetTime.ToString(@"hh\:mm")">
+                                                </HassyaAllrightCloud.Pages.Components.InputTime>
+                                            </div>
+                                            <DxTextBox CssClass="length20" Text="@busBookingDataAllocationItem.HaishaExp_TouSBinNm" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.HaishaExp_TouSBinNm)" TextChanged="@((newValue) => OnHaishaExp_TouSBinNmChanged(newValue))"></DxTextBox>
+                                        </div>
+                                    </div>
+                                    break;
+                                case 2:
+                                    <div class="row">
+                                        <div class="col-6 form-group d-flex flex-nowrap flex-nowrap">
+                                            <label class="col-form-label-sm mr-3">@Lang["departure_office"]：</label>
+                                            <div class="@(submit?"":"disabled-content")">
+                                                <DxComboBox Data="@branchchartlstbycurrentcpn"
+                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                            AllowUserInput="false"
+                                                            TextFieldName="Text"
+                                                            SelectedItem="busBookingDataAllocationItem.Haisha_SyuEigCdSeq == 0 ? null : branchchartlstbycurrentcpn.Where(t => t.EigyoCdSeq == busBookingDataAllocationItem.Haisha_SyuEigCdSeq).First()"
+                                                            SelectedItemChanged="@(e => branchchartlstbycurrentcpnChanged(e))"
+                                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.branchchartlstbycurrentcpnItem)"
+                                                            CssClass="flex-grow-1"
+                                                            ReadOnly="@(!submit)"
+                                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 form-group d-flex flex-nowrap flex-nowrap">
+                                            <label class="col-form-label-sm mr-3">@Lang["return_office"]：</label>
+                                            <div class="@(submit?"":"disabled-content")">
+                                                <DxComboBox Data="@branchchartlstbycurrentcpn"
+                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                            AllowUserInput="false"
+                                                            TextFieldName="Text"
+                                                            SelectedItem="busBookingDataAllocationItem.Haisha_KikEigSeq == 0 ? null : branchchartlstbycurrentcpn.Where(t => t.EigyoCdSeq == busBookingDataAllocationItem.Haisha_KikEigSeq).First()"
+                                                            SelectedItemChanged="@(e => branchchartlstbycurrentcpntouChanged(e))"
+                                                            SelectedItemExpression="@(() => busBookingDataAllocationItem.branchchartlstbycurrentcpnItem1)"
+                                                            CssClass="flex-grow-1"
+                                                            ReadOnly="@(!submit)"
+                                                            DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["complacent"]　　：</label>
+                                        <DxTextBox ReadOnly CssClass="flex-grow-1" Text="@busBookingDataAllocationItem.Text" TextExpression="@(() => validatestring)"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["add_crew"]：</label>
+                                        <div class="@(submit?"":"disabled-content")">
+                                            <DxComboBox Data="@codeKbDataOTHJINKBNlst"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="busBookingDataAllocationItem.Haisha_OthJinKbn1 == 0 ? null : codeKbDataOTHJINKBNlst.Where(t => int.Parse(t.CodeKb_CodeKbn) == busBookingDataAllocationItem.Haisha_OthJinKbn1).First()"
+                                                        SelectedItemChanged="@(e => TPM_CodeKbDataOTHJINKBNChanged(e))"
+                                                        CssClass="width--130"
+                                                        SelectedItemExpression="@(() => busBookingDataAllocationItem.codeKbDataOTHJINKBNlstItem)"
+                                                        ReadOnly="@(!submit)"
+                                                        DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                        </div>
+                                        <DxTextBox Text="@busBookingDataAllocationItem.Haisha_OthJin1.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.OthJin1)" TextChanged="@((newValue) => OnHaisha_OthJin1Changed(newValue))" CssClass="width--56 mx-2 number length4"></DxTextBox>
+                                        <span class="mr-5">人</span>
+                                        <div class="@(submit?"":"disabled-content")">
+                                            <DxComboBox Data="@codeKbDataOTHJINKBNlst"
+                                                        TextFieldName="Text"
+                                                        SelectedItem="busBookingDataAllocationItem.Haisha_OthJinKbn2 == 0 ? null : codeKbDataOTHJINKBNlst.Where(t => int.Parse(t.CodeKb_CodeKbn) == busBookingDataAllocationItem.Haisha_OthJinKbn2).First()"
+                                                        SelectedItemChanged="@(e => TPM_CodeKbDataOTHJINKBNtouChanged(e))"
+                                                        CssClass="width--130"
+                                                        SelectedItemExpression="@(() => busBookingDataAllocationItem.codeKbDataOTHJINKBNlstItem1)"
+                                                        ReadOnly="@(!submit)"
+                                                        DropDownDirection="DropDownDirection.Up"></DxComboBox>
+                                        </div>
+                                        <DxTextBox Text="@busBookingDataAllocationItem.Haisha_OthJin2.ToString("D4")" ReadOnly="@(!submit)" TextExpression="@(() => busBookingDataAllocationItem.OthJin2)" TextChanged="@((newValue) => OnHaisha_OthJin2Changed(newValue))" CssClass="width--56 mx-2 number length4"></DxTextBox>
+                                        <span>人</span>
+                                    </div>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code{
+    [Parameter]
+    public string date { get; set; }
+    [Parameter]
+    public string bookingid { get; set; }
+    public string dateformat = "yyyyMMdd";
+    List<ReservationData> reservationlst;
+    List<BranchChartData> branchchartlst;
+    List<BranchChartData> branchchartlstbycurrentcpn;
+    List<CompanyChartData> companychartlst;
+    List<TPM_SyokumData> driverchartlst = new List<TPM_SyokumData>();
+    List<BusBookingDataAllocation> busBookingDataAllocations = new List<BusBookingDataAllocation>();
+    BusBookingDataAllocation busBookingDataAllocationItem = new BusBookingDataAllocation();
+    BusAllocationData.BusAllocationSearch busAllocationSearchItem = new BusAllocationData.BusAllocationSearch();
+    List<Driverlst> driverlst = new List<Driverlst>();
+    List<Cartypelst> cartypelsts = new List<Cartypelst>();
+    IEnumerable<BusInfoData> busname = new List<BusInfoData>();
+    List<TPM_CodeKbDataKenCD> codeKbDataKenCDlst;
+    List<TPM_CodeKbDataBunruiCD> depotNamelst;
+    List<TPM_CodeKbDataDepot> depotConnectionlst;
+    IEnumerable<TPM_CodeKbDataOTHJINKBN> codeKbDataOTHJINKBNlst;
+    string DateSpecified = "配車年月日";
+    ReservationData ReservationClassification1 = new ReservationData();
+    ReservationData ReservationClassification2 = new ReservationData();
+    CompanyChartData VehicleAffiliation1 = new CompanyChartData();
+    BranchChartData VehicleAffiliation2 = new BranchChartData();
+    string UnprovisionedVehicle1 = "有";
+    string defaultid = "0";
+    BusAllocationData.OutputOrderData UnprovisionedVehicle2 = new BusAllocationData.OutputOrderData();
+    EditContext formContext;
+    EditContext formContextedit;
+    DateTime departuredate;
+    DateTime returndate;
+    DateTime deliverydate;
+    DateTime arrivaldate;
+    DateTime operatingdaystart;
+    DateTime operatingdayend;
+    DateTime pickupDate;
+    TimeSpan startTime;
+    TimeSpan endTime;
+    bool Popup = false;
+    bool popupdisable = false;
+    //Popupwhenclick check click change row in gird
+    bool Popupwhenclick = false;
+    bool submit = false;
+    int bookingfrom { get; set; } = 0;
+    int indexitem { get; set; } = 0;
+    int bookingto { get; set; } = 2147483647;
+    int activeTabIndex = 0;
+    int rowid = -1;
+    int rowidPre = -1;
+    string validatestring = "";
+    string readOnlyText { get; set; }
+    string message;
+    bool popupsave;
+    bool popupsaveSuccess;
+    bool popupsaveFail;
+    bool checkClickSubmitOnly = false;
+    bool checkDeleteDriver = false;
+    BusBookingDataAllocation busBookingDataAllocationItemTMP = new BusBookingDataAllocation();
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("loadPageScript", "busAllocationPage");
+        base.OnParametersSet();
+    }
+
+    private async void HandleValidSubmit()
+    {
+    }
+    int ActiveTabIndex
+    {
+        get => activeTabIndex;
+        set
+        {
+            activeTabIndex = value;
+            StateHasChanged();
+        }
+    }
+    protected async Task TrClickedAtIndex(int index)
+    {
+        // rowid = -1;
+        rowidPre = rowid;
+        if (index != rowid)
+        {
+            rowid = index;
+
+            Popupwhenclick = true;
+        }
+        else
+        {
+            getdatabyid(index);
+        }
+    }
+    private async void getdatabyid(int index)
+    {
+        indexitem = 0;
+        submit = true;
+        driverlst = new List<Driverlst>();
+        cartypelsts = new List<Cartypelst>();
+        busBookingDataAllocationItem = new BusBookingDataAllocation();
+        indexitem = index;
+        busBookingDataAllocationItem = await BusBookingDataService.GetBusBookingDataAllocationItem(DateSpecified, pickupDate, startTime.ToString(@"hhmm"), endTime.ToString(@"hhmm"), bookingfrom, bookingto, busAllocationSearchItem.ReservationClassification1 == null ? 0 : busAllocationSearchItem.ReservationClassification1.YoyaKbnSeq, busAllocationSearchItem.ReservationClassification2 == null ? 0 : busAllocationSearchItem.ReservationClassification2.YoyaKbnSeq, busAllocationSearchItem.VehicleAffiliation1 == null ? 0 : busAllocationSearchItem.VehicleAffiliation1.CompanyCdSeq, busAllocationSearchItem.VehicleAffiliation2 == null ? 0 : busAllocationSearchItem.VehicleAffiliation2.EigyoCdSeq, busAllocationSearchItem.UnprovisionedVehicle1, busAllocationSearchItem.UnprovisionedVehicle2.IdValue, new ClaimModel().TenantID, busBookingDataAllocations.Where(t => t.row == index).First().Yyksho_UkeCd, busBookingDataAllocations.Where(t => t.row == index).First().Haisha_TeiDanNo, busBookingDataAllocations.Where(t => t.row == index).First().Haisha_UnkRen, busBookingDataAllocations.Where(t => t.row == index).First().Haisha_BunkRen);
+        checkDeleteDriver = false;
+
+        var cartype = busBookingDataAllocations.Where(t => t.Haisha_UkeNo == busBookingDataAllocationItem.Haisha_UkeNo).ToList();
+        var cartypebycar = cartype.Select(t => t.SyaSyu_SyaSyuNm_YykSyu).Distinct().ToList();
+        var cartypebycarno = cartype.Where(t => t.YykSyu_SyaSyuCdSeq_YykSyu == 0).Select(t => t.CodeKb_YykSyu_RyakuNm).Distinct().ToList();
+        int i = 1;
+        cartypelsts = new List<Cartypelst>();
+        foreach (var item in cartypebycar)
+        {
+            if (item != null)
+            {
+                Cartypelst caritem = new Cartypelst();
+                caritem.No = i;
+                caritem.Cartype = item.Trim();
+                caritem.Numberofunits = cartype.Where(t => t.SyaSyu_SyaSyuNm_YykSyu == item.Trim()).Count();
+                caritem.Type = cartype.Where(t => t.SyaSyu_SyaSyuNm_YykSyu == item.Trim()).First().CodeKb_YykSyu_RyakuNm;
+                cartypelsts.Add(caritem);
+                i++;
+            }
+        }
+        foreach (var item in cartypebycarno)
+        {
+            if (item != null)
+            {
+                Cartypelst caritem = new Cartypelst();
+                caritem.No = i;
+                caritem.Cartype = "指定なし";
+                caritem.Numberofunits = cartype.Where(t => t.CodeKb_YykSyu_RyakuNm == item.Trim() && t.YykSyu_SyaSyuCdSeq_YykSyu == 0).Count();
+                caritem.Type = item.Trim();
+                cartypelsts.Add(caritem);
+                i++;
+            }
+        }
+        driverlst = new List<Driverlst>();
+        driverlst = await BusBookingDataService.Getbusdriver(busBookingDataAllocationItem.Haisha_UkeNo, busBookingDataAllocationItem.Haisha_UnkRen, busBookingDataAllocationItem.Haisha_TeiDanNo, busBookingDataAllocationItem.Haisha_BunkRen);
+        int j = 1;
+        foreach (var item in driverlst)
+        {
+            item.index = j;
+            var olditem = await TPM_SyokumDataService.GetDriverbyid(item.SyainCdSeq, new ClaimModel().TenantID);
+            driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == olditem.KyoSHe_SyainCdSeq).First().isView = false;
+            item.DriverName = driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == olditem.KyoSHe_SyainCdSeq).First().Syain_SyainNm;
+            if (item.StartTimestr.Trim() == "")
+            {
+                item.StartTime = busBookingDataAllocationItem.DepartureTime.ToString("HHmm");
+            }
+            if (item.EndTimestr.Trim() == "")
+            {
+                item.EndTime = busBookingDataAllocationItem.ReturnTime.ToString("HHmm");
+            }
+            j++;
+        }
+        if (driverlst.Count >= 2)
+        {
+            popupdisable = true;
+        }
+        else
+        {
+            popupdisable = false;
+        }
+        formContextedit = new EditContext(busBookingDataAllocationItem);
+        StateHasChanged();
+    }
+    void codeKbDataKenCDChanged(TPM_CodeKbDataKenCD e)
+    {
+        busBookingDataAllocationItem.Haisha_IkMapCdSeq = e.Basyo_BasyoMapCdSeq;
+        busBookingDataAllocationItem.Haisha_IkNm = e.Basyo_BasyoNm;
+        InvokeAsync(StateHasChanged);
+    }
+    void CodeKbDataDepotChanged(TPM_CodeKbDataDepot e)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSBinCdSeq = e.Bin_BinCdSeq;
+        busBookingDataAllocationItem.Haisha_HaiSKouKCdSeq = e.Koutu_KoukCdSeq;
+        busBookingDataAllocationItem.HaishaExp_HaiSKouKNm = e.Koutu_RyakuNm;
+        busBookingDataAllocationItem.HaishaExp_HaisBinNm = e.Bin_BinNm;
+        InvokeAsync(StateHasChanged);
+    }
+    void CodeKbDataDepottouChanged(TPM_CodeKbDataDepot e)
+    {
+        busBookingDataAllocationItem.Haisha_TouBinCdSeq = e.Bin_BinCdSeq;
+        busBookingDataAllocationItem.Haisha_TouKouKCdSeq = e.Koutu_KoukCdSeq;
+        busBookingDataAllocationItem.HaishaExp_TouSKouKNm = e.Koutu_RyakuNm;
+        busBookingDataAllocationItem.HaishaExp_TouSBinNm = e.Bin_BinNm;
+        InvokeAsync(StateHasChanged);
+    }
+    void depotNameChanged(TPM_CodeKbDataBunruiCD e)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSCdSeq = e.HaiChi_HaiSCdSeq;
+        busBookingDataAllocationItem.Haisha_HaiSNm = e.HaiChi_HaiSNm;
+        InvokeAsync(StateHasChanged);
+    }
+    void depottouNameChanged(TPM_CodeKbDataBunruiCD e)
+    {
+        busBookingDataAllocationItem.Haisha_TouCdSeq = e.HaiChi_HaiSCdSeq;
+        busBookingDataAllocationItem.Haisha_TouNm = e.HaiChi_HaiSNm;
+        InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 4);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 10);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 100);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 50);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 30);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 6);
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 20);
+        await JSRuntime.InvokeVoidAsync("setEventforTimeInput");
+        await JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+        await JSRuntime.InvokeVoidAsync("setEventforIsNumberField");
+        await JSRuntime.InvokeVoidAsync("loadPageScript", "busAllocationPage", "scrollToTop");
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("scroll");
+            await JSRuntime.InvokeVoidAsync("loadPageScript", "busAllocationPage", "busAllocationPageTabKey");
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        defaultid = "0";
+        busAllocationSearchItem = new BusAllocationData.BusAllocationSearch();
+        formContext = new EditContext(busAllocationSearchItem);
+        formContextedit = new EditContext(busBookingDataAllocationItem);
+        pickupDate = DateTime.Today;
+        //if (date == "" || date == null)
+        //{
+        //    pickupDate = DateTime.Today;
+        //}
+        //else
+        //{
+        //    DateTime.TryParseExact(date, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out pickupDate);
+        //}
+        //if (bookingid != null)
+        //{
+        //    bookingfrom = int.Parse(bookingid);
+        //    bookingto = int.Parse(bookingid);
+        //}
+        busAllocationSearchItem.pickupDate = pickupDate;
+        /*Load Reservation*/
+        reservationlst = new List<ReservationData>();
+        reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+        reservationlst.Insert(0, null);
+        busAllocationSearchItem.ReservationClassification1 = reservationlst.First();
+        busAllocationSearchItem.ReservationClassification2 = reservationlst.First();
+
+        /*Load Company*/
+        companychartlst = new List<CompanyChartData>();
+        companychartlst = await TPM_CompnyDataService.GetCompany(new ClaimModel().TenantID);
+        companychartlst.Insert(0, null);
+        busAllocationSearchItem.VehicleAffiliation1 = companychartlst.First();
+
+        /*Load Branch*/
+        branchchartlst = new List<BranchChartData>();
+        if (VehicleAffiliation1 != null)
+        {
+            branchchartlst = TPM_EigyosDataService.GetBranchbyCompany1(VehicleAffiliation1.CompanyCd, new ClaimModel().TenantID);
+        }
+        branchchartlst.Insert(0, null);
+        busAllocationSearchItem.VehicleAffiliation2 = branchchartlst.First();
+
+        /*Load Output Data*/
+        UnprovisionedVehicle2 = BusAllocationData.OutputOrderListData.outputOrderlst.First();
+        busname = await BusDataService.Getallbus(new ClaimModel().TenantID);
+        codeKbDataKenCDlst = await TPM_CodeKbnService.GetdataKenCD(new ClaimModel().TenantID);
+        codeKbDataKenCDlst.Insert(0, new TPM_CodeKbDataKenCD());
+        depotNamelst = await TPM_CodeKbnService.GetdataBunruiCD(new ClaimModel().TenantID);
+        depotNamelst.Insert(0, new TPM_CodeKbDataBunruiCD());
+        depotConnectionlst = await TPM_CodeKbnService.GetdataDepot(DateTime.Today, new ClaimModel().TenantID);
+        depotConnectionlst.Insert(0, new TPM_CodeKbDataDepot());
+        branchchartlstbycurrentcpn = TPM_EigyosDataService.GetBranchbyTenantCdSeq(new ClaimModel().TenantID);
+        codeKbDataOTHJINKBNlst = await TPM_CodeKbnService.GetdataOTHJINKBN(new ClaimModel().TenantID);
+        driverchartlst = await TPM_SyokumDataService.GetDriver(DateTime.Today, 1, new ClaimModel().TenantID);
+        driverchartlst.Insert(0, new TPM_SyokumData());
+        /*Setting*/
+        TimeSpan.TryParseExact("000000", "hhmmss", CultureInfo.InvariantCulture, out startTime);
+        busAllocationSearchItem.startTime = startTime.ToString("hhmm");
+        TimeSpan.TryParseExact("235900", "hhmmss", CultureInfo.InvariantCulture, out endTime);
+        busAllocationSearchItem.endTime = endTime.ToString("hhmm");
+
+    }
+
+    #region InputTime changed event
+
+    private void OnStartTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        checkClickSubmitOnly = false;
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        string date = int.Parse(timeValue).ToString("D4");
+        if (BusScheduleHelper.CheckTimeinDay(date))
+        {
+            TimeSpan.TryParseExact(date + "00", "hhmmss", CultureInfo.InvariantCulture, out startTime);
+            busAllocationSearchItem.startTime = startTime.ToString("hhmm");
+        }
+        else
+        {
+            TimeSpan.TryParseExact("000001", "hhmmss", CultureInfo.InvariantCulture, out startTime);
+            busAllocationSearchItem.startTime = startTime.ToString("hhmm");
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnEndTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        checkClickSubmitOnly = false;
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+        string date = int.Parse(timeValue).ToString("D4");
+
+        if (BusScheduleHelper.CheckTimeinDay(date))
+        {
+            TimeSpan.TryParseExact(date + "00", "hhmmss", CultureInfo.InvariantCulture, out endTime);
+            busAllocationSearchItem.endTime = endTime.ToString("hhmm");
+        }
+        else
+        {
+            TimeSpan.TryParseExact("235900", "hhmmss", CultureInfo.InvariantCulture, out endTime);
+            busAllocationSearchItem.endTime = endTime.ToString("hhmm");
+
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnHaisha_SyuKoTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_SyuKoTime = int.Parse(timeValue).ToString("D4");
+        busBookingDataAllocationItem.DepartureTime = BusScheduleHelper.ConvertTime(busBookingDataAllocationItem.Haisha_SyuKoTime);
+        StateHasChanged();
+    }
+
+    private void OnHaisha_HaiSTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_HaiSTime = int.Parse(timeValue).ToString("D4");
+        busBookingDataAllocationItem.DeliveryTime = BusScheduleHelper.ConvertTime(busBookingDataAllocationItem.Haisha_HaiSTime);
+        StateHasChanged();
+    }
+
+    private void OnHaisha_SyuPaTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_SyuPaTime = int.Parse(timeValue).ToString("D4");
+        busBookingDataAllocationItem.StartTime = BusScheduleHelper.ConvertTime(busBookingDataAllocationItem.Haisha_SyuPaTime);
+        StateHasChanged();
+    }
+
+    private void OnHaisha_TouChTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_TouChTime = int.Parse(timeValue).ToString("D4");
+        busBookingDataAllocationItem.ArrivalTime = BusScheduleHelper.ConvertTime(busBookingDataAllocationItem.Haisha_TouChTime);
+        StateHasChanged();
+    }
+
+    private void OnHaisha_KikTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_KikTime = int.Parse(timeValue).ToString("D4");
+        busBookingDataAllocationItem.ReturnTime = BusScheduleHelper.ConvertTime(busBookingDataAllocationItem.Haisha_KikTime);
+        StateHasChanged();
+    }
+
+    private void OnStartTimeTextChanged(BookingInputHelper.MyTime newTime, int index)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+        var updateitem = driverlst.Where(t => t.index == index).First();
+
+        updateitem.StartTime = timeValue;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        StateHasChanged();
+    }
+
+    private void EndTimeTextChange(BookingInputHelper.MyTime newTime, int index)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+        var updateitem = driverlst.Where(t => t.index == index).First();
+
+        updateitem.EndTime = timeValue;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        StateHasChanged();
+    }
+
+    private void OnHaisha_HaiSSetTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_HaiSSetTime = BusScheduleHelper.ConvertTime(timeValue);
+        StateHasChanged();
+    }
+
+    private void OnHaisha_TouSetTimeChanged(BookingInputHelper.MyTime newTime)
+    {
+        string timeValue = CommonUtil.MyTimeFormat(newTime.Str, Formats.HHmm);
+
+        busBookingDataAllocationItem.Haisha_TouSetTime = BusScheduleHelper.ConvertTime(timeValue);
+        StateHasChanged();
+    }
+
+
+    #endregion
+
+
+    void ReservationStartChanged(ReservationData reservation)
+    {
+        checkClickSubmitOnly = false;
+        busAllocationSearchItem.ReservationClassification1 = reservation;
+        InvokeAsync(StateHasChanged);
+    }
+    void ReservationEndChanged(ReservationData reservation)
+    {
+        checkClickSubmitOnly = false;
+        busAllocationSearchItem.ReservationClassification2 = reservation;
+        InvokeAsync(StateHasChanged);
+    }
+
+    void CompanyChanged(CompanyChartData companyChart)
+    {
+        checkClickSubmitOnly = false;
+        busAllocationSearchItem.VehicleAffiliation1 = companyChart;
+        branchchartlst = new List<BranchChartData>();
+        if (busAllocationSearchItem.VehicleAffiliation1 != null)
+        {
+            branchchartlst = TPM_EigyosDataService.GetBranchbyCompany1(companyChart.CompanyCd, new ClaimModel().TenantID);
+        }
+        branchchartlst.Insert(0, null);
+        busAllocationSearchItem.VehicleAffiliation2 = branchchartlst.First();
+        InvokeAsync(StateHasChanged);
+    }
+
+    void BranchChaned(BranchChartData branchChart)
+    {
+        checkClickSubmitOnly = false;
+        busAllocationSearchItem.VehicleAffiliation2 = branchChart;
+        InvokeAsync(StateHasChanged);
+    }
+    void OrderbyChange(BusAllocationData.OutputOrderData order)
+    {
+        checkClickSubmitOnly = false;
+        busAllocationSearchItem.UnprovisionedVehicle2 = order;
+        InvokeAsync(StateHasChanged);
+    }
+    void onBookingfromChange(string newValue)
+    {
+        checkClickSubmitOnly = false;
+        int bookingfromParse;
+        bool checkParse = Int32.TryParse(newValue, out bookingfromParse);
+        if (checkParse)
+        {
+            bookingfrom = int.Parse(newValue);
+            busAllocationSearchItem.bookingfrom = newValue;
+        }
+        else
+        {
+            bookingfrom = 0;
+            busAllocationSearchItem.bookingfrom = "0";
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    void onBookingtoChange(string newValue)
+    {
+        checkClickSubmitOnly = false;
+        int bookingtoParse;
+        bool checkParse = Int32.TryParse(newValue, out bookingtoParse);
+        if (checkParse)
+        {
+            bookingto = int.Parse(newValue);
+            busAllocationSearchItem.bookingto = newValue;
+        }
+        else
+        {
+            bookingto = 2147483647;
+            busAllocationSearchItem.bookingto = "2147483647";
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    void DateSpecifiedChanged(string newValue)
+    {
+        checkClickSubmitOnly = false;
+        if (newValue == "配車年月日")
+        {
+            busAllocationSearchItem.pickupTime = true;
+        }
+        else
+        {
+            busAllocationSearchItem.pickupTime = false;
+        }
+        busAllocationSearchItem.DateSpecified = newValue;
+        DateSpecified = busAllocationSearchItem.DateSpecified;
+        InvokeAsync(StateHasChanged);
+    }
+    void OnPickupDateChanged(DateTime newDate)
+    {
+        checkClickSubmitOnly = false;
+        pickupDate = newDate;
+        busAllocationSearchItem.pickupDate = newDate;
+        InvokeAsync(StateHasChanged);
+    }
+    void UnprovisionedVehicleChanged(string newValue)
+    {
+        checkClickSubmitOnly = false;
+        if (newValue == "有")
+        {
+            busAllocationSearchItem.isgray = true;
+        }
+        else
+        {
+            busAllocationSearchItem.isgray = false;
+        }
+        busAllocationSearchItem.UnprovisionedVehicle1 = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+    protected async Task Loaddata()
+    {
+        busBookingDataAllocations = await BusBookingDataService.GetBusBookingDataAllocation(DateSpecified, pickupDate, startTime.ToString(@"hhmm"), endTime.ToString(@"hhmm"), bookingfrom, bookingto, busAllocationSearchItem.ReservationClassification1 == null ? 0 : busAllocationSearchItem.ReservationClassification1.YoyaKbnSeq, busAllocationSearchItem.ReservationClassification2 == null ? 0 : busAllocationSearchItem.ReservationClassification2.YoyaKbnSeq, busAllocationSearchItem.VehicleAffiliation1 == null ? 0 : busAllocationSearchItem.VehicleAffiliation1.CompanyCdSeq, busAllocationSearchItem.VehicleAffiliation2 == null ? 0 : busAllocationSearchItem.VehicleAffiliation2.EigyoCdSeq, busAllocationSearchItem.UnprovisionedVehicle1, busAllocationSearchItem.UnprovisionedVehicle2.IdValue, new ClaimModel().TenantID);
+         var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(busBookingDataAllocations);
+        if (busAllocationSearchItem.UnprovisionedVehicle2.IdValue == 1)
+        {
+            busBookingDataAllocations = busBookingDataAllocations.OrderBy(t => t.Haisha_SyuEigCdSeq).ThenBy(t => t.Haisha_HaiSSryCdSeq).ToList();
+        }
+        else if (busAllocationSearchItem.UnprovisionedVehicle2.IdValue == 2)
+        {
+            busBookingDataAllocations = busBookingDataAllocations.OrderBy(t => t.Haisha_SyuEigCdSeq).ThenBy(t => t.Haisha_TeiDanNo).ToList();
+        }
+        else if (busAllocationSearchItem.UnprovisionedVehicle2.IdValue == 3)
+        {
+            busBookingDataAllocations = busBookingDataAllocations.OrderBy(t => t.Haisha_HaiSSryCdSeq).ToList();
+        }
+        else if (busAllocationSearchItem.UnprovisionedVehicle2.IdValue == 4)
+        {
+            busBookingDataAllocations = busBookingDataAllocations.OrderBy(t => t.HenSya_TenkoNo).ToList();
+        }
+    }
+    protected async Task btnSearchClick(MouseEventArgs e)
+    {
+        checkClickSubmitOnly = true;
+        await Task.Run(() =>
+        {
+            Loaddata().Wait();
+        });
+        if (busBookingDataAllocations.Count() > 0)
+        {
+            busBookingDataAllocationItem = new BusBookingDataAllocation();
+            busBookingDataAllocationItem = await BusBookingDataService.GetBusBookingDataAllocationItem(DateSpecified, pickupDate, startTime.ToString(@"hhmm"), endTime.ToString(@"hhmm"), bookingfrom, bookingto, busAllocationSearchItem.ReservationClassification1 == null ? 0 : busAllocationSearchItem.ReservationClassification1.YoyaKbnSeq, busAllocationSearchItem.ReservationClassification2 == null ? 0 : busAllocationSearchItem.ReservationClassification2.YoyaKbnSeq, busAllocationSearchItem.VehicleAffiliation1 == null ? 0 : busAllocationSearchItem.VehicleAffiliation1.CompanyCdSeq, busAllocationSearchItem.VehicleAffiliation2 == null ? 0 : busAllocationSearchItem.VehicleAffiliation2.EigyoCdSeq, busAllocationSearchItem.UnprovisionedVehicle1, busAllocationSearchItem.UnprovisionedVehicle2.IdValue, new ClaimModel().TenantID, busBookingDataAllocations.Where(t => t.row == 0).First().Yyksho_UkeCd, busBookingDataAllocations.Where(t => t.row == 0).First().Haisha_TeiDanNo, busBookingDataAllocations.Where(t => t.row == 0).First().Haisha_UnkRen, busBookingDataAllocations.Where(t => t.row == 0).First().Haisha_BunkRen);
+
+            submit = true;
+            var cartype = busBookingDataAllocations.Where(t => t.Haisha_UkeNo == busBookingDataAllocationItem.Haisha_UkeNo).ToList();
+            var cartypebycar = cartype.Select(t => t.SyaSyu_SyaSyuNm_YykSyu).Distinct().ToList();
+            var cartypebycarno = cartype.Where(t => t.YykSyu_SyaSyuCdSeq_YykSyu == 0).Select(t => t.CodeKb_YykSyu_RyakuNm).Distinct().ToList();
+            int i = 1;
+            cartypelsts = new List<Cartypelst>();
+            foreach (var item in cartypebycar)
+            {
+                if (item != null)
+                {
+                    Cartypelst caritem = new Cartypelst();
+                    caritem.No = i;
+                    caritem.Cartype = item.Trim();
+                    caritem.Numberofunits = cartype.Where(t => t.SyaSyu_SyaSyuNm_YykSyu == item.Trim()).Count();
+                    caritem.Type = cartype.Where(t => t.SyaSyu_SyaSyuNm_YykSyu == item.Trim()).First().CodeKb_YykSyu_RyakuNm;
+                    cartypelsts.Add(caritem);
+                    i++;
+                }
+            }
+            foreach (var item in cartypebycarno)
+            {
+                if (item != null)
+                {
+                    Cartypelst caritem = new Cartypelst();
+                    caritem.No = i;
+                    caritem.Cartype = "指定なし";
+                    caritem.Numberofunits = cartype.Where(t => t.CodeKb_YykSyu_RyakuNm == item.Trim() && t.YykSyu_SyaSyuCdSeq_YykSyu == 0).Count();
+                    caritem.Type = item.Trim();
+                    cartypelsts.Add(caritem);
+                    i++;
+                }
+            }
+            driverlst = new List<Driverlst>();
+            driverlst = await BusBookingDataService.Getbusdriver(busBookingDataAllocationItem.Haisha_UkeNo, busBookingDataAllocationItem.Haisha_UnkRen, busBookingDataAllocationItem.Haisha_TeiDanNo, busBookingDataAllocationItem.Haisha_BunkRen);
+            int j = 1;
+            foreach (var item in driverlst)
+            {
+                item.index = j;
+                var olditem = await TPM_SyokumDataService.GetDriverbyid(item.SyainCdSeq, new ClaimModel().TenantID);
+                driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == olditem.KyoSHe_SyainCdSeq).First().isView = false;
+                item.DriverName = driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == olditem.KyoSHe_SyainCdSeq).First().Syain_SyainNm;
+                if (item.StartTimestr.Trim() == "")
+                {
+                    item.StartTime = busBookingDataAllocationItem.DepartureTime.ToString("HHmm");
+                }
+                if (item.EndTimestr.Trim() == "")
+                {
+                    item.EndTime = busBookingDataAllocationItem.ReturnTime.ToString("HHmm");
+                }
+                j++;
+            }
+            if (driverlst.Count >= 2)
+            {
+                popupdisable = true;
+            }
+            else
+            {
+                popupdisable = false;
+            }
+        }
+        formContextedit = new EditContext(busBookingDataAllocationItem);
+        StateHasChanged();
+    }
+    void OnHaisha_GoSyaChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_GoSya = int.Parse(newValue);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnHaisha_DanTaNm2Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_DanTaNm2 = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+    void OnHaisha_IkNmChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_IkNm = newValue;
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    void OnHaisha_HaiSNmChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSNm = int.Parse(newValue).ToString("D4");
+        StateHasChanged();
+    }
+    void OnHaisha_HaiSJyus1Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSJyus1 = newValue;
+        StateHasChanged();
+    }
+
+    void OnHaisha_HaiSJyus2Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSJyus2 = newValue;
+        StateHasChanged();
+    }
+    void OnHaisha_HaiSKigouChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSKigou = newValue;
+        StateHasChanged();
+    }
+
+    void OnHaisha_TouNmChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_TouNm = newValue;
+        StateHasChanged();
+    }
+
+    void OnSelectedbusnameChanged(BusInfoData e)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSSryCdSeq = e.SyaRyoCdSeq;
+        StateHasChanged();
+    }
+
+    void OnHaisha_TouJyusyo1Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_TouJyusyo1 = newValue;
+        StateHasChanged();
+    }
+
+    void OnHaisha_TouJyusyo2Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_TouJyusyo2 = newValue;
+        StateHasChanged();
+    }
+    void OnHaisha_TouKigouChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_TouKigou = newValue;
+        StateHasChanged();
+    }
+    void OnHaisha_JyoSyaJinChanged(string newValue)
+    {
+
+        try
+        {
+            busBookingDataAllocationItem.Haisha_JyoSyaJin = short.Parse(newValue);
+        }
+        catch
+        {
+            busBookingDataAllocationItem.Haisha_JyoSyaJin = busBookingDataAllocationItem.Haisha_JyoSyaJin;
+        }
+        StateHasChanged();
+    }
+    void OnHaisha_PlusJinChanged(string newValue)
+    {
+
+        try
+        {
+            busBookingDataAllocationItem.Haisha_PlusJin = short.Parse(newValue);
+        }
+        catch
+        {
+            busBookingDataAllocationItem.Haisha_PlusJin = busBookingDataAllocationItem.Haisha_PlusJin;
+        }
+        StateHasChanged();
+    }
+    void OnHaisha_DrvJinChanged(string newValue)
+    {
+        try
+        {
+            busBookingDataAllocationItem.Haisha_DrvJin = short.Parse(newValue);
+        }
+        catch
+        {
+            busBookingDataAllocationItem.Haisha_DrvJin = busBookingDataAllocationItem.Haisha_DrvJin;
+        }
+        StateHasChanged();
+    }
+    void OnHaisha_GuiSuChanged(string newValue)
+    {
+        try
+        {
+            busBookingDataAllocationItem.Haisha_GuiSu = short.Parse(newValue);
+        }
+        catch
+        {
+            busBookingDataAllocationItem.Haisha_GuiSu = busBookingDataAllocationItem.Haisha_GuiSu;
+        }
+        StateHasChanged();
+    }
+    void OnHaisha_PlatNoChanged(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_PlatNo = newValue;
+        StateHasChanged();
+    }
+    void branchchartlstbycurrentcpnChanged(BranchChartData e)
+    {
+        busBookingDataAllocationItem.Haisha_SyuEigCdSeq = e.EigyoCdSeq;
+        StateHasChanged();
+    }
+    void branchchartlstbycurrentcpntouChanged(BranchChartData e)
+    {
+        busBookingDataAllocationItem.Haisha_KikEigSeq = e.EigyoCdSeq;
+        StateHasChanged();
+    }
+    void TPM_CodeKbDataOTHJINKBNChanged(TPM_CodeKbDataOTHJINKBN e)
+    {
+        busBookingDataAllocationItem.Haisha_OthJinKbn1 = (byte)(int.Parse(e.CodeKb_CodeKbn));
+        StateHasChanged();
+    }
+    void TPM_CodeKbDataOTHJINKBNtouChanged(TPM_CodeKbDataOTHJINKBN e)
+    {
+        busBookingDataAllocationItem.Haisha_OthJinKbn2 = (byte)(int.Parse(e.CodeKb_CodeKbn));
+        StateHasChanged();
+    }
+    void OnHaisha_OthJin1Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_OthJin1 = short.Parse(newValue);
+        StateHasChanged();
+    }
+    void OnHaisha_OthJin2Changed(string newValue)
+    {
+        busBookingDataAllocationItem.Haisha_OthJin2 = short.Parse(newValue);
+        StateHasChanged();
+    }
+    void OnHaishaExp_TouSBinNmChanged(string newValue)
+    {
+        busBookingDataAllocationItem.HaishaExp_TouSBinNm = newValue;
+        StateHasChanged();
+    }
+    void OnHaishaExp_HaisBinNmChanged(string newValue)
+    {
+        busBookingDataAllocationItem.HaishaExp_HaisBinNm = newValue;
+        StateHasChanged();
+    }
+
+    void StartdepotNameChanged(TPM_CodeKbDataBunruiCD e, int index)
+    {
+        var updateitem = driverlst.Where(t => t.index == index).First();
+        updateitem.StartComment = e.HaiChi_HaiSNm;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        InvokeAsync(StateHasChanged);
+    }
+    void EnddepotNameChanged(TPM_CodeKbDataBunruiCD e, int index)
+    {
+        var updateitem = driverlst.Where(t => t.index == index).First();
+        updateitem.EndComment = e.HaiChi_HaiSNm;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        InvokeAsync(StateHasChanged);
+    }
+    void StartCommentTextChange(string newValue, int index)
+    {
+        var updateitem = driverlst.Where(t => t.index == index).First();
+        updateitem.StartComment = newValue;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        StateHasChanged();
+    }
+    void EndCommentTextChange(string newValue, int index)
+    {
+        var updateitem = driverlst.Where(t => t.index == index).First();
+        updateitem.EndComment = newValue;
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        StateHasChanged();
+    }
+
+    async Task UpdateHaisha(MouseEventArgs e)
+    {
+
+        bool update = TKD_HaishaDataService.UpdateHaishadata(busBookingDataAllocationItem, 1, checkDeleteDriver);
+        if (update)
+        {
+            submit = false;
+            popupdisable = false;
+            message = Lang["savesuccess"];
+            popupsaveSuccess = true;
+        }
+        else
+        {
+            message = Lang["saveunsuccess"];
+            popupsaveFail = true;
+        }
+        await Task.Run(() =>
+        {
+            Loaddata().Wait();
+        });
+        StateHasChanged();
+        if (busBookingDataAllocationItemTMP == null) busBookingDataAllocationItemTMP = busBookingDataAllocationItem;
+    }
+    void OpenPopup(MouseEventArgs e)
+    {
+        Popup = true;
+
+        StateHasChanged();
+    }
+    void ClosePopup(MouseEventArgs e)
+    {
+        Popup = false;
+        StateHasChanged();
+    }
+    void OnHaisha_SyuKoYmdChanged(DateTime newValue)
+    {
+        busBookingDataAllocationItem.Haisha_SyuKoYmd = newValue.ToString("yyyyMMdd");
+        busBookingDataAllocationItem.DepartureDate = newValue;
+        StateHasChanged();
+    }
+    void OnHaisha_HaiSYmdChanged(DateTime newValue)
+    {
+        busBookingDataAllocationItem.Haisha_HaiSYmd = newValue.ToString("yyyyMMdd");
+        busBookingDataAllocationItem.DeliveryDate = newValue;
+        StateHasChanged();
+    }
+    void OnHaisha_TouYmdChanged(DateTime newValue)
+    {
+        busBookingDataAllocationItem.Haisha_TouYmd = newValue.ToString("yyyyMMdd");
+        StateHasChanged();
+    }
+
+    void OnHaisha_KikYmdChanged(DateTime newValue)
+    {
+        busBookingDataAllocationItem.Haisha_KikYmd = newValue.ToString("yyyyMMdd");
+        StateHasChanged();
+    }
+    protected async Task driverchartlstChanged(TPM_SyokumData e, int index)
+    {
+
+        if (driverlst.Where(t => t.index == index).Any())
+        {
+            var updateitemdiver = driverlst.Where(t => t.index == index).First();
+            int oldSyainCdSeq = driverlst.Where(t => t.index == index).First().SyainCdSeq;
+            var olditem = await TPM_SyokumDataService.GetDriverbyid(oldSyainCdSeq, new ClaimModel().TenantID);
+            driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == olditem.KyoSHe_SyainCdSeq).First().isView = true;
+            if (e.KyoSHe_SyainCdSeq == 0)
+            {
+                driverlst.Remove(updateitemdiver);
+            }
+            else
+            {
+                updateitemdiver.index = index;
+                updateitemdiver.SyainCdSeq = e.KyoSHe_SyainCdSeq;
+                updateitemdiver.DriverName = e.Syain_SyainNm;
+                updateitemdiver.StartTime = busBookingDataAllocationItem.DepartureTime.ToString("HHmm");
+                updateitemdiver.EndTime = busBookingDataAllocationItem.ReturnTime.ToString("HHmm");
+                updateitemdiver.Syokum_SyokumuCdSeq = e.Syokum_SyokumuCdSeq;
+                driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == e.KyoSHe_SyainCdSeq).First().isView = false;
+            }
+        }
+        else
+        {
+            Driverlst item = new Driverlst();
+            item.index = index;
+            item.SyainCdSeq = e.KyoSHe_SyainCdSeq;
+            item.DriverName = e.Syain_SyainNm;
+            item.StartTime = busBookingDataAllocationItem.DepartureTime.ToString("HHmm");
+            item.EndTime = busBookingDataAllocationItem.ReturnTime.ToString("HHmm");
+            item.Syokum_SyokumuCdSeq = e.Syokum_SyokumuCdSeq;
+            driverlst.Add(item);
+            driverchartlst.Skip(1).Where(t => t.KyoSHe_SyainCdSeq == e.KyoSHe_SyainCdSeq).First().isView = false;
+        }
+        driverchartlst = driverchartlst.Skip(1).OrderBy(t => t.Eigyos_EigyoCdSeq).ThenBy(t => t.KyoSHe_SyainCdSeq).ToList();
+        driverchartlst.Insert(0, new TPM_SyokumData());
+        busBookingDataAllocationItem.Driverlstitem = driverlst;
+        int j = 1;
+        foreach (var item in driverlst)
+        {
+            item.index = j;
+            var olditem = await TPM_SyokumDataService.GetDriverbyid(item.SyainCdSeq, new ClaimModel().TenantID);
+            j++;
+        }
+        if (driverlst.Count >= 2)
+        {
+            popupdisable = true;
+        }
+        else
+        {
+            popupdisable = false;
+        }
+        checkDeleteDriver = true;
+        StateHasChanged();
+    }
+    private async Task CancelSave(MouseEventArgs e)
+    {
+        popupsaveSuccess = false;
+        message = "";
+        StateHasChanged();
+    }
+    private async Task CancelSaveFail(MouseEventArgs e)
+    {
+        popupsaveFail = false;
+        message = "";
+        StateHasChanged();
+    }
+    private async Task UpdateBus(MouseEventArgs e)
+    {
+        Popupwhenclick = false;
+        getdatabyid(rowid);
+        StateHasChanged();
+    }
+    private async Task CancelUpdateBus(MouseEventArgs e)
+    {
+        rowid = rowidPre;
+        Popupwhenclick = false;
+        StateHasChanged();
+    }
+}

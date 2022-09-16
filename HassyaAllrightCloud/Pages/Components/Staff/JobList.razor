@@ -1,0 +1,117 @@
+﻿@inject IStringLocalizer<Pages.Staff> Lang
+@inject IBlazorContextMenuService blazorContextMenuService
+@inject IStaffListService _staffService
+@using System.Data
+@using System.Diagnostics
+@using System.Threading
+
+<div class="custom-scroll border border-dark border-top-0" style="overflow-x: auto;">
+    @* style="width: fit-content; min-width: 150px" *@
+    <ul class="list-unstyled list mb-0 border-0">
+        @if (List.Count() == 0)
+        {
+            <li class="text-center"><small>@Lang["BI_T001"]</small></li>
+        }
+        @foreach (var item in List)
+        {
+            <li class="draggable" draggable="true" @ondragstart="@(() => HandleDragStart(item))" oncontextmenu="return false;" @onmouseup="e => OnRowClick(e, item)" @ondragend="HandleDragEnd">
+                <div class="d-block">
+                    <p class="mb-0">@(item.DanTaNm + ShowTime(GetTime(item.Kotei_SyukoTime), GetTime(item.Kotei_KikTime)) + " ／ " + item.SyokumuNm)</p>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+<BlazorContextMenu.ContextMenu Id="gridRowsClickMenu" CssClass="contextmenu">
+    <Item OnClick="OnCheck">@Lang["Check"]</Item>
+</BlazorContextMenu.ContextMenu>
+
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    //[Parameter] public List<JobData> List { get; set; }
+    [Parameter] public List<JobItem> List { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Container.Params.WorkSort == (int)StaffWorkSortOrder.Earlier)
+        {
+            List = List.OrderBy(x => x.SyuKoTime).ToList();
+        }
+        else if (Container.Params.WorkSort == (int)StaffWorkSortOrder.Time)
+        {
+            List = List.OrderByDescending(x => x.SyuKoTime).ToList();
+        }
+    }
+
+    private void HandleDragStart(JobItem selectItem)
+    {
+        Container.Job = selectItem;
+        Container.Payload.AllowStatus = Flag.Job;
+        Container.isJob = true;
+        Container.isWork = false;
+        Container.isHoliday = false;
+        Container.isSwapJob = false;
+        Container.isAssignJob = true;
+        Container.OnChange();
+    }
+
+    private void HandleDragEnd()
+    {
+        Container.isAssignJob = false;
+    }
+
+    private string GetTime(string time)
+    {
+        return string.IsNullOrEmpty(time.Trim()) ? string.Empty : time.Insert(2, ":");
+    }
+
+    private string ShowTime(string start, string end)
+    {
+        if (string.IsNullOrEmpty(start) && string.IsNullOrEmpty(end)) return string.Empty;
+        return "(" + start + " ～ " + end + ")";
+    }
+
+    private async Task OnRowClick(MouseEventArgs args, JobItem item)
+    {
+        if (args.Button == 2)
+        {
+            await blazorContextMenuService.ShowMenu("gridRowsClickMenu", Convert.ToInt32(args.ClientX) + 5, Convert.ToInt32(args.ClientY) + 5, item);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnCheck(ItemClickEventArgs args)
+    {
+        await Container.ShowLoading();
+        Container.ErrorMessage.Clear();
+        Container.listSyain.Clear();
+        var item = args.Data as JobItem;
+        DataTable KobanTable = new DataTable();
+        KobanTable.Columns.Add("UnkYmd", typeof(string));
+        KobanTable.Columns.Add("UkeNo", typeof(string));
+        KobanTable.Columns.Add("UnkRen", typeof(short));
+        KobanTable.Columns.Add("TeiDanNo", typeof(short));
+        KobanTable.Columns.Add("BunkRen", typeof(short));
+        KobanTable.Columns.Add("SyukinYmd", typeof(string));
+        KobanTable.Columns.Add("SyukinTime", typeof(string));
+        KobanTable.Columns.Add("TaikinYmd", typeof(string));
+        KobanTable.Columns.Add("TaiknTime", typeof(string));
+        KobanTable.Clear();
+        await _staffService.GetTableKoban(item, KobanTable);
+        var check = await _staffService.ValidateBeforeAssignJob(Container.Date.ToString(CommonConstants.FormatYMD), 0, KobanTable, string.Empty, 0, 0, 0, false);
+        if (check.Item1 > 0)
+        {
+            Container.ErrorMessage.Add(Lang["BI_T006"]);
+        }
+        else if (check.Item2.Any())
+        {
+            foreach(var checkData in check.Item2)
+            {
+                Container.listSyain.Add(checkData.Item1);
+            }
+        }
+        await Container.StateChanged();
+    }
+}

@@ -1,0 +1,1017 @@
+﻿@inject IJSRuntime JSRuntime
+
+@inject BookingInputHelper BookingInputHelper
+@inject IBusTypeListService BusTypeService
+@inject ITranSportationFreeRuleService TranSportationFreeRuleService
+@inject IStringLocalizer<MinMaxSetting> Lang
+@using static HassyaAllrightCloud.Commons.Extensions.EditContextExtensionHelper
+@using HassyaAllrightCloud.Pages.Components
+
+<EditForm id="minMaxForm" EditContext="@formContext" OnSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="MinMaxSettingFormValidate" />
+    @if (formContext.GetValidationMessages().Distinct().Count() > 0)
+    {
+        numbOfErrors = formContext.GetValidationMessages().Distinct().Count();
+    }
+    <div class="form-inline mb-3 align-items-end">
+        <div class="form-group mr-3">
+            <label class="col-form-label-sm mr-3">@TransportationOfficeLabel</label>
+            <div class="has-tooltip-error">
+                <Tooltip ValueExpressions="@(() => myForm.SelectedTranSportationOfficePlace)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                <DxComboBox CssClass="width--205 notabindex"
+                            Data="@TranSportationOfficePlaceList"
+                            NullText="郵便局名"
+                            AllowUserInput="false"
+                            TextFieldName="TransportationPlaceName"
+                            FilteringMode="@DataGridFilteringMode.Contains"
+                            SelectedItem="@myForm.SelectedTranSportationOfficePlace"
+                            SelectedItemChanged="@(e => OnSelectedTranSportationOfficePlaceChanged(e))"
+                            SelectedItemExpression="@(() => @myForm.SelectedTranSportationOfficePlace)"
+                            ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                </DxComboBox>
+            </div>
+        </div>
+        <div class="form-group mr-3">
+            <label class="col-form-label-sm mr-3">@BusTypeLabel</label>
+            <label class="btn-sm bg-secondary text-white">@bookingFormData.VehicleGridDataList.FirstOrDefault(t => t.RowID == Rowid).busTypeData.RyakuNm</label>
+        </div>
+        <div class="d-flex flex-wrap">
+            <div class="mr-3">
+                <label class="col-form-label-sm">@GarageLeaveTimeLabel</label>
+                <DxTextBox ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@(myForm.GarageLeaveTime.ConvertedDate.ToString("yyyy/MM/dd HH:mm"))" CssClass="width--130 notabindex"></DxTextBox>
+            </div>
+            <div class="mr-3">
+                <label class="col-form-label-sm">@BusStartTimeLabel</label>
+                <DxTextBox ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@(myForm.BusStartTime.ConvertedDate.ToString("yyyy/MM/dd HH:mm"))" CssClass="width--130 notabindex"></DxTextBox>
+            </div>
+            <div class="mr-3">
+                <label class="col-form-label-sm">@BusArrivalTimeLabel</label>
+                <DxTextBox ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@(myForm.BusArrivalTime.ConvertedDate.ToString("yyyy/MM/dd HH:mm"))" CssClass="width--130 notabindex"></DxTextBox>
+
+            </div>
+            <div class="mr-3">
+                <label class="col-form-label-sm">@GarageReturnTimeLabel</label>
+                <DxTextBox ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@(myForm.GarageReturnTime.ConvertedDate.ToString("yyyy/MM/dd HH:mm"))" CssClass="width--130 notabindex"></DxTextBox>
+
+            </div>
+            <div>
+                <label class="col-form-label-sm">@TaxRateLabel</label>
+                <div class="d-flex align-items-center justify-content-end">
+                    <DxTextBox ReadOnly="true" CssClass="dxbs-textbox width--56 text-center notabindex valid" TextExpression="@(() =>@readOnlyText)" Text="@(myForm.TaxRate.ToString())"></DxTextBox>
+                    <span class="ml-1">%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-sticky mb-3">
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="thead-primary">
+                <tr class="table-secondary text-center">
+                    <th scope="col" rowspan="3" class="font-weight-normal">@DateCol</th>
+                    <th scope="col" colspan="4" class="font-weight-normal">@FareCol</th>
+                    <th scope="col" rowspan="3" class="font-weight-normal">@ActualKmCol</th>
+                    <th scope="col" rowspan="3" class="font-weight-normal">@ActualTimeCol</th>
+                    <th scope="col" colspan="5" class="font-weight-normal">@FeeCol</th>
+                    <th scope="col" rowspan="3" class="font-weight-normal">@ClearCol</th>
+                </tr>
+                <tr class="table-secondary text-center">
+                    <th scope="col" class="font-weight-normal">@KmCol</th>
+                    <th scope="col" colspan="3" class="font-weight-normal">@TimeCol</th>
+                    <th scope="col" rowspan="2" class="font-weight-normal">@MidnightMorningCol</th>
+                    <th scope="col" colspan="4" class="font-weight-normal">@ChangeDriverCol</th>
+                </tr>
+                <tr class="table-secondary text-center">
+                    <th scope="col" class="font-weight-normal">@EstimateKmCol</th>
+                    <th scope="col" class="font-weight-normal">@StartTimeCol</th>
+                    <th scope="col" class="font-weight-normal">@EndTimeCol</th>
+                    <th scope="col" class="font-weight-normal">@RestraintTimeCol</th>
+                    <th scope="col" class="font-weight-normal">@YesNoCol</th>
+                    <th scope="col" class="font-weight-normal">@ChangeDriverKmCol</th>
+                    <th scope="col" class="font-weight-normal">@ChangeDriverTimeCol</th>
+                    <th scope="col" class="font-weight-normal">@ChangeDriverMidnightMorningCol</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var gridRow in myForm.minMaxGridData)
+                {
+                    <tr class="text-center">
+                        <td>
+                            <div class="form-inline flex-nowrap">
+                                <label class="col-form-label-sm text-nowrap mr-3">@(gridRow.rowID + 1)@DateOfSchedulerRow</label>
+                                <DxTextBox CssClass="text-center width--110 notabindex" TextExpression="@(() =>readOnlyText)" Text="@gridRow.DateofScheduler.ToString("yyyy/MM/dd")" ReadOnly="true"></DxTextBox>
+                            </div>
+                        </td>
+                        <!-- 走行キロ -->
+                        <td>
+                            <DxTextBox ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)" CssClass="text-center width--75 mx-auto number length4 forcus withtabindex" TextExpression="@(() =>@gridRow.KmRunningStr)" Text="@CurencyFormat(gridRow.KmRunning)" TextChanged="@((e) => OnKmOfGridChanged(e, @gridRow, "KmRunning"))" maxlength="4"></DxTextBox>
+                        </td>
+
+                        <!-- 前日・点検開始 -->
+                        <td class="text-center width--75 mx-auto">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <DxCheckBox CssClass="withtabindex mr-2"
+                                            CheckedChanged="@((e) => OnCheckboxOfGridChanged(e, @gridRow, "PreviouDay"))"
+                                            CheckedExpression="@(() =>@gridRow.BusInspectionStartDate.isPreviousDay )"
+                                            Checked="@gridRow.BusInspectionStartDate.isPreviousDay"
+                                            Enabled="@(ViewState != MinMaxSettingState.ViewOnly)"></DxCheckBox>
+                                <div class="has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => gridRow.BusInspectionStartDate.inpTime.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <InputTime CssClass="text-center width--75 mx-auto length5 withtabindex"
+                                               Time="@gridRow.BusInspectionStartDate.inpTime"
+                                               TimeChanged="@((e) => OnTimeOfGridChanged(e, @gridRow, @gridRow.BusInspectionStartDate.inpTime))"
+                                               ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                                    </InputTime>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- 点検終了 -->
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => gridRow.BusInspectionEndDate.inpTime.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <InputTime CssClass="text-center width--75 mx-auto length5 withtabindex"
+                                       Time="@gridRow.BusInspectionEndDate.inpTime"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, @gridRow, @gridRow.BusInspectionEndDate.inpTime))"
+                                       MaxHour="48"
+                                       ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+                        <!-- 拘束時間 -->
+                        <td>
+                            <InputTime CssClass="text-center width--75 mx-auto length5 withtabindex"
+                                       Time="@gridRow.TimeRunning"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, null, @gridRow.TimeRunning))"
+                                       MaxHour="99"
+                                       ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+                        <!-- 実車キロ -->
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @gridRow.ExactKmRunningStr)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)" CssClass="text-center width--75 mx-auto number length4  withtabindex"
+                                       TextExpression="@(() =>@gridRow.ExactKmRunningStr)" Text="@CurencyFormat(gridRow.ExactKmRunning)"
+                                       TextChanged="@((e) => OnKmOfGridChanged(e, @gridRow, "ExactKmRunning"))" maxlength="4"></DxTextBox>
+                        </td>
+
+                        <!-- 実車時間 -->
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => gridRow.ExactTimeRunning.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <InputTime CssClass="text-center width--75 mx-auto length5 withtabindex"
+                                       Time="@gridRow.ExactTimeRunning"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, null, @gridRow.ExactTimeRunning))"
+                                       MaxHour="99"
+                                       ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+                        <!-- 深夜早朝 -->
+                        <td>
+                            <InputTime CssClass="text-center width--75 mx-auto length5 withtabindex"
+                                       Time="@gridRow.SpecialTimeRunning"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, null, @gridRow.SpecialTimeRunning))"
+                                       MaxHour="99"
+                                       ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+                        <!-- 可/否 交替 -->
+                        <td class="text-center">
+                            <DxCheckBox CssClass="withtabindex"
+                                        CheckedExpression="@(() =>@gridRow.isChangeDriver)"
+                                        Checked="@gridRow.isChangeDriver"
+                                        CheckedChanged="@((e) => OnCheckboxOfGridChanged(e, @gridRow,"ChangeDriver"))"
+                                        Enabled="@(ViewState != MinMaxSettingState.ViewOnly)" />
+                        </td>
+
+                        <!-- 交替 走行キロ -->
+                        <td>
+                            <DxTextBox CssClass="@("text-center width--75 mx-auto number length4 " + (!gridRow.isChangeDriver ? "notabindex" : "withtabindex"))" TextExpression="@(() =>@gridRow.KmRunningwithChgDriverStr)" Text="@CurencyFormat(gridRow.KmRunningwithChgDriver)" TextChanged="@((e) => OnKmOfGridChanged(e, @gridRow, "KmRunningwithChgDriver"))" ReadOnly="@(!gridRow.isChangeDriver || ViewState == MinMaxSettingState.ViewOnly)" maxlength="4"></DxTextBox>
+                        </td>
+
+                        <!-- 交替 拘束時間 -->
+                        <td>
+                            <InputTime CssClass="@("text-center width--75 mx-auto length5 " + (!gridRow.isChangeDriver ? "notabindex" : "withtabindex"))"
+                                       Time="@gridRow.TimeRunningwithChgDriver"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, null, @gridRow.TimeRunningwithChgDriver))"
+                                       MaxHour="99"
+                                       ReadOnly="@(!gridRow.isChangeDriver || ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+                        <!-- 交替 深夜早朝 -->
+                        <td>
+                            <InputTime CssClass="@("text-center width--75 mx-auto length5 " + (!gridRow.isChangeDriver ? "notabindex" : "withtabindex"))"
+                                       Time="@gridRow.SpecialTimeRunningwithChgDriver"
+                                       TimeChanged="@((e) => OnTimeOfGridChanged(e, null, @gridRow.SpecialTimeRunningwithChgDriver))"
+                                       MaxHour="99"
+                                       ReadOnly="@(!gridRow.isChangeDriver || ViewState == MinMaxSettingState.ViewOnly)">
+                            </InputTime>
+                        </td>
+
+
+                        <td>
+                            <a class="@(ViewState == MinMaxSettingState.ViewOnly ? "disabled" : "")" tabindex="-1" href="javascript: void(0)" @onclick="@(e => Clear(gridRow.rowID))">
+                                <i class="fa fa-refresh text-danger" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="text-center">
+                    <td class="text-right"><strong>@TotalGridLabel</strong></td>
+
+                    <!-- 走行キロ -->
+                    <td class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => myForm.TotalKmRunning)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass=@("text-center width--75 mx-auto length5 notabindex " + formContext.FieldCssClass(() => myForm.TotalKmRunning)) TextExpression="@(() =>readOnlyText)" Text="@CurencyFormat((myForm.TotalKmRunning))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td colspan="2"></td>
+
+                    <!-- 拘束時間 -->
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto notabindex" TextExpression="@(() =>readOnlyText)" Text="@(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.TimeRunning).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => myForm.TotalExactKmRunning)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass=@("text-center width--75 mx-auto length5 notabindex " + formContext.FieldCssClass(() => myForm.TotalExactKmRunning)) TextExpression="@(() =>readOnlyText)" Text="@CurencyFormat((myForm.TotalExactKmRunning))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto notabindex" TextExpression="@(() =>readOnlyText)" Text="@(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.ExactTimeRunning).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto notabindex" TextExpression="@(() =>readOnlyText)" Text="@(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.SpecialTimeRunning).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td></td>
+                    <td class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() =>myForm.TotalKmRunningWithChangeDriver)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass=@("text-center width--75 mx-auto length5 notabindex " + formContext.FieldCssClass(() => myForm.TotalKmRunningWithChangeDriver)) TextExpression="@(() =>readOnlyText)" Text="@CurencyFormat((myForm.TotalKmRunningWithChangeDriver))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto notabindex" TextExpression="@(() =>readOnlyText)" Text="@(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.TimeRunningwithChgDriver).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto notabindex" TextExpression="@(() =>readOnlyText)" Text="@(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.SpecialTimeRunningwithChgDriver).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td></td>
+                </tr>
+                <tr class="text-center">
+                    <td class="text-right"><strong>@CalculatedGridKmTimeLabel</strong></td>
+                    <!-- 走行キロ -->
+                    <td class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => myForm.TotalKmRunning)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass=@("text-center width--75 mx-auto round notabindex"  + formContext.FieldCssClass(() => myForm.TotalKmRunning)) TextExpression="@(() =>readOnlyText)" Text="@CurencyFormat((BookingInputHelper.Round(myForm.TotalKmRunning)))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td colspan="2"></td>
+
+                    <!-- 拘束時間 -->
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto round notabindex" TextExpression="@(() =>readOnlyText)" Text="@(BookingInputHelper.Round(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.TimeRunning)).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td colspan="2"></td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto round notabindex" TextExpression="@(() =>readOnlyText)" Text="@(BookingInputHelper.Round(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.SpecialTimeRunning)).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td></td>
+                    <td class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() =>myForm.TotalKmRunningWithChangeDriver)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass="text-center width--75 mx-auto round notabindex" TextExpression="@(() =>readOnlyText)" Text="@CurencyFormat((BookingInputHelper.Round(myForm.TotalKmRunningWithChangeDriver)))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto round notabindex" TextExpression="@(() =>readOnlyText)" Text="@(BookingInputHelper.Round(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.TimeRunningwithChgDriver)).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td><DxTextBox CssClass="text-center width--75 mx-auto round notabindex" TextExpression="@(() =>readOnlyText)" Text="@(BookingInputHelper.Round(myForm.minMaxGridData.Aggregate<MinMaxGridData, BookingInputHelper.MyTime>(new BookingInputHelper.MyTime(0, 0), (t, s) => t = t + s.SpecialTimeRunningwithChgDriver)).ToString())" ReadOnly="true"></DxTextBox></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="row">
+        <div class="col-auto">
+            <div class="form-inline form-group justify-content-end">
+                <label class="col-form-label-sm width--56">@DiscountLabel</label>
+                <div class="width--56 mr-2"></div>
+                <div class="custom-control custom-radio custom-control-inline custom-control-radio withtabindex">
+                    <input type="radio" id="DiscountOption1" name="DiscountOption" value="0" class="custom-control-input" checked="@(myForm.DiscountOption == 0)" @onchange="@((e) => OnRadioOptionChanged(e, "DiscountOption"))">
+                    <label class="custom-control-label" for="DiscountOption1" tabindex="0">@DiscountNoneLabel</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline custom-control-radio withtabindex">
+                    <input type="radio" id="DiscountOption2" name="DiscountOption" value="1" class="custom-control-input" checked="@(myForm.DiscountOption == 1)" @onchange="@((e) => OnRadioOptionChanged(e, "DiscountOption"))">
+                    <label class="custom-control-label" for="DiscountOption2" tabindex="0">@DiscountThirtyLabel</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline custom-control-radio withtabindex">
+                    <input type="radio" id="DiscountOption3" name="DiscountOption" value="2" class="custom-control-input" checked="@(myForm.DiscountOption == 2)" @onchange="@((e) => OnRadioOptionChanged(e, "DiscountOption"))">
+                    <label class="custom-control-label" for="DiscountOption3" tabindex="0">@DiscountTwentyLabel</label>
+                </div>
+            </div>
+            <div>
+                <div class="form-inline mb-2">
+                    <div class="form-group align-items-end">
+                        <label class="col-form-label-sm width--56">@TotalPriceRowLabel</label>
+                        <div class="mr-2">
+                            <label class="col-form-label-sm">@Lang["Index"]</label>
+                            <HassyaAllrightCloud.Pages.Components.InputRate RateValue="@myForm.FareIndex"
+                                                                            CssClass="width--56 text-right rate100"
+                                                                            MaxRate=100f
+                                                                            RateChanged="@((rate)=>OnFareIndexChanged(rate, Rowid))">
+                            </HassyaAllrightCloud.Pages.Components.InputRate>
+                        </div>
+                        <div>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => myForm.UnitPrice)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)"
+                                           CssClass="width--100 text-right length7 mx-auto number withtabindex"
+                                           TextExpression="@(() =>@myForm.UnitPrice)"
+                                           Text=@CurencyFormat(int.Parse(myForm.UnitPrice))
+                                           @onkeydown="HandleUnitPriceKeyDown"
+                                           TextChanged="@((newValue) => OnUnitBusPriceChanged(newValue, Rowid))"></DxTextBox>
+                            </div>
+                        </div>
+                        <div class="mx-2">
+                            <div class="col-form-label-sm mr-0">@UpperLimitLabel</div>
+                            <DxTextBox CssClass="width--100 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@CurencyFormat(myForm.getMaxUnitBusPriceDiscount())"></DxTextBox>
+                        </div>
+                        <div>
+                            <div class="col-form-label-sm">@LowerLimitLabel</div>
+                            <DxTextBox CssClass="width--100 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@CurencyFormat(myForm.getMinUnitBusPriceDiscount())"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-inline mb-2">
+                    <div class="form-group">
+                        <label class="col-form-label-sm width--56">@TotalFeeRowLabel</label>
+                        <HassyaAllrightCloud.Pages.Components.InputRate RateValue="@myForm.FeeIndex"
+                                                                        CssClass="mr-2 width--56 text-right rate100"
+                                                                        MaxRate=100f
+                                                                        RateChanged="@((rate)=>OnFeeIndexChanged(rate, Rowid))">
+                        </HassyaAllrightCloud.Pages.Components.InputRate>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => myForm.UnitFee)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox CssClass="width--100 text-right length7 mx-auto number withtabindex"
+                                       ReadOnly="@(ViewState == MinMaxSettingState.ViewOnly)"
+                                       TextExpression="@(() =>@myForm.UnitFee)"
+                                       Text=@CurencyFormat(int.Parse(myForm.UnitFee))
+                                       @onkeydown="HandleUnitFeeKeyDown"
+                                       TextChanged="@((newValue) => OnUnitBusFeeChanged(newValue, Rowid))" />
+                        </div>
+                            <DxTextBox CssClass="width--100 mx-2 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text=@CurencyFormat(myForm.getMaxUnitBusFeeDiscount())></DxTextBox>
+                            <DxTextBox CssClass="width--100 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text=@CurencyFormat(myForm.getMinUnitBusFeeDiscount())></DxTextBox>
+                        </div>
+                </div>
+                <div class="form-inline mb-2">
+                    <div class="form-group">
+                        <label class="col-form-label-sm width--56">@TotalPriceFeeRowLabel</label>
+                        <DxTextBox CssClass="width--56 mr-2 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@GetUnitPriceIndex().ToString()"></DxTextBox>
+                        <DxTextBox CssClass="width--100 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@CurencyFormat(int.Parse(myForm.UnitPrice) + int.Parse(myForm.UnitFee))"></DxTextBox>
+                        <DxTextBox CssClass="width--100 mx-2 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@CurencyFormat(myForm.getMaxUnitBusPriceDiscount() + myForm.getMaxUnitBusFeeDiscount())"></DxTextBox> @*item 10 MaxUnitPrice (Discount)*@
+                        <DxTextBox CssClass="width--100 text-right notabindex" ReadOnly="true" TextExpression="@(() =>@readOnlyText)" Text="@CurencyFormat(myForm.getMinUnitBusPriceDiscount() + myForm.getMinUnitBusFeeDiscount())"></DxTextBox> @*item 11 MinUnitPrice (Discount)*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-auto flex-grow-1">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-inline form-group justify-content-between">
+                        <label class="col-form-label-sm">@AnnualContractLabel</label>
+                        <div class="justify-content-end">
+                            <div class="custom-control custom-radio custom-control-inline custom-control-radio">
+                                <input tabindex="-1" type="radio" id="AnnualContractOption1" name="AnnualContractOption" value="0" class="custom-control-input" checked="@(myForm.AnnualContractOption == 0)" @onchange="@((e) => OnRadioOptionChanged(e, "AnnualContractOption"))">
+                                <label class="custom-control-label" for="AnnualContractOption1">@AnnualContractNoneLabel</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline custom-control-radio mr-0">
+                                <input tabindex="-1" type="radio" id="AnnualContractOption2" name="AnnualContractOption" value="1" class="custom-control-input" checked="@(myForm.AnnualContractOption == 1)" @onchange="@((e) => OnRadioOptionChanged(e, "AnnualContractOption"))">
+                                <label class="custom-control-label" for="AnnualContractOption2">@AnnualContractYesLabel</label>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-bordered table-sm w-100">
+                        <thead class="thead-primary">
+                            <tr>
+                                <th scope="col">&lt;@DetailsOfPriceLabel&gt;</th>
+                                <th scope="col">@UpperLimitPriceLabel</th>
+                                <th scope="col">@LowerLimitPriceLabel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="row">@KmPriceLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxUnitPriceForkm())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinUnitPriceForkm())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row">@TimePriceLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxUnitPriceForHour())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinUnitPriceForHour())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row" class="text-right">@TotalPriceLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.MaxUnitPriceForKm + myForm.MaxUnitPriceForHour)</td>
+                                <td class="text-right">@CurencyFormat(myForm.MinUnitPriceForKm + myForm.MinUnitPriceForHour)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <div class="form-inline form-group justify-content-between">
+                        <label class="col-form-label-sm">@SpecialVehicleLabel</label>
+                        <div class="justify-content-end">
+                            <div class="custom-control custom-radio custom-control-inline custom-control-radio">
+                                <input tabindex="-1" type="radio" id="SpecialVehicleOption1" name="SpecialVehicleOption" value="0" class="custom-control-input" checked="@(myForm.SpecialVehicleOption == 0)" @onchange="@((e) => OnRadioOptionChanged(e, "SpecialVehicleOption"))">
+                                <label class="custom-control-label" for="SpecialVehicleOption1">@SpecialVehicleNoneLabel</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline custom-control-radio mr-0">
+                                <input tabindex="-1" type="radio" id="SpecialVehicleOption2" name="SpecialVehicleOption" value="1" class="custom-control-input" checked="@(myForm.SpecialVehicleOption == 1)" @onchange="@((e) => OnRadioOptionChanged(e, "SpecialVehicleOption"))">
+                                <label class="custom-control-label" for="SpecialVehicleOption2">@SpecialVehicleYesLabel</label>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-bordered table-sm mb-2 w-100">
+                        <thead class="thead-primary">
+                            <tr>
+                                <th scope="col">&lt;@DetailsOfFee&gt;</th>
+                                <th scope="col">@UpperLimitFeeLabel</th>
+                                <th scope="col">@LowerLimitFeeLabel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="row">@ChangeDriverKmFeeLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxUnitBusFeeForKmWithChgDriver())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinUnitBusFeeForKmWithChgDriver())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row">@ChangeDriverHourFeeLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxUnitBusFeeforHourWithChgDriver())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinUnitBusFeeforHourWithChgDriver())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row">@MidnightMorningFeeLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxUnitBusSumFeeforMid9())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinUnitBusSumFeeforMid9())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row">@SpecialVehicleFeeLabel</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMaxSpecialVehicalFee())</td>
+                                <td class="text-right">@CurencyFormat(myForm.getMinSpecialVehicalFee())</td>
+                            </tr>
+                            <tr>
+                                <td scope="row" class="text-right">@TotalFeeLabel</td>
+                                <td class="text-right">
+                                    @CurencyFormat(myForm.getMaxUnitBusFeeForKmWithChgDriver() + myForm.getMaxUnitBusFeeforHourWithChgDriver() +
+                               myForm.getMaxUnitBusSumFeeforMid9() + myForm.getMaxSpecialVehicalFee())
+                                </td>
+                                <td class="text-right">
+                                    @CurencyFormat(myForm.getMinUnitBusFeeForKmWithChgDriver() + myForm.getMinUnitBusFeeforHourWithChgDriver() +
+                               myForm.getMinUnitBusSumFeeforMid9() + myForm.getMinSpecialVehicalFee())
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <DxButton CssClass="btn btn-primary rounded-pill width--130 submitBtnMinMaxForm withtabindex" SubmitFormOnClick="true"
+                  Enabled=@((isDisabledSubmitBtn || (!formContext.IsModified() || formContext.GetValidationMessages().Distinct().Count() > 0)) ? false : true) Text="@ConfigurationButton">
+        </DxButton>
+    </div>
+</EditForm>
+
+@code {
+
+    [CascadingParameter] BookingFormData bookingFormData { get; set; }
+    [CascadingParameter] string Rowid { get; set; }
+    [Parameter] public EventCallback<string> unitPriceCallBack { get; set; }
+    [Parameter] public MinMaxSettingState ViewState { get; set; }
+    bool PopupVisible { get; set; } = false;
+    List<VpmTransportationFeeRule> TranSportationOfficePlaceList;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    public MinMaxSettingFormData myForm;
+    EditContext formContext;
+    private int numbOfErrors;
+    private bool isBusFeeChange = false;
+    private bool isMaxMinChange = false;
+
+    string readOnlyText { get; set; }
+    string tmpText { get; set; }
+
+    bool isDisabledSubmitBtn { get; set; } = true;
+
+    #region Localization strings
+    string TransportationOfficeLabel;
+    string BusTypeLabel;
+    string GarageLeaveTimeLabel;
+    string BusStartTimeLabel;
+    string BusArrivalTimeLabel;
+    string GarageReturnTimeLabel;
+    string TaxRateLabel;
+    string DateCol;
+    string FareCol;
+    MarkupString ActualKmCol;
+    string ActualTimeCol;
+    string FeeCol;
+    MarkupString ClearCol;
+    string KmCol;
+    string TimeCol;
+    MarkupString MidnightMorningCol;
+    string ChangeDriverCol;
+    string EstimateKmCol;
+    string StartTimeCol;
+    string EndTimeCol;
+    string RestraintTimeCol;
+    string YesNoCol;
+    string ChangeDriverKmCol;
+    string ChangeDriverTimeCol;
+    MarkupString ChangeDriverMidnightMorningCol;
+    string DateOfSchedulerRow;
+    string TotalGridLabel;
+    string CalculatedGridKmTimeLabel;
+    string DiscountLabel;
+    string DiscountNoneLabel;
+    string DiscountThirtyLabel;
+    string DiscountTwentyLabel;
+    string TotalPriceRowLabel;
+    string UpperLimitLabel;
+    string LowerLimitLabel;
+    string TotalFeeRowLabel;
+    string TotalPriceFeeRowLabel;
+    string AnnualContractLabel;
+    string AnnualContractNoneLabel;
+    string AnnualContractYesLabel;
+    string DetailsOfPriceLabel;
+    string UpperLimitPriceLabel;
+    string LowerLimitPriceLabel;
+    string KmPriceLabel;
+    string TimePriceLabel;
+    string TotalPriceLabel;
+    string SpecialVehicleLabel;
+    string SpecialVehicleNoneLabel;
+    string SpecialVehicleYesLabel;
+    string DetailsOfFee;
+    string UpperLimitFeeLabel;
+    string LowerLimitFeeLabel;
+    string ChangeDriverKmFeeLabel;
+    string ChangeDriverHourFeeLabel;
+    string MidnightMorningFeeLabel;
+    string SpecialVehicleFeeLabel;
+    string TotalFeeLabel;
+    string ConfigurationButton;
+
+    private void LocalizationInit()
+    {
+        TransportationOfficeLabel = Lang["TransportationOfficeLabel"];
+        BusTypeLabel = Lang["BusTypeLabel"];
+        GarageLeaveTimeLabel = Lang["GarageLeaveTimeLabel"];
+        BusStartTimeLabel = Lang["BusStartTimeLabel"];
+        BusArrivalTimeLabel = Lang["BusArrivalTimeLabel"];
+        GarageReturnTimeLabel = Lang["GarageReturnTimeLabel"];
+        TaxRateLabel = Lang["TaxRateLabel"];
+        DateCol = Lang["DateCol"];
+        FareCol = Lang["FareCol"];
+        ActualKmCol = (MarkupString)Lang["ActualKmCol"].ToString();
+        ActualTimeCol = Lang["ActualTimeCol"];
+        FeeCol = Lang["FeeCol"];
+        ClearCol = (MarkupString)Lang["ClearCol"].ToString();
+        KmCol = Lang["KmCol"];
+        TimeCol = Lang["TimeCol"];
+        MidnightMorningCol = (MarkupString)Lang["MidnightMorningCol"].ToString();
+        ChangeDriverCol = Lang["ChangeDriverCol"];
+        EstimateKmCol = Lang["EstimateKmCol"];
+        StartTimeCol = Lang["StartTimeCol"];
+        EndTimeCol = Lang["EndTimeCol"];
+        RestraintTimeCol = Lang["RestraintTimeCol"];
+        YesNoCol = Lang["YesNoCol"];
+        ChangeDriverKmCol = Lang["ChangeDriverKmCol"];
+        ChangeDriverTimeCol = Lang["ChangeDriverTimeCol"];
+        ChangeDriverMidnightMorningCol = (MarkupString)Lang["ChangeDriverMidnightMorningCol"].ToString();
+        DateOfSchedulerRow = Lang["DateOfSchedulerRow"];
+        TotalGridLabel = Lang["TotalGridLabel"];
+        CalculatedGridKmTimeLabel = Lang["CalculatedGridKmTimeLabel"];
+        DiscountLabel = Lang["DiscountLabel"];
+        DiscountNoneLabel = Lang["DiscountNoneLabel"];
+        DiscountThirtyLabel = Lang["DiscountThirtyLabel"];
+        DiscountTwentyLabel = Lang["DiscountTwentyLabel"];
+        TotalPriceRowLabel = Lang["TotalPriceRowLabel"];
+        UpperLimitLabel = Lang["UpperLimitLabel"];
+        LowerLimitLabel = Lang["LowerLimitLabel"];
+        TotalFeeRowLabel = Lang["TotalFeeRowLabel"];
+        TotalPriceFeeRowLabel = Lang["TotalPriceFeeRowLabel"];
+        AnnualContractLabel = Lang["AnnualContractLabel"];
+        AnnualContractNoneLabel = Lang["AnnualContractNoneLabel"];
+        AnnualContractYesLabel = Lang["AnnualContractYesLabel"];
+        DetailsOfPriceLabel = Lang["DetailsOfPriceLabel"];
+        UpperLimitPriceLabel = Lang["UpperLimitPriceLabel"];
+        LowerLimitPriceLabel = Lang["LowerLimitPriceLabel"];
+        KmPriceLabel = Lang["KmPriceLabel"];
+        TimePriceLabel = Lang["TimePriceLabel"];
+        TotalPriceLabel = Lang["TotalPriceLabel"];
+        SpecialVehicleLabel = Lang["SpecialVehicleLabel"];
+        SpecialVehicleNoneLabel = Lang["SpecialVehicleNoneLabel"];
+        SpecialVehicleYesLabel = Lang["SpecialVehicleYesLabel"];
+        DetailsOfFee = Lang["DetailsOfFee"];
+        UpperLimitFeeLabel = Lang["UpperLimitFeeLabel"];
+        LowerLimitFeeLabel = Lang["LowerLimitFeeLabel"];
+        ChangeDriverKmFeeLabel = Lang["ChangeDriverKmFeeLabel"];
+        ChangeDriverHourFeeLabel = Lang["ChangeDriverHourFeeLabel"];
+        MidnightMorningFeeLabel = Lang["MidnightMorningFeeLabel"];
+        SpecialVehicleFeeLabel = Lang["SpecialVehicleFeeLabel"];
+        TotalFeeLabel = Lang["TotalFeeLabel"];
+        ConfigurationButton = Lang["ConfigurationButton"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+
+    }
+
+    #endregion
+
+    private void Clear(int rowid)
+    {
+        MinMaxGridData minMaxGrid = myForm.minMaxGridData.Where(a => a.rowID == rowid).First();
+        minMaxGrid.KmRunning = 0;
+
+        minMaxGrid.BusInspectionStartDate.inpTime = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.BusInspectionEndDate.inpTime = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.TimeRunning = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.ExactKmRunning = 0;
+        minMaxGrid.ExactTimeRunning = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.SpecialTimeRunning = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.isChangeDriver = false;
+        minMaxGrid.BusInspectionStartDate.isPreviousDay = false;
+
+        minMaxGrid.KmRunningwithChgDriver = 0;
+        minMaxGrid.TimeRunningwithChgDriver = new BookingInputHelper.MyTime(0, 0);
+        minMaxGrid.SpecialTimeRunningwithChgDriver = new BookingInputHelper.MyTime(0, 0);
+        isDisabledSubmitBtn = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        // Get MinMaxForm; row1 row2, row3
+        VehicleGridData vehicleGridData = bookingFormData.VehicleGridDataList.FirstOrDefault(t => t.RowID == Rowid);
+        myForm = vehicleGridData.minMaxForm;
+        myForm.UnitPrice = vehicleGridData.UnitBusPrice;
+        myForm.UnitFee = vehicleGridData.UnitBusFee;
+        float rateApplied = 0;
+        if (bookingFormData.TaxTypeforBus.IdValue == Constants.InTax.IdValue)
+        {
+            rateApplied = float.Parse(bookingFormData.TaxRate);
+        }
+        isMaxMinChange = !vehicleGridData.CheckMinMaxChange(bookingFormData);
+        formContext = new EditContext(myForm);
+        myForm.TaxType = bookingFormData.TaxTypeforBus;
+        myForm.TaxRate = float.Parse(bookingFormData.TaxRate);
+
+        BookingInputHelper.MyDate busStartDay =
+            new BookingInputHelper.MyDate(bookingFormData.BusStartDate, new BookingInputHelper.MyTime(bookingFormData.BusStartTime));
+        BookingInputHelper.MyDate busEndDay =
+            new BookingInputHelper.MyDate(bookingFormData.BusEndDate, new BookingInputHelper.MyTime(bookingFormData.BusEndTime));
+
+        myForm.BusStartTime = busStartDay;
+        myForm.GarageLeaveTime =
+            new BookingInputHelper.MyDate(bookingFormData.ReservationTabData.GarageLeaveDate, new BookingInputHelper.MyTime(bookingFormData.ReservationTabData.SyuKoTime));
+        myForm.BusArrivalTime = busEndDay;
+        myForm.GarageReturnTime =
+            new BookingInputHelper.MyDate(bookingFormData.ReservationTabData.GarageReturnDate, new BookingInputHelper.MyTime(bookingFormData.ReservationTabData.KikTime));
+
+        // Reset MinMaxGridRow
+        List<MinMaxGridData> newMinMaxGrid = new List<MinMaxGridData> { };
+        MinMaxGridData newMinMaxRow = null;
+        bool isEdited = false;
+
+        BookingInputHelper.Scheduler scheduler = new BookingInputHelper.Scheduler(myForm.GarageLeaveTime, myForm.GarageReturnTime);
+        for (int i = 1; i <= scheduler.getRowforGrid(); i++)
+        {
+            int rowID = i - 1;
+            int j = 0;
+            bool isExistOldData = false;
+            for (j = 0; j < myForm.minMaxGridData.Count; j++)
+            {
+                if (myForm.GarageLeaveTime.inpDate.AddDays(rowID).Year == myForm.minMaxGridData[j].DateofScheduler.Year &&
+                   myForm.GarageLeaveTime.inpDate.AddDays(rowID).Month == myForm.minMaxGridData[j].DateofScheduler.Month &&
+                   myForm.GarageLeaveTime.inpDate.AddDays(rowID).Day == myForm.minMaxGridData[j].DateofScheduler.Day)
+                {
+                    newMinMaxRow = new MinMaxGridData(myForm.minMaxGridData[j]);
+                    newMinMaxRow.rowID = rowID; // update RowID
+                    isExistOldData = true;
+                    isEdited = true;
+                    break;
+                }
+            }
+
+            if (isExistOldData == false)
+            {
+                newMinMaxRow = new MinMaxGridData(rowID, myForm.GarageLeaveTime.inpDate.AddDays(rowID));
+            }
+
+
+            newMinMaxGrid.Add(newMinMaxRow);
+        }
+        myForm.minMaxGridData = newMinMaxGrid;
+
+        if (isEdited == false)
+        {
+            myForm.minMaxGridData[0].BusInspectionStartDate = new BookingInputHelper.MyDate(myForm.GarageLeaveTime, -Common.BusLeaveOrReturnGaraDuration); // tenkenstart = before 1h from garaleave
+            myForm.minMaxGridData[myForm.minMaxGridData.Count - 1].BusInspectionEndDate = new BookingInputHelper.MyDate(myForm.GarageReturnTime, Common.BusLeaveOrReturnGaraDuration); // tenkenend = after 1h from garareturn
+        }
+        if (scheduler.getRowforGrid() == 1 && myForm.typeBus == -1)
+        {
+            myForm.minMaxGridData[0].update();
+            myForm.minMaxGridData[0].ExactTimeRunning = myForm.getExactTimeRunning();
+        }
+        myForm.typeBus = int.Parse(vehicleGridData.busTypeData.Katakbn);
+        TranSportationOfficePlaceList = await TranSportationFreeRuleService.Get();
+        if (TranSportationOfficePlaceList.Count()>0)
+        {
+            if (myForm.SelectedTranSportationOfficePlace == null)
+            {
+                myForm.SelectedTranSportationOfficePlace = TranSportationOfficePlaceList
+                    .Where(t => t.TransportationPlaceCodeSeq == bookingFormData.SelectedSaleBranch.TransportationPlaceCodeSeq).First();
+            }
+            else
+            {
+                myForm.SelectedTranSportationOfficePlace = TranSportationOfficePlaceList
+                    .Where(t => t.TransportationPlaceCodeSeq == vehicleGridData.minMaxForm.SelectedTranSportationOfficePlace.TransportationPlaceCodeSeq).FirstOrDefault();
+            }
+        }
+        else
+        {
+            myForm.SelectedTranSportationOfficePlace = null;
+        }
+        formContext = new EditContext(myForm);
+        if (myForm.UnitPrice != "0")
+        {
+            myForm.CalculateFareIndex();
+        }
+        if (myForm.UnitFee != "0")
+        {
+            myForm.CalculateFeeIndex();
+        }
+
+        formContext.OnValidationStateChanged += OnValidated;
+    }
+
+    private void OnValidated(object o, ValidationStateChangedEventArgs e)
+    {
+        try
+        {
+            if (formContext.IsModified())
+            {
+                bool isPriceError = formContext.GetValidationMessages(() => myForm.UnitPrice).Count() > 0;
+                bool isFeeError = formContext.GetValidationMessages(() => myForm.UnitFee).Count() > 0;
+                JSRuntime.InvokeAsync<string>("loadPageScript", "bookingInputPage", "onValidateMinMax", isPriceError, isFeeError);
+            }
+            myForm.CalculateFareIndex();
+            myForm.CalculateFeeIndex();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void HandleUnitPriceKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && formContext.IsModified())
+        {
+            formContext.NotifyValidationStateChanged();
+        }
+    }
+
+    private void HandleUnitFeeKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && formContext.IsModified())
+        {
+            formContext.NotifyValidationStateChanged();
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        isDisabledSubmitBtn = false;
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 5);
+        JSRuntime.InvokeAsync<string>("addMaxLength", "length", 7);
+        JSRuntime.InvokeVoidAsync("setEventforTimeInput");
+        JSRuntime.InvokeAsync<string>("addtabindex", "notabindex");
+        JSRuntime.InvokeAsync<string>("enabletabindex", "withtabindex");
+        if (firstRender)
+        {
+            JSRuntime.InvokeAsync<string>("focusEditor", "forcus");
+            if (isMaxMinChange)
+            {
+                formContext.Validate();
+                StateHasChanged();
+            }
+        }
+        if (!(isDisabledSubmitBtn || (numbOfErrors > 0)) && isBusFeeChange)
+        {
+            JSRuntime.InvokeAsync<string>("focusSubmitButton", "submitBtnMinMaxForm");
+        }
+        JSRuntime.InvokeAsync<string>("loadPageScript", "bookingInputPage", "minMaxSettingTabKey");
+        isBusFeeChange = false;
+        numbOfErrors = 0;
+    }
+
+    private void OnRadioOptionChanged(Microsoft.AspNetCore.Components.ChangeEventArgs args, string type)
+    {
+        int option = int.Parse(args.Value.ToString());
+        switch (type)
+        {
+            case "DiscountOption":
+                myForm.DiscountOption = option;
+                break;
+            case "SpecialVehicleOption":
+                myForm.SpecialVehicleOption = option;
+                break;
+            case "AnnualContractOption":
+                myForm.AnnualContractOption = option;
+                break;
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    public void OnCheckboxOfGridChanged(bool value, MinMaxGridData gridRow, string objName)
+    {
+        switch (objName)
+        {
+            case "ChangeDriver":
+                if (value)
+                {
+                    gridRow.KmRunningwithChgDriver = gridRow.KmRunning;
+                    gridRow.TimeRunningwithChgDriver.SetNewValue(gridRow.TimeRunning);
+                    gridRow.SpecialTimeRunningwithChgDriver.SetNewValue(gridRow.SpecialTimeRunning);
+                }
+                else
+                {
+                    gridRow.KmRunningwithChgDriver = 0;
+                    gridRow.TimeRunningwithChgDriver.SetNewValue(new BookingInputHelper.MyTime(0, 0));
+                    gridRow.SpecialTimeRunningwithChgDriver.SetNewValue(new BookingInputHelper.MyTime(0, 0));
+                    formContext.MarkAsUnmodified(() => gridRow.KmRunningwithChgDriverStr,
+                                                () => gridRow.TimeRunningwithChgDriver.Str,
+                                                () => gridRow.SpecialTimeRunningwithChgDriver.Str);
+                }
+                gridRow.isChangeDriver = value;
+                break;
+            case "PreviouDay":
+                gridRow.BusInspectionStartDate.isPreviousDay = value;
+                gridRow.Update(value);
+                break;
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    public void OnCheckedChangedInspectionStartDate(bool value, BookingInputHelper.MyDate BusInspectionStartDate)
+    {
+        BusInspectionStartDate.isPreviousDay = value;
+        StateHasChanged();
+    }
+
+    // In this function if gridObj is Null => can not recalculation in grid
+    public void OnTimeOfGridChanged(object newvalue, MinMaxGridData gridObj, BookingInputHelper.MyTime timeObj)
+    {
+        if (gridObj != null)
+        {
+            gridObj.update();
+        }
+        StateHasChanged();
+    }
+
+    public void OnKmOfGridChanged(string newvalue, MinMaxGridData gridObj, string columName)
+    {
+        int tmp;
+        if (int.TryParse(newvalue.ToString(), out tmp) ||
+            int.TryParse(newvalue.ToString().Normalize(System.Text.NormalizationForm.FormKC), out tmp))
+        { // Convert from Full-width to Haft-width
+            switch (columName)
+            {
+                case "KmRunning":
+                    gridObj.KmRunning = tmp;
+                    gridObj.update();
+                    break;
+                case "ExactKmRunning":
+                    gridObj.ExactKmRunning = tmp;
+                    break;
+                case "KmRunningwithChgDriver":
+                    gridObj.KmRunningwithChgDriver = tmp;
+                    break;
+            }
+        }
+        StateHasChanged();
+    }
+
+    void formatCustomTime(string str, string obj)
+    {
+        obj = CommonUtil.MyTimeFormat(str);
+        InvokeAsync(StateHasChanged);
+    }
+
+    string CurencyFormat(int previousValue)
+    {
+        return string.Format("{0:#,0}", previousValue);
+    }
+
+    void OnUnitBusPriceChanged(String value, string RowID)
+    {
+        value = value.Replace(",", "");
+        int tmp;
+        if (int.TryParse(value.ToString(), out tmp) ||
+            int.TryParse(value.ToString().Normalize(System.Text.NormalizationForm.FormKC), out tmp))
+        { // Convert from Full-width to Haft-width
+            myForm.UnitPrice = tmp.ToString();
+            int min = myForm.getMinUnitBusPriceDiscount();
+            int max = myForm.getMaxUnitBusPriceDiscount();
+            myForm.FareIndex = Math.Round(((double)((tmp - min) / ((max - min) / 100.0))), 1).ToString();
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    void OnUnitBusFeeChanged(string value, string RowID)
+    {
+        value = value.Replace(",", "");
+        int tmp;
+        if (int.TryParse(value.ToString(), out tmp) ||
+            int.TryParse(value.ToString().Normalize(System.Text.NormalizationForm.FormKC), out tmp))
+        { // Convert from Full-width to Haft-width
+            myForm.UnitFee = tmp.ToString();
+            int min = myForm.getMinUnitBusFeeDiscount();
+            int max = myForm.getMaxUnitBusFeeDiscount();
+            if (max - min == 0)
+            {
+                myForm.FeeIndex = "0";
+            }
+            else
+            {
+                myForm.FeeIndex = Math.Round(((double)((tmp - min) / ((max - min) / 100.0))), 1).ToString();
+            }
+        }
+        isBusFeeChange = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if (/*formContext.IsModified() && */formContext.Validate())
+        {
+            VehicleGridData vehicleGridData = bookingFormData.VehicleGridDataList.FirstOrDefault(t => t.RowID == Rowid);
+            vehicleGridData.UnitBusPrice = myForm.UnitPrice.ToString();
+            vehicleGridData.UnitBusFee = myForm.UnitFee.ToString();
+            vehicleGridData.UnitPriceIndex = GetUnitPriceIndex().ToString();
+            await unitPriceCallBack.InvokeAsync(Rowid);
+        }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+    }
+
+    void OnSelectedTranSportationOfficePlaceChanged(VpmTransportationFeeRule e)
+    {
+        myForm.SelectedTranSportationOfficePlace = e;
+        StateHasChanged();
+    }
+
+    private void HandleFeeIndexKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && formContext.IsModified())
+        {
+            formContext.NotifyValidationStateChanged();
+        }
+    }
+
+    private void HandleFareIndexKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && formContext.IsModified())
+        {
+            formContext.NotifyValidationStateChanged();
+        }
+    }
+
+    void OnFareIndexChanged(string value, string RowID)
+    {
+        myForm.FareIndex = value;
+        int min = myForm.getMinUnitBusPriceDiscount();
+        int max = myForm.getMaxUnitBusPriceDiscount();
+        myForm.UnitPrice = Math.Round(((max - min) / 100.0 * double.Parse(myForm.FareIndex) + min)).ToString();
+        InvokeAsync(StateHasChanged);
+    }
+
+    void OnFeeIndexChanged(string value, string RowID)
+    {
+        myForm.FeeIndex = value;
+        int min = myForm.getMinUnitBusFeeDiscount();
+        int max = myForm.getMaxUnitBusFeeDiscount();
+        myForm.UnitFee = Math.Round(((max - min) / 100.0 * double.Parse(myForm.FeeIndex) + min)).ToString();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private double GetUnitPriceIndex()
+    {
+        double UnitPriceIndex;
+        int price = int.Parse(myForm.UnitPrice) + int.Parse(myForm.UnitFee);
+        int max = myForm.getMaxUnitBusPriceDiscount() + myForm.getMaxUnitBusFeeDiscount();
+        int min = myForm.getMinUnitBusPriceDiscount() + myForm.getMinUnitBusFeeDiscount();
+        if (price == 0)
+        {
+            UnitPriceIndex = 0;
+        }
+        else
+        {
+            UnitPriceIndex = Math.Round((double)((price - min) / ((max - min) / 100.0)), 1);
+            UnitPriceIndex = UnitPriceIndex < 0 ? 0 : UnitPriceIndex;
+        }
+        return UnitPriceIndex;
+    }
+}

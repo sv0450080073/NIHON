@@ -1,0 +1,169 @@
+﻿@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject ITPM_EigyosDataListService TPM_EigyosDataService
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CodeKbListService TPM_CodeKbnService
+@inject ITenkokirokuReportService TenkokirokuReportService
+@inject CustomNavigation NavManager
+
+@if (!string.IsNullOrEmpty(reportUrl) && !string.IsNullOrWhiteSpace(reportUrl))
+{
+    <DxDocumentViewer ReportUrl="@reportUrl" Height="800px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+@code {
+    [Parameter] public string IsLoadDefault { get; set; }
+    [Parameter] public string Option { get; set; }
+    [Parameter] public string Date { get; set; }
+    [Parameter] public string SearchString { get; set; }
+    public string reportUrl { get; set; }
+    List<CompanyChartData> companychartlst = new List<CompanyChartData>();
+    List<BranchChartData> branchchartlst = new List<BranchChartData>();
+    List<DepartureOfficeData> vehicledispatchofficelst = new List<DepartureOfficeData>();
+    List<ReservationData> reservationlst = new List<ReservationData>();
+    IEnumerable<ReservationData> SelectedReservations = new List<ReservationData>();
+    List<string> undeliveredlst = new List<string>();
+    List<OutputOrderData> outputorderlst = new List<OutputOrderData>();
+    List<string> sizeofpaperlst = new List<string>();
+    IEnumerable<TPM_CodeKbDataReport> keyObjectiveslst = new List<TPM_CodeKbDataReport>();
+    IEnumerable<TPM_CodeKbDataReport> instructionslst = new List<TPM_CodeKbDataReport>();
+    VpmSyain SyainNmItem = new VpmSyain();
+    AttendanceConfirmReportData reportCondition = new AttendanceConfirmReportData();
+    AttendanceConfirmReportDataUri AttendanceConfirmReportDataUri = new AttendanceConfirmReportDataUri();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadCompanyData();
+            reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+            if (reservationlst == null)
+            {
+                reservationlst = new List<ReservationData>();
+            }
+            else
+            {
+                reservationlst.Insert(0, new ReservationData());
+            }
+            if (IsLoadDefault == "1")
+            {
+                await LoadCompanyData();
+                vehicledispatchofficelst = await TPM_EigyosDataService.GetAllBranchData(new ClaimModel().TenantID);
+                if (vehicledispatchofficelst == null)
+                {
+                    vehicledispatchofficelst = new List<DepartureOfficeData>();
+                }
+                else
+                {
+                    vehicledispatchofficelst.Insert(0, new DepartureOfficeData());
+                }
+                /*Load Undelivered Data*/
+                undeliveredlst = new List<string>(){
+            "出力",
+            "未出力",
+        };
+                /*Load Output Data*/
+                outputorderlst = new List<OutputOrderData>();
+                outputorderlst = OutputOrderListData.OutputOrderlst;
+                /*Load SizeOfPaper Data*/
+                sizeofpaperlst = new List<string>(){
+            "A3",
+            "A4",
+            "B4",
+        };
+
+                /*Load Key Objectives Data*/
+                keyObjectiveslst = new List<TPM_CodeKbDataReport>();
+                keyObjectiveslst = await TPM_CodeKbnService.GetdataTENKOBOMOKUHYO(new ClaimModel().TenantID);
+                /*Load Instructions Data*/
+                instructionslst = new List<TPM_CodeKbDataReport>();
+                instructionslst = await TPM_CodeKbnService.GetdataTENKOBOSHIJI(new ClaimModel().TenantID);
+                SyainNmItem = await TPM_CompnyDataService.GetSyainNm(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+                reportCondition.CompanyChartData = companychartlst.ToList();
+                reportCondition.VehicleDispatchOffice1 = vehicledispatchofficelst.First();
+                reportCondition.VehicleDispatchOffice2 = vehicledispatchofficelst.First();
+                reportCondition.ReservationList = reservationlst.ToList();
+                reportCondition.Undelivered = undeliveredlst.First();
+                reportCondition.OutputOrder = outputorderlst.First();
+                reportCondition.SizeOfPaper = sizeofpaperlst.First();
+                reportCondition.TenantCdSeq = new ClaimModel().TenantID;
+                reportCondition.SyainNm = SyainNmItem.SyainNm == null ? "" : SyainNmItem.SyainNm;
+                reportCondition.OperationDate = DateTime.Today;
+                //Check param
+                if (!string.IsNullOrEmpty(Date))
+                {
+                    DateTime dateTimeConvert;
+                    try
+                    {
+                        dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                        reportCondition.OperationDate = dateTimeConvert;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+                SearchString = EncryptHelper.EncryptToUrl(reportCondition);
+                reportUrl = $"{nameof(ITenkokirokuReportService)}?{SearchString}";
+            }
+            else
+            {
+                AttendanceConfirmReportDataUri = EncryptHelper.DecryptFromUrl<AttendanceConfirmReportDataUri>(SearchString);
+                SearchString = EncryptHelper.EncryptToUrl(SetValueUri(AttendanceConfirmReportDataUri));
+                reportUrl = $"{nameof(ITenkokirokuReportService)}?{SearchString}";
+            }
+            NavManager.NavigateTo("/attendanceconfirmreportPreview", false);
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+    }
+    private async Task LoadCompanyData()
+    {
+        companychartlst = await TPM_CompnyDataService.GetCompanyListBox(new ClaimModel().TenantID);
+        if (companychartlst == null)
+        {
+            companychartlst = new List<CompanyChartData>();
+        }
+        else
+        {
+            companychartlst.Insert(0, new CompanyChartData());
+        }
+    }
+    private AttendanceConfirmReportData SetValueUri(AttendanceConfirmReportDataUri data)
+    {
+        var result = new AttendanceConfirmReportData();
+        result.OperationDate = data.OperationDate;
+        result.CompanyChartData = CutSpecialCharactersCompanyList(data.CompanyChartDataID);
+        result.ReservationList = CutSpecialCharactersReservationList(data.ReservationListID);
+        result.VehicleDispatchOffice1 = data.VehicleDispatchOffice1;
+        result.VehicleDispatchOffice2 = data.VehicleDispatchOffice2;
+        result.Undelivered = data.Undelivered;
+        result.OutputOrder = data.OutputOrder;
+        result.SizeOfPaper = data.SizeOfPaper;
+        result.TxtInstructions = data.TxtInstructions;
+        result.TxtKeyObjectives = data.TxtKeyObjectives;
+        result.KeyObjectivesList = data.KeyObjectivesList;
+        result.InstructionsList = data.InstructionsList;
+        result.TenantCdSeq = data.TenantCdSeq;
+        result.SyainNm = data.SyainNm;
+        result.DateTimeFooter = data.DateTimeFooter;
+        result.BookingTypeFrom = data.BookingTypeFrom;
+        result.BookingTypeTo = data.BookingTypeTo;
+        return result;
+    }
+    private List<CompanyChartData> CutSpecialCharactersCompanyList(string strValue)
+    {
+        string[] strValueArr = strValue.Split('-');
+        var result = companychartlst.Where(x => strValueArr.Contains(x.CompanyCdSeq.ToString())).ToList();
+        return result;
+    }
+    private List<ReservationData> CutSpecialCharactersReservationList(string strValue)
+    {
+        string[] strValueArr = strValue.Split('-');
+        var result = reservationlst.Where(x => strValueArr.Contains(x.YoyaKbnSeq.ToString())).ToList();
+        return result;
+    }
+}

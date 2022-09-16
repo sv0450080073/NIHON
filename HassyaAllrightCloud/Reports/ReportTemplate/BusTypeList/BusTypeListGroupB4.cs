@@ -1,0 +1,13 @@
+using System;
+using DevExpress.XtraReports.UI;
+
+namespace HassyaAllrightCloud.Reports.ReportTemplate.BusTypeList
+{
+    public partial class BusTypeListGroupB4
+    {
+        public BusTypeListGroupB4()
+        {
+            InitializeComponent();
+        }
+    }
+}

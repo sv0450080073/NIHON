@@ -1,0 +1,2881 @@
+﻿
+@using DevExtreme.AspNet.Data
+@using DevExtreme.AspNet.Data.ResponseModel
+@using System.Threading
+@using System.Threading.Tasks
+@using System.Net.Http
+@using System.Text.Json
+@using DevExpress.Blazor
+@using System
+@using System.IO
+@using System.Text
+@using HassyaAllrightCloud.Infrastructure.Services
+@using System.Globalization
+@using System.Linq;
+@using System.Collections.ObjectModel
+@using System.ComponentModel
+@using Newtonsoft.Json
+@using static HassyaAllrightCloud.Commons.Extensions.EditContextExtensionHelper
+@using Microsoft.Extensions.DependencyInjection
+@using HassyaAllrightCloud.Domain.Dto.BillPrint
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+@inject IBusBookingDataListService _busBookingDataService
+@inject ITKD_KobanDataService _KobanDataService
+@inject IStaffsChartService _StaffsChartService
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inherits OwningComponentBase
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Index> Lang
+@inject CustomNavigation NavManager
+@inject IBusLineCssColorServices BusLineCssColorService
+@inject ITKD_UnkobiDataListService TKD_UnkobiDataListService
+@inject ICarCooperationListService CarCooperationService
+@inject IErrorHandlerService ErrorService
+@inject ICustomItemService CustomItemService
+@inject IHaitaCheckService HaitaCheckService
+@inject IBillPrintService billPrintService
+@inject SharedLibraries.UI.Services.ISharedLibrariesApi s3Service
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@isPriorityAAPopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100 justify-content-left">
+            @PriorityBranchAutoAssign
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="@(() => { isPriorityAAPopup = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex form-group">
+            <DxComboBox CssClass="flex-grow-1 mr-2"
+                        NullText="受付営業所コード:省略名"
+                        Data="SaleBranchsAutoAssign"
+                        FilteringMode="@DataGridFilteringMode.Contains"
+                        AllowUserInput="false"
+                        TextFieldName="Text"
+                        SelectedItem="@tempVehicleGridData.PriorityAutoAssignBranch"
+                        SelectedItemChanged="OnBranchPriorityAAChanged">
+            </DxComboBox>
+            <DxButton CssClass="width--90" IconCssClass="fa fa-check" RenderStyle="@ButtonRenderStyle.Primary" Click="@((e)=> OnChangeBranchPriorityAAClicked())"></DxButton>
+        </div>
+    </Content>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@isAutoAssignPopup" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            予約書修正処理確認
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="@(() => { isAutoAssignPopup = false; disableAll = false;})"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <p>※運行日付・車輛情報が変更されました。</p>
+        <div class="form-group">
+            <button class="btn btn-sm btn-primary width--100 mr-2" @onclick="@(() => { isAutoAssignPopup = false; disableAll = false;})">@CancelAndReturnButton</button>
+            @CancelAndReturnText
+        </div>
+        <div class="form-group">
+            <button class="btn btn-sm btn-primary width--100 mr-2" @onclick="@(() => UpdateBookingInput(false))">@UpdateReservationButton</button>
+            @UpdateReservationText
+        </div>
+        <div class="form-group">
+            <button class="btn btn-sm btn-primary width--100 mr-2" @onclick="@(() => UpdateBookingInput(true))">@AutoCancelButton</button>
+            @AutoCancelText
+        </div>
+    </Content>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@isEmptyItem" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => isEmptyItem = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @foreach (var message in emptyItemMessage)
+        {
+            <p>@message</p>
+        }
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => isEmptyItem = false)" Text="OK" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupSaveDataSucess" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @RegisteredResult
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { PopupSaveDataSucess = false; disableAll = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        <a class="btn-link" href="@(baseUrl + "/bookinginput?UkeCd=" + newUkeCd)" @onclick="@(() => HandleNavigateToEditPage())">@RegisteredResultContent</a>
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@(() => { PopupSaveDataSucess = false; disableAll = false; })" @onblur="FocusOnOrganizationNameAgainAndDisabledSubmitButton" Text="@OK" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupSaveDataError" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { PopupSaveDataError = false; disableAll = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @RegisteredResult
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@(() => { PopupSaveDataError = false; disableAll = false; })" @onblur="FocusOnOrganizationNameAgainAndDisabledSubmitButton" Text="@OK" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupHaiTaCheckFail" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { PopupHaiTaCheckFail = false; disableAll = false;  })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @Lang["BI_T023"]
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@(() => { PopupHaiTaCheckFail = false; disableAll = false; })" Text="@OK" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupUpdateDataSucess" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @RegisteredResult
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@HandleClosePopupUpdate"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @RegisteredResultContent
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@HandleClosePopupUpdate" @onblur="FocusOnOrganizationNameAgainAndDisabledSubmitButton" Text="@OK" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="modal-xl custom-popup" @bind-Visible="@PopupBooking" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            上限下限設定
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => OnMinMaxPopupVisibleChanged(false, @Rowid))"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="@(minMaxState == MinMaxSettingState.ViewOnly ? "disabled-content" : "")">
+            <CascadingValue Value="@bookingdata">
+                <CascadingValue Value="@Rowid">
+                    <HassyaAllrightCloud.Pages.MinMaxSetting unitPriceCallBack="UnitPriceCallBack"
+                                                             ViewState="minMaxState" />
+                </CascadingValue>
+            </CascadingValue>
+        </div>
+    </ChildContent>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupVisible" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Confirmation
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => PopupVisible = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i>
+        @DeleteConfirmMessage
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Danger" CssClass="width--90" @onclick="ClearAll" @onblur="FocusOnOrganizationNameAgainAndDisabledSubmitButton" Text="@Yes" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" CssClass="width--90" @onclick="@(() => PopupVisible = false)" Text="@No" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupDeletedata" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Confirmation
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => { PopupDeletedata = false; disableAll = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i>
+        @UpperLowerSettingsDeleteConfirmMessage
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Danger" CssClass="width--90" @onclick="DeleteHOGridnotnull" Text="@Yes" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" CssClass="width--90" @onclick="@(() => { PopupDeletedata = false; disableAll = false; })" Text="@No" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@isPopupEditWhenConfirmed" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            予約書修正
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => await ConfirmUpdate(false))"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @PopupContentUpdateWhenConfimed<br />
+        @AskForUpdate
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Danger" CssClass="width--90" @onclick="@(async () => await ConfirmUpdate(true))"
+                  @onblur="FocusOnOrganizationNameAgainAndDisabledSubmitButton" Text="@Yes" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" CssClass="width--90" @onclick="@(async () => await ConfirmUpdate(false))" Text="@No" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@isOpenSelectRemoveBus">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100 justify-content-left">
+            @Lang["SelectCarForRemove"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="@(() => { PopupDeletedata = false; disableAll = false; })"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <CascadingValue Value="@bookingdata">
+            <HassyaAllrightCloud.Pages.Components.EditBookingComponent.RemoveBusPopUp HandleRemoveBus="HandleRemoveBusPopup">
+            </HassyaAllrightCloud.Pages.Components.EditBookingComponent.RemoveBusPopUp>
+        </CascadingValue>
+    </ChildContent>
+</DxPopup>
+
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex align-items-center">
+        <h5 class="mb-0">@PageTitle</h5>
+        @if (UkeCd != "0" && UkeCd != null && !isCreate)
+        {
+            if (bookingdata != null && bookingdata.ConfirmationTabDataList != null)
+            {
+                if (string.IsNullOrEmpty(bookingdata.KaktYmd?.Trim()) == false)
+                {
+                    <label class="btn-sm ml-3 color-4 text-white">
+                        @StatusConfirmed
+                    </label>
+                }
+                else
+                {
+                    if (bookingdata.ConfirmationTabDataList?.Count == 0)
+                    {
+                        <label class="btn-sm ml-3 color-2 text-white">@StatusBooking</label>
+                    }
+                    else
+                    {
+                        <label class="btn-sm ml-3 text-white color-greenlight">
+                            @StatusChecking
+                        </label>
+                    }
+                }
+            }
+        }
+    </div>
+    <button class="btn btn-sm btn-danger btnclear" disabled="@ClearAllBtnDisabledState" @onclick="@(() => PopupVisible = true)">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @EraseAll
+    </button>
+</div>
+
+<EditForm id="bookingForm" EditContext="@formContext" @onkeydown="HandleKeyAddNewRow" class="@(disableAll ? "form-disabled" : "form-enabled")">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BookingFormValidator" />
+    @if (isLoading)
+    {
+        <div class="loader">
+            <div class="loader-icon"></div>
+        </div>
+    }
+    else
+    {
+        <ul class="validation-errors">
+            @*Booking*@
+            @if (bookingdata.IsPaidOrCoupon)
+            {
+                <li class="validation-message">@Lang["E_T002"]</li>
+            }
+            @if (bookingdata.IsLock)
+            {
+                <li class="validation-message">@Lang["E_T003"]</li>
+            }
+        </ul>
+        <div class="row">
+            <div class="col-6 pr-0 @(disableAll || bookingdata.IsDisableEdit ? "disabled-content" : "")">
+                <div class="d-flex flex-nowrap">
+                    <div class="form-group d-flex flex-nowrap mr-5 @(bookingdata.IsDailyReportRegisted ? "disabled-content" : "")">
+                        <label class="col-form-label-sm mr-3 width--100">@BookingStatus</label>
+                        <DxComboBox DataAsync="LoadBookingStatusListAsync" CssClass="w-100 MyComboBox"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    SelectedItem="@bookingdata.BookingStatus"
+                                    SelectedItemChanged="OnSelectedBookingStatusChanged"
+                                    SelectedItemExpression="() => bookingdata.BookingStatus"
+                                    AllowUserInput="false"
+                                    TextFieldName="RyakuNm"
+                                    ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted || !string.IsNullOrWhiteSpace(bookingdata.KaktYmd) || bookingdata.HaiSKbn == 2)">
+                        </DxComboBox><!-- To do -->
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--100">@BookingTypeLabel</label>
+                        @*<div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @bookingdata.CurrentBookingType)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox DataAsync="LoadBookingTypeListAsync" CssClass="w-100 MyComboBox"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        NullText="区分ID：区分名"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItem="@bookingdata.CurrentBookingType"
+                                        SelectedItemChanged="@(e => OnSelectedBookingTypeChanged(e))"
+                                        SelectedItemExpression="@(() => @bookingdata.CurrentBookingType)"
+                                        ReadOnly="@disableAll">
+                            </DxComboBox>
+                        </div>*@
+                        <HassyaAllrightCloud.Pages.Components.CommonComponents.ReservationClassComponent SelectedReservationClass="@bookingdata.CurrentBookingType"
+                                                                                                         SelectedReservationClassChanged="@(e => OnSelectedBookingTypeChanged(e))"
+                                                                                                         ReservationClassExpression="@(() => bookingdata.CurrentBookingType)"
+                                                                                                         ReadOnly="@disableAll"
+                                                                                                         DefaultValue="Convert.ToInt32(bookingdata.CurrentBookingType?.YoyaKbnSeq)"
+                                                                                                         />
+                    </div>
+                </div>
+                <div class="d-flex flex-nowrap">
+                    <div class="form-group d-flex mr-5">
+                        <label class="col-form-label-sm mr-3 width--100">@SaleBranchLabel</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @bookingdata.SelectedSaleBranch)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox CssClass="w-100 MyComboBox"
+                                        NullText="受付営業所コード:省略名"
+                                        DataAsync="LoadSaleBranchListAsync"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItemChanged="@(e => OnSelectedSaleBranchChanged(e))"
+                                        SelectedItem="@bookingdata.SelectedSaleBranch"
+                                        SelectedItemExpression="@(() => @bookingdata.SelectedSaleBranch)"
+                                        ReadOnly="@disableAll">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-3 width--100">@StaffListLabel </label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @bookingdata.SelectedStaff)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox CssClass="w-100 MyComboBox"
+                                        NullText="社員コード:社員名"
+                                        DataAsync="LoadStaffListAsync"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItemChanged="@(e => OnSelectedStaffChanged(e))"
+                                        SelectedItem="@bookingdata.SelectedStaff"
+                                        SelectedItemExpression="@(() => @bookingdata.SelectedStaff)"
+                                        ReadOnly="@disableAll">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group d-flex flex-nowrap">
+                    <label class="col-form-label-sm mr-3 width--100">@OrganizationLabel</label>
+                    <div class="has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => @bookingdata.TextOrganizationName)"
+                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass="width--664 focus"
+                                   TextExpression="@(() => @bookingdata.TextOrganizationName)"
+                                   Text=@bookingdata.TextOrganizationName
+                                   TextChanged="@((newValue) => OnTextOrganizationNameChanged(newValue))"
+                                   ReadOnly="@disableAll" maxlength="100"></DxTextBox>
+                    </div>
+                </div>
+                <div class="form-group d-flex flex-nowrap">
+                    <div class="form-group d-flex @(bookingdata.IsDailyReportRegisted ? "disabled-content" : "")">
+                        <label class="col-form-label-sm mr-3 width--100">@CustomerListLabel </label>
+                        @*<div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @bookingdata.SelectedCustomer)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox CssClass="w-100 MyComboBox"
+                                        NullText="得意先コード:得意先名 支店コード:得意先支店名"
+                                        DataAsync="LoadCustomerListAsync"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItem=@bookingdata.SelectedCustomer
+                                        SelectedItemChanged="@((e) => OnCustomerComboboxChanged(e))"
+                                        SelectedItemExpression="@(() => @bookingdata.SelectedCustomer)"
+                                        ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)">
+                            </DxComboBox>
+                        </div>*@
+                        <HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent DefaultGyosya="@(string.IsNullOrWhiteSpace(UkeCd) ? 0 : (int?)null)"
+                                                                                                    SelectedGyosya="bookingdata.customerComponentGyosyaData"
+                                                                                                    GyosyaExpression="() => bookingdata.customerComponentGyosyaData"
+                                                                                                    SelectedGyosyaChanged="(e) => OnCustomerListLabelChanged(nameof(bookingdata.customerComponentGyosyaData), e)"
+                                                                                                    ReadOnlyGyosya="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                                                                                    DefaultTokisk="@(Convert.ToInt32(bookingdata.customerComponentTokiskData?.TokuiSeq))"
+                                                                                                    SelectedTokisk="bookingdata.customerComponentTokiskData"
+                                                                                                    TokiskExpression="() => bookingdata.customerComponentTokiskData"
+                                                                                                    SelectedTokiskChanged="(e) => OnCustomerListLabelChanged(nameof(bookingdata.customerComponentTokiskData), e)"
+                                                                                                    ReadOnlyTokisk="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                                                                                    DefaultTokiSt="@(Convert.ToInt32(bookingdata.customerComponentTokiStData?.SitenCdSeq))"
+                                                                                                    SelectedTokiSt="bookingdata.customerComponentTokiStData"
+                                                                                                    SelectedTokiStChanged="(e) => OnCustomerListLabelChanged(nameof(bookingdata.customerComponentTokiStData), e)"
+                                                                                                    TokiStExpression="() => bookingdata.customerComponentTokiStData"
+                                                                                                    ReadOnlyTokiSt="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                                                                                    LangDic="LangDic" 
+                                                                                                    @ref="CustomerComponent"
+                                                                                                    GyosyaCssClass="w-100 customerListLabel"
+                                                                                                    TokiskCssClass="w-100 customerListLabel"
+                                                                                                    TokiStCssClass="w-100 customerListLabel"
+                                                                                                    isTokiskAddNull="true"
+                                                                                                    isTokiStAddNull="true"
+                                                                                                    />
+                    </div>
+                    
+                </div>
+                <div class="form-group d-flex flex-nowrap">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm width--100 mr-3">@Lang["PassengerType"] </label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @bookingdata.PassengerTypeData)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+
+                            <DxComboBox NullText="@Lang["PassengerTypeNullText"]" Data="passengerTypeList"
+                                        TextFieldName="Text"
+                                        AllowUserInput="false"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SelectedItem="bookingdata.PassengerTypeData"
+                                        SelectedItemChanged="SelectedPassengerTypeChanged"
+                                        SelectedItemExpression="() => bookingdata.PassengerTypeData"
+                                        CssClass="w-100 length50" />
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start flex-nowrap">
+                    <label class="col-form-label-sm mr-3 width--100">@ServiceScheduleLabel </label>
+                    <div class="width--664 @(bookingdata.IsDailyReportRegisted ? "disabled-content" : "")">
+                        <div class="form-group d-flex mb-2 flex-nowrap">
+                            <div class="mr-3">
+                                <label class="col-form-label-sm mr-3">@DispatchDateTimeLabel</label>
+                                <div class="d-flex flex-nowrap align-items-center flex-nowrap">
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @bookingdata.BusStartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit CssClass="width--120"
+                                                    DateExpression="@(() =>bookingdata.BusStartDate)"
+                                                    Date="@bookingdata.BusStartDate"
+                                                    DateChanged="@((newValue) => OnDateStartChanged(newValue))"
+                                                    Format=@dateFormat
+                                                    ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                                    @oninput="e => OnDateStartChanged(CommonHelper.ConvertToDateTime((string)e.Value))">
+                                        </DxDateEdit>
+                                    </div>
+                                    <p class="mb-0 @bookingdata.BusStartDate.DayOfWeek.ToString("G").ToLower()"><strong>（@bookingdata.BusStartDate.ToString("ddd", ci)）</strong></p>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @bookingdata.BusStartTime.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <HassyaAllrightCloud.Pages.Components.InputTime CssClass="text-center width--75 mx-auto withtabindex"
+                                                                                        Time="@bookingdata.BusStartTime"
+                                                                                        TimeChanged="@OnBusStartTimeChanged"
+                                                                                        ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)">
+                                        </HassyaAllrightCloud.Pages.Components.InputTime>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="col-form-label-sm mr-3">@ArrivalDateTimeLabel</label>
+                                <div class="d-flex flex-nowrap align-items-center flex-nowrap">
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @bookingdata.BusEndDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit CssClass="width--120"
+                                                    Date="@bookingdata.BusEndDate"
+                                                    DateExpression="@(() =>bookingdata.BusEndDate)"
+                                                    DateChanged="@((newValue) => OnDateEndChanged(newValue))"
+                                                    Format=@dateFormat
+                                                    ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                                    @oninput="e => OnDateEndChanged(CommonHelper.ConvertToDateTime((string)e.Value))">
+                                        </DxDateEdit>
+                                    </div>
+                                    <p class="mb-0 @bookingdata.BusEndDate.DayOfWeek.ToString("G").ToLower()"><strong>（@bookingdata.BusEndDate.ToString("ddd", ci)）</strong></p>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => @bookingdata.BusEndTime.Str)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <HassyaAllrightCloud.Pages.Components.InputTime CssClass="text-center width--75 mx-auto withtabindex"
+                                                                                        Time="@bookingdata.BusEndTime"
+                                                                                        TimeChanged="@OnBusEndTimeChanged"
+                                                                                        MaxHour="23"
+                                                                                        ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)">
+                                        </HassyaAllrightCloud.Pages.Components.InputTime>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 zoom">
+                @if (string.IsNullOrWhiteSpace(UkeCd) || checkBooking)
+                {
+                    <CascadingValue Value="@(string.IsNullOrWhiteSpace(UkeCd) ? null : string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd))">
+                        <CascadingValue Value="@ClearAllBtnDisabledState">
+                            <CascadingValue Value="@formContext">
+                                <CascadingValue Value="@isCopyMode">
+                                    <HassyaAllrightCloud.Pages.Components.BookingInputTab @ref="BookingInputTabChild"
+                                                                                          OnChangeCommandState="async (state) => await HandleChangeState(state)"
+                                                                                          BookingData="@bookingdata" UpdateFileupload="Updatefile"
+                                                                                          TenantHasCustomData="TenantHasCustomData" />
+                                </CascadingValue>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
+                }
+            </div>
+        </div>
+
+        <table class="table table-sm text-center mb-2 bg-white @(disableAll && !bookingdata.IsDisableEdit ? "disabled-content" : "")">
+            <thead class="thead-primary">
+                <tr>
+                    <th scope="col">@BusTypeCol</th>
+                    <th scope="col">@BusNumCol</th>
+                    <th scope="col">@DriverNumCol</th>
+                    <th scope="col">@UnitBusPriceCol</th>
+                    <th scope="col">@UnitBusFeeCol</th>
+                    <th scope="col">@UnitPriceCol</th>
+                    <th scope="col">@BusPriceCol</th>
+                    <th scope="col">@GuiderNumCol</th>
+                    <th scope="col">@Lang["UnitGuiderFeeCol"]</th>
+                    <th scope="col">@GuiderFeeCol</th>
+                    <th scope="col">@PriorityBranchAutoAssign</th>
+                    <th scope="col">@MinMaxCol</th>
+                    <th class="bg-white" scope="col">
+                        <button class="custom-hyper font-weight-bold btn-addrow @(bookingdata.VehicleGridDataList.Count() >= maxRow || bookingdata.IsDailyReportRegisted ? "disabled" : "enabled")"
+                                @onclick="@((ui) => AddNewRow())"
+                                type="button"
+                                disabled="@(bookingdata.VehicleGridDataList.Count() >= maxRow || disableAll || bookingdata.IsDailyReportRegisted)">
+                            @AddRowButton
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var data in bookingdata.VehicleGridDataList)
+                {
+                    <tr id=@data.RowID>
+                        <td class="@("has-tooltip-error"+( bookingdata.IsDailyReportRegisted ? "disabled-content" : ""))">
+                            <Tooltip ValueExpressions="@(() => data.busTypeData)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox CssClass="@("MyComboBox " + (formContext.GetCustomCss(() => data.busTypeData)))"
+                                        NullText="型名：車種名"
+                                        Data="BusTypeList"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItem="@data.busTypeData"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        SelectedItemChanged="@(e => OnSelectedBusTypeChanged(e, data.RowID))"
+                                        SelectedItemExpression="@(() => data.busTypeData)"
+                                        ReadOnly="@(disableAll || bookingdata.IsDisableEdit || bookingdata.IsDailyReportRegisted)">
+                            </DxComboBox>
+                        </td>
+                        <td class="@("has-tooltip-error"+(bookingdata.IsDailyReportRegisted ? "disabled-content" : ""))">
+                            <Tooltip ValueExpressions="@(() =>  data.BusNum)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox CssClass="@("text-center number number-int width--56 " + (formContext.GetCustomCss(() => data.BusNum)))"
+                                       Text="@data.BusNum"
+                                       TextExpression="@(() => data.BusNum)"
+                                       TextChanged="@((newValue) => OnNumBusChanged(newValue, data.RowID))"
+                                       ReadOnly="@(disableAll || bookingdata.IsDisableEdit || bookingdata.IsDailyReportRegisted)"
+                                       maxlength="2" />
+                        </td>
+
+                        <td class="@("has-tooltip-error"+(bookingdata.IsDailyReportRegisted ? "disabled-content" : ""))">
+                            <Tooltip ValueExpressions="@(() => data.DriverNum)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox CssClass="@("text-center number number-int width--56 " + (formContext.GetCustomCss(() => data.DriverNum)))"
+                                       Text=@data.DriverNum
+                                       TextExpression="@(() => data.DriverNum )"
+                                       TextChanged="@((newValue) => OnNumDriverChanged(newValue, data.RowID))"
+                                       ReadOnly="@(disableAll || bookingdata.IsDisableEdit || bookingdata.IsDailyReportRegisted)"
+                                       maxlength="2" />
+                        </td>
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.UnitBusPrice)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox maxlength="7" CssClass="@(" text-right number " + (formContext.GetCustomCss(() => data.UnitBusPrice)))" TextExpression="@(() => tempstr )" Text=@CommonUtil.CurencyFormat(@data.UnitBusPrice) TextChanged="@((newValue) => OnUnitBusPriceChanged(newValue, data.RowID))" ReadOnly="@(disableAll || bookingdata.IsDisableEdit)" data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@data.getTooltipForUnitBusPrice()"></DxTextBox>
+                        </td>
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.UnitBusFee)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox maxlength="7" CssClass="@("text-right number " + (formContext.GetCustomCss(() => data.UnitBusFee)))" TextExpression="@(() => tempstr )" Text=@CommonUtil.CurencyFormat(@data.UnitBusFee) TextChanged="@((newValue) => OnUnitBusFareChanged(newValue, data.RowID))" ReadOnly="@(disableAll || bookingdata.IsDisableEdit)" data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@data.getTooltipForUnitBusFee()"></DxTextBox>
+                        </td>
+                        <td>
+                            <DxTextBox CssClass="text-right notabindex" TextExpression="@(() =>data.UnitPrice )" Text=@CommonUtil.CurencyFormat(@data.UnitPrice) ReadOnly="true"></DxTextBox>
+                        </td>
+                        <td>
+                            <DxTextBox CssClass="text-right notabindex" TextExpression="@(() =>data.BusPrice )" Text=@CommonUtil.CurencyFormat(@data.BusPrice) ReadOnly="true"></DxTextBox>
+                        </td>
+                        <td>
+                            <DxTextBox CssClass="@("text-center number number-int width--56 " + (formContext.GetCustomCss(() => data.GuiderNum)))"
+                                       TextExpression="@(() => data.GuiderNum )"
+                                       Text=@data.GuiderNum
+                                       TextChanged="@((newValue) => OnNumGuiderChanged(newValue, data.RowID))"
+                                       ReadOnly="@(disableAll || bookingdata.IsDisableEdit)"
+                                       maxlength="2" />
+                        </td>
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.UnitGuiderFee)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox maxlength="7" CssClass="@("text-right number " + (formContext.GetCustomCss(() => data.UnitGuiderFee)))" TextExpression="@(() => tempstr )" Text=@CommonUtil.CurencyFormat(data.UnitGuiderFee) TextChanged="@((newValue) => OnUnitGuiderChanged(newValue, data.RowID))" ReadOnly="@(disableAll || bookingdata.IsDisableEdit)"></DxTextBox>
+                        </td>
+                        <td class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => data.GuiderFee)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox CssClass="text-right notabindex" TextExpression="@(() =>data.GuiderFee )" Text=@CommonUtil.CurencyFormat(data.GuiderFee) ReadOnly="true"></DxTextBox>
+                        </td>
+                        <td>
+                            <button type="button"
+                                    class="@( "custom-hyper " + ((data.busTypeData.Katakbn == "-1" || IsDisableDetailBtn() || bookingdata.IsDailyReportRegisted) ? "disabled" : "enabled"))"
+                                    disabled="@(data.busTypeData.Katakbn == "-1" || IsDisableDetailBtn() || bookingdata.IsDailyReportRegisted)"
+                                    @onclick="@(() =>OnBranchPriorityAAClicked(true, data.RowID))"
+                                    data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@data.getTooltipForBranch()">
+                                @(data.PriorityAutoAssignBranch == null ? Lang["Choice"] : Lang["AssignedBranch"])
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="@( "custom-hyper " + ((data.busTypeData.Katakbn == "-1" || IsDisableDetailBtn()) ? "disabled" : "enabled") + " hyper" + data.RowID + (data.CheckMinMaxChange(bookingdata) ? "" : " changedminmax"))" disabled="@(data.busTypeData.Katakbn == "-1" || IsDisableDetailBtn())" @onclick="@(() =>OnMinMaxPopupVisibleChanged(true, data.RowID))" value="@MinMaxButton">@(data.UnitPriceIndex == "0" ? MinMaxButton : data.UnitPriceIndex)</button>
+                        </td>
+                        <td class="@(bookingdata.IsDailyReportRegisted ? "disabled-content" : "")">
+                            @if (data.RowID != "1")
+                            {
+                                <a class="text-danger">
+                                    <i class="fa fa-times" @onclick="@(() => ConfirmDelete(data.RowID) )"
+                                       aria-hidden="true" disabled="@(disableAll || bookingdata.IsDisableEdit)"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="no-border">
+                    <td class="text-right"><strong>@TotalLabel</strong></td>
+                    <td class="text-center">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => int.Parse(t.BusNum)))</td>
+                    <td class="text-center">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => int.Parse(t.DriverNum)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => long.Parse(t.UnitBusPrice)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => long.Parse(t.UnitBusFee)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => long.Parse(t.UnitPrice)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => long.Parse(t.BusPrice)))</td>
+                    <td class="text-center">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => int.Parse(t.GuiderNum)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.VehicleGridDataList.Sum(t => long.Parse(t.UnitGuiderFee)))</td>
+                    <td class="text-right" style="padding-right: 0.8rem">@CommonUtil.CurencyFormat(bookingdata.TotalGuiderFee)</td>
+                    <td>@Lang["Average"]</td>
+                    <td>@bookingdata.GetAverageUnitPriceIndex()</td>
+                </tr>
+                <tr class="no-border"><td colspan="11">&nbsp;</td></tr>
+                <tr class="no-border">
+                    <td>
+                        <div class="d-flex align-items-center justify-content-end @(bookingdata.IsDailyReportRegisted ? "disabled-content" : "")">
+                            <label class="col-form-label-sm mr-3">@InvoiceDateLabel</label>
+                            <DxDateEdit CssClass="width--130"
+                                        DateExpression="@(() =>bookingdata.InvoiceDate)"
+                                        Date="@bookingdata.InvoiceDate"
+                                        DateChanged="@((newValue) => OnDateChanged(newValue))"
+                                        Format=@dateFormat
+                                        ReadOnly="@(disableAll || bookingdata.IsDailyReportRegisted)"
+                                        @oninput="e => OnDateChanged(CommonHelper.ConvertToDateTime((string)e.Value))">
+                            </DxDateEdit>
+                        </div>
+                    </td>
+                    <td colspan="3">
+                        <div class="d-flex align-items-center justify-content-end">
+                            <label class="col-form-label-sm mr-3">@BillingCategory</label>
+                            <DxComboBox DataAsync="LoadBillingCategoryListAsync"
+                                        CssClass="MyComboBox"
+                                        NullText="請求ID:請求名"
+                                        TextFieldName="Text"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SelectedItem="@bookingdata.SelectedInvoiceType"
+                                        SelectedItemChanged="(newValue) => HandleSelectedBillingChanged(newValue)"
+                                        SelectedItemExpression="() => bookingdata.SelectedInvoiceType"
+                                        AllowUserInput="false"
+                                        ReadOnly="@disableAll">
+                            </DxComboBox>
+                        </div>
+                    </td> <!-- To do -->
+                    <td>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <label class="col-form-label-sm mr-3">@TaxRateLabel</label>
+                            <HassyaAllrightCloud.Pages.Components.InputRate ReadOnly="@disableAll"
+                                                                            RateValue="@bookingdata.TaxRate"
+                                                                            CssClass="width--56 text-center ml-2 rate"
+                                                                            RateChanged="@((rate)=>OnBusTaxRateChanged(rate))">
+                            </HassyaAllrightCloud.Pages.Components.InputRate>
+                            <span class="ml-1">%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <DxComboBox Data="@TaxTypeListData.taxTypeList"
+                                    TextFieldName="StringValue"
+                                    AllowUserInput="true"
+                                    SelectedItemExpression="() =>bookingdata.TaxTypeforBus"
+                                    SelectedItem="@bookingdata.TaxTypeforBus" SelectedItemChanged="SelectedTaxTypeForBusChanged"
+                                    ReadOnly="@disableAll">
+                        </DxComboBox>
+                    </td>
+                    <td>
+                        <DxTextBox CssClass="text-right notabindex" TextExpression="@(() =>bookingdata.TaxBus)" Text="@(CommonUtil.CurencyFormat(bookingdata.TaxBus))" ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td></td>
+                    <td>
+                        <DxComboBox Data="@TaxTypeListData.taxTypeList"
+                                    TextFieldName="StringValue"
+                                    AllowUserInput="true"
+                                    SelectedItemExpression="() =>bookingdata.TaxTypeforGuider"
+                                    SelectedItem="@bookingdata.TaxTypeforGuider" SelectedItemChanged="SelectedTaxTypeForGuiderChanged"
+                                    ReadOnly="@disableAll">
+                        </DxComboBox>
+                    </td>
+                    <td>
+                        <DxTextBox CssClass="text-right notabindex" TextExpression="@(() =>bookingdata.TaxGuider)" Text=@CommonUtil.CurencyFormat(bookingdata.TaxGuider) ReadOnly="true"></DxTextBox>
+                    </td>
+                </tr>
+                <tr class="no-border">
+                    <td>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <label class="col-form-label-sm mr-3">@InvoiceMonthLabel</label>
+                            <DxTextBox CssClass="width--130 notabindex" TextExpression="@(() =>bookingdata.InvoiceMonth)" Text=@bookingdata.InvoiceMonth.ToString() ReadOnly="true"></DxTextBox>
+                        </div>
+                    </td>
+                    <td colspan="4"></td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <label class="col-form-label-sm mr-3">@BusFeeRateLabel</label>
+                            <HassyaAllrightCloud.Pages.Components.InputRate ReadOnly="@disableAll"
+                                                                            RateValue="@bookingdata.FeeBusRate"
+                                                                            CssClass="width--56 text-center ml-2 rate"
+                                                                            RateChanged="@((rate)=>OnBusFeeTaxRateChanged(rate))">
+                            </HassyaAllrightCloud.Pages.Components.InputRate>
+                            <span class="ml-1">%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <DxTextBox CssClass="text-right notabindex" TextExpression=@(() =>bookingdata.FeeBus) Text=@CommonUtil.CurencyFormat(bookingdata.FeeBus) ReadOnly="true"></DxTextBox>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <HassyaAllrightCloud.Pages.Components.InputRate ReadOnly="@disableAll"
+                                                                            RateValue="@bookingdata.FeeGuiderRate"
+                                                                            CssClass="width--56 text-center ml-2 rate"
+                                                                            RateChanged="@((rate)=>OnGuiderFeeTaxRateChanged(rate))">
+                            </HassyaAllrightCloud.Pages.Components.InputRate>
+                            <span class="ml-1">%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <DxTextBox CssClass="text-right notabindex" TextExpression="() =>bookingdata.FeeGuider" Text=@CommonUtil.CurencyFormat(bookingdata.FeeGuider) ReadOnly="true"></DxTextBox>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="text-center mt-4 @(disableAll || bookingdata.IsDisableEdit ? "disabled-content" : "")">
+            <DxButton CssClass="width--100 btnbookingform" Click="@(e => HandleValidSubmit())" Text="@SubmitText"
+                      Enabled="@((SubmitBtnEnabledState && !(formContext.GetValidationMessages().Distinct().Count() > 0)) && !disableAll)"
+                      IconCssClass="fa fa-check" RenderStyle="@ButtonRenderStyle.Primary">
+            </DxButton>
+        </div>
+    }
+</EditForm>
+<!--control tax-->
+@code {
+    [CascadingParameter(Name = "ClaimModel")]
+    protected ClaimModel ClaimModel { get; set; }
+    string tempstr;
+    bool isUpdateSuccess = false;
+    bool PopupSaveDataSucess { get; set; } = false;
+    bool PopupSaveDataError { get; set; } = false;
+    bool PopupHaiTaCheckFail { get; set; } = false;
+    bool PopupUpdateDataSucess { get; set; } = false;
+    string RegisteredResult = "";
+    string RegisteredResultContent = "";
+    string newUkeCd = string.Empty;
+
+    string Rowid = "1";
+    short UriKbn;
+    [Parameter] public string action { get; set; }
+    [Parameter] public string UkeCd { get; set; }
+    [Parameter] public string motoTenantCdSeq { get; set; }
+    [Parameter] public string motoUkeNo { get; set; }
+    [Parameter] public string motoUnkRen { get; set; }
+    [Parameter] public string motoYouTblSeq { get; set; }
+    short Unkren;
+    string PageTitle = "";
+    string SubmitText = "";
+    public BookingFormData bookingdata = new BookingFormData();
+    public MinMaxSettingFormData tmpMinMaxFormData = null;
+    private VehicleGridData tempVehicleGridData = new VehicleGridData();
+    EditContext formContext;
+    bool PopupVisible { get; set; } = false;
+    bool PopupDeletedata { get; set; } = false;
+    bool PopupBooking { get; set; } = false;
+    bool SubmitBtnEnabledState { get; set; } = false;
+    bool ClearAllBtnDisabledState { get; set; } = true;
+    bool shouldRender = true;
+    bool isPopupEditWhenConfirmed = false;
+    bool isCreate = true;
+    bool isCopyMode = false;
+    List<TPM_CodeKbCodeSyuData> BookingStatusList { get; set; } // To do
+    List<string> BillingCategoryList { get; set; } // To do
+    List<BookingTypeData> BookingTypeList;
+    List<LoadSaleBranch> SaleBranchList;
+    List<LoadSaleBranch> SaleBranchsAutoAssign;
+    List<LoadStaff> StaffList;
+    List<LoadCustomerList> CustomerList;
+    IEnumerable<BusTypeData> BusTypeList;
+    List<InvoiceType> InvoiceTypeList;
+    List<PassengerType> passengerTypeList;
+    List<string> emptyItemMessage = new List<string>();
+    List<BookingData> bookingdatalst = new List<BookingData>();
+    List<LoadCustomerList> loadCustomerLists = new List<LoadCustomerList>();
+    YoushaNoticeData youshaNotice = new YoushaNoticeData();
+    bool isEmptyItem { get; set; } = false;
+    bool isAutoAssignPopup { get; set; } = false;
+    bool isPriorityAAPopup { get; set; } = false;
+    bool isDisableDetailBtn { get; set; } = true;
+    bool isFocusSet { get; set; } = false;
+    bool isOpenSelectRemoveBus { get; set; } = false;
+    bool isAutoAssignSelected { get; set; } = false;
+    private HassyaAllrightCloud.Pages.Components.BookingInputTab BookingInputTabChild;
+    bool checkBooking = false;
+    string dateFormat = "yyyy/MM/dd";
+    string baseUrl;
+    string DeleteId;
+    int maxRow = 200;
+    int maxRowIndex = 0;
+    bool disableAll = true;
+    bool isLoading = true;
+    MinMaxSettingState minMaxState = MinMaxSettingState.None;
+
+    private HassyaAllrightCloud.Pages.Components.EditBookingComponent.RemoveBusPopUp removeBusPopUp;
+
+    //Validate Tooltip
+    bool CurrentBookingTypeError = false;
+    bool SelectedSaleBranchError = false;
+    bool SelectedStaffError = false;
+    bool SelectedCustomerError = false;
+    bool BusEndDateTimeGreaterThanBusStartDateTimeError = false;
+    bool PassengerTypeDataError = false;
+    bool BusTypeDataError = false;
+    //string messsage
+    string MessageCurrentBookingTypeError;
+    string MessageSelectedSaleBranchError;
+    string MessageSelectedStaffError;
+    string MessageSelectedCustomerError;
+    string MessageBusEndDateTimeGreaterThanBusStartDateTimeError;
+    string MessagePassengerTypeDataError;
+    string MessageBusTypeDataError;
+    CultureInfo ci;
+    private IBusTypeListService BusTypeService { get; set; }
+    public IBookingTypeListService TpmYoyKbnService { get; set; }
+    public ITPM_CodeKbListService TpmCodeKbListService { get; set; }
+    public IRoundSettingsService RoundSettingsService { get; set; }
+    public List<FileInfoData> fileUploadlst = new List<FileInfoData>();
+    public bool TenantHasCustomData { get; set; }
+    PaymentRequestTenantInfo TenantInfo = new PaymentRequestTenantInfo();
+    public HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent CustomerComponent { get; set; }
+    = new HassyaAllrightCloud.Pages.Components.CommonComponents.CustomerComponent();
+    public int supervisorCount { get; set; }
+
+    #region Localization string
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    string StatusBooking;
+    string StatusChecking;
+    string StatusConfirmed;
+    string PopupTitleUpdateWhenConfirmed;
+    string PopupContentUpdateWhenConfimed;
+    string AskForUpdate;
+    string Confirmation;
+    string PopupTitleInfo;
+    string PopupTitleError;
+    string PopupTitleWarning;
+    string PageTitleCreate;
+    string PageTitleEdit;
+    string PageTitleCopy;
+    string PageTitleYouSha;
+    string UpperLowerSettingsDeleteConfirmMessage;
+    string DeleteConfirmMessage;
+    string Yes;
+    string No;
+    string OK;
+    string EraseAll;
+    string BookingStatus;
+    string BookingTypeLabel;
+    string SaleBranchLabel;
+    string StaffListLabel;
+    string OrganizationLabel;
+    string CustomerListLabel;
+    string ServiceScheduleLabel;
+    string DispatchDateTimeLabel;
+    string ArrivalDateTimeLabel;
+    string CultureInfoStr;
+    string PreDaySettingLabel;
+    string AftDaySettingLabel;
+    string BusTypeCol;
+    string BusNumCol;
+    string DriverNumCol;
+    string UnitBusPriceCol;
+    string UnitBusFeeCol;
+    string UnitPriceCol;
+    string BusPriceCol;
+    string GuiderNumCol;
+    string UnitGuiderFeeCol;
+    string GuiderFeeCol;
+    string MinMaxCol;
+    string AddRowButton;
+    string MinMaxButton;
+    string TotalLabel;
+    string InvoiceDateLabel;
+    string TaxRateLabel;
+    string BillingCategory;
+    string InvoiceMonthLabel;
+    string BusFeeRateLabel;
+    string MonthFormat;
+    string CreateButton;
+    string UpdateButton;
+    string CopyButton;
+    string CreateResultSuccessMessage;
+    string CreateResultScuccessMessageContent;
+    string CreateResultErrorMessage;
+    string UpdateResultSuccessMessage;
+    string UpdateResultErrorMessage;
+    string EmptyStaffMessage;
+    string EmptySaleBranchMessage;
+    string EmptyBookingTypeMessage;
+    string EmptyCustomerMessage;
+    string EmptyBusTypeMessage;
+    string CancelAndReturnButton;
+    string UpdateReservationButton;
+    string AutoCancelButton;
+    string CancelAndReturnText;
+    string UpdateReservationText;
+    string AutoCancelText;
+    string CreateResultUkenoIsFullErrorMessageContent;
+    string PriorityBranchAutoAssign;
+
+    /// <summary>
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        StatusBooking = Lang["StatusBooking"];
+        StatusChecking = Lang["StatusChecking"];
+        StatusConfirmed = Lang["StatusConfirmed"];
+        PopupTitleUpdateWhenConfirmed = Lang["PopupTitleUpdateWhenConfirmed"];
+        PopupContentUpdateWhenConfimed = Lang["PopupContentUpdateWhenConfimed"];
+        AskForUpdate = Lang["AskForUpdate"];
+        Confirmation = Lang["Confirmation"];
+        PopupTitleError = Lang["PopupTitleError"];
+        PopupTitleInfo = Lang["PopupTitleInfo"];
+        PopupTitleWarning = Lang["PopupTitleWarning"];
+        PageTitleCreate = Lang["PageTitle"];
+        PageTitleEdit = Lang["PageTitleEdit"];
+        PageTitleCopy = Lang["PageTitleCopy"];
+        PageTitleYouSha = Lang["PageTitleYouSha"];
+        UpperLowerSettingsDeleteConfirmMessage = Lang["UpperLowerSettingsDeleteConfirmMessage"];
+        DeleteConfirmMessage = Lang["DeleteConfirmMessage"];
+        Yes = Lang["Yes"];
+        No = Lang["No"];
+        OK = Lang["OK"];
+        EraseAll = Lang["EraseAll"];
+        BookingStatus = Lang["BookingStatus"];
+        BookingTypeLabel = Lang["BookingTypeLabel"];
+        SaleBranchLabel = Lang["SaleBranchLabel"];
+        StaffListLabel = Lang["StaffListLabel"];
+        OrganizationLabel = Lang["OrganizationLabel"];
+        CustomerListLabel = Lang["CustomerListLabel"];
+        ServiceScheduleLabel = Lang["ServiceScheduleLabel"];
+        DispatchDateTimeLabel = Lang["DispatchDateTimeLabel"];
+        ArrivalDateTimeLabel = Lang["ArrivalDateTimeLabel"];
+        CultureInfoStr = Lang["CultureInfo"];
+        PreDaySettingLabel = Lang["PreDaySettingLabel"];
+        AftDaySettingLabel = Lang["AftDaySettingLabel"];
+        BusTypeCol = Lang["BusTypeCol"];
+        BusNumCol = Lang["BusNumCol"];
+        DriverNumCol = Lang["DriverNumCol"];
+        UnitBusPriceCol = Lang["UnitBusPriceCol"];
+        UnitBusFeeCol = Lang["UnitBusFeeCol"];
+        UnitPriceCol = Lang["UnitPriceCol"];
+        BusPriceCol = Lang["BusPriceCol"];
+        GuiderNumCol = Lang["GuiderNumCol"];
+        UnitGuiderFeeCol = Lang["UnitGuiderFeeCol"];
+        GuiderFeeCol = Lang["GuiderFeeCol"];
+        MinMaxCol = Lang["MinMaxCol"];
+        AddRowButton = Lang["AddRowButton"];
+        MinMaxButton = Lang["MinMaxButton"];
+        TotalLabel = Lang["TotalLabel"];
+        InvoiceDateLabel = Lang["InvoiceDateLabel"];
+        TaxRateLabel = Lang["TaxRateLabel"];
+        BillingCategory = Lang["BillingCategory"];
+        InvoiceMonthLabel = Lang["InvoiceMonthLabel"];
+        BusFeeRateLabel = Lang["BusFeeRateLabel"];
+        MonthFormat = Lang["MonthFormat"];
+        CreateButton = Lang["CreateButton"];
+        UpdateButton = Lang["UpdateButton"];
+        CopyButton = Lang["CopyButton"];
+        CreateResultSuccessMessage = Lang["CreateResultSuccessMessage"];
+        CreateResultScuccessMessageContent = Lang["CreateResultScuccessMessageContent"];
+        CreateResultErrorMessage = Lang["CreateResultErrorMessage"];
+        UpdateResultSuccessMessage = Lang["UpdateResultSuccessMessage"];
+        UpdateResultErrorMessage = Lang["UpdateResultErrorMessage"];
+        EmptyStaffMessage = Lang["EmptyStaffMessage"];
+        EmptySaleBranchMessage = Lang["EmptySaleBranchMessage"];
+        EmptyBookingTypeMessage = Lang["EmptyBookingTypeMessage"];
+        EmptyCustomerMessage = Lang["EmptyCustomerMessage"];
+        EmptyBusTypeMessage = Lang["EmptyBusTypeMessage"];
+        CancelAndReturnButton = Lang["CancelAndReturnButton"];
+        UpdateReservationButton = Lang["UpdateReservationButton"];
+        AutoCancelButton = Lang["AutoCancelButton"];
+        CancelAndReturnText = Lang["CancelAndReturnText"];
+        UpdateReservationText = Lang["UpdateReservationText"];
+        AutoCancelText = Lang["AutoCancelText"];
+        CreateResultUkenoIsFullErrorMessageContent = Lang["BI_T020"];
+        PriorityBranchAutoAssign = Lang["PriorityBranchAutoAssign"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        try
+        {
+            // doesn't have ukecd to copy
+            if (parameters.TryGetValue("UkeCd", out string _) == false && parameters.TryGetValue("action", out string _))
+            {
+                NavManager.NavigateTo("/");
+                return null;
+            }
+            return base.SetParametersAsync(parameters);
+        }
+        catch (Exception ex)
+        {
+            NavManager.NavigateTo("/");
+            return null;
+            //await base.SetParametersAsync(parameters);
+        }
+    }
+
+    /// <summary>
+    /// Load javascript of page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        if (ClaimModel != null)
+        {
+            var tenantId = ClaimModel.TenantID;
+        }
+        JSRuntime.InvokeVoidAsync("loadPageScript", "bookingInputPage");
+        base.OnParametersSet();
+    }
+
+    /// <summary>
+    /// Invoked once, after OnInit is finished.
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isCopyMode = action == "copy";
+            LocalizationInit();
+            ci = new CultureInfo(CultureInfoStr);
+            formContext = new EditContext(bookingdata);
+            baseUrl = AppSettingsService.GetBaseUrl();
+            BusTypeService = ScopedServices.GetRequiredService<IBusTypeListService>();
+            TpmYoyKbnService = ScopedServices.GetRequiredService<IBookingTypeListService>();
+            TpmCodeKbListService = ScopedServices.GetRequiredService<ITPM_CodeKbListService>();
+            RoundSettingsService = ScopedServices.GetRequiredService<IRoundSettingsService>();
+            var codeKbListService = ScopedServices.GetRequiredService<ITPM_CodeKbListService>();
+            BookingStatusList = (await codeKbListService.GetDataByCodeSyu("YOYASYU", new ClaimModel().TenantID)).Where(c => c.CodeKbn == Constants.BookingStatus || c.CodeKbn == Constants.EstimateStatus).ToList();
+            bookingdata.HasuSet = await RoundSettingsService.GetHasuSettings(new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+            BusTypeList = await BusTypeService.Get(new ClaimModel().TenantID);
+            BookingTypeList = (await LoadBookingTypeListAsync()).ToList();
+            CustomerList = (await LoadCustomerListAsync()).ToList();
+            SaleBranchsAutoAssign = (await LoadBranchsAutoAssignAsync()).ToList();
+            InvoiceTypeList = (await LoadBillingCategoryListAsync()).ToList();
+            passengerTypeList = await Http.GetJsonAsync<List<PassengerType>>(baseUrl + "/api/BookingInput/PassengerType");
+            TenantInfo = await billPrintService.GetTenantInfoAsync();
+            isCreate = true;
+            var customItems = await CustomItemService.GetCustomFieldConfigs(new ClaimModel().TenantID);
+            TenantHasCustomData = !(customItems is null || customItems.Count == 0);
+            if (UkeCd == null || UkeCd == "0")
+            {
+                checkBooking = true;
+                PageTitle = PageTitleCreate;
+                SubmitText = CreateButton;
+                int tenantID = new ClaimModel().TenantID;
+                await Load(tenantID, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+            }
+            else
+            {
+                BookingFormData putData = new BookingFormData();
+                try
+                {
+                    putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine();
+                }
+                if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+                {
+                    bookingdata.SetBookingFromData(putData);
+                    checkBooking = true;
+                    if (isCopyMode)
+                    {
+                        PageTitle = string.Format(PageTitleCopy, UkeCd);
+                        SubmitText = CopyButton;
+                    }
+                    else
+                    {
+                        PageTitle = string.Format(PageTitleEdit, UkeCd);
+                        SubmitText = UpdateButton;
+                    }
+                    await Load(new ClaimModel().TenantID, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+                    isCreate = false;
+                }
+                else
+                {
+                    NavManager.NavigateTo("/");
+                }
+
+            }
+            await base.OnInitializedAsync().ContinueWith((t) => { isLoading = false; });
+        }
+        catch (Exception ex)
+        {
+            isLoading = false;
+            ErrorService.ShowErrorPopup("Error", ex.Message);
+        }
+        if (motoTenantCdSeq != "" && motoTenantCdSeq != null)
+        {
+            try
+            {
+                PageTitle = PageTitleYouSha;
+                checkBooking = true;
+                youshaNotice = await CarCooperationService.GetItemYoushaNotice(int.Parse(motoTenantCdSeq), motoUkeNo, short.Parse(motoUnkRen), int.Parse(motoYouTblSeq));
+                if (youshaNotice != null)
+                {
+                    bookingdata.SetBookingFromYoushaNotice(youshaNotice);
+                    var SelectedCustomer = loadCustomerLists.Where(t => t.TokuiSeq == youshaNotice.MotoTokuiSeq && t.SitenCdSeq == youshaNotice.MotoSitenCdSeq).FirstOrDefault();
+                    bookingdata.customerComponentGyosyaData = new CustomerComponentGyosyaData() {
+                        GyosyaCd = (short)SelectedCustomer.GyoSyaCd,
+                        GyosyaCdSeq = SelectedCustomer.GyoSysSeq,
+                        GyosyaKbn = SelectedCustomer.GyosyaKbn,
+                        GyosyaNm = SelectedCustomer.GyoSyaNm
+                    };
+                    bookingdata.customerComponentTokiskData = new CustomerComponentTokiskData() {
+                        GyosyaCdSeq = SelectedCustomer.GyoSysSeq,
+                        RyakuNm = SelectedCustomer.RyakuNm,
+                        TokuiCd = (short)SelectedCustomer.TokuiCd,
+                        TokuiSeq = SelectedCustomer.TokuiSeq
+                    };
+                    bookingdata.customerComponentTokiStData = new CustomerComponentTokiStData() {
+                        RyakuNm = SelectedCustomer.RyakuNm,
+                        SitenCd = (short)SelectedCustomer.SitenCd,
+                        SitenCdSeq = SelectedCustomer.SitenCdSeq,
+                        TokuiSeq = SelectedCustomer.TokuiSeq,
+                        SimeD = (byte)SelectedCustomer.SimeD,
+                        TesKbn = SelectedCustomer.TesKbn,
+                        TesuRitu = SelectedCustomer.TesuRitu,
+                        TesuRituGui = SelectedCustomer.TesuRituGui
+                    };
+                    bookingdata.VehicleGridDataList.Clear();
+                    if (youshaNotice.BigtypeNum != 0)
+                    {
+                        VehicleGridData vehicleGridData = new VehicleGridData();
+                        vehicleGridData.BusNum = youshaNotice.BigtypeNum.ToString();
+                        vehicleGridData.busTypeData = BusTypeList.Where(t => t.Katakbn == "1" && t.SyaSyuCdSeq == 0).FirstOrDefault();
+                        bookingdata.VehicleGridDataList.Add(vehicleGridData);
+                    }
+                    if (youshaNotice.MediumtypeNum != 0)
+                    {
+                        VehicleGridData vehicleGridData = new VehicleGridData();
+                        vehicleGridData.BusNum = youshaNotice.MediumtypeNum.ToString();
+                        vehicleGridData.busTypeData = BusTypeList.Where(t => t.Katakbn == "2" && t.SyaSyuCdSeq == 0).FirstOrDefault();
+                        bookingdata.VehicleGridDataList.Add(vehicleGridData);
+                    }
+                    if (youshaNotice.SmalltypeNum != 0)
+                    {
+                        VehicleGridData vehicleGridData = new VehicleGridData();
+                        vehicleGridData.BusNum = youshaNotice.SmalltypeNum.ToString();
+                        vehicleGridData.busTypeData = BusTypeList.Where(t => t.Katakbn == "3" && t.SyaSyuCdSeq == 0).FirstOrDefault();
+                        bookingdata.VehicleGridDataList.Add(vehicleGridData);
+                    }
+                    if (bookingdata.VehicleGridDataList.Count != 0)
+                    {
+                        int i = 1;
+                        foreach (var item in bookingdata.VehicleGridDataList)
+                        {
+                            item.RowID = i.ToString();
+                            i++;
+                        }
+                    }
+                    bookingdata.IsYoushaNote = true;
+                }
+                else
+                {
+                    NavManager.NavigateTo("/");
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine();
+            }
+        }
+
+        await base.OnInitializedAsync().ContinueWith((t) => { isLoading = false; });
+    }
+
+    /// <summary>
+    /// Check if schedule time correct
+    /// </summary>
+    /// <returns></returns>
+    bool IsDisableDetailBtn()
+    {
+        if (bookingdata.IsDisableEdit)
+        {
+            minMaxState = MinMaxSettingState.ViewOnly;
+            return false;
+        }
+        if (BookingInputTabChild != null && BookingInputTabChild.ActiveTabIndex >= 4)
+        {
+            minMaxState = MinMaxSettingState.ViewOnly;
+            return false;
+        }
+        if (disableAll) return true;
+        return (formContext.GetValidationMessages(() => bookingdata.BusEndDate).Count() > 0
+            || formContext.GetValidationMessages(() => bookingdata.BusEndTime.Str).Count() > 0
+            || formContext.GetValidationMessages(() => bookingdata.ReservationTabData.SyuKoTime.Str).Count() > 0
+            || formContext.GetValidationMessages(() => bookingdata.ReservationTabData.KikTime.Str).Count() > 0);
+    }
+
+    /// <summary>
+    /// Invoked after each render of the component.
+    /// Called for the first time when the component is initialized - firstRender = true
+    /// and then after every re-render - firstRender = false.
+    /// </summary>
+    /// <returns></returns>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        //JSRuntime.InvokeVoidAsync("tabindexFix");
+        //JSRuntime.InvokeVoidAsync("loadPageScript", "bookingInputPage", "EnterTab");
+        JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+        JSRuntime.InvokeAsync<string>("addtabindex", "notabindex");
+
+        if (UkeCd == null || UkeCd == "0")
+        {
+            JSRuntime.InvokeAsync<string>("dispplayButton", "btnclear");
+        }
+        else
+        {
+            JSRuntime.InvokeAsync<string>("hiddenButton", "btnclear");
+        }
+        JSRuntime.InvokeVoidAsync("loadPageScript", "bookingInputPage", "setTooltipBookingInput");
+        JSRuntime.InvokeAsync<string>("loadPageScript", "bookingInputPage", "bookingInputPageTabKey");
+
+        BookingFormData bookingdatatmp = new BookingFormData();
+        if (firstRender)
+        {
+            // Setting maxlength attribute
+            JSRuntime.InvokeAsync<string>("focusEditor", "focus");
+            bookingdatatmp = bookingdata;
+            if (isCopyMode) SubmitBtnEnabledState = true;
+            else SubmitBtnEnabledState = false;
+        }
+        else
+        {
+            if (formContext.IsModified() && !SubmitBtnEnabledState)
+            {
+                SubmitBtnEnabledState = true;
+                StateHasChanged();
+            }
+        }
+        if (!isLoading && !isFocusSet)
+        {
+            isFocusSet = true;
+            JSRuntime.InvokeAsync<string>("focusEditor", "focus");
+        }
+        if (PopupSaveDataSucess)
+        {
+            JSRuntime.InvokeAsync<string>("focusSubmitButton", "popupsavedata");
+        }
+        //youshanoted
+        try
+        {
+            if (Convert.ToInt32(bookingdata.customerComponentTokiStData?.SitenCdSeq) != 0 && !string.IsNullOrWhiteSpace(motoTenantCdSeq))
+                BookingInputTabChild.SetSelectedSupplier(Convert.ToInt32(bookingdata.customerComponentTokiStData?.TokuiSeq),
+                    Convert.ToInt32(bookingdata.customerComponentTokiStData?.SitenCdSeq));
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("zoomTabBooking");
+    }
+
+    /// <summary>
+    /// Invoked right before a component re-render is executed.
+    /// Prevent render when keydown event is fired by formContext.
+    /// </summary>
+    /// <returns></returns>
+    protected override bool ShouldRender()
+    {
+        if (shouldRender)
+        {
+            return true;
+        }
+        else
+        {
+            shouldRender = true;
+            return false;
+        }
+    }
+    #endregion
+
+    #region Booking Form value changed methods
+
+    /// <summary>
+    /// Select Booking Status
+    /// </summary>
+    /// <param name="e"></param>
+    void OnSelectedBookingStatusChanged(TPM_CodeKbCodeSyuData e)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.BookingStatus = e;
+            formContext.Validate();
+            AffectClearAllBtn();
+        }
+    }
+
+    /// <summary>
+    /// Event call for enable delete button
+    /// </summary>
+    /// <param name="e"></param>
+    void OnSelectedBookingTypeChanged(ReservationClassComponentData e)
+    {
+        bookingdata.CurrentBookingType = e ?? new ReservationClassComponentData();
+        formContext.Validate();
+        AffectClearAllBtn();
+    }
+
+    void OnSelectedSaleBranchChanged(LoadSaleBranch e)
+    {
+        bookingdata.SelectedSaleBranch = e ?? new LoadSaleBranch();
+        formContext.Validate();
+        AffectClearAllBtn();
+    }
+
+    void OnSelectedStaffChanged(LoadStaff e)
+    {
+        bookingdata.SelectedStaff = e ?? new LoadStaff();
+        formContext.Validate();
+        AffectClearAllBtn();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnTextOrganizationNameChanged(string newValue)
+    {
+        bookingdata.TextOrganizationName = newValue;
+        AffectClearAllBtn();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnCustomerListLabelChanged(string propertyName, dynamic value)
+    {
+        var propertyInfo = bookingdata.GetType().GetProperty(propertyName);
+        propertyInfo.SetValue(bookingdata, value, null);
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            if (bookingdata.customerComponentGyosyaData != null
+                && bookingdata.customerComponentTokiskData != null
+                && propertyName == nameof(bookingdata.customerComponentTokiStData) && value != null)
+            {
+                if(supervisorCount == 3)
+                {
+                    bookingdata.SupervisorTabData.customerComponentGyosyaData = bookingdata.customerComponentGyosyaData;
+                    bookingdata.SupervisorTabData.customerComponentTokiskData = bookingdata.customerComponentTokiskData;
+                    bookingdata.SupervisorTabData.customerComponentTokiStData = bookingdata.customerComponentTokiStData;
+                    BookingInputTabChild.CustomerComponent.DefaultTokisk = Convert.ToInt32(bookingdata.SupervisorTabData.customerComponentTokiskData?.TokuiSeq);
+                    BookingInputTabChild.CustomerComponent.DefaultTokiSt = Convert.ToInt32(bookingdata.SupervisorTabData.customerComponentTokiStData?.SitenCdSeq);
+                    BookingInputTabChild.CustomerComponent.DefaultGyosya = null;
+                    BookingInputTabChild.CustomerComponent.RenderByTokiskTokist();
+                }
+                if (supervisorCount > 3)
+                {
+                    BookingInputTabChild.CustomerComponent.DefaultTokisk = Convert.ToInt32(bookingdata.SupervisorTabData.customerComponentTokiskData?.TokuiSeq);
+                    BookingInputTabChild.CustomerComponent.DefaultTokiSt = Convert.ToInt32(bookingdata.SupervisorTabData.customerComponentTokiStData?.SitenCdSeq);
+                    BookingInputTabChild.CustomerComponent.DefaultGyosya = null;
+                    BookingInputTabChild.CustomerComponent.RenderByTokiskTokist();
+                    supervisorCount = 3;
+                }
+            }
+            else if (supervisorCount < 3)
+                supervisorCount++;
+            ChangeInvoiceDate();
+            ClearAllBtnDisabledState = false;
+            if(propertyName != nameof(bookingdata.customerComponentGyosyaData))
+                formContext.Validate();
+            //StateHasChanged();
+        }
+    }
+
+    protected void SelectedPassengerTypeChanged(PassengerType newValue)
+    {
+        if (newValue != null)
+        {
+            bookingdata.PassengerTypeData = newValue;
+        }
+        ClearAllBtnDisabledState = false;
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    void ChangeInvoiceDate()
+    {
+        var expectDate = bookingdata.InvoiceDate;
+        var dateNum = Convert.ToInt32(bookingdata.customerComponentTokiStData?.SimeD) == 0 ? bookingdata.InvoiceDate.Day : Convert.ToInt32(bookingdata.customerComponentTokiStData?.SimeD);
+        if (expectDate.Day > dateNum)
+        {
+            expectDate = expectDate.AddMonths(1);
+        }
+        bookingdata.InvoiceMonth = expectDate.ToString(MonthFormat);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnDateStartChanged(DateTime? newValue)
+    {
+        if(newValue == null)
+            return;
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.BusStartDate = (DateTime)newValue;
+            //bookingdata.BusEndDate = newValue;
+            bookingdata.InvoiceDate = (DateTime)newValue; // 配車日時
+            bookingdata.InvoiceMonth = ((DateTime)newValue).ToString(MonthFormat);
+
+            bookingdata.ReservationTabData.GarageLeaveDate = (DateTime)newValue;
+            bookingdata.ReservationTabData.GoDate = (DateTime)newValue;
+            if (bookingdata.PreDaySetting)
+                bookingdata.ReservationTabData.GarageLeaveDate = bookingdata.ReservationTabData.GarageLeaveDate.AddDays(-1);
+
+            OnDateEndChanged((DateTime)newValue);
+            ClearAllBtnDisabledState = false;
+
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void OnBusStartTimeChanged(object newTime)
+    {
+        try
+        {
+            if (bookingdata.IsDailyReportRegisted == false)
+            {
+                bookingdata.ReservationTabData.SyuKoTime.Str = newTime.ToString();
+                bookingdata.ReservationTabData.SyuPatime.Str = newTime.ToString();
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+        AffectClearAllBtn();
+    }
+
+    void OnBusEndTimeChanged(object newTime)
+    {
+        try
+        {
+            if (bookingdata.IsDailyReportRegisted == false)
+            {
+                bookingdata.ReservationTabData.KikTime.Str = newTime.ToString();
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+        AffectClearAllBtn();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnDateEndChanged(DateTime? newValue)
+    {
+        if(newValue == null)
+            return;
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.BusEndDate = (DateTime)newValue;
+            ClearAllBtnDisabledState = false;
+            if (UriKbn == 2)
+            {
+                bookingdata.InvoiceDate = (DateTime)newValue; // 終日予定
+                bookingdata.InvoiceMonth = ((DateTime)newValue).ToString(MonthFormat);
+            }
+            ChangeInvoiceDate();
+            bookingdata.ReservationTabData.GarageReturnDate = (DateTime)newValue;
+            if (bookingdata.AftDaySetting)
+                bookingdata.ReservationTabData.GarageReturnDate = bookingdata.ReservationTabData.GarageReturnDate.AddDays(1);
+            formContext.Validate();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void OnPreDayCheckBoxChanged(bool value)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.PreDaySetting = value;
+            BookingInputTabChild.OnPreDayChecked(value);
+            AffectClearAllBtn();
+        }
+    }
+
+    void OnAftDayCheckBoxChanged(bool value)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.AftDaySetting = value;
+            BookingInputTabChild.OnAfterDayChecked(value);
+            AffectClearAllBtn();
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnDateChanged(DateTime? newValue)
+    {
+        if(newValue == null)
+            return;
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            bookingdata.InvoiceDate = (DateTime)newValue;
+            bookingdata.InvoiceMonth = ((DateTime)newValue).ToString(MonthFormat);
+            ChangeInvoiceDate();
+            ClearAllBtnDisabledState = false;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    #region InputRate Action
+
+    /// <summary>
+    /// Occurs when InputRate value of <see cref="BookingFormData.TaxRate"/> changed.
+    /// <para>Default value to 10 - ticked 1729</para>
+    /// </summary>
+    /// <param name="value">New value of rate</param>
+    void OnBusTaxRateChanged(string value)
+    {
+        bookingdata.TaxRate = value;
+
+        ClearAllBtnDisabledState = false;
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///  Occurs when InputRate value of <see cref="BookingFormData.FeeBusRate"/> changed.
+    /// </summary>
+    /// <param name="value">New value of rate</param>
+    void OnBusFeeTaxRateChanged(string value)
+    {
+        bookingdata.FeeBusRate = value;
+
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Occurs when InputRate value of <see cref="BookingFormData.FeeGuiderRate"/> changed.
+    /// </summary>
+    /// <param name="value">New value of rate</param>
+    void OnGuiderFeeTaxRateChanged(string value)
+    {
+        bookingdata.FeeGuiderRate = value;
+
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+    #endregion
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void SelectedTaxTypeForBusChanged(TaxTypeList e)
+    {
+        if (e != null)
+        {
+            bookingdata.TaxTypeforBus = e;
+        }
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void SelectedTaxTypeForGuiderChanged(TaxTypeList e)
+    {
+        if (e != null)
+        {
+            bookingdata.TaxTypeforGuider = e;
+        }
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Booking Grid value changed methods
+
+    /// <summary>
+    ///
+    /// </summary>
+    void AddNewRow()
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            //int max = this.bookingdata.VehicleGridDataList.Max(t => int.Parse(t.RowID));
+            int count = this.bookingdata.VehicleGridDataList.Count();
+            if (count < maxRow)
+            {
+                maxRowIndex++;
+                bookingdata.VehicleGridDataList.Add(new VehicleGridData { RowID = $"{maxRowIndex}", BusNum = "1", DriverNum = "1", UnitBusPrice = "0", UnitBusFee = "0", UnitPrice = "0", BusPrice = "0", GuiderNum = "0", UnitGuiderFee = "0", GuiderFee = "0", busTypeData = new BusTypeData(), UnitPriceIndex = "0" });
+            }
+            formContext.Validate();
+            ClearAllBtnDisabledState = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="rowID"></param>
+    void OnSelectedBusTypeChanged(BusTypeData e, string rowID)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+            gridRow.busTypeData = e ?? new BusTypeData();
+            formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.busTypeData));
+            AffectClearAllBtn();
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnNumBusChanged(string value, string rowID)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+            if (string.IsNullOrWhiteSpace(value) == false)
+            {
+                int newValue;
+                if (int.TryParse(value, out newValue) && newValue > 0)
+                {
+                    gridRow.BusNum = newValue.ToString();
+                    formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.BusNum));
+                    ClearAllBtnDisabledState = false;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnNumDriverChanged(string value, string rowID)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+            if (string.IsNullOrWhiteSpace(value) == false)
+            {
+                int newValue;
+                if (int.TryParse(value, out newValue) && newValue > 0)
+                {
+                    gridRow.DriverNum = newValue.ToString();
+                    formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.DriverNum));
+                    ClearAllBtnDisabledState = false;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnUnitBusPriceChanged(String value, string rowID)
+    {
+        int tmp;
+        if (CommonUtil.NumberTryParse(value, out tmp))
+        {
+            if (tmp >= 0)
+            {
+                var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+                gridRow.UnitBusPrice = value;
+                formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.UnitBusPrice));
+            }
+        }
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnUnitBusFareChanged(String value, string rowID)
+    {
+        int tmp;
+        if (CommonUtil.NumberTryParse(value, out tmp))
+        {
+            if (tmp >= 0)
+            {
+                var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+                gridRow.UnitBusFee = value;
+                formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.UnitBusFee));
+            }
+        }
+
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnNumGuiderChanged(string value, string rowID)
+    {
+        var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+        if (string.IsNullOrWhiteSpace(value) == false)
+        {
+            int newValue;
+            if (int.TryParse(value, out newValue) && newValue >= 0)
+            {
+                gridRow.GuiderNum = newValue.ToString();
+                formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.GuiderNum));
+                ClearAllBtnDisabledState = false;
+            }
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="rowID"></param>
+    void OnUnitGuiderChanged(String value, string rowID)
+    {
+        int tmp;
+        if (CommonUtil.NumberTryParse(value, out tmp))
+        {
+            if (tmp >= 0)
+            {
+                var gridRow = bookingdata.VehicleGridDataList.First(d => d.RowID == rowID);
+                gridRow.UnitGuiderFee = value;
+                formContext.NotifyFieldChanged(FieldIdentifier.Create(() => gridRow.UnitGuiderFee));
+            }
+        }
+
+        ClearAllBtnDisabledState = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnBranchPriorityAAChanged(LoadSaleBranch newBranch)
+    {
+        tempVehicleGridData.PriorityAutoAssignBranch = newBranch;
+
+        StateHasChanged();
+    }
+    private void OnChangeBranchPriorityAAClicked()
+    {
+        var oldBranch = bookingdata.VehicleGridDataList
+            .FirstOrDefault(_ => _.RowID == tempVehicleGridData.RowID)
+            .PriorityAutoAssignBranch;
+
+        if (oldBranch != tempVehicleGridData.PriorityAutoAssignBranch)
+        {
+            bookingdata.VehicleGridDataList
+            .FirstOrDefault(_ => _.RowID == tempVehicleGridData.RowID)
+            .PriorityAutoAssignBranch = tempVehicleGridData.PriorityAutoAssignBranch;
+            SubmitBtnEnabledState = true;
+        }
+
+        isPriorityAAPopup = false;
+
+        StateHasChanged();
+    }
+
+    private void OnBranchPriorityAAClicked(bool isShow, string rowId)
+    {
+        isPriorityAAPopup = isShow;
+        VehicleGridData vehicleGridData = bookingdata.VehicleGridDataList.FirstOrDefault(t => t.RowID == rowId);
+
+        if (isShow)
+        {
+            if (vehicleGridData.PriorityAutoAssignBranch != null && string.IsNullOrEmpty(vehicleGridData.PriorityAutoAssignBranch.BranchInfo))
+            {
+                vehicleGridData.PriorityAutoAssignBranch = SaleBranchsAutoAssign.Skip(1).FirstOrDefault(_ => _.EigyoCdSeq == vehicleGridData.PriorityAutoAssignBranch.EigyoCdSeq);
+            }
+
+            tempVehicleGridData.SimpleCloneProperties(vehicleGridData);
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///     ///
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="rowId"></param>
+    void OnMinMaxPopupVisibleChanged(Boolean status, string rowId)
+    {
+        Rowid = rowId;
+        PopupBooking = status;
+        VehicleGridData vehicleGridData = bookingdata.VehicleGridDataList.FirstOrDefault(t => t.RowID == rowId);
+        if (status == false)
+        { // when click close popup
+          // bookingdata.VehicleGridDataList[int.Parse(Rowid) - 1].minMaxForm = tmpMinMaxFormData;
+            vehicleGridData.minMaxForm = tmpMinMaxFormData;
+            tmpMinMaxFormData = null;
+            JSRuntime.InvokeAsync<string>("focusSubmitButton", "hyper" + rowId);
+        }
+        else // when show popup
+        {
+            // tmpMinMaxFormData = new MinMaxSettingFormData(bookingdata.VehicleGridDataList[int.Parse(Rowid) - 1].minMaxForm);
+            tmpMinMaxFormData = new MinMaxSettingFormData(vehicleGridData.minMaxForm);
+            if (!disableAll)
+            {
+                minMaxState = MinMaxSettingState.None;
+            }
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="id"></param>
+    protected void ConfirmDelete(string id)
+    {
+        if (bookingdata.IsDailyReportRegisted == false)
+        {
+            var verhicalData = bookingdata.VehicleGridDataList.SingleOrDefault(v => v.RowID == id);
+            if (verhicalData == null) return;
+            var isMinMaxNull = verhicalData.minMaxForm.typeBus == -1;
+            DeleteId = id;
+            if (isMinMaxNull == true)
+            {
+                DeleteHOGrid(DeleteId);
+            }
+            else
+            {
+                PopupDeletedata = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Delete booking when not set Min-Max Data
+    /// </summary>
+    /// <param name="rowID"></param>
+    void DeleteHOGrid(string rowID)
+    {
+        var itemToRemove = bookingdata.VehicleGridDataList.Single(r => r.RowID == rowID);
+        this.bookingdata.VehicleGridDataList.Remove(itemToRemove);
+        formContext.NotifyFieldChanged(FieldIdentifier.Create(() => bookingdata.VehicleGridDataList));
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Delete booking when set Min-Max Data
+    /// </summary>
+    /// <param name="args"></param>
+    void DeleteHOGridnotnull(MouseEventArgs args)
+    {
+        if (DeleteId != "")
+        {
+            var itemToRemove = bookingdata.VehicleGridDataList.Single(r => r.RowID == DeleteId);
+            this.bookingdata.VehicleGridDataList.Remove(itemToRemove);
+        }
+        PopupDeletedata = false;
+        formContext.NotifyFieldChanged(FieldIdentifier.Create(() => bookingdata.VehicleGridDataList));
+        StateHasChanged();
+    }
+
+    #endregion
+
+    void UnitPriceCallBack(string Rowid)
+    {
+        if (bookingdata.VehicleGridDataList.Count > 0)
+        {
+            PopupBooking = false;
+            var itemToUpdate = bookingdata.VehicleGridDataList.Single(r => r.RowID == Rowid);
+            formContext.NotifyFieldChanged(() => itemToUpdate.UnitBusPrice, () => itemToUpdate.UnitBusFee);
+        }
+        JSRuntime.InvokeAsync<string>("focusSubmitButton", "hyper" + Rowid);
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    async Task HandleChangeState(CallBackTabBookingState newState)
+    {
+        switch (newState)
+        {
+            case CallBackTabBookingState.FixedConfirm:
+                await RefreshConfirmTab();
+                formContext.MarkAsUnmodified();
+                formContext.Validate();
+                BookingInputTabChild.isEnableSubmitConfirm = false;
+                SubmitBtnEnabledState = false;
+                ClearAllBtnDisabledState = false;
+                break;
+            case CallBackTabBookingState.UpdateBooking:
+                await ConfirmUpdate(true);
+                break;
+            case CallBackTabBookingState.DisableIndex:
+                disableAll = true;
+                break;
+            case CallBackTabBookingState.EnableIndex:
+                disableAll = false;
+                minMaxState = MinMaxSettingState.None;
+                break;
+            case CallBackTabBookingState.UpdateConfirmTab:
+                await HandleUpdateConfirmTab();
+                break;
+            case CallBackTabBookingState.UpdateCancelTab:
+                await HandleUpdateCancelTab();
+                break;
+            case CallBackTabBookingState.HaitaError:
+                await HandleHaitaError();
+                break;
+            case CallBackTabBookingState.True:
+            case CallBackTabBookingState.False:
+            default:
+                ClearAllBtnDisabledState = newState == CallBackTabBookingState.True;
+                break;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task Load(int tenantId, int compnyId)
+    {
+        TkmKasSet tkmKasSet = await Http.GetJsonAsync<TkmKasSet>(baseUrl + "/api/TkmKasSet/" + compnyId);
+        UriKbn = tkmKasSet.UriKbn;
+        SaleBranchList = (await LoadSaleBranchListAsync()).ToList();
+        StaffList = (await LoadStaffListAsync()).ToList();
+        if (UkeCd == null || UkeCd == "0" || bookingdata == null || bookingdata.CurrentBookingType.YoyaKbnSeq == -1) // Add new booking input
+        {
+            bookingdata.BookingStatus = BookingStatusList.FirstOrDefault(t => t.CodeKbn == Constants.BookingStatus);
+            bookingdata.VehicleGridDataList.Add(new VehicleGridData { RowID = "1", BusNum = "1", DriverNum = "1", UnitBusPrice = "0", UnitBusFee = "0", UnitPrice = "0", BusPrice = "0", GuiderNum = "0", UnitGuiderFee = "0", GuiderFee = "0", minMaxForm = new MinMaxSettingFormData() });
+            bookingdata.TaxTypeforBus = TaxTypeListData.taxTypeList.First();
+            bookingdata.TaxTypeforGuider = TaxTypeListData.taxTypeList.First();
+            if (StaffList.Count != 0)
+            {
+                bookingdata.SelectedStaff = StaffList.ToList().Where(t => t.SyainCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).FirstOrDefault() ?? StaffList.First();
+                bookingdata.SelectedSaleBranch = SaleBranchList.Where(t => t.EigyoCdSeq == bookingdata.SelectedStaff.EigyoCdSeq).First();
+            }
+            if (BookingTypeList.Count != 0)
+            {
+                var bookingType = BookingTypeList.ToList().Where(t => t.TenantCdSeq == new ClaimModel().TenantID).FirstOrDefault();
+                if(bookingType != null)
+                {
+                    bookingdata.CurrentBookingType = new ReservationClassComponentData()
+                    {
+                        YoyaKbn = bookingType.YoyaKbn,
+                        YoyaKbnNm = bookingType.YoyaKbnNm,
+                        YoyaKbnSeq = bookingType.YoyaKbnSeq
+                    };
+                }
+                if (bookingdata.CurrentBookingType == null)
+                {
+                    bookingdata.CurrentBookingType = new ReservationClassComponentData();
+                }
+            }
+        }
+        else // Edit exist booking input
+        {
+            emptyItemMessage.Clear();
+            if (bookingdata.BookingStatus.CodeKbn == Constants.BookingStatus || bookingdata.BookingStatus.CodeKbn == Constants.CancelBookingStatus)
+            {
+                bookingdata.BookingStatus = BookingStatusList.FirstOrDefault(t => t.CodeKbn == Constants.BookingStatus);
+            }
+            if (bookingdata.BookingStatus.CodeKbn == Constants.EstimateStatus || bookingdata.BookingStatus.CodeKbn == Constants.CancelEstimateStatus)
+            {
+                bookingdata.BookingStatus = BookingStatusList.FirstOrDefault(t => t.CodeKbn == Constants.EstimateStatus);
+            }
+            if (StaffList.Count != 0)
+            {
+                var selectedStaff = StaffList.ToList().Where(t => t.SyainCdSeq == bookingdata.SelectedStaff.SyainCdSeq).FirstOrDefault();
+
+                bookingdata.SelectedStaff = AssignSelectedItem(selectedStaff, new LoadStaff(), EmptyStaffMessage);
+
+                var selectedSaleBranch = SaleBranchList.Where(t => t.EigyoCdSeq == bookingdata.SelectedSaleBranch.EigyoCdSeq).FirstOrDefault();
+                bookingdata.SelectedSaleBranch = AssignSelectedItem(selectedSaleBranch, new LoadSaleBranch(), EmptySaleBranchMessage);
+            }
+            if (BookingTypeList.Count != 0)
+            {
+                var bookingType = BookingTypeList.ToList().Where(t => t.YoyaKbnSeq == bookingdata.CurrentBookingType.YoyaKbnSeq).FirstOrDefault();
+                var currentBookingType = new ReservationClassComponentData()
+                {
+                    YoyaKbn = bookingType.YoyaKbn,
+                    YoyaKbnNm = bookingType.YoyaKbnNm,
+                    YoyaKbnSeq = bookingType.YoyaKbnSeq
+                };
+                bookingdata.CurrentBookingType = AssignSelectedItem(currentBookingType, new ReservationClassComponentData(), EmptyBookingTypeMessage);
+            }
+
+            CustomerComponent.DefaultTokisk = Convert.ToInt32(bookingdata.customerComponentTokiskData?.TokuiSeq);
+            CustomerComponent.DefaultTokiSt = Convert.ToInt32(bookingdata.customerComponentTokiStData?.SitenCdSeq);
+            CustomerComponent.DefaultGyosya = null;
+            CustomerComponent.RenderByTokiskTokist();
+
+            for (int i = 0; i < bookingdata.VehicleGridDataList.Count; i++)
+            {
+                var busTypeData = BusTypeList.Where(x => x.Katakbn == bookingdata.VehicleGridDataList[i].busTypeData.Katakbn &&
+                                x.SyaSyuCdSeq == bookingdata.VehicleGridDataList[i].busTypeData.SyaSyuCdSeq).FirstOrDefault();
+                bookingdata.VehicleGridDataList[i].busTypeData = AssignSelectedItem(busTypeData, new BusTypeData(), EmptyBusTypeMessage);
+            }
+            isEmptyItem = emptyItemMessage.Count > 0;
+
+            if (InvoiceTypeList != null)
+            {
+                bookingdata.SelectedInvoiceType = InvoiceTypeList.SingleOrDefault(e => e.CodeKbnSeq == bookingdata.SelectedInvoiceType.CodeKbnSeq);
+            }
+            if (bookingdata.PassengerTypeData != null && passengerTypeList != null)
+            {
+                int jyoKyakuCdSeq = bookingdata.PassengerTypeData.JyoKyakuCdSeq;
+                bookingdata.PassengerTypeData = passengerTypeList.FirstOrDefault(p => p.JyoKyakuCdSeq == jyoKyakuCdSeq);
+            }
+        }
+        maxRowIndex = Math.Max(this.bookingdata.VehicleGridDataList.Max(t => int.Parse(t.RowID)), bookingdata.CurrentMaxSyaSyuRen);
+        disableAll = false;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="selected"></param>
+    /// <param name="selectedItem"></param>
+    /// <param name="newItem"></param>
+    /// <param name="message"></param>
+    T AssignSelectedItem<T>(T selectedItem, T newItem, string message)
+    {
+        if (selectedItem == null)
+        {
+            if (!emptyItemMessage.Contains(message))
+            {
+                emptyItemMessage.Add(message);
+            }
+            return newItem;
+        }
+        else
+        {
+            return selectedItem;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="args"></param>
+    void ClearAll(MouseEventArgs args)
+    {
+        int count = bookingdata.VehicleGridDataList.Count();
+        bookingdata = new BookingFormData();
+        PopupVisible = false;
+
+        for (int i = 1; i < count; i++)
+        {
+            bookingdata.VehicleGridDataList.Add(new VehicleGridData { RowID = "" + (i + 1), BusNum = "1", DriverNum = "1", UnitBusPrice = "0", UnitBusFee = "0", UnitPrice = "0", BusPrice = "0", GuiderNum = "0", UnitGuiderFee = "0", GuiderFee = "0" });
+        }
+        BackToInitializeState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handle keydown to add new row in datagrid with hotkey : Alt && '+'
+    /// </summary>
+    /// <param name="e"></param>
+    void HandleKeyAddNewRow(KeyboardEventArgs e)
+    {
+        if (e.AltKey && e.Key == "+")
+        {
+            AddNewRow();
+        }
+        else
+        {
+            //Prevent re-render when other key is pressed
+            shouldRender = false;
+        }
+    }
+
+    /// <summary>
+    /// Handle action create a new booking. Include handle success and error response.
+    /// </summary>
+    /// <param name="client">HttpClient assign to send</param>
+    /// <param name="booking">Reservation information will be registered.</param>
+    /// <returns></returns>
+    private async Task HandleCreateNewBooking(HttpClient client, BookingFormData booking)
+    {
+        //client.Timeout = TimeSpan.FromMinutes(10);
+        HttpResponseMessage response = await client.PostAsync($"{baseUrl}/api/BookingInput/", Http.getStringContentFromObject(booking));
+
+        if (response.IsSuccessStatusCode)
+        {
+            string newUkeNo = await response.Content.ReadAsStringAsync();
+            newUkeCd = newUkeNo.Substring(5);
+            RegisteredResult = CreateResultSuccessMessage;
+            RegisteredResultContent = string.Format(CreateResultScuccessMessageContent, newUkeCd);
+            BackToInitializeState();
+            PopupSaveDataSucess = true;
+            BookingFormData putData = new BookingFormData();
+            try
+            {
+                putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + newUkeNo);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine();
+            }
+            putData.UkeNo = newUkeNo;
+            var result = await Task.WhenAll(fileUploadlst.Select(f => ProcessFiles(f, newUkeNo)));
+            if (result.Any(e => e))
+            {
+                TKD_UnkobiDataListService.InsertUnkobiFile(putData, fileUploadlst);
+            }
+            if (booking.IsYoushaNote == true)
+            {
+                try
+                {
+                    CarCooperationService.UpdateYoushaNotice(int.Parse(motoTenantCdSeq), motoUkeNo, short.Parse(motoUnkRen), int.Parse(motoYouTblSeq));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine();
+                }
+            }
+
+        }
+        else
+        {
+            string errorCode = await response.Content.ReadAsStringAsync();
+
+            if (errorCode == Constants.ErrorMessage.UkenoCdIsFull)
+            {
+                RegisteredResult = CreateResultErrorMessage;
+                RegisteredResultContent = CreateResultUkenoIsFullErrorMessageContent;
+            }
+            else
+            {
+                RegisteredResult = CreateResultErrorMessage;
+                RegisteredResultContent = string.Empty;
+            }
+
+            PopupSaveDataError = true;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    private async void HandleValidSubmit()
+    {
+        bool isValid = formContext.Validate();
+        if (isValid)
+        {
+            disableAll = true;
+            var client = await Http.GetHttpClient();
+
+            if (UkeCd == null || UkeCd == "0")
+            {
+                bookingdata.IsCopyMode = false;
+
+                await HandleCreateNewBooking(client, bookingdata);
+
+            }
+            else
+            {
+                supervisorCount = 6;
+                if (isCopyMode)
+                {
+                    bookingdata.IsCopyMode = true;
+                    bookingdata.UkeNo = string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd);
+                    bookingdata.ConfirmationTabDataList = new List<ConfirmationTabData>();
+                    bookingdata.CancelTickedData = new CancelTickedData();
+
+                    await HandleCreateNewBooking(client, bookingdata);
+
+                    BookingFormData putData = new BookingFormData();
+                    try
+                    {
+                        putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+                    {
+                        bookingdata.SetBookingFromData(putData);
+                        // SINSINHO_WEBSYSTEM-7526 【単体複写画面＿仕様変更
+                        //PageTitle = string.Format(PageTitleCopy, newUkeCd);
+                        SubmitText = CopyButton;
+                        await Load(new ClaimModel().TenantID, new HassyaAllrightCloud.Domain.Dto.ClaimModel().CompanyID);
+                    }
+                    else
+                    {
+                        NavManager.NavigateTo("/");
+                    }
+
+                }
+                else if (string.IsNullOrEmpty(bookingdata.KaktYmd) == false)
+                {
+                    isPopupEditWhenConfirmed = true;
+                }
+                else
+                {
+                    bookingdata.IsCopyMode = false;
+                    await ProcessUpdateBooking();
+                }
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            SubmitBtnEnabledState = false;
+        }
+    }
+
+    private async void UpdateBookingInput(bool isUpdateWithAutoAssign)
+    {
+        bool isHaita = await HaitaCheck(false);
+        if (!isHaita)
+        {
+            PopupHaiTaCheckFail = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        var client = await Http.GetHttpClient();
+        bookingdata.IsUpdateWithAutoAssign = isUpdateWithAutoAssign;
+        HttpResponseMessage response = await client.PutAsync($"{baseUrl}/api/BookingInput/{string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd)}", Http.getStringContentFromObject(bookingdata));
+        if (response.IsSuccessStatusCode)
+        {
+            bookingdatalst = new List<BookingData>();
+            bookingdatalst = await _busBookingDataService.GetBookingData(string.Format("{0:D5}{1}", new HassyaAllrightCloud.Domain.Dto.ClaimModel().TenantID, UkeCd), bookingdata.UnkRen);
+            if (bookingdatalst.Count() > 0)
+            {
+                foreach (var itembooking in bookingdatalst)
+                {
+                    List<ItemStaff> lstStaffsLines = new List<ItemStaff>();
+                    List<StaffsLines> lstStafflines = new List<StaffsLines>();
+                    lstStaffsLines.Clear();
+                    lstStafflines = await _StaffsChartService.GetStaffdatahaiiinbooking(itembooking.UkeNo, itembooking.UnkRen, itembooking.TeiDanNo, itembooking.BunkRen, new HassyaAllrightCloud.Domain.Dto.ClaimModel().TenantID);
+                    foreach (var item in lstStafflines)
+                    {
+                        ItemStaff staffItem = new ItemStaff();
+                        staffItem.BookingId = item.Haisha_UkeNo;
+                        staffItem.HaUnkRen = item.Haisha_UnkRen;
+                        staffItem.TeiDanNo = item.Haisha_TeiDanNo;
+                        staffItem.BunkRen = item.Haisha_BunkRen;
+                        staffItem.HenKai = 1;
+                        staffItem.Id = item.Yykasho_UkeCd.ToString();
+                        staffItem.UkeCd = item.Yykasho_UkeCd;
+                        staffItem.BusLine = item.Haiin_SyainCdSeq.ToString();
+                        staffItem.StartDate = item.Haisha_HaiSYmd;
+                        staffItem.TimeStart = int.Parse(item.Haisha_HaiSTime);
+                        staffItem.EndDate = item.Haisha_TouYmd;
+                        staffItem.TimeEnd = int.Parse(item.Haisha_TouChTime);
+                        staffItem.StartDateDefault = item.Haisha_SyuKoYmd;
+                        staffItem.EndDateDefault = item.Haisha_KikYmd;
+                        staffItem.TimeStartDefault = int.Parse(item.Haisha_SyuKoTime);
+                        staffItem.TimeEndDefault = int.Parse(item.Haisha_KikTime);
+                        staffItem.JyoSyaJin = item.Haisha_JyoSyaJin;
+                        staffItem.AllowEdit = true;
+                        staffItem.Status = 1;
+                        staffItem.CCSStyle = "";
+                        staffItem.Top = 0.3125;
+                        staffItem.Height = 2;
+                        staffItem.Name = "";
+                        staffItem.DanTaNm = item.Haisha_DanTaNm2;
+                        staffItem.IkNm = item.Haisha_IkNm;
+                        staffItem.TokuiNm = "";
+                        staffItem.NumberDriver = item.Haisha_DrvJin;
+                        staffItem.NumberGuider = item.Haisha_GuiSu;
+                        staffItem.MinDate = item.Unkobi_HaiSYmd;
+                        staffItem.MinTime = int.Parse(item.Unkobi_HaiSTime);
+                        staffItem.Maxdate = item.Unkobi_TouYmd;
+                        staffItem.MaxTime = int.Parse(item.Unkobi_TouChTime);
+                        staffItem.HasYmd = item.Haisha_HaiSYmd;
+                        staffItem.Zeiritsu = 1;
+                        staffItem.BookingType = 1;
+                        staffItem.CodeKb_CodeKbn = "";
+                        staffItem.KSKbn = item.Haisha_KSKbn;
+                        staffItem.YouTblSeq = 0;
+                        staffItem.SyaSyu_SyaSyuNm = item.Syasyu_SyaSyuNm;
+                        staffItem.SyaSyu_SyaSyuNm_Haisha = "";
+                        staffItem.BusLineType = item.Haisha_UkeNo;
+                        staffItem.Tokisk_YouSRyakuNm = null;
+                        staffItem.Tokisk_SitenCdSeq = 0;
+                        staffItem.TokiSk_RyakuNm = item.Tokisk_RyakuNm;
+                        staffItem.TokiSt_RyakuNm = item.Tokist_RyakuNm;
+                        staffItem.Shuri_ShuriTblSeq = 0;
+                        staffItem.SyaSyuRen = item.Haisha_SyaSyuRen;
+                        staffItem.BranchId = 0;
+                        staffItem.CompanyId = 0;
+                        staffItem.BunKSyuJyn = 1;
+                        staffItem.UnkoJKbn = item.Unkobi_UnkoJKbn;
+                        staffItem.unSyuKoYmd = item.Unkobi_SyukoYmd;
+                        staffItem.unKikYmd = item.Unkobi_KikYmd;
+                        staffItem.unHaiSYmd = item.Unkobi_HaiSYmd;
+                        staffItem.unTouYmd = item.Unkobi_TouYmd;
+                        staffItem.CanBeDeleted = false;
+                        staffItem.CanSimpledispatch = true;
+                        staffItem.BusVehicle = 0;
+                        if (item.Syokum_SyokumuKbn == 1 || item.Syokum_SyokumuKbn == 2)
+                        { staffItem.BusVehicle = 1; }
+                        if (item.Syokum_SyokumuKbn == 3 || item.Syokum_SyokumuKbn == 4)
+                        { staffItem.BusVehicle = 2; }
+                        staffItem.haiInRen = item.Haiin_HaiInRen;
+                        lstStaffsLines.Add(staffItem);
+                    }
+                    foreach (var itemhaiin in lstStaffsLines)
+                    {
+                        _KobanDataService.DeleteKobanbyUkeno(itemhaiin.BookingId, itemhaiin.HaUnkRen, itemhaiin.TeiDanNo, itemhaiin.BunkRen, int.Parse(itemhaiin.BusLine));
+                        _KobanDataService.UpdateTimeKoban(itemhaiin.StartDateDefault, itemhaiin.TimeStartDefault.ToString("D4"), itemhaiin.EndDateDefault, itemhaiin.TimeEndDefault.ToString("D4"), int.Parse(itemhaiin.BusLine), _busBookingDataService.Getcompany(itemhaiin.unHaiSYmd, int.Parse(itemhaiin.BusLine)), itemhaiin, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, "KJ1000P");
+                    }
+                }
+            }
+            isUpdateSuccess = true;
+            RegisteredResult = PopupTitleInfo;
+            RegisteredResultContent = UpdateResultSuccessMessage;
+        }
+        else
+        {
+            isUpdateSuccess = false;
+            RegisteredResult = PopupTitleError;
+            RegisteredResultContent = UpdateResultErrorMessage;
+        }
+        isAutoAssignPopup = false;
+        PopupUpdateDataSucess = true;
+        try
+        {
+            BookingFormData putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+            if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+            {
+                bookingdata.SetBookingFromData(putData);
+            }
+        }
+        catch (Exception)
+        {
+        }
+        await Load(new ClaimModel().TenantID, new ClaimModel().CompanyID);
+        ClearAllBtnDisabledState = true;
+        bookingdata.CalculateCancelFee();
+        bookingdata.CalculateCancelTaxFee();
+        await BookingInputTabChild.SetupJourneyTabAsync();
+        //await BookingInputTabChild.SetupCancelTabAsync(bookingdata);//TODO
+        //BookingInputTabChild.SetupCOnfirmationTab(bookingdata);//TODO
+        await BookingInputTabChild.Load(bookingdata);
+        formContext.MarkAsUnmodified();
+        StateHasChanged();
+
+        //formContext = new EditContext(bookingdata);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void FocusOnOrganizationNameAgainAndDisabledSubmitButton(EventArgs e)
+    {
+        if (isCopyMode == false) SubmitBtnEnabledState = false;
+        JSRuntime.InvokeAsync<string>("focusEditor", "focus");
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void BackToInitializeState()
+    {
+        bookingdata = new BookingFormData();
+        bookingdata.VehicleGridDataList.Add(new VehicleGridData { RowID = "1", BusNum = "1", DriverNum = "1", UnitBusPrice = "0", UnitBusFee = "0", UnitPrice = "0", BusPrice = "0", GuiderNum = "0", UnitGuiderFee = "0", GuiderFee = "0", minMaxForm = new MinMaxSettingFormData() });
+        bookingdata.TaxTypeforBus = TaxTypeListData.taxTypeList.First();
+        bookingdata.TaxTypeforGuider = TaxTypeListData.taxTypeList.First();
+        bookingdata.SelectedStaff = StaffList.ToList().Where(t => t.SyainCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq).First();
+        bookingdata.SelectedSaleBranch = SaleBranchList.Where(t => t.EigyoCdSeq == bookingdata.SelectedStaff.EigyoCdSeq).First();
+        var bookingType = BookingTypeList.Where(t => t.TenantCdSeq == new ClaimModel().TenantID).FirstOrDefault();
+        bookingdata.CurrentBookingType = new ReservationClassComponentData()
+        {
+            YoyaKbn = bookingType.YoyaKbn,
+            YoyaKbnNm = bookingType.YoyaKbnNm,
+            YoyaKbnSeq = bookingType.YoyaKbnSeq
+        };
+        bookingdata.BookingStatus = BookingStatusList.FirstOrDefault(t => t.CodeKbn == Constants.BookingStatus);
+
+        ClearAllBtnDisabledState = true;
+        SubmitBtnEnabledState = false;
+        BookingInputTabChild.SetDefaultValueReservationTab(bookingdata);
+        formContext = new EditContext(bookingdata);
+    }
+
+    void AffectClearAllBtn()
+    {
+        ClearAllBtnDisabledState = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Check if booking need to auto re-assign vehicle
+    /// </summary>
+    /// <returns>
+    /// true - auto re-assign vehicle => open popup for user to choose
+    /// false - no need to re-assign => no popup for user to choose
+    /// </returns>
+    public async Task<bool> CheckModifiedBookingData()
+    {
+        BookingFormData previous = new BookingFormData();
+        try
+        {
+            previous = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+        }
+        catch (Exception)
+        {
+        }
+        if (bookingdata != null && previous?.CurrentBookingType?.YoyaKbnSeq != -1)
+        {
+            return this.bookingdata.VerifyHaishaModified(previous);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Check if booking need to select vehicle to be removed
+    /// </summary>
+    /// <returns>
+    /// true - select vehicle => open popup for user to choose
+    /// false - no need to select => no popup for user to choose
+    /// </returns>
+    public async Task<bool> CheckRemovedBuses()
+    {
+        BookingFormData previous = new BookingFormData();
+        try
+        {
+            previous = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+        }
+        catch (Exception)
+        {
+        }
+        if (bookingdata != null && previous?.CurrentBookingType?.YoyaKbnSeq != -1)
+        {
+            return this.bookingdata.VerifyHaishaRemoved(previous);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void HandleNavigateToEditPage()
+    {
+        PopupSaveDataSucess = false;
+        disableAll = false;
+        NavManager.NavigateTo($"bookinginput?UkeCd={newUkeCd}", true);
+    }
+
+    async Task<IEnumerable<TPM_CodeKbCodeSyuData>> LoadBookingStatusListAsync(CancellationToken ct = default)
+    {
+        return await Task.FromResult(BookingStatusList);
+    }
+
+    async Task<IEnumerable<InvoiceType>> LoadBillingCategoryListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<InvoiceType>>(baseUrl + "/api/BookingInput/InvoiceType/");
+    }
+
+    async Task<IEnumerable<LoadSaleBranch>> LoadSaleBranchListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<LoadSaleBranch>>(baseUrl + "/api/ReceiveBookingSaleBranch/" + new ClaimModel().TenantID);
+    }
+
+    /// <summary>
+    /// Load list branch display for set priority auto assign bus
+    /// </summary>
+    /// <param name="ct"></param>
+    /// <returns>List branch and fist value is null</returns>
+    async Task<IEnumerable<LoadSaleBranch>> LoadBranchsAutoAssignAsync(CancellationToken ct = default)
+    {
+        var branchs = await Http.GetJsonAsync<List<LoadSaleBranch>>(baseUrl + "/api/ReceiveBookingSaleBranch/" + new ClaimModel().TenantID);
+
+        branchs.Insert(0, null);
+        return branchs;
+    }
+
+    async Task<IEnumerable<LoadStaff>> LoadStaffListAsync(CancellationToken ct = default)
+    {
+        return await Http.GetJsonAsync<List<LoadStaff>>(baseUrl + "/api/Staff/" + new ClaimModel().TenantID);
+    }
+
+    async Task<IEnumerable<BookingTypeData>> LoadBookingTypeListAsync(CancellationToken ct = default)
+    {
+        return await TpmYoyKbnService.GetBookingTypeData();
+    }
+
+    async Task<IEnumerable<LoadCustomerList>> LoadCustomerListAsync(CancellationToken ct = default)
+    {
+        loadCustomerLists = await Http.GetJsonAsync<List<LoadCustomerList>>(baseUrl + "/api/Customer/get");
+        return loadCustomerLists;
+    }
+
+    async Task ConfirmUpdate(bool isUpdate)
+    {
+        isPopupEditWhenConfirmed = false;
+        if (isUpdate)
+        {
+            await ProcessUpdateBooking();
+        }
+        else
+        {
+            disableAll = false;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    void HandleSelectedBillingChanged(InvoiceType newValue)
+    {
+        if (newValue != null)
+            bookingdata.SelectedInvoiceType = newValue;
+        ClearAllBtnDisabledState = false;
+        formContext.Validate();
+        AffectClearAllBtn();
+    }
+
+    /// <summary>
+    /// When close popup update => if(update success) => change to tab user want
+    /// </summary>
+    void HandleClosePopupUpdate()
+    {
+        PopupUpdateDataSucess = false;
+        if (isUpdateSuccess)
+        {
+            disableAll = false;
+            formContext.MarkAsUnmodified();
+            BookingInputTabChild.SetActiveTabIndexToWaitting();
+            BookingInputTabChild.isEnableSubmitCancel = false;
+            BookingInputTabChild.isEnableSubmitConfirm = false;
+        }
+        else
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Update only confirm tab
+    /// </summary>
+    /// <returns></returns>
+    async Task HandleUpdateConfirmTab()
+    {
+        bool isHaita = await HaitaCheck(true, true);
+        if (!isHaita)
+        {
+            PopupHaiTaCheckFail = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        string ukeNo = string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd);
+        var client = await Http.GetHttpClient();
+        StringContent content = Http.getStringContentFromObject(bookingdata.ConfirmationTabDataList);
+        HttpResponseMessage response =
+            await client.PutAsync($"{baseUrl}/api/BookingInput/updateConfirmList/{ukeNo}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            isUpdateSuccess = true;
+            RegisteredResult = PopupTitleInfo;
+            RegisteredResultContent = UpdateResultSuccessMessage;
+        }
+        else
+        {
+            isUpdateSuccess = false;
+            RegisteredResult = PopupTitleError;
+            RegisteredResultContent = UpdateResultErrorMessage;
+        }
+        BookingFormData putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+        if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+        {
+            bookingdata.ConfirmationTabDataList = putData.ConfirmationTabDataList;
+            bookingdata.KakninUpdYmdTime = putData.KakninUpdYmdTime;
+        }
+        //BookingInputTabChild.SetupCOnfirmationTab(bookingdata); //TODO
+        PopupUpdateDataSucess = true;
+    }
+
+    async Task RefreshConfirmTab()
+    {
+        bool isHaita = await HaitaCheck();
+        if (!isHaita)
+        {
+            PopupHaiTaCheckFail = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        BookingFormData putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+        if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+        {
+            bookingdata.ConfirmationTabDataList = putData.ConfirmationTabDataList;
+            bookingdata.YykshoUpdYmdTime = putData.YykshoUpdYmdTime;
+        }
+        //BookingInputTabChild.SetupCOnfirmationTab(bookingdata);//TODO
+    }
+
+    /// <summary>
+    /// Update only cancel tab
+    /// </summary>
+    /// <returns></returns>
+    async Task HandleUpdateCancelTab()
+    {
+        bool isHaita = await HaitaCheck();
+        if (!isHaita)
+        {
+            PopupHaiTaCheckFail = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        string ukeNo = string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd);
+        var client = await Http.GetHttpClient();
+        StringContent content = Http.getStringContentFromObject(bookingdata.CancelTickedData);
+        HttpResponseMessage response =
+            await client.PutAsync($"{baseUrl}/api/BookingInput/updateCancel/{ukeNo}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            isUpdateSuccess = true;
+            RegisteredResult = PopupTitleInfo;
+            RegisteredResultContent = UpdateResultSuccessMessage;
+        }
+        else
+        {
+            isUpdateSuccess = false;
+            RegisteredResult = PopupTitleError;
+            RegisteredResultContent = UpdateResultErrorMessage;
+        }
+        BookingFormData putData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + string.Format("{0:D5}{1}", new ClaimModel().TenantID, UkeCd));
+        if (putData != null && putData?.CurrentBookingType?.YoyaKbnSeq != -1)
+        {
+            bookingdata.CancelTickedData.SetData(putData.CancelTickedData);
+            bookingdata.YykshoUpdYmdTime = putData.YykshoUpdYmdTime;
+        }
+        //await BookingInputTabChild.SetupCancelTabAsync(bookingdata);//TODO
+        //BookingInputTabChild.LoadCancelComboboxValue(bookingdata);//TODO
+        PopupUpdateDataSucess = true;
+    }
+
+    async Task HandleHaitaError()
+    {
+        PopupHaiTaCheckFail = true;
+        await InvokeAsync(StateHasChanged);
+        return;
+    }
+
+    private async Task Updatefile(List<FileInfoData> updateFileupload)
+    {
+        fileUploadlst = new List<FileInfoData>();
+        fileUploadlst = updateFileupload;
+    }
+
+    private async Task<bool> HaitaCheck(bool IsCheckOnlyYYkSho = true, bool IsCheckKaknin = false)
+    {
+        List<HaitaModelCheck> HaitaModelsToCheck = new List<HaitaModelCheck>();
+        if (!IsCheckKaknin)
+        {
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_Yyksho",
+                CurrentUpdYmdTime = bookingdata.YykshoUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+        }
+        else
+        {
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_Kaknin",
+                CurrentUpdYmdTime = bookingdata.KakninUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+        }
+
+        if (!IsCheckOnlyYYkSho)
+        {
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_Unkobi",
+                CurrentUpdYmdTime = bookingdata.UnkoUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_YykSyu",
+                CurrentUpdYmdTime = bookingdata.YykSyuUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_Haisha",
+                CurrentUpdYmdTime = bookingdata.HaishaUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_Mishum",
+                CurrentUpdYmdTime = bookingdata.MishumUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] {
+                new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) },
+                new PrimaryKeyToCheck() { PrimaryKey = "SeiFutSyu IN", Value = "(1, 7)" }})
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_BookingMaxMinFareFeeCalc",
+                CurrentUpdYmdTime = bookingdata.BookingMaxMinFareFeeCalcUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_BookingMaxMinFareFeeCalcMeisai",
+                CurrentUpdYmdTime = bookingdata.BookingMaxMinFareFeeCalcMeisaiUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+            HaitaModelsToCheck.Add(new HaitaModelCheck()
+            {
+                TableName = "TKD_UnkobiFile",
+                CurrentUpdYmdTime = bookingdata.UnkobiFileUpdYmdTime,
+                PrimaryKeys = new List<PrimaryKeyToCheck>(new PrimaryKeyToCheck[] { new PrimaryKeyToCheck() { PrimaryKey = "UkeNo =", Value = string.Format("'{0:D5}{1}'", new ClaimModel().TenantID, UkeCd) } })
+            });
+        }
+        return await HaitaCheckService.GetHaitaCheck(HaitaModelsToCheck);
+    }
+
+    protected async Task<bool> ProcessFiles(FileInfoData myFile, string UkeNo)
+    {
+        try
+        {
+            SharedLibraries.Utility.Models.FileSendData fileToSend = new SharedLibraries.Utility.Models.FileSendData();
+            fileToSend.File = myFile.File;
+            fileToSend.FileName = myFile.FileNm;
+            fileToSend.FilePath = string.Format("{0:D5}", new ClaimModel().TenantID) + "-" + TenantInfo.TenantCompanyName + "/" + Constants.SubStoredFolderForBookingInput +"/" + UkeNo.Substring(5);
+            fileToSend.Password = null;
+            fileToSend.FileSize = myFile.FileSize;
+            fileToSend.TenantId = new HassyaAllrightCloud.Domain.Dto.ClaimModel().TenantID;
+            fileToSend.UpdSyainCd = new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq;
+            fileToSend.UpdPrgID = Common.UpdPrgId;
+            var f = await s3Service.UploadFileAsync(fileToSend);
+            FileInfoData file = fileUploadlst.Find(item => item.FileNm == f.Name);
+            file.FolderId = f.EncryptedFolderId;
+            file.FileId = f.EncryptedId;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task ProcessUpdateBooking()
+    {
+        isOpenSelectRemoveBus = await CheckRemovedBuses();
+        if (!isOpenSelectRemoveBus)
+        {
+            isAutoAssignPopup = await CheckModifiedBookingData();
+            if (!isAutoAssignPopup)
+            {
+                UpdateBookingInput(false);
+            }
+        }
+    }
+
+    private async void ProcessRemovePopup(bool isAutoAssign)
+    {
+        isAutoAssignPopup = false;
+        isAutoAssignSelected = isAutoAssign;
+        isOpenSelectRemoveBus = await CheckRemovedBuses();
+        if (!isOpenSelectRemoveBus)
+        {
+            UpdateBookingInput(isAutoAssign);
+        }
+        StateHasChanged();
+    }
+
+    private async void HandleRemoveBusPopup(bool isProcess)
+    {
+        isOpenSelectRemoveBus = false;
+        disableAll = false;
+        if (isProcess)
+        {
+            isAutoAssignPopup = await CheckModifiedBookingData();
+            if (!isAutoAssignPopup)
+            {
+                UpdateBookingInput(false);
+            }
+        }
+        StateHasChanged();
+    }
+}

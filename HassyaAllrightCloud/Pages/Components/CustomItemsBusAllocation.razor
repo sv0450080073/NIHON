@@ -1,0 +1,173 @@
+﻿@using Microsoft.Extensions.DependencyInjection
+@inherits OwningComponentBase
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inject IStringLocalizer<BusAllocation> Lang
+
+<div class="customItemsList justify-content-between">
+    @if (IsEditAll)
+    {
+        foreach (var field in CustomFieldList)
+        {
+            InitCustomFieldValueFormUpdateAll(field);
+            <CustomInput FieldConfigs="field"
+                         ParentDivCssClass="customItemsList__item"
+                         ItemDivCssClass="form-group d-flex flex-nowrap"
+                         LabelCssClass="col-form-label-sm mr-2 width--90"
+                         ItemCssClass=@((field.CustomFieldType!=FieldType.Number ?" length"+field.TextLength:" number "+" length"+field.NumMax.Length))
+                         Value="@(BusAllocationDataUpdateAll.CustomData[field.id.ToString()].Any()?BusAllocationDataUpdateAll.CustomData[field.id.ToString()]:"")"
+                         ValueChanged="@(value => SetData(field.id.ToString(), value))"
+                         IsValueCustomHasChange="@IsValueCustomHasChange"
+                         IsEditNormal ="@(false)"
+                         ReadOnly="@IsReadOnly">
+            </CustomInput>
+        }
+    }
+    else
+    {
+        foreach (var field in CustomFieldList)
+        {
+            <CustomInput FieldConfigs="field"
+                         ParentDivCssClass="customItemsList__item"
+                         ItemDivCssClass="form-group d-flex flex-nowrap"
+                         LabelCssClass="col-form-label-sm mr-2 width--90"
+                         ItemCssClass=@((field.CustomFieldType!=FieldType.Number ?" length"+field.TextLength:" number "+" length"+field.NumMax.Length))
+                         Value="@BusAllocationDataUpdate.CustomData[field.id.ToString()]"
+                         ValueChanged="@(value => SetData(field.id.ToString(), value))"     
+                         IsValueCustomHasChange="@IsValueCustomHasChange"
+                         ReadOnly="@IsReadOnly">
+            </CustomInput>
+        }
+    }
+
+</div>
+
+@code {
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [Parameter] public BusAllocationDataUpdate BusAllocationDataUpdate { get; set; }
+    [Parameter] public BusAllocationDataUpdateAll BusAllocationDataUpdateAll { get; set; }
+    [Parameter] public bool IsReadOnly { get; set; }
+    [Parameter] public bool IsEditAll { get; set; } = false;
+    [Parameter] public Dictionary<string, string> LangDic { get; set; }
+    public bool IsValueCustomHasChange{ get; set; }
+    public CustomFieldValidation CustomFieldValidation { get; set; } = new CustomFieldValidation();
+    [Parameter] public EventCallback<bool> FormCustomErrorState { get; set; }
+    public List<CustomFieldConfigs> CustomFieldList { get; set; } = new List<CustomFieldConfigs>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customService = ScopedServices.GetRequiredService<ICustomItemService>();
+        CustomFieldList = await customService.GetCustomFieldConfigs(new ClaimModel().TenantID);
+        if (CustomFieldList == null)
+        {
+            CustomFieldList = new List<CustomFieldConfigs>();
+        }
+        if (!IsEditAll)
+        {
+            if (BusAllocationDataUpdate.CustomData == null)
+            {
+                BusAllocationDataUpdate.CustomData = new Dictionary<string, string>();
+            }
+            foreach (var field in CustomFieldList)
+            {
+                if (!BusAllocationDataUpdate.CustomData.ContainsKey(field.id.ToString()))
+                {
+                    BusAllocationDataUpdate.CustomData[field.id.ToString()] = "";
+                }
+            }
+        }
+        else
+        {
+            if (BusAllocationDataUpdateAll.CustomData == null)
+            {
+                BusAllocationDataUpdateAll.CustomData = new Dictionary<string, string>();
+            }
+            foreach (var field in CustomFieldList)
+            {
+                if (!BusAllocationDataUpdateAll.CustomData.ContainsKey(field.id.ToString()))
+                {
+                    BusAllocationDataUpdateAll.CustomData[field.id.ToString()] = "";
+                }
+            }
+        }
+    }
+
+    private void SetData(string fieldId, string value)
+    {
+        IsValueCustomHasChange = true;
+        bool isError = false;
+        if (!IsEditAll)
+        {
+            BusAllocationDataUpdate.CustomData[fieldId] = value;
+            foreach (var field in CustomFieldList)
+            {
+                /*if(field.CustomFieldType == FieldType.Time && fieldId=="5")
+                {
+                    BusAllocationDataUpdate.CustomData[field.id.ToString()] = value==""?"0000": value;
+                }*/
+                CustomFieldValidation = ValidationHelper.ValidationCustomItem(field, BusAllocationDataUpdate.CustomData[field.id.ToString()]);
+                if (!isError)
+                {
+                    if (CustomFieldValidation.IsError)
+                    {
+                        isError = true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            BusAllocationDataUpdateAll.CustomData[fieldId] = value;
+            foreach (var field in CustomFieldList)
+            {
+                CustomFieldValidation = ValidationHelper.ValidationCustomItem(field, BusAllocationDataUpdateAll.CustomData[field.id.ToString()],false);
+                if (!isError)
+                {
+                    if (CustomFieldValidation.IsError)
+                    {
+                        isError = true;
+                    }
+                }
+            }
+        }
+        FormCustomErrorState.InvokeAsync(isError);
+        CurrentEditContext?.Validate();
+        InvokeAsync(StateHasChanged);
+    }
+    private void InitCustomFieldValueFormUpdateAll(CustomFieldConfigs CustomFieldItem)
+    {
+        if (CustomFieldItem.CustomFieldType == FieldType.Date)
+        {
+            DateTime date;
+            DateTime initDate;
+            var isDate = DateTime.TryParseExact(BusAllocationDataUpdateAll.CustomData[CustomFieldItem.id.ToString()], "yyyyMMdd", null, DateTimeStyles.None, out date);
+            var isInital = DateTime.TryParseExact(CustomFieldItem.DateInitial, "yyyyMMdd", null, DateTimeStyles.None, out initDate);
+            /*var result = isDate ? date : isInital ? initDate : DateTime.Now;*/
+            if(isDate)
+            {
+                BusAllocationDataUpdateAll.CustomData[CustomFieldItem.id.ToString()] = date.ToString("yyyyMMdd");
+            }
+            else
+            {
+                BusAllocationDataUpdateAll.CustomData[CustomFieldItem.id.ToString()]= string.Empty;
+            }
+        }
+        if (CustomFieldItem.CustomFieldType == FieldType.Time)
+        {
+            var tpm = BusAllocationDataUpdateAll.CustomData[CustomFieldItem.id.ToString()];
+            BusAllocationDataUpdateAll.CustomData[CustomFieldItem.id.ToString()] = tpm == "" ? "" : tpm;
+
+        }
+    }
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        IsValueCustomHasChange = false;
+        /* if (IsFirstRender)
+         {
+             IsFirstRender = false;
+         }*/
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+}

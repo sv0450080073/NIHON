@@ -1,0 +1,23 @@
+﻿@inherits ReservationClassComponentBase
+
+<div class="row">
+    <div class="col-12 has-tooltip-error">
+        <Tooltip ValueExpressions="ReservationClassExpression"
+                    Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+        <DxComboBox Data="ListReservationClass"
+                    SelectedItem="SelectedReservationClass"
+                    SelectedItemChanged="OnReservationClassChanged"
+                    SelectedItemExpression="ReservationClassExpression"
+                    ClearButtonDisplayMode="ClearButtonDisplayMode"
+                    AllowUserInput="false"
+                    FilteringMode="@DataGridFilteringMode.Contains"
+                    NullText="@Lang["reservation_nulltext"]"
+                    TextFieldName="Text"
+                    ReadOnly="ReadOnly"
+                    DropDownDirection="DropDownDirection"
+                    ListRenderMode="RenderMode"
+                    CssClass="@CssClass"
+                    @oninput="e => searchString = e.Value.ToString()"
+                    @onkeyup="@Enter"></DxComboBox>
+    </div>
+</div>

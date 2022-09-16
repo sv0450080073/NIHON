@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="RepairListA3" Landscape="true" Margins="25, 25, 147, 26" PaperKind="A3" PageWidth="1654" PageHeight="1169" Version="20.1" DataSource="#Ref-0" Font="Arial, 9.75pt">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="TopMargin" HeightF="146.708328">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label16" Multiline="true" CanGrow="false" WordWrap="false" SizeF="63.121582,18.7500076" LocationFloat="1474.3783,123.791618" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="4" EventName="BeforePrint" PropertyName="Text" Expression="[PageNumber] + '/' + [TotalPage]&#xA;" />
+          </ExpressionBindings>
+        </Item1>
+        <Item2 Ref="5" ControlType="XRLabel" Name="label2" Multiline="true" CanGrow="false" Text="修  理  一  覧" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="359.295135,46.5277748" LocationFloat="622.3525,22.7916336" Font="MS PGothic, 32pt, style=Bold" Padding="2,2,0,0,100">
+          <StylePriority Ref="6" UseFont="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="7" ControlType="XRLabel" Name="label6" KeepTogether="true" Multiline="true" CanGrow="false" Text="車輌営業所コード：" LockedInUserDesigner="true" TextAlignment="MiddleLeft" WordWrap="false" SizeF="136.747391,18.7499981" LocationFloat="2.11927618E-05,96.62496" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="8" UseFont="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="9" ControlType="XRLabel" Name="label13" KeepTogether="true" Multiline="true" CanGrow="false" Text="修理年月日：" LockedInUserDesigner="true" TextAlignment="MiddleLeft" WordWrap="false" SizeF="95.66666,18.7499981" LocationFloat="2.11927618E-05,123.791634" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="10" UseFont="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="11" ControlType="XRLabel" Name="label7" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="87.33332,18.7499981" LocationFloat="105.000015,123.791634" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="12" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[DateFromFormat]" />
+          </ExpressionBindings>
+          <StylePriority Ref="13" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="14" ControlType="XRLabel" Name="label1" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="45.66666,18.7499981" LocationFloat="146.000015,96.62496" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="15" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[EigyoCdFrom]" />
+          </ExpressionBindings>
+          <StylePriority Ref="16" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="17" ControlType="XRLabel" Name="label4" KeepTogether="true" Multiline="true" CanGrow="false" Text="～" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="20.666666,18.7499981" LocationFloat="201.000031,96.62496" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="18" UseFont="false" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="19" ControlType="XRLabel" Name="label8" KeepTogether="true" Multiline="true" CanGrow="false" Text="～" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="20.666666,18.7499981" LocationFloat="202.000031,123.791634" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="20" UseFont="false" UseTextAlignment="false" />
+        </Item8>
+        <Item9 Ref="21" ControlType="XRLabel" Name="label5" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="45.66666,18.7499981" LocationFloat="231.000031,96.62496" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="22" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[EigyoCdTo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="23" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="24" ControlType="XRLabel" Name="label9" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="87.33332,18.7499981" LocationFloat="232.000015,123.791634" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="25" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[DateToFormat]" />
+          </ExpressionBindings>
+          <StylePriority Ref="26" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="27" ControlType="XRLabel" Name="label21" KeepTogether="true" Multiline="true" CanGrow="false" Text="車輌コード：" LockedInUserDesigner="true" TextAlignment="MiddleLeft" WordWrap="false" SizeF="86.74738,18.7499981" LocationFloat="462.5,96.62496" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="28" UseFont="false" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="29" ControlType="XRLabel" Name="label18" KeepTogether="true" Multiline="true" CanGrow="false" Text="出力順：" LockedInUserDesigner="true" TextAlignment="MiddleLeft" WordWrap="false" SizeF="62.33333,18.7499981" LocationFloat="462.5,123.791634" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="30" UseFont="false" UseTextAlignment="false" />
+        </Item12>
+        <Item13 Ref="31" ControlType="XRLabel" Name="label14" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="120.666656,18.7499981" LocationFloat="534.000061,123.791634" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="32" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[OrderNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="33" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="34" ControlType="XRLabel" Name="label10" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="45.66666,18.7499981" LocationFloat="559.000061,96.62496" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[SyaRyoCdFrom]" />
+          </ExpressionBindings>
+          <StylePriority Ref="36" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="37" ControlType="XRLabel" Name="label11" KeepTogether="true" Multiline="true" CanGrow="false" Text="～" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="20.6666641,18.7499981" LocationFloat="614,96.62496" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="38" UseFont="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="39" ControlType="XRLabel" Name="label12" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="45.66666,18.7499981" LocationFloat="644,96.62496" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="40" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[SyaRyoCdCdTo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="41" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="42" ControlType="XRLabel" Name="label15" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="174.833374,18.7499924" LocationFloat="1099.36768,123.791664" Font="MS PGothic, 12pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="43" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[DateCurrentFormat]" />
+          </ExpressionBindings>
+          <StylePriority Ref="44" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="45" ControlType="XRLabel" Name="label3" Multiline="true" CanGrow="false" Text="ページ" WordWrap="false" SizeF="50.7447853,18.7499981" LocationFloat="1537.5,123.791656" Font="MS PGothic, 12pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="46" UseFont="false" />
+        </Item18>
+      </Controls>
+    </Item1>
+    <Item2 Ref="47" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="26.1134777" />
+    <Item3 Ref="48" ControlType="DetailBand" Name="Detail" Expanded="false" HeightF="0.166670486" />
+    <Item4 Ref="49" ControlType="PageFooterBand" Name="PageFooter" HeightF="18.7499962">
+      <Controls>
+        <Item1 Ref="50" ControlType="XRLabel" Name="label19" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleLeft" WordWrap="false" SizeF="315.1516,18.7499962" LocationFloat="1288.84827,0" Font="MS PGothic, 11pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="51" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[SyainNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="52" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="53" ControlType="XRLabel" Name="label17" KeepTogether="true" Multiline="true" CanGrow="false" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="112.68042,18.7499962" LocationFloat="1176.16785,0" Font="MS PGothic, 11pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="54" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderReport].[SyainCd]" />
+          </ExpressionBindings>
+          <StylePriority Ref="55" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item2>
+      </Controls>
+    </Item4>
+    <Item5 Ref="56" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="CurrentRepairList" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="57" ControlType="DetailBand" Name="Detail1" HeightF="37">
+          <Controls>
+            <Item1 Ref="58" ControlType="XRTable" Name="table2" TextAlignment="MiddleCenter" SizeF="1603.99988,37" LocationFloat="0,0" Font="MS PGothic, 12pt" Padding="10,10,0,0,100" Borders="All">
+              <Rows>
+                <Item1 Ref="59" ControlType="XRTableRow" Name="tableRow4" Weight="1.1468632397578447">
+                  <Cells>
+                    <Item1 Ref="60" ControlType="XRTableCell" Name="tableCell22" Weight="0.46987695283537378" CanGrow="false" Multiline="true" WordWrap="false">
+                      <ExpressionBindings>
+                        <Item1 Ref="61" EventName="BeforePrint" PropertyName="Text" Expression="[RowNum]" />
+                      </ExpressionBindings>
+                    </Item1>
+                    <Item2 Ref="62" ControlType="XRTableCell" Name="tableCell23" Weight="0.65776266391021809" CanGrow="false" Multiline="true" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="63" EventName="BeforePrint" PropertyName="Text" Expression="[EigyoCdText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="64" UseFont="false" UseForeColor="false" />
+                    </Item2>
+                    <Item3 Ref="65" ControlType="XRTableCell" Name="tableCell24" Weight="2.7140976330367543" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="66" EventName="BeforePrint" PropertyName="Text" Expression="[EigyoNmText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="67" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="68" ControlType="XRTableCell" Name="tableCell25" Weight="0.65776266960016061" CanGrow="false" Multiline="true" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="69" EventName="BeforePrint" PropertyName="Text" Expression="[SyaRyoCdText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="70" UseFont="false" UseForeColor="false" />
+                    </Item4>
+                    <Item5 Ref="71" ControlType="XRTableCell" Name="tableCell26" Weight="1.9769743524502654" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="72" EventName="BeforePrint" PropertyName="Text" Expression="[SyaRyoNmText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="73" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="74" ControlType="XRTableCell" Name="tableCell27" Weight="1.8105550181477546" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="[ShuriSYmdTimeFormat]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="76" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="77" ControlType="XRTableCell" Name="tableCell188" Weight="0.21704975949740607" CanGrow="false" Multiline="true" WordWrap="false" Font="MS PGothic, 11pt" Borders="Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="78" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [ShuriSYmdTimeFormat] != '' And [ShuriEYmdTimeFormat] !='','～', '')&#xA;" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="79" UseFont="false" UseBorders="false" />
+                    </Item7>
+                    <Item8 Ref="80" ControlType="XRTableCell" Name="tableCell208" Weight="1.8213965893483319" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black" Borders="Top, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="81" EventName="BeforePrint" PropertyName="Text" Expression="[ShuriEYmdTimeFormat]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="82" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="83" ControlType="XRTableCell" Name="tableCell28" Weight="0.55183981608542032" CanGrow="false" Multiline="true" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="84" EventName="BeforePrint" PropertyName="Text" Expression="[RepairCdText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="85" UseFont="false" UseForeColor="false" />
+                    </Item9>
+                    <Item10 Ref="86" ControlType="XRTableCell" Name="tableCell29" Weight="1.5731229775255162" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="87" EventName="BeforePrint" PropertyName="Text" Expression="[RepairNmText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="88" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="89" ControlType="XRTableCell" Name="tableCell30" Weight="4.9395609572112349" CanGrow="false" Multiline="true" TextAlignment="MiddleLeft" WordWrap="false" Font="MS PGothic, 11pt" ForeColor="Black">
+                      <ExpressionBindings>
+                        <Item1 Ref="90" EventName="BeforePrint" PropertyName="Text" Expression="[BikoText]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="91" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+                    </Item11>
+                  </Cells>
+                </Item1>
+              </Rows>
+              <StylePriority Ref="92" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="93" ControlType="ReportHeaderBand" Name="ReportHeader" HeightF="40">
+          <Controls>
+            <Item1 Ref="94" ControlType="XRTable" Name="table1" TextAlignment="MiddleCenter" SizeF="1603.99988,40" LocationFloat="0,0" Font="MS PGothic, 12pt" Padding="10,10,0,0,100" Borders="Left, Top, Right">
+              <Rows>
+                <Item1 Ref="95" ControlType="XRTableRow" Name="tableRow1" Weight="1.2083913092480811">
+                  <Cells>
+                    <Item1 Ref="96" ControlType="XRTableCell" Name="tableCell1" Weight="0.386115101326368" CanGrow="false" Multiline="true" Text="NO" WordWrap="false" Font="MS PGothic, 11pt">
+                      <StylePriority Ref="97" UseFont="false" />
+                    </Item1>
+                    <Item2 Ref="98" ControlType="XRTableCell" Name="tableCell2" Weight="2.7707813170238653" CanGrow="false" Multiline="true" Text="営業所" WordWrap="false" />
+                    <Item3 Ref="99" ControlType="XRTableCell" Name="tableCell5" Weight="2.1650598202657823" CanGrow="false" Multiline="true" Text="車 輌" WordWrap="false" />
+                    <Item4 Ref="100" ControlType="XRTableCell" Name="tableCell6" Weight="3.1628652059922882" CanGrow="false" Multiline="true" Text="修 理 日 程" WordWrap="false" />
+                    <Item5 Ref="101" ControlType="XRTableCell" Name="tableCell7" Weight="1.7461596660422025" CanGrow="false" Multiline="true" Text="修理区分" WordWrap="false" />
+                    <Item6 Ref="102" ControlType="XRTableCell" Name="tableCell9" Weight="4.0590182429513559" CanGrow="false" Multiline="true" Text="備考" WordWrap="false" />
+                  </Cells>
+                </Item1>
+              </Rows>
+              <StylePriority Ref="103" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item2>
+      </Bands>
+    </Item5>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="104" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5SZXBhaXJMaXN0UmVwb3J0UERGLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48Q29uc3RydWN0b3IgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item2 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource2" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTIiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5SZXBhaXJMaXN0UmVwb3J0UERGLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48Q29uc3RydWN0b3IgLz48L09iamVjdERhdGFTb3VyY2U+" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

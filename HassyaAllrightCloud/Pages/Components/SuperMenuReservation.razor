@@ -1,0 +1,382 @@
+﻿@inherits SuperMenuReservationBase
+<div id="reservation-container">
+    @if (isInitComplete)
+    {
+        <div id="table-wrapper" class="coupon-payment-grid-body">
+            @if (Header != null && Body != null)
+            {
+                <KoboSimpleGrid Header="Header"
+                                Body="Body"
+                                DataItems="DataItems"
+                                ShowCheckbox="ShowCheckboxOptions"
+                                CssClass="@(string.Format("kobo-grid-size-{0} super-grid-size", (int)ActiveV))"
+                                OnRowClick="async e => await RowClick(e)"
+                                CheckedItems="CheckedItems"
+                                CheckedItemsChanged="CheckedChange"></KoboSimpleGrid>
+            }
+            <div id="super-pagination-area">
+                @if (GridDatas != null && GridDatas.Count > 0)
+                {
+                    <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="SelectPage" ItemPerPage="@RecordsPerPage" OnChangeItemPerPage="ChangePageSize"
+                                                                     TotalCount="GridDatas.Count()" @ref="paging">
+                    </HassyaAllrightCloud.Pages.Components.Pagination>
+                }
+            </div>
+        </div>
+        <div id="total-area" class="total-table">
+            <table>
+                <tr>
+                    <th colspan="10" @onclick="ChangeTotal">@(CurrentTotalContent)</th>
+                </tr>
+                <tr>
+                    <th>@Lang["FareTotal"]</th>
+                    <th>@Lang["TaxTotal"]</th>
+                    <th>@Lang["TaxIncludedTotal"]</th>
+                    <th>@Lang["CommissionTotal"]</th>
+                    <th>@Lang["GuideFeeTotal"]</th>
+                    <th>@Lang["GuideFeeTaxTotal"]</th>
+                    <th>@Lang["GuideFeeCommissionTotal"]</th>
+                    <th>@Lang["OtherChargeTotal"]</th>
+                    <th>@Lang["OtherChargeTaxTotal"]</th>
+                    <th>@Lang["OtherChargeCommisionTotal"]</th>
+                </tr>
+                <tr>
+                    <td>@(CurrentTotal.Fare == null ? "-" : string.Format("{0:C}", CurrentTotal.Fare))</td>
+                    <td>@(CurrentTotal.FareTax == null ? "-" : string.Format("{0:C}", CurrentTotal.FareTax))</td>
+                    <td>@(CurrentTotal.TaxIncluded == null ? "-" : string.Format("{0:C}", CurrentTotal.TaxIncluded))</td>
+                    <td>@(CurrentTotal.FareFee == null ? "-" : string.Format("{0:C}", CurrentTotal.FareFee))</td>
+                    <td>@(CurrentTotal.Guide == null ? "-" : string.Format("{0:C}", CurrentTotal.Guide))</td>
+                    <td>@(CurrentTotal.GuideTax == null ? "-" : string.Format("{0:C}", CurrentTotal.GuideTax))</td>
+                    <td>@(CurrentTotal.GuideFee == null ? "-" : string.Format("{0:C}", CurrentTotal.GuideFee))</td>
+                    <td>@(CurrentTotal.Other == null ? "-" : string.Format("{0:C}", CurrentTotal.Other))</td>
+                    <td>@(CurrentTotal.OtherTax == null ? "-" : string.Format("{0:C}", CurrentTotal.OtherTax))</td>
+                    <td>@(CurrentTotal.OtherFee == null ? "-" : string.Format("{0:C}", CurrentTotal.OtherFee))</td>
+                </tr>
+            </table>
+        </div>
+    }
+    <ContextMenu Id="gridRowClickMenu" CssClass="contextmenu">
+        <Item Id="booking-input-edit" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ReservationEdit"]</Item>
+        <Item>
+            <i class="fa fa-clone" aria-hidden="true"></i> @Lang["ReservationCopy"]
+            <SubMenu>
+                <Item Id="menuitem-reservation-single-copy" OnClick="ItemClick"><i class="fa fa-clone" aria-hidden="true"></i> @Lang["SingleCopy"]</Item>
+                <Item Id="menuitem-reservation-calendar-copy" OnClick="ItemClick"><i class="fa fa-clone" aria-hidden="true"></i> @Lang["CalendarCopy"]</Item>
+            </SubMenu>
+        </Item>
+        <Item Id="menuitem-reservation-cancellation" OnClick="ItemClick"><i class="fa fa-times-circle" aria-hidden="true"></i> @Lang["ReservationCancellation"]</Item>
+        <Item>
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ReservationFormAndOtherInput"]
+            <SubMenu>
+                <Item OnClick="OpenJourneys"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ItineraryInput"]</Item>
+                <Item OnClick="OpenFutai"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["AncillaryInput"]</Item>
+                <Item OnClick="OpenTehai"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ArrangementInput"]</Item>
+                <Item OnClick="OpenTsumi"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["LoadedProductInput"]</Item>
+                <Item Id="menuitem-confirmation" OnClick="ItemClick"><i class="fa fa-check-circle" aria-hidden="true"></i> @Lang["ConfirmInput"]</Item>
+                <Item Id="menuitem-edityykshobikonm" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["RemarksInputReservationForm"]</Item>
+                <Item Id="menuitem-editunkobibikonm" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ReservationAncillaryInput"]</Item>
+            </SubMenu>
+        </Item>
+        <Item Id="menuitem-temporary-car-input" OnClick="OpenBusAllocation"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["TemporaryCarInput"]</Item>
+        <Item Id="menuitem-busallocation" OnClick="OpenBusAllocation"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["VehicleAllocationInput"]</Item>
+        <Item Id="menuitem-partnerbookinginput" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["CarTransfer"]</Item>
+        <Item OnClick="OpenUploadFile"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["ViewAttachment"]</Item>
+        <div class="line"></div>
+        <Item>
+            <i class="fa fa-file-text" aria-hidden="true"></i> @Lang["FormInput"]
+            <SubMenu>
+                <Item>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i> @Lang["UnderwritingOfCarriage"]
+                    <SubMenu>
+                        <Item Id="download_report_under_writing_arriage" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_report_under_writing_arriage" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i> @Lang["UnderwritingOfTransportation"]
+                    <SubMenu>
+                        <Item Id="download_report_under_writing_transportation" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_report_under_writing_transportation" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <div class="line"></div>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>@Lang["BusArrangement"]
+                    <SubMenu>
+                        <Item Id="BusCoooradination_Download" OnClick="ItemClickBusCooradinationReport"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="BusCoooradination_Preview" OnClick="ItemClickBusCooradinationReport"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-list-alt" aria-hidden="true"></i> @Lang["ReportOperatingInstructions"]
+                    <SubMenu>
+                        <Item Id="download_report_operating_instructions" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_report_operating_instructions" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-list-alt" aria-hidden="true"></i> @Lang["ReportFlightRecordBook"]
+                    <SubMenu>
+                        <Item Id="download_report_flight_record_book" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_report_flight_record_book" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <div class="line"></div>
+                <Item Id="preview_invoice" OnClick="ItemClick">
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["Invoice"]
+                </Item>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["AdvanceStatement"]
+                    <SubMenu>
+                        <Item Id="download_advance_statement" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_advance_statement" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["SimpleQuotation"]
+                    <SubMenu>
+                        <Item Id="download_simple_quotation" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_simple_quotation" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["QuotationItinerary"]
+                    <SubMenu>
+                        <Item Id="download_quotation_itinerary" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_quotation_itinerary" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+            </SubMenu>
+        </Item>
+        <div class="line"></div>
+        <Item OnClick="OpenFareFeeCorrection"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["FareFeeCorrectionByVehicle"]</Item>
+        <Item Id="menuitem-deposit-coupon-input" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["DepositCouponInput"]</Item>
+        <Item Id="menuitem-coupon-settlement-input" OnClick="ItemClick"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["CouponSettlementInput"]</Item>
+    </ContextMenu>
+
+    <ContextMenu Id="gridRowsClickMenu" CssClass="contextmenu">
+        <Item OnClick="ComfirmCancelReservation"><i class="fa fa-times-circle" aria-hidden="true"></i> @Lang["ReservationCancellation"]</Item>
+        <Item OnClick="ConfirmReservation"><i class="fa fa-check-circle" aria-hidden="true"></i> @Lang["ReservationConfirmed"]</Item>
+        <Item OnClick="NavigateToDailyBatchCopy"><i class="fa fa-clone" aria-hidden="true"></i> @Lang["DailyBatchCopy"]</Item>
+        <div class="line"></div>
+        <Item>
+            <i class="fa fa-file-text" aria-hidden="true"></i> @Lang["FormInput"]
+            <SubMenu>
+                <Item>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i> @Lang["UnderwritingOfCarriage"]
+                    <SubMenu>
+                        <Item Id="download_report_multi_under_writing_arriage" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_report_multi_under_writing_arriage" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i> @Lang["UnderwritingOfTransportation"]
+                    <SubMenu>
+                        <Item Id="download_multi_report_under_writing_transportation" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_multi_report_under_writing_transportation" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <div class="line"></div>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>@Lang["BusArrangement"]
+                    <SubMenu>
+                        <Item Id="BusCoooradination_multi_Download" OnClick="MultiItemClickBusCooradinationReport"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="BusCoooradination_multi_Preview" OnClick="MultiItemClickBusCooradinationReport"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-list-alt" aria-hidden="true"></i> @Lang["ReportOperatingInstructions"]
+                    <SubMenu>
+                        <Item Id="download_multi_report_operating_instructions" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]></Item>
+                        <Item Id="preview_multi_report_operating_instructions" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-list-alt" aria-hidden="true"></i> @Lang["ReportFlightRecordBook"]
+                    <SubMenu>
+                        <Item Id="download_multi_report_flight_record_book" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_multi_report_flight_record_book" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <div class="line"></div>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["Invoice"]
+                    <SubMenu>
+                        <Item><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+                <Item>
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Lang["AdvanceStatement"]
+                    <SubMenu>
+                        <Item Id="download_multi_advance_statement" OnClick="ItemClick"><i class="fa fa-print" aria-hidden="true"></i> @Lang["ReportWeb"]</Item>
+                        <Item Id="preview_multi_advance_statement" OnClick="ItemClick"><i class="fa fa-desktop" aria-hidden="true"></i> @Lang["ReportPdf"]</Item>
+                    </SubMenu>
+                </Item>
+            </SubMenu>
+        </Item>
+    </ContextMenu>
+    <DxPopup @bind-Visible="@ShowPopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-exclamation" aria-hidden="true"></i> @Lang["Information"]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            @foreach (var message in InfoMessage)
+            {
+                if (message.Key == "")
+                {
+                    <p>@Lang["ReservationCancelCompleteMessage"]@(string.Join(Comma, message.Value))</p>
+                }
+                else
+                {
+                    <p>@(message.Key)@(string.Join(Comma, message.Value))</p>
+                }
+            }
+            <div class="text-center">
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="refreshGrid">OK</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+    <DxPopup @bind-Visible="@ShowComfirmDeletePopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-exclamation" aria-hidden="true"></i> @Lang["Information"]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <div>
+                <p>@Lang["ConfirmDelete"]</p>
+            </div>
+            <div class="text-right">
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(CancelReservation)">OK</a>
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--110 height--40" @onclick="@(() => ShowComfirmDeletePopup = false)">@Lang["Cancel"]</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupFutai">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["AncillaryInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.Futai UkeNo="@currentUkeNo" CurrentViewMode="IncidentalViewMode.Futai" />
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupJourney">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["ItineraryInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <HassyaAllrightCloud.Pages.Components.Journeys ukeNo="@currentUkeNo" unkRenparam="@currentunkRen" OnClose="refreshGrid"></HassyaAllrightCloud.Pages.Components.Journeys>
+        </Content>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupTsumi">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["LoadedProductInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.Futai UkeNo="@currentUkeNo" CurrentViewMode="IncidentalViewMode.Tsumi" />
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-xl custom-popup" @bind-Visible="@PopupTehai">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["ArrangementInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.Tehai UkeNo="@currentUkeNo"></HassyaAllrightCloud.Pages.Components.Tehai>
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupFareFeeCorrection">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["FareFeeCorrectionForm"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <HassyaAllrightCloud.Pages.FareFeeCorrection OnCloseFareFeeCorrection="@OnCloseFareFeeCorrection" UkeCdParam="@currentUkeNo"></HassyaAllrightCloud.Pages.FareFeeCorrection>
+        </Content>
+    </DxPopup>
+
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@PopupUploadFile">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["Attachment"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="refreshGrid"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.CustomUploadFile UkeNo="@currentUkeNo" UnkRen="@currentunkRen" BookingData="@CurrentBookingData" OnSubmit="AlertHaita" />
+        </ChildContent>
+    </DxPopup>
+
+    <DxPopup @bind-Visible="@DataNotExistPopup">
+        <HeaderTemplate>
+            <div class="bg-dark text-white p-2">
+                <i class="fa fa-info-circle" aria-hidden="true"></i> @Lang[NoDataType]
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <p>@Lang["MatchedDataNotExist"]</p>
+            <div class="text-center">
+                <a href="javascript:void(0)" class="btn btn-outline-secondary width--120" @onclick="@(() => DataNotExistPopup = false)">@Lang["OK"]</a>
+            </div>
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@IsOpenCancelTab">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["reservation_correction"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+                   @onclick="@(async () => { IsOpenCancelTab = false; refreshGrid(); })"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.BookingTabs.CancellationTab UkeNo="@CheckedItems[0].UkeNo" />
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" @bind-Visible="@IsOpenConfirmTab" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @Lang["ConfirmInput"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0)" aria-hidden="true" role="button" aria-label="Close popup"
+                   @onclick="@(async () => { IsOpenConfirmTab = false; refreshGrid(); })"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.BookingTabs.ConfirmInputTab UkeNo="@CheckedItems[0].UkeNo" />
+        </ChildContent>
+    </DxPopup>
+    <DxPopup CssClass="modal-lg custom-popup" Visible="@(IsOpenEditYykshoBikoNm || IsOpenEditUnkobiBikoNm)" Scrollable="true">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @if (IsOpenEditYykshoBikoNm)
+                {
+                    @Lang["RemarksInputReservationForm"]
+                }
+                else if (IsOpenEditUnkobiBikoNm)
+                {
+                    @Lang["RemarksInputOperatingDay"]
+                }
+                <a class="close-button oi oi-x text-white" href="javascript:void(0)" aria-hidden="true" role="button" aria-label="Close popup"
+                   @onclick="@(async () => { IsOpenEditYykshoBikoNm = false; IsOpenEditUnkobiBikoNm = false; refreshGrid();})"></a>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <HassyaAllrightCloud.Pages.Components.BookingTabs.BookingRemark IsOpenEditYykshoBikoNm="IsOpenEditYykshoBikoNm" IsOpenEditUnkobiBikoNm="IsOpenEditUnkobiBikoNm" UkeNo="@CheckedItems[0].UkeNo" IsUnkobiBikoNm="IsOpenEditUnkobiBikoNm" UnkRen="(short)CheckedItems[0].UnkRen" />
+        </ChildContent>
+    </DxPopup>
+</div>

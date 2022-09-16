@@ -1,0 +1,200 @@
+﻿@inherits ReservationMobileBase
+@layout SPLayout
+
+@if (EditForm != null)
+{
+    <div class="w-100">
+        <div class="row m-0 setting-date calendar-header-container" style="height: 50px">
+            <div class="text-white m-auto">
+                @(string.IsNullOrEmpty(UkeCd) ? Lang["Mode"] : string.Format(Lang["ModeUke"], Data.UkeCd))
+            </div>
+        </div>
+        <div class="w-100 d-flex flex-row-reverse">
+            @if (Data.UkeCd != 0)
+            {
+                <div style="background-color: @(string.IsNullOrEmpty(Data.KaktYmd) || string.IsNullOrWhiteSpace(Data.KaktYmd) ? "#64b5f7" : "#689e39")" class="reservation-type">
+                    @(string.IsNullOrEmpty(Data.KaktYmd) || string.IsNullOrWhiteSpace(Data.KaktYmd) ? Lang["Unconfirm"] : Lang["Confirm"])
+                </div>
+            }
+        </div>
+        <EditForm EditContext="@EditForm" style="@(Data.UkeCd != 0 ? "margin-top: -10px" : "margin-top: 5px")">
+            <FluentValidator TValidator="EditReservationMobileValidator" />
+            <div class="row m-0">
+                <label class="col-12 mb-2">@Lang["Organization"]</label>
+                <div class="col-12 mb-2">
+                    <DxTextBox Text="@Data.Organization"
+                               TextExpression="() => Data.Organization"
+                               TextChanged="v => OnHandleChangeFormValue(nameof(Data.Organization), v)"
+                               maxlength="100"></DxTextBox>
+                </div>
+                <label class="col-12 mb-2">@Lang["Customer"]</label>
+                <div class="col-12 mb-2 has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => Data.Tokisk)"
+                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                    <DxComboBox Data="listTokisk"
+                                CssClass="reservation-custom-dropdown"
+                                AllowUserInput="false"
+                                NullText="@Lang["TokiskNullText"]"
+                                TextFieldName="Name"
+                                SelectedItem="Data.Tokisk"
+                                SelectedItemExpression="() => Data.Tokisk"
+                                SelectedItemChanged="v => OnHandleChangeFormValue(nameof(Data.Tokisk), v)"></DxComboBox>
+                </div>
+                <label class="col-12 mb-2">@Lang["CustomerType"]</label>
+                <div class="col-12 mb-2">
+                    <div class="row">
+                        <div class="col-6 has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => Data.CodeKb)"
+                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="listCodeKb"
+                                        AllowUserInput="false"
+                                        NullText="@Lang["CodeKbNullText"]"
+                                        TextFieldName="Text"
+                                        SelectedItem="Data.CodeKb"
+                                        SelectedItemExpression="() => Data.CodeKb"
+                                        SelectedItemChanged="v => OnHandleChangeFormValue(nameof(Data.CodeKb), v)"></DxComboBox>
+                        </div>
+                    </div>
+                </div>
+                <label class="col-12 mb-2">@Lang["DispatchDate"]</label>
+                <div class="row m-0 mb-2">
+                    <div class="col-6 has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => Data.DispatchDate)"
+                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxDateEdit Date="Data.DispatchDate"
+                                    DateExpression="() => Data.DispatchDate"
+                                    DateChanged="v => OnHandleChangeFormValue(nameof(Data.DispatchDate), v)"
+                                    PickerDisplayMode="DatePickerDisplayMode.Calendar"></DxDateEdit>
+                    </div>
+                    <div class="col-6 has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => Data.DispatchTime)"
+                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass="w-50 time"
+                                   maxlength="4"
+                                   Text="@Data.DispatchTime"
+                                   TextExpression="() => Data.DispatchTime"
+                                   TextChanged="v => OnHandleChangeFormValue(nameof(Data.DispatchTime), v)"></DxTextBox>
+                    </div>
+                </div>
+                <label class="col-12 mb-2">@Lang["ArrivalDate"]</label>
+                <div class="row m-0 mb-2">
+                    <div class="col-6 has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => Data.ArrivalDate)"
+                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxDateEdit Date="Data.ArrivalDate"
+                                    DateExpression="() => Data.ArrivalDate"
+                                    DateChanged="v => OnHandleChangeFormValue(nameof(Data.ArrivalDate), v)"
+                                    PickerDisplayMode="DatePickerDisplayMode.Calendar"></DxDateEdit>
+                    </div>
+                    <div class="col-6 has-tooltip-error">
+                        <Tooltip ValueExpressions="@(() => Data.ArrivalTime)"
+                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                        <DxTextBox CssClass="w-50 time"
+                                   maxlength="4"
+                                   Text="@Data.ArrivalTime"
+                                   TextExpression="() => Data.ArrivalTime"
+                                   TextChanged="v => OnHandleChangeFormValue(nameof(Data.ArrivalTime), v)"></DxTextBox>
+                    </div>
+                </div>
+                <div class="col-12 mb-2">
+                    <table class="w-100">
+                        <tr>
+                            <th class="text-center font-weight-normal" style="width: 45%">@Lang["BusType"]</th>
+                            <th class="text-center font-weight-normal" style="width: 15%">@Lang["BusCount"]</th>
+                            <th class="text-center font-weight-normal" style="width: 15%">@Lang["DriverCount"]</th>
+                            <th class="text-center font-weight-normal" style="width: 15%">@Lang["GuiderCount"]</th>
+                            <th class="text-center" style="width: 10%" @onclick="OnAddRow"><i class="fa fa-plus text-primary"></i></th>
+                        </tr>
+                        @foreach (var item in Data.ListItems.Select((value, i) => new { i, value }))
+                        {
+                            <tr>
+                                <td colspan="5" class="p-0">
+                                    <EditForm EditContext="listContext[item.i]" Context="child">
+                                        <FluentValidator TValidator="EditReservationMobileChildItemValidator" />
+                                        <table>
+                                            <tr>
+                                                <td style="width: 45%">
+                                                    <div class="has-tooltip-error">
+                                                        <Tooltip ValueExpressions="@(() => item.value.SyaSyu)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxComboBox Data="listSyaSyu"
+                                                                    ReadOnly="item.value.IsDisable"
+                                                                    AllowUserInput="false"
+                                                                    NullText="@Lang["SyaSyuNullText"]"
+                                                                    SelectedItem="item.value.SyaSyu"
+                                                                    SelectedItemExpression="() => item.value.SyaSyu"
+                                                                    SelectedItemChanged="v => OnHandleChangeChildFormValue(nameof(ReservationMobileChildItemData.SyaSyu), v, item.value)"
+                                                                    TextFieldName="Text"></DxComboBox>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 15%">
+                                                    <div class="has-tooltip-error">
+                                                        <Tooltip ValueExpressions="@(() => item.value.BusCount)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxTextBox CssClass="text-right number"
+                                                                   maxlength="2"
+                                                                   Text="@item.value.BusCount"
+                                                                   TextExpression="() => item.value.BusCount"
+                                                                   TextChanged="v => OnHandleChangeChildFormValue(nameof(ReservationMobileChildItemData.BusCount), v, item.value)"></DxTextBox>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 15%">
+                                                    <div class="has-tooltip-error">
+                                                        <Tooltip ValueExpressions="@(() => item.value.DriverCount)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxTextBox CssClass="text-right number"
+                                                                   maxlength="2"
+                                                                   Text="@item.value.DriverCount"
+                                                                   TextExpression="() => item.value.DriverCount"
+                                                                   TextChanged="v => OnHandleChangeChildFormValue(nameof(ReservationMobileChildItemData.DriverCount), v, item.value)"></DxTextBox>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 15%">
+                                                    <DxTextBox CssClass="text-right number"
+                                                               maxlength="2"
+                                                               Text="@item.value.GuiderCount"
+                                                               TextExpression="() => item.value.GuiderCount"
+                                                               TextChanged="v => OnHandleChangeChildFormValue(nameof(ReservationMobileChildItemData.GuiderCount), v, item.value)"></DxTextBox>
+                                                </td>
+                                                <td class="text-center" style="width: 10%" @onclick="() => OnRemoveRow(item.value)">
+                                                    @if (item.value.IsCanDelete)
+                                                    {
+                                                        <i class="fa fa-times text-danger"></i>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </EditForm>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+                <label class="col-12 mb-2">@Lang["Note"]</label>
+                <div class="col-12 mb-2">
+                    <textarea class="w-100" rows="5" style="border: 1px solid #ced4da"
+                              @bind="Data.Note"></textarea>
+                </div>
+                <div class="col-6 text-center">
+                    <button type="button" class="btn btn-danger" @onclick="OnClear">@Lang["Clear"]</button>
+                </div>
+                <div class="col-6 text-center">
+                    <button type="button" class="btn btn-primary" @onclick="async () => await OnSave()">@Lang["Save"]</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+<HassyaAllrightCloud.Pages.Components.MessageBox IsShow="IsShow" Message="@Message" Type="Type" EventCallback="OnClosePopup"></HassyaAllrightCloud.Pages.Components.MessageBox>
+
+@if (IsLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}

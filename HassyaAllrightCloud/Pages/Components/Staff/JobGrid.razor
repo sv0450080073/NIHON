@@ -1,0 +1,40 @@
+﻿@inject BusScheduleHelper BusScheduleHelper
+
+<div class="dropzone listTimeline__item" style="height:@(height)rem;" ondragover="@(IsPreventDefault() ? "event.preventDefault();" : string.Empty)" @ondrop="HandleDrop">
+    @foreach (var job in ListJobs)
+    {
+        <div>
+            <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" Data="job" MenuId="menuChangeJob">
+                <Job Item="job" ID="ID"></Job>
+            </ContextMenuTrigger>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    [Parameter] public List<int> ID { get; set; }
+    [Parameter] public List<JobItem> ListJobs { get; set; } = new List<JobItem>();
+    [Parameter] public double height { get; set; }
+    [Parameter] public EventCallback<bool> dropWork { get; set; }
+    double heightline = 2;
+
+    protected override void OnParametersSet()
+    {
+
+    }
+
+    private void HandleDrop()
+    {
+        dropWork.InvokeAsync(true);
+    }
+
+    protected bool IsPreventDefault()
+    {
+        if (Container.isJob || Container.isSwapJob)
+        {
+            return true;
+        }
+        return false;
+    }
+}

@@ -1,0 +1,412 @@
+﻿@inject IStringLocalizer<Tehai> Lang
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient HttpClient
+@inject IJSRuntime JSRuntime
+
+<td colspan="8" class="p-2">
+    <EditForm EditContext="FormContext">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="BookingArrangementValidator" />
+        <div class="d-flex flex-nowrap">
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["schedule"]</label>
+                <DxComboBox Data="ScheduleList"
+                            SelectedItem="ArrangementModel.Schedule"
+                            SelectedItemChanged="HandleSelectedScheduleChanged"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Text"
+                            SelectedItemExpression="() => ArrangementModel.Schedule" />
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiCode"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() =>  ArrangementModel.SelectedArrangementPlaceType)"
+                             Lang="@LangDic" Text="@(IsEmptyArrangementCodeList? emptyItemMessage[nameof(EmptyArrangementCodeListMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    <DxComboBox Data="ArrangementCodeList"
+                                SelectedItem="ArrangementModel.SelectedArrangementCode"
+                                SelectedItemChanged="HandleSelectedArrangementCodeChanged"
+                                SelectedItemExpression="() => ArrangementModel.SelectedArrangementCode"
+                                TextFieldName="Text"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                CssClass="@("width--190 " + (IsEmptyArrangementCodeList ? "custom-invalid" : ""))" />
+                </div>
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiClassification"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() =>  ArrangementModel.SelectedArrangementPlaceType)"
+                             Lang="@LangDic" Text="@(IsEmptyArrangementPlaceTypeList? emptyItemMessage[nameof(EmptyArrangementPlaceTypeListMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    <DxComboBox Data="ArrangementPlaceTypeList"
+                                SelectedItem="ArrangementModel.SelectedArrangementPlaceType"
+                                SelectedItemChanged="HandleSelectedArrangementPlaceTypeChanged"
+                                SelectedItemExpression="() => ArrangementModel.SelectedArrangementPlaceType"
+                                TextFieldName="Text"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                CssClass="@("width--190 " + (IsEmptyArrangementPlaceTypeList ? "custom-invalid" : ""))" />
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-nowrap">
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiPlaceCode"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() =>  ArrangementModel.SelectedArrangementLocation)"
+                             Lang="@LangDic" Text="@(IsEmptyFilteredArrangementLocationList? emptyItemMessage[nameof(EmptyFilteredArrangementLocationListMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    <DxComboBox Data="FilteredArrangementLocationList"
+                                SelectedItem="ArrangementModel.SelectedArrangementLocation"
+                                SelectedItemChanged="HandleSelectedArrangementLocationChanged"
+                                SelectedItemExpression="() => ArrangementModel.SelectedArrangementLocation"
+                                NullText="場所コードを選択してください。"
+                                TextFieldName="Text"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                CssClass="@("mr-3 custom-combo-box " + (IsEmptyFilteredArrangementLocationList ? "custom-invalid" : ""))" />
+                </div>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() =>  ArrangementModel.LocationName)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                    <DxTextBox Text="@ArrangementModel.LocationName"
+                               TextExpression="() => ArrangementModel.LocationName"
+                               TextChanged="HandleLocationNameChanged"
+                               maxlength="50"
+                               CssClass="width--290" />
+                </div>
+            </div>
+            <div class="form-group d-flex flex-nowrap align-items-center mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiTypeCode"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() =>  ArrangementModel.SelectedArrangementPlaceType)"
+                             Lang="@LangDic" Text="@(IsEmptyArrangementTypeList? emptyItemMessage[nameof(EmptyArrangementTypeListMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    <DxComboBox Data="ArrangementTypeList"
+                                SelectedItem="ArrangementModel.SelectedArrangementType"
+                                SelectedItemChanged="HandleSelectedArrangementTypeChanged"
+                                SelectedItemExpression="() => ArrangementModel.SelectedArrangementType"
+                                TextFieldName="Text"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                CssClass="@("width--190 " + (IsEmptyArrangementTypeList ? "custom-invalid" : ""))" />
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-nowrap">
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["address1"]</label>
+                <DxTextBox Text="@ArrangementModel.Address1"
+                           TextExpression="() => ArrangementModel.Address1"
+                           maxlength="30"
+                           TextChanged="HandleAddress1Changed" />
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["address2"]</label>
+                <DxTextBox Text="@ArrangementModel.Address2"
+                           TextExpression="() => ArrangementModel.Address2"
+                           maxlength="30"
+                           TextChanged="HandleAddress2Changed" />
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["ArrivalTime"]</label>
+                <InputTime CssClass="width--75 text-center"
+                           Time="ArrangementModel.ArrivalTime"
+                           TimeChanged="HandleArriveTimeChanged" />
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["DepartureTime"]</label>
+                <InputTime CssClass="width--75 text-center"
+                           Time="ArrangementModel.DepartureTime"
+                           TimeChanged="HandleDepartureTimeChanged" />
+            </div>
+        </div>
+        <div class="d-flex flex-nowrap">
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiPhone"]</label>
+                <DxTextBox Text="@ArrangementModel.Tel"
+                           TextExpression="() => ArrangementModel.Tel"
+                           TextChanged="HandleTelChanged"
+                           maxlength="14"
+                           CssClass="width--160" />
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiFax"]</label>
+                <DxTextBox Text="@ArrangementModel.Fax"
+                           TextExpression="() => ArrangementModel.Fax"
+                           TextChanged="HandleFaxChanged"
+                           maxlength="14"
+                           CssClass="width--160" />
+            </div>
+            <div class="form-group d-flex flex-nowrap mr-4">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiPersonInCharge"]</label>
+                <DxTextBox Text="@ArrangementModel.InchargeStaff"
+                           TextExpression="() => ArrangementModel.InchargeStaff"
+                           TextChanged="HandleInchargeStaffChanged"
+                           maxlength="20"
+                           CssClass="width--160" />
+            </div>
+        </div>
+        <div class="d-flex flex-nowrap">
+            <div class="form-group d-flex flex-nowrap">
+                <label class="col-form-label-sm mr-2">@Lang["TehaiRemarks"]</label>
+                <DxTextBox Text="@ArrangementModel.Comment"
+                           TextExpression="() => ArrangementModel.Comment"
+                           TextChanged="HandleCommentChanged"
+                           maxlength="100"
+                           CssClass="width--664" />
+            </div>
+        </div>
+        <div class="text-right">
+            <a class="btn btn-sm btn-outline-dark width--90 mr-2"
+               href=""
+               @onclick:preventDefault
+               @onclick="() => HandleCancelFuttum()">@Lang["cancel"]</a>
+            <a class="btn btn-sm btn-primary width--90 @(IsEnableSaveButton()  ? "" : "disabled")"
+               href=""
+               @onclick:preventDefault
+               @onclick="() => HandleAddFuttum()">
+                @(IsEditMode ? Lang["update"] : Lang["Add"])
+            </a>
+        </div>
+    </EditForm>
+</td>
+
+@code {
+    [Parameter] public BookingArrangementData ArrangementOrigin { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public List<ArrangementType> ArrangementTypeList { get; set; }
+    [Parameter] public List<ArrangementCode> ArrangementCodeList { get; set; }
+    [Parameter] public List<ArrangementPlaceType> ArrangementPlaceTypeList { get; set; }
+    [Parameter] public List<ArrangementLocation> ArrangementLocationList { get; set; }
+    [Parameter] public List<ScheduleSelectorModel> ScheduleList { get; set; }
+    protected IEnumerable<ArrangementLocation> FilteredArrangementLocationList { get; set; }
+    [Parameter] public EventCallback<int> OnSubmit { get; set; }
+    [Parameter] public EventCallback<int> OnCancel { get; set; }
+    protected EditContext FormContext { get; set; }
+    protected BookingArrangementData ArrangementModel { get; set; }
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    Dictionary<string, string> emptyItemMessage = new Dictionary<string, string>();
+    string EmptyArrangementTypeListMessage = "";
+    string EmptyArrangementCodeListMessage = "";
+    string EmptyArrangementPlaceTypeListMessage = "";
+    string EmptyFilteredArrangementLocationListMessage = "";
+    protected bool IsEmptyFilteredArrangementLocationList = false;
+    protected bool IsEmptyArrangementTypeList
+    {
+        get
+        {
+            return ArrangementTypeList is null || ArrangementTypeList.Count == 0;
+        }
+    }
+    protected bool IsEmptyArrangementCodeList
+    {
+        get
+        {
+            return ArrangementCodeList is null || ArrangementCodeList.Count == 0;
+        }
+    }
+    protected bool IsEmptyArrangementPlaceTypeList
+    {
+        get
+        {
+            return ArrangementPlaceTypeList is null || ArrangementPlaceTypeList.Count == 0;
+        }
+    }
+    protected bool isServiceNull = false;
+    private void LocalizationInit()
+    {
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        EmptyArrangementTypeListMessage = Lang["BI_T004"];
+        EmptyArrangementCodeListMessage = Lang["BI_T005"];
+        EmptyArrangementPlaceTypeListMessage = Lang["BI_T006"];
+        EmptyFilteredArrangementLocationListMessage = Lang["BI_T007"];
+    }
+    protected override void OnInitialized()
+    {
+        LocalizationInit();
+        if (IsEditMode)
+        {
+            var json = JsonConvert.SerializeObject(ArrangementOrigin);
+            ArrangementModel = JsonConvert.DeserializeObject<BookingArrangementData>(json);
+            LoadSelectedDataCombobox(ArrangementModel);
+        }
+        else
+        {
+            ArrangementModel = ArrangementOrigin;
+        }
+        if (IsEmptyArrangementTypeList)
+        {
+            emptyItemMessage[nameof(EmptyArrangementTypeListMessage)] = EmptyArrangementTypeListMessage;
+        }
+        if (IsEmptyArrangementCodeList)
+        {
+            emptyItemMessage[nameof(EmptyArrangementCodeListMessage)] = EmptyArrangementCodeListMessage;
+        }
+        if (IsEmptyArrangementPlaceTypeList)
+        {
+            emptyItemMessage[nameof(EmptyArrangementPlaceTypeListMessage)] = EmptyArrangementPlaceTypeListMessage;
+        }
+        FilteredArrangementLocationList = ArrangementLocationList;
+        if (FilteredArrangementLocationList is null || FilteredArrangementLocationList.Count() == 0)
+        {
+            IsEmptyFilteredArrangementLocationList = true;
+            emptyItemMessage[nameof(EmptyFilteredArrangementLocationListMessage)] = EmptyFilteredArrangementLocationListMessage;
+        }
+        if(IsEmptyArrangementTypeList || IsEmptyArrangementCodeList  || IsEmptyArrangementPlaceTypeList || IsEmptyFilteredArrangementLocationList)
+        {
+            isServiceNull = true;
+        }
+        FormContext = new EditContext(ArrangementModel);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+    }
+
+    private void LoadSelectedDataCombobox(BookingArrangementData arrangementData)
+    {
+        if (ArrangementTypeList != null && arrangementData.SelectedArrangementType != null)
+        {
+            int code = arrangementData.SelectedArrangementType.TypeCode;
+            arrangementData.SelectedArrangementType = ArrangementTypeList.SingleOrDefault(t => t.TypeCode == code);
+        }
+        if (ArrangementLocationList != null && arrangementData.SelectedArrangementLocation != null)
+        {
+            int code = arrangementData.SelectedArrangementLocation.BasyoMapCdSeq;
+            arrangementData.SelectedArrangementLocation = ArrangementLocationList.SingleOrDefault(t => t.BasyoMapCdSeq == code);
+        }
+        if (ScheduleList != null && arrangementData.Schedule != null)
+        {
+            arrangementData.Schedule =
+                ScheduleList.SingleOrDefault(s => s.Date == arrangementData.Schedule.Date) ?? arrangementData.Schedule;
+        }
+        if (ArrangementPlaceTypeList != null && arrangementData.SelectedArrangementPlaceType != null)
+        {
+            arrangementData.SelectedArrangementPlaceType =
+            ArrangementPlaceTypeList.SingleOrDefault(s => s.CodeKbnSeq == arrangementData.SelectedArrangementPlaceType.CodeKbnSeq) ?? ArrangementPlaceTypeList.FirstOrDefault();
+        }
+        if (ArrangementCodeList != null && arrangementData.SelectedArrangementCode != null)
+        {
+            arrangementData.SelectedArrangementCode =
+            ArrangementCodeList.SingleOrDefault(s => s.CodeKbnSeq == arrangementData.SelectedArrangementCode.CodeKbnSeq) ?? ArrangementCodeList.FirstOrDefault();
+        }
+    }
+
+    protected bool IsEnableSaveButton()
+    {
+        return FormContext.IsModified() && FormContext.Validate() && !isServiceNull;
+    }
+
+    protected IEnumerable<ArrangementLocation> GetFilteredArrangementLocationList(BookingArrangementData arrangementData)
+    {
+        IEnumerable<ArrangementLocation> filteredList = ArrangementLocationList;
+        if (arrangementData.SelectedArrangementCode != null && arrangementData.SelectedArrangementCode.CodeKbnSeq != 0)
+        {
+            filteredList = filteredList.Where(l => l.BasyoKenCdSeq == arrangementData.SelectedArrangementCode.CodeKbnSeq);
+        }
+        if (arrangementData.SelectedArrangementPlaceType != null && arrangementData.SelectedArrangementPlaceType.CodeKbnSeq != 0)
+        {
+            filteredList = filteredList.Where(l => l.BunruiCdSeq == arrangementData.SelectedArrangementPlaceType.CodeKbnSeq);
+        }
+        HandleSelectedArrangementLocationChanged(filteredList.FirstOrDefault());
+        return filteredList;
+    }
+
+    #region Handle Change Value
+
+    protected void HandleLocationNameChanged(string newValue)
+    {
+        ArrangementModel.LocationName = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleAddress1Changed(string newValue)
+    {
+        ArrangementModel.Address1 = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleAddress2Changed(string newValue)
+    {
+        ArrangementModel.Address2 = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleTelChanged(string newValue)
+    {
+        ArrangementModel.Tel = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleFaxChanged(string newValue)
+    {
+        ArrangementModel.Fax = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleInchargeStaffChanged(string newValue)
+    {
+        ArrangementModel.InchargeStaff = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleCommentChanged(string newValue)
+    {
+        ArrangementModel.Comment = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleArriveTimeChanged(BookingInputHelper.MyTime newValue)
+    {
+        StateHasChanged();
+    }
+
+    protected void HandleDepartureTimeChanged(BookingInputHelper.MyTime newValue)
+    {
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedScheduleChanged(ScheduleSelectorModel newValue)
+    {
+        ArrangementModel.Schedule = newValue;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedArrangementCodeChanged(ArrangementCode newValue)
+    {
+        ArrangementModel.SelectedArrangementCode = newValue;
+        FilteredArrangementLocationList = GetFilteredArrangementLocationList(ArrangementModel);
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedArrangementPlaceTypeChanged(ArrangementPlaceType newValue)
+    {
+        ArrangementModel.SelectedArrangementPlaceType = newValue;
+        FilteredArrangementLocationList = GetFilteredArrangementLocationList(ArrangementModel);
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedArrangementLocationChanged(ArrangementLocation newValue)
+    {
+        ArrangementModel.SelectedArrangementLocation = newValue;
+        ArrangementModel.LocationName = newValue?.BasyoNm ?? string.Empty;
+        StateHasChanged();
+    }
+
+    protected void HandleSelectedArrangementTypeChanged(ArrangementType newValue)
+    {
+        ArrangementModel.SelectedArrangementType = newValue;
+        StateHasChanged();
+    }
+
+    #endregion
+
+    protected void HandleAddFuttum()
+    {
+        if (IsEditMode)
+        {
+            ArrangementOrigin.SimpleCloneProperties(ArrangementModel);
+        }
+        OnSubmit.InvokeAsync(ArrangementOrigin.No);
+    }
+
+    protected void HandleCancelFuttum()
+    {
+        OnCancel.InvokeAsync(ArrangementOrigin.No);
+    }
+}

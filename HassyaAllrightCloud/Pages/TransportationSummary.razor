@@ -1,0 +1,192 @@
+﻿@inherits HassyaAllrightCloud.Pages.TransportationSummaryBase
+@using HassyaAllrightCloud.Commons
+
+<div class="tranportation-summary">
+    <div class="mb-3 search-panel">
+        <h5>@_lang["PageTitle"]</h5>
+        <div id="control-tab" class="title-section border busrepair-accordion-header">
+            <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["SearchConditionTitle"]
+        </div>
+        <div style="display: none;">
+            @if (editFormContext == null)
+            {
+                
+            }
+            else
+            {
+
+                <EditForm Context="editContext" EditContext="@editFormContext">
+                    <FluentValidator TValidator="TransportationSummaryValidator" />
+                    <ul class="validation-errors mt-2">
+                        @if (!isValidCompanyCode)
+                        {
+                            <li class="validation-message">@_lang["InvalidCompanyCode"]</li>
+                        }
+                    </ul>
+                    <DxTabs CssClass="kobo-tabs" ActiveTabIndexChanged="(e) => TriggerTabChange()">
+                        <DxTabPage Text="@_lang["ConditionSettingTitle"]">
+                            <div class="kobo-tab enterField">
+                                <div class="row enterField">
+                                    <div class="col">
+                                        <div class="form-check-inline">
+                                            <label class="mr-3">@_lang["ProcessingDateFilter"]</label>
+                                            <div class="form-row">
+                                                <div class="col has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.ProcessingDate)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="searchModel.ProcessingDate"
+                                                                DateChanged="async date => await DateChanged(date)"
+                                                                DateExpression="() => searchModel.ProcessingDate"
+                                                                SizeMode="@SizeMode.Small"
+                                                                PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker"
+                                                                ScrollPickerFormat="@DateTimeFormat.yyyyMMSlash"
+                                                                DisplayFormat="@DateTimeFormat.yyyyMMSlash"
+                                                                Format="@DateTimeFormat.yyyyMMSlash" Id="input-focus-onload"></DxDateEdit>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check-inline">
+                                            <label class="mr-3">@_lang["CompanyFilter"]</label>
+                                            <DxComboBox SelectedItem="searchModel.Company"
+                                                        SelectedItemExpression="@(() => searchModel.Company)"
+                                                        Data="@companyList"
+                                                        AllowUserInput="false"
+                                                        NullText="@_lang["CompanyNullText"]"
+                                                        TextFieldName="@nameof(CompanyListItem.DisplayName)"
+                                                        ReadOnly="true"
+                                                        SelectedItemChanged="async item => await CompanyChanged(item)"></DxComboBox>
+                                        </div>
+                                    </div>
+                                    <div class="col" style="min-width: 35rem;">
+                                        <div class="form-check-inline">
+                                            <label class="mr-3">@_lang["EigyoFilter"]</label>
+                                            <div class="form-row">
+                                                <div class="col has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.EigyoFrom)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxComboBox SelectedItem="searchModel.EigyoFrom"
+                                                                SelectedItemExpression="@(() => searchModel.EigyoFrom)"
+                                                                Data="@eigyoList"
+                                                                AllowUserInput="true"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                NullText="@_lang["EigyoNullText"]"
+                                                                TextFieldName="@nameof(EigyoListItem.DisplayName)"
+                                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                                SelectedItemChanged="async item => await EigyoChanged(item, true)"></DxComboBox>
+                                                </div>
+                                                <span class="ml-2 mr-2 mt-auto mb-auto">～</span>
+                                                <div class="col has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.EigyoTo)"
+                                                             Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxComboBox SelectedItem="searchModel.EigyoTo"
+                                                                SelectedItemExpression="@(() => searchModel.EigyoTo)"
+                                                                Data="@eigyoList"
+                                                                AllowUserInput="true"
+                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                NullText="@_lang["EigyoNullText"]"
+                                                                TextFieldName="@nameof(EigyoListItem.DisplayName)"
+                                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                                SelectedItemChanged="async item => await EigyoChanged(item, false)"></DxComboBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                        <DxTabPage Text="@_lang["DisplayTitle"]">
+                            <div class="kobo-tab enterField">
+                                <div class="row">
+                                    <div class="col-1">
+                                        @_lang["FontSizeTitle"]
+                                    </div>
+                                    <div class="col-11 d-flex">
+                                        <button class="@string.Format("btn-option {0}", gridSizeClass == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                                type="button" @onclick="e => gridSizeClass = (int)ViewMode.Large">
+                                            @_lang["Large"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", gridSizeClass == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="(e) =>  gridSizeClass = (int)ViewMode.Medium">
+                                            @_lang["Medium"]
+                                        </button>
+                                        <button class="@string.Format("btn-option {0}", gridSizeClass == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="(e) =>  gridSizeClass = (int)ViewMode.Small">
+                                            @_lang["Small"]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                    </DxTabs>
+                </EditForm>
+            }
+        </div>
+        <div class="row mt-3 text-center">
+            <div class="col-12">
+                <DxButton Click="async e => await Process()" CssClass="btn btn-primary width--90" Text="@_lang["StartBtn"]" />
+            </div>
+        </div>
+    </div>
+
+    <div id="search-result" class="grid-@gridSizeClass">
+        <div id="table-result">
+            <table class="table table-sm table-bordered table-layout">
+                <tr>
+                    <th>@_lang["ProcessingDateCol"]</th>
+                    <th>@_lang["CompanyNameCol"]</th>
+                    <th>@_lang["EigyoNameCol"]</th>
+                    <th>@_lang["UpdateDateCol"]</th>
+                </tr>
+                @code{
+                    bool isProcessingDate;
+                    bool isCompany;
+                }
+                @if (summaryList.Any())
+                {
+                    @foreach (var item in summaryList)
+                    {
+                        var dateRowSpan = item.Companies.Sum(x => x.Eigyos.Count());
+                        isProcessingDate = true;
+                        @foreach (var company in item.Companies)
+                        {
+                            isCompany = true;
+                            @foreach (var eigyo in company.Eigyos)
+                            {
+                                <tr>
+                                    @if (isProcessingDate)
+                                    {
+                                        <td rowspan="@dateRowSpan">
+                                            @item.ProcessingDate
+                                        </td>
+                                        isProcessingDate = false;
+                                    }
+                                    @if (isCompany)
+                                    {
+                                        <td rowspan="@company.Eigyos.Count()">
+                                            @company.CompanyName
+                                        </td>
+                                        isCompany = false;
+                                    }
+
+                                    <td>@eigyo.EigyoName</td>
+                                    <td>@eigyo.UpdateDate</td>
+                                </tr>
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align:center">
+                            @_lang["NoDataFound"]
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,1261 @@
+﻿@page "/accessoryfeelist"
+@inject IStringLocalizer<AccessoryFeeList> Lang
+@inject IJSRuntime IJSRuntime
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService CompanyDataService
+@inject ITPM_EigyosDataListService BranchDataService
+@inject ICustomerListService CustomerService
+@inject IAccessoryFeeListReportService AccessoryFeeListReportService
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient HttpClient
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostingEnvironment
+@inject IFilterCondition FilterServices
+@using HassyaAllrightCloud.Pages.Components.CommonComponents 
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents 
+@using HassyaAllrightCloud.IService.CommonComponents
+@inject ICustomerComponentService _customerService
+@inject IReservationClassComponentService _service 
+
+<DxPopup CssClass="custom-popup modal-sm" @bind-Visible="@notifyNotFound" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => notifyNotFound = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true" />
+        @NotFound
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => notifyNotFound = false)" Text="@Lang["OK"]" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-xl" @bind-Visible="@isShowPreviewReport" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["ReportTitle"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => isShowPreviewReport = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <DxDocumentViewer ReportUrl="@($"{nameof(IAccessoryFeeListReportService)}?" + PreviewReportUrl)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    </Content>
+</DxPopup>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>@Lang["page_title"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="async () => await ResetSearchOption()">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["clear"]
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <div class="main-top mb-2">
+        <EditForm EditContext="@formContext">
+            <DataAnnotationsValidator />
+            <FluentValidator TValidator="AccessoryFeeListValidator" />
+            <div class="express-condition mb-3 border-dotted">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>@Lang["block1"]</h5>
+                        </div>
+                        <div class="pl-5">
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["ExportTypes"]</label>
+                                    <div>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.ExportType == OutputReportType.Preview ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.Preview))">@Lang["PreviewReport"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.ExportType == OutputReportType.ExportPdf ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.ExportPdf))">@Lang["ExportPdf"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.ExportType == OutputReportType.CSV ? "active" : null)" @onclick="@(e => OnExportTypeClicked(e, OutputReportType.CSV))">@Lang["ExportCsv"]</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                <label class="col-form-label-sm width--90 mr-4">@Lang["output_classification"]</label>
+                                <div class="border pt-2 px-2 mb-2 form-group d-flex flex-nowrap rounded @(accessoryFeeListFormData.ExportType != OutputReportType.CSV ? null: "disabled-content")">
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <DxComboBox Data="@ReportTypes"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="DisplayName"
+                                                    ReadOnly="@(accessoryFeeListFormData.ExportType == OutputReportType.CSV)"
+                                                    SelectedItem="@accessoryFeeListFormData.ReportType"
+                                                    SelectedItemChanged="@OnReportTypeChanged"
+                                                    SelectedItemExpression="@(() => @accessoryFeeListFormData.ReportType)"
+                                                    CssClass="width--130">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm mr-4">@Lang["page_break_designation"]</label>
+                                        <DxComboBox Data="@BreakPageOptions"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="DisplayName"
+                                                    ReadOnly="@(accessoryFeeListFormData.ExportType == OutputReportType.CSV)"
+                                                    SelectedItem="@accessoryFeeListFormData.BreakPage"
+                                                    SelectedItemChanged="@OnPageBreakChanged"
+                                                    SelectedItemExpression="@(() => @accessoryFeeListFormData.BreakPage)"
+                                                    CssClass="width--120">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-4">@Lang["size_of_paper"]</label>
+                                        <DxComboBox Data="@PaperSizeOptions"
+                                                    AllowUserInput="false"
+                                                    ReadOnly="@(accessoryFeeListFormData.ExportType == OutputReportType.CSV)"
+                                                    SelectedItem="@accessoryFeeListFormData.PaperSize"
+                                                    SelectedItemChanged="@OnPaperSizeChanged"
+                                                    SelectedItemExpression="@(() => @accessoryFeeListFormData.PaperSize)"
+                                                    CssClass="width--130">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                <label class="col-form-label-sm width--90 mr-4">@Lang["csv_setting"]</label>
+                                <div class="border pt-2 px-2 mb-2 form-group d-flex flex-nowrap rounded @(accessoryFeeListFormData.ExportType == OutputReportType.CSV ? null: "disabled-content")">
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-2">@Lang["heading_ouput"]</label>
+                                        <div class="@(accessoryFeeListFormData.CsvConfigOption.Delimiter.Option == CSV_Delimiter.FixedLength ? "disabled-content" : null)">
+                                            <DxComboBox Data="@CsvHeaderOptions"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        ReadOnly="@(accessoryFeeListFormData.ExportType != OutputReportType.CSV)"
+                                                        SelectedItem="@(accessoryFeeListFormData.CsvConfigOption.Header)"
+                                                        SelectedItemChanged="@OnCsvHeaderChanged"
+                                                        SelectedItemExpression="@(()=>accessoryFeeListFormData.CsvConfigOption.Header)"
+                                                        CssClass="width--160"></DxComboBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap ml-5">
+                                        <label class="col-form-label-sm mr-4">@Lang["grouping_output"]</label>
+                                        <div class="@(accessoryFeeListFormData.CsvConfigOption.Delimiter.Option == CSV_Delimiter.FixedLength ? "disabled-content" : null)">
+                                            <DxComboBox Data="@CsvGroupSymbolOptions"
+                                                        TextFieldName="DisplayName"
+                                                        AllowUserInput="false"
+                                                        ReadOnly="@(accessoryFeeListFormData.ExportType != OutputReportType.CSV)"
+                                                        SelectedItem="@accessoryFeeListFormData.CsvConfigOption.GroupSymbol"
+                                                        SelectedItemChanged="@OnGroupSymbolChanged"
+                                                        SelectedItemExpression="@(()=>accessoryFeeListFormData.CsvConfigOption.GroupSymbol)"
+                                                        CssClass="width--160"></DxComboBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap ml-5">
+                                        <label class="col-form-label-sm mr-4">@Lang["separator_output"]</label>
+                                        <DxComboBox Data="@CsvDelimiterOptions"
+                                                    TextFieldName="DisplayName"
+                                                    AllowUserInput="false"
+                                                    ReadOnly="@(accessoryFeeListFormData.ExportType != OutputReportType.CSV)"
+                                                    SelectedItem="@accessoryFeeListFormData.CsvConfigOption.Delimiter"
+                                                    SelectedItemChanged="@OnSeparatorChanged"
+                                                    SelectedItemExpression="@(()=>accessoryFeeListFormData.CsvConfigOption.Delimiter)"
+                                                    CssClass="width--140"></DxComboBox>
+                                        @if (accessoryFeeListFormData.CsvConfigOption.Delimiter.Option == CSV_Delimiter.Other)
+                                        {
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <DxTextBox NullText="@Lang["OtherDelimiterSymbolNullText"]"
+                                                           Text="@accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol"
+                                                           TextChanged="@((newValue) => OnDelimiterTextChanged(newValue))"
+                                                           TextExpression="@(() => accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol)"
+                                                           CssClass="ml-3"
+                                                           maxlength="1">
+                                                </DxTextBox>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="express-condition mb-3 border-dotted">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>@Lang["block2"]</h5>
+                        </div>
+                        <div class="pl-5">
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["date_specification"]</label>
+                                    <div>
+                                        <nav class="nav nav-pills">
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.DateType == DateType.Dispatch ? "active" : null)" @onclick="@(e => OnDateTypeClicked(e, DateType.Dispatch))">@Lang["date_of_dispatch"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.DateType == DateType.Arrival ? "active" : null)" @onclick="@(e => OnDateTypeClicked(e, DateType.Arrival))">@Lang["date_of_arrival"]</a>
+                                            <a href="javascript:void(0)" class="nav-link @(accessoryFeeListFormData.DateType == DateType.Occurrence ? "active" : null)" @onclick="@(e => OnDateTypeClicked(e, DateType.Occurrence))">@Lang["date_of_occurrence"]</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">&nbsp;</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit Date="@accessoryFeeListFormData.StartDate"
+                                                    Format="yyyy/MM/dd"
+                                                    DateChanged="@((newValue) => OnStartDateChanged(newValue))"
+                                                    DateExpression="@(() => accessoryFeeListFormData.StartDate)"
+                                                    CssClass="width--120"></DxDateEdit>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxDateEdit Date="@accessoryFeeListFormData.EndDate"
+                                                    Format="yyyy/MM/dd"
+                                                    DateChanged="@((newValue) => OnEndDateChanged(newValue))"
+                                                    DateExpression="@(() => accessoryFeeListFormData.StartDate)"
+                                                    CssClass="width--120"></DxDateEdit>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["customer"]</label>
+                                    <div class="col-12" style="flex: unset">
+                                        <div class="row">
+                                            <div class="has-tooltip-error w-100 mb-2">
+                                                <CustomerComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                   LangDic="LangDic"
+                                                                   SelectedGyosya="accessoryFeeListFormData.SelectedGyosyaStart"
+                                                                   SelectedGyosyaChanged="e => OnChangeGyosya(e)"
+                                                                   GyosyaExpression="() => accessoryFeeListFormData.SelectedGyosyaStart"
+                                                                   SelectedTokisk="accessoryFeeListFormData.SelectedTokiskStart"
+                                                                   SelectedTokiskChanged="e => OnChangeTokisk(e)"
+                                                                   TokiskExpression="() => accessoryFeeListFormData.SelectedTokiskStart"
+                                                                   SelectedTokiSt="accessoryFeeListFormData.SelectedTokistStart"
+                                                                   SelectedTokiStChanged="e => OnChangeTokist(e)"
+                                                                   TokiStExpression="() => accessoryFeeListFormData.SelectedTokistStart"
+                                                                   DefaultGyosya="accessoryFeeListFormData.SelectedGyosyaStart?.GyosyaCdSeq ?? -1"
+                                                                   DefaultTokisk="accessoryFeeListFormData.SelectedTokiskStart?.TokuiSeq ?? 0"
+                                                                   DefaultTokiSt="accessoryFeeListFormData.SelectedTokistStart?.SitenCdSeq ?? 0">
+                                                </CustomerComponent>
+                                            </div>
+                                            <span class="text-center p-1 position-absolute" style="left: -2rem; top: 2.5rem">～</span>
+                                            <div class="has-tooltip-error w-100">
+                                                <CustomerComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                   LangDic="LangDic"
+                                                                   SelectedGyosya="accessoryFeeListFormData.SelectedGyosyaEnd"
+                                                                   SelectedGyosyaChanged="e => OnChangeGyosya(e, false)"
+                                                                   GyosyaExpression="() => accessoryFeeListFormData.SelectedGyosyaEnd"
+                                                                   SelectedTokisk="accessoryFeeListFormData.SelectedTokiskEnd"
+                                                                   SelectedTokiskChanged="e => OnChangeTokisk(e, false)"
+                                                                   TokiskExpression="() => accessoryFeeListFormData.SelectedTokiskEnd"
+                                                                   SelectedTokiSt="accessoryFeeListFormData.SelectedTokistEnd"
+                                                                   SelectedTokiStChanged="e => OnChangeTokist(e, false)"
+                                                                   TokiStExpression="() => accessoryFeeListFormData.SelectedTokistEnd"
+                                                                   DefaultGyosya="accessoryFeeListFormData.SelectedGyosyaEnd?.GyosyaCdSeq ?? -1"
+                                                                   DefaultTokisk="accessoryFeeListFormData.SelectedTokiskEnd?.TokuiSeq ?? 0"
+                                                                   DefaultTokiSt="accessoryFeeListFormData.SelectedTokistEnd?.SitenCdSeq ?? 0">
+                                                </CustomerComponent>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["InvoiceType"]</label>
+                                    <DxComboBox Data="@InvoiceTypes"
+                                                AllowUserInput="false"
+                                                TextFieldName="DisplayName"
+                                                SelectedItem="@accessoryFeeListFormData.InvoiceType"
+                                                SelectedItemChanged="@OnInvoiceTypeChanged"
+                                                SelectedItemExpression="@(() => accessoryFeeListFormData.InvoiceType)"
+                                                CssClass="width--130">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["company_code"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.Company)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxComboBox Data="Companies"
+                                                    TextFieldName="CompanyInfo"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["CompaniesNullText"]"
+                                                    SelectedItem="@accessoryFeeListFormData.Company"
+                                                    SelectedItemChanged="@(async (newCmp) => await OnCompanySelectedChanged(newCmp))"
+                                                    SelectedItemExpression="@(() => accessoryFeeListFormData.Company)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["sales_office_code"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.BranchStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxComboBox Data="@Branches"
+                                                    TextFieldName="BranchText"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["BranchesNullText"]"
+                                                    SelectedItem="@accessoryFeeListFormData.BranchStart"
+                                                    SelectedItemChanged="@((newBranch)=> OnSaleBranchChanged(newBranch))"
+                                                    SelectedItemExpression="@(()=>accessoryFeeListFormData.BranchStart)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.BranchStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxComboBox Data="@Branches"
+                                                    TextFieldName="BranchText"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["BranchesNullText"]"
+                                                    SelectedItem="@accessoryFeeListFormData.BranchEnd"
+                                                    SelectedItemChanged="@((newBranch)=> OnSaleBranchChanged(newBranch, false))"
+                                                    SelectedItemExpression="@(()=>accessoryFeeListFormData.BranchStart)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="d-flex">
+            <div class="form-group d-flex flex-nowrap">
+                <label class="col-form-label-sm width--90 mr-4">@Lang["BookingType"]</label>
+                <div class="has-tooltip-error">
+                    <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.BookingTypes)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                </div>
+                <div class="dropdown dropdown-listbox">
+                    <div class="input-group input-group-sm dx-listbox width--160 multi-combobox dropdown-toggle" data-toggle="dropdown" id="lstcompany">
+                        <p class="form-control form-control-sm">@DisplayBookingTypeCmb</p>
+                        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                        <DxListBox Data="@BookingTypes"
+                                   ShowCheckboxes="true"
+                                   TextFieldName="BookingTypeName"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   SelectedItems="@BookingTypeSelecteds"
+                                   SelectedItemsChanged="@OnBookingTypesChanged"
+                                   SelectedItemsExpression="()=> accessoryFeeListFormData.BookingTypes"
+                                   CssClass="width--180">
+                        </DxListBox>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["BookingType"]</label>
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="has-tooltip-error width--290">
+                                                <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                           LangDic="LangDic"
+                                                                           DefaultValue="accessoryFeeListFormData.BookingTypeStart?.YoyaKbnSeq ?? 0"
+                                                                           SelectedReservationClass="accessoryFeeListFormData.BookingTypeStart"
+                                                                           ReservationClassExpression="() => accessoryFeeListFormData.BookingTypeStart"
+                                                                           SelectedReservationClassChanged="e => OnBookingTypeChanged(e)"
+                                                                           >
+                                                </ReservationClassComponent>
+                                            </div>
+                                            <span class="mx-3">～</span>
+                                            <div class="has-tooltip-error width--290">
+                                                <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                           LangDic="LangDic"
+                                                                           DefaultValue="accessoryFeeListFormData.BookingTypeEnd?.YoyaKbnSeq ?? 0"
+                                                                           SelectedReservationClass="accessoryFeeListFormData.BookingTypeEnd"
+                                                                           ReservationClassExpression="() => accessoryFeeListFormData.BookingTypeEnd"
+                                                                           SelectedReservationClassChanged="e => OnBookingTypeChanged(e, false)">
+                                                </ReservationClassComponent>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["receipt_number"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.UkeCdTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox 
+                                                   Text="@accessoryFeeListFormData.UkeCdFrom"
+                                                   TextChanged="@((newValue) => OnUkeCdChanged(newValue))"
+                                                   TextExpression="@(() => accessoryFeeListFormData.UkeCdTo)"
+                                                   CssClass="width--160 length10">
+                                        </DxTextBox>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.UkeCdTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxTextBox 
+                                                   Text="@accessoryFeeListFormData.UkeCdTo"
+                                                   TextChanged="@((newValue) => OnUkeCdChanged(newValue, false))"
+                                                   TextExpression="@(() => accessoryFeeListFormData.UkeCdTo)"
+                                                   CssClass="width--160 length10">
+                                        </DxTextBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-4">@Lang["ancillary_charge_code"]</label>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.FutaiStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxComboBox Data="@Futais"
+                                                    TextFieldName="FutaiText"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["FutaisNullText"]"
+                                                    SelectedItem="@accessoryFeeListFormData.FutaiStart"
+                                                    SelectedItemChanged="@((newFutai)=>OnFutaiChanged(newFutai))"
+                                                    SelectedItemExpression="@(() => @accessoryFeeListFormData.FutaiStart)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                    <span class="mx-3">～</span>
+                                    <div class="has-tooltip-error">
+                                        <Tooltip ValueExpressions="@(() => accessoryFeeListFormData.FutaiStart)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                        <DxComboBox Data="@Futais"
+                                                    TextFieldName="FutaiText"
+                                                    AllowUserInput="false"
+                                                    NullText="@Lang["FutaisNullText"]"
+                                                    SelectedItem="@accessoryFeeListFormData.FutaiEnd"
+                                                    SelectedItemChanged="@((newFutai)=>OnFutaiChanged(newFutai, false))"
+                                                    SelectedItemExpression="@(() => @accessoryFeeListFormData.FutaiStart)"
+                                                    CssClass="width--290">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--90 mr-4">@Lang["ancillary_type"]</label>
+                                <div class="dropdown dropdown-listbox">
+                                    <div class="input-group input-group-sm dx-listbox width--190 multi-combobox dropdown-toggle" data-toggle="dropdown" id="lstcompany">
+                                        <p class="form-control form-control-sm">@DisplayFutaiFeeTypeCmb</p>
+                                        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                                            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                                <span></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstcompany">
+                                        <DxListBox Data="@FutaiFeeTypes"
+                                                   ShowCheckboxes="@isShowCheckBoxForFuttaiType"
+                                                   TextFieldName="FutaiCodeKbn"
+                                                   NullText="@Lang["FutaisNullText"]"
+                                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                                   SelectedItems="@FutaiFeeTypeSelecteds"
+                                                   SelectedItemsChanged="@OnFutaiFeeTypesChanged"
+                                                   SelectedItemsExpression="()=> accessoryFeeListFormData.FutaiFeeTypes"
+                                                   CssClass="width--190">
+                                        </DxListBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-dotted text-center">
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100" @onclick="@(async (e) => await OnButtonReportClicked(e))" Enabled="@isExportable" Text="@Lang["BtnExport"]"></DxButton>
+            </div>
+        </EditForm>
+    </div>
+}
+
+
+@code {
+
+    private AccessoryFeeListData accessoryFeeListFormData = new AccessoryFeeListData();
+    private EditContext formContext;
+
+    private List<PaperSize> PaperSizeOptions = new List<PaperSize>();
+    private List<SelectedOption<CSV_Group>> CsvGroupSymbolOptions = new List<SelectedOption<CSV_Group>>();
+    private List<SelectedOption<CSV_Header>> CsvHeaderOptions = new List<SelectedOption<CSV_Header>>();
+    private List<SelectedOption<CSV_Delimiter>> CsvDelimiterOptions = new List<SelectedOption<CSV_Delimiter>>();
+    private List<SelectedOption<BreakReportPage>> BreakPageOptions = new List<SelectedOption<BreakReportPage>>();
+    private List<SelectedOption<InvoiceTypeOption>> InvoiceTypes = new List<SelectedOption<InvoiceTypeOption>>();
+    private List<SelectedOption<ReportType>> ReportTypes = new List<SelectedOption<ReportType>>();
+
+    private List<ReservationClassComponentData> BookingTypes = new List<ReservationClassComponentData>();
+    private List<LoadCustomerList> Customers = new List<LoadCustomerList>();
+    private List<CompanyData> Companies = new List<CompanyData>();
+    private List<LoadSaleBranch> Branches = new List<LoadSaleBranch>();
+    private List<LoadFutai> Futais = new List<LoadFutai>();
+    private List<LoadFutaiType> FutaiFeeTypes = new List<LoadFutaiType>();
+    private IEnumerable<LoadFutaiType> FutaiFeeTypeSelecteds = new List<LoadFutaiType>();
+    private string DisplayFutaiFeeTypeCmb = string.Empty;
+
+    private bool IsFutaiFeeTypeSelectedAll = true;
+    private bool notifyNotFound = false;
+    private bool isLoading = true;
+    private bool isShowPreviewReport = false;
+    private bool isExportable = true;
+    private bool isShowCheckBoxForFuttaiType = true;
+    private string filterConditionFormName = "KJ1700";
+    private bool isFilterApply;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    private string PreviewReportUrl = string.Empty;
+
+    string baseUrl;
+
+    #region Localization string
+
+    string NotFound;
+    string FuttaiTypeEmpty;
+
+    private List<CustomerComponentGyosyaData> listGyosya { get; set; }
+    private List<CustomerComponentTokiskData> listTokisk { get; set; }
+    private List<CustomerComponentTokiStData> listTokist { get; set; }
+
+    /// <summary>
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        NotFound = Lang["BI_T0010"];
+        FuttaiTypeEmpty = Lang["BI_T003"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        baseUrl = AppSettingsService.GetBaseUrl();
+        formContext = new EditContext(accessoryFeeListFormData);
+        formContext.OnValidationStateChanged += OnValidationStateChanged;
+        LocalizationInit();
+
+        var taskReservation = _service.GetListReservationClass();
+        var taskGyosya = _customerService.GetListGyosya();
+        var taskTokisk = _customerService.GetListTokisk();
+        var taskTokist = _customerService.GetListTokiSt();
+
+        await Task.WhenAll(taskReservation, taskGyosya, taskTokisk, taskTokist);
+
+        accessoryFeeListFormData.BookingTypes = taskReservation.Result;
+        BookingTypes = taskReservation.Result;
+        listGyosya = taskGyosya.Result;
+        listTokisk = taskTokisk.Result;
+        listTokist = taskTokist.Result;
+
+        LoadStaticData();
+        await LoadCompany();
+        await LoadBranch();
+        await LoadFutai();
+        await LoadFutaiType();
+
+        await ApplyFilter();
+
+        isLoading = false;
+    }
+
+
+    #endregion
+
+    #region Load init accessoryFeeListFormData
+    private void LoadStaticData()
+    {
+
+        PaperSizeOptions = new List<PaperSize>
+        {
+            PaperSize.A3,
+            PaperSize.A4,
+            PaperSize.B4,
+        };
+
+        CsvHeaderOptions = new List<SelectedOption<CSV_Header>>
+        {
+            new SelectedOption<CSV_Header>{Option = CSV_Header.IncludeHeader, DisplayName= Lang["CsvHadHeader"] },
+            new SelectedOption<CSV_Header>{Option = CSV_Header.WithoutHeader, DisplayName= Lang["CsvWithoutHeader"] },
+        };
+
+        CsvGroupSymbolOptions = new List<SelectedOption<CSV_Group>>
+        {
+            new SelectedOption<CSV_Group>{Option = CSV_Group.QuotationMarks, DisplayName= Lang["CsvGrQuotesMarks"]},
+            new SelectedOption<CSV_Group>{Option = CSV_Group.WithoutQuotes, DisplayName= Lang["CsvGrWithoutQuotes"]},
+        };
+
+        CsvDelimiterOptions = new List<SelectedOption<CSV_Delimiter>>
+        {
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Comma, DisplayName= Lang["CsvSpaceComma"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Semicolon, DisplayName= Lang["CsvSpaceSemicolon"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Space, DisplayName= Lang["CsvSpacing"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.FixedLength, DisplayName= Lang["CsvSpaceFixedLength"]},
+            new SelectedOption<CSV_Delimiter>{Option = CSV_Delimiter.Other, DisplayName= Lang["CsvSpaceOther"]},
+        };
+
+        BreakPageOptions = new List<SelectedOption<BreakReportPage>>
+        {
+            new SelectedOption<BreakReportPage>{Option = BreakReportPage.None, DisplayName = Lang["BreakNormal"]},
+            new SelectedOption<BreakReportPage>{Option = BreakReportPage.Customer, DisplayName = Lang["BreakCustomer"]},
+        };
+
+        InvoiceTypes = new List<SelectedOption<InvoiceTypeOption>>
+        {
+            new SelectedOption<InvoiceTypeOption>{Option = InvoiceTypeOption.All, DisplayName = Constants.SelectedAll},
+            //null,
+            new SelectedOption<InvoiceTypeOption>{Option = InvoiceTypeOption.Liquidate, DisplayName = Lang["Liquidate"]},
+            new SelectedOption<InvoiceTypeOption>{Option = InvoiceTypeOption.NotSolve, DisplayName = Lang["NotSolve"]},
+
+        };
+
+        ReportTypes = new List<SelectedOption<ReportType>>
+        {
+            new SelectedOption<ReportType>{ Option = ReportType.Detail, DisplayName = Lang["Detail"]},
+            new SelectedOption<ReportType>{ Option = ReportType.Summary, DisplayName = Lang["Summary"]},
+        };
+
+        accessoryFeeListFormData.PaperSize = PaperSizeOptions.FirstOrDefault();
+        accessoryFeeListFormData.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.FirstOrDefault();
+        accessoryFeeListFormData.CsvConfigOption.Header = CsvHeaderOptions.FirstOrDefault();
+        accessoryFeeListFormData.CsvConfigOption.Delimiter = CsvDelimiterOptions.FirstOrDefault();
+        accessoryFeeListFormData.BreakPage = BreakPageOptions.FirstOrDefault();
+        accessoryFeeListFormData.InvoiceType = InvoiceTypes.FirstOrDefault();
+
+        accessoryFeeListFormData.ReportType = ReportTypes.FirstOrDefault();
+
+        accessoryFeeListFormData.DateTypeText = Lang["date_of_dispatch"];
+    }
+
+    private async Task LoadCompany()
+    {
+        Companies = await CompanyDataService.GetCompanyByTenantIdAsync(new ClaimModel().TenantID);
+        InsertSelectAll(Companies);
+        //InsertSelectAll(Companies, _ => _., new CompanyData { IsSelectedAll = true, CompanyCdSeq = 0 });
+
+        accessoryFeeListFormData.Company = Companies.FirstOrDefault();
+    }
+
+    private async Task LoadBranch()
+    {
+        if (accessoryFeeListFormData.Company is null)
+        {
+            Branches = await BranchDataService.GetBranchDataByTenantId(new ClaimModel().TenantID);
+        }
+        else
+        {
+            Branches = await BranchDataService.GetBranchDataByCompany(accessoryFeeListFormData.Company.CompanyCdSeq, new ClaimModel().TenantID);
+        }
+
+        InsertSelectAll(Branches);
+        //InsertSelectAll(Branches, _ => _.IsSelectedAll, new LoadSaleBranch { IsSelectedAll = true, EigyoCdSeq = 0 });
+
+        if (!isFilterApply)
+        {
+            accessoryFeeListFormData.BranchStart = Branches.FirstOrDefault();
+            accessoryFeeListFormData.BranchEnd = Branches.FirstOrDefault();
+        }
+    }
+
+    private async Task LoadFutai()
+    {
+        Futais = await HttpClient.GetJsonAsync<List<LoadFutai>>(baseUrl + "/api/BookingIncidental/LoadFutai?tenantId=" + new ClaimModel().TenantID);
+        InsertSelectAll(Futais);
+        //InsertSelectAll(Futais, _ => _.IsSelectedAll, new LoadFutai { IsSelectedAll = true, FutaiCdSeq = 0 });
+
+        accessoryFeeListFormData.FutaiStart = Futais.FirstOrDefault();
+        accessoryFeeListFormData.FutaiEnd = Futais.FirstOrDefault();
+    }
+
+    private async Task LoadFutaiType()
+    {
+        FutaiFeeTypes = await AccessoryFeeListReportService.GetFutaiTypeByTenantIdAsync(new ClaimModel().TenantID);
+
+        if (FutaiFeeTypes.Any())
+        {
+            InsertSelectAll(FutaiFeeTypes, _ => _.IsSelectedAll, new LoadFutaiType { IsSelectedAll = true, FutaiCdSeq = 0 });
+            accessoryFeeListFormData.FutaiFeeTypes = FutaiFeeTypes;
+
+            FutaiFeeTypeSelecteds = FutaiFeeTypes;
+            DisplayFutaiFeeTypeCmb = $"{Constants.SelectedAll}";
+        }
+        else
+        {
+            isShowCheckBoxForFuttaiType = false;
+
+            DisplayFutaiFeeTypeCmb = FuttaiTypeEmpty;
+        }
+    }
+
+    private void InsertSelectAll<T>(List<T> source, Func<T, bool> predicate, T emptyObj = null) where T : class
+    {
+        if (source.Any() && !source.Where(predicate).Any())
+            source.Insert(0, emptyObj != null ? emptyObj : (T)Activator.CreateInstance(typeof(T))); // Insert a item to mark choose all in first line
+    }
+    private void InsertSelectAll<T>(List<T> source) where T : class
+    {
+        if (source.Any(item => item is null))
+            return;
+
+        source.Insert(0, null);
+    }
+    #endregion
+
+    #region value changed method
+
+    private void OnDateTypeClicked(MouseEventArgs e, DateType dateType)
+    {
+        accessoryFeeListFormData.DateType = dateType;
+
+        switch (dateType)
+        {
+            case DateType.Dispatch:
+                accessoryFeeListFormData.DateTypeText = @Lang["date_of_dispatch"];
+                break;
+            case DateType.Arrival:
+                accessoryFeeListFormData.DateTypeText = @Lang["date_of_arrival"];
+                break;
+            case DateType.Occurrence:
+                accessoryFeeListFormData.DateTypeText = @Lang["date_of_occurrence"];
+                break;
+            default:
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnStartDateChanged(DateTime newDate)
+    {
+        accessoryFeeListFormData.StartDate = newDate;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnEndDateChanged(DateTime newDate)
+    {
+        accessoryFeeListFormData.EndDate = newDate;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnInvoiceTypeChanged(SelectedOption<InvoiceTypeOption> type)
+    {
+        accessoryFeeListFormData.InvoiceType = type;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnFutaiFeeTypesChanged(IEnumerable<LoadFutaiType> futaiFeeTypes)
+    {
+        int newCount = futaiFeeTypes.Count();
+        int maxCount = FutaiFeeTypes.Count();
+
+        FutaiFeeTypeSelecteds = futaiFeeTypes;
+
+        bool isContainSelectAll = FutaiFeeTypeSelecteds.Where(_ => _.IsSelectedAll).Any();
+        if (!isFilterApply)
+        {
+            if (IsFutaiFeeTypeSelectedAll == true)
+            {
+                if (!isContainSelectAll)
+                {
+                    FutaiFeeTypeSelecteds = FutaiFeeTypeSelecteds.Take(0);
+                    IsFutaiFeeTypeSelectedAll = false;
+                }
+                else if (isContainSelectAll && newCount < maxCount)
+                {
+                    FutaiFeeTypeSelecteds = FutaiFeeTypeSelecteds.Where(_ => !_.IsSelectedAll);
+                    IsFutaiFeeTypeSelectedAll = false;
+                }
+            }
+            else
+            {
+                if (isContainSelectAll)
+                {
+                    FutaiFeeTypeSelecteds = FutaiFeeTypes;
+                    IsFutaiFeeTypeSelectedAll = true;
+                }
+                else if (!isContainSelectAll && newCount == maxCount - 1)
+                {
+                    FutaiFeeTypeSelecteds = FutaiFeeTypes;
+                    IsFutaiFeeTypeSelectedAll = true;
+                }
+            }
+        }
+        accessoryFeeListFormData.FutaiFeeTypes = FutaiFeeTypeSelecteds.ToList();
+
+        if (newCount == 1 && (!FutaiFeeTypeSelecteds.FirstOrDefault()?.IsSelectedAll ?? false))
+        {
+            DisplayFutaiFeeTypeCmb = FutaiFeeTypeSelecteds.FirstOrDefault()?.CodeKbnNm ?? string.Empty;
+        }
+        else if (newCount == maxCount)
+        {
+            DisplayFutaiFeeTypeCmb = Constants.SelectedAll;
+        }
+        else
+        {
+            DisplayFutaiFeeTypeCmb = $"{Lang["Choices"]}: {newCount}";
+        }
+
+        if (!isFilterApply)
+            StateHasChanged();
+
+    }
+
+    private void OnBookingTypeChanged(ReservationClassComponentData newType, bool isFrom = true)
+    {
+        bool isSelectAll = newType is null;//.BranchText.Equals(Constants.SelectedAll);
+        if (isFrom)
+        {
+            accessoryFeeListFormData.BookingTypeStart = newType;
+        }
+        else
+        {
+            accessoryFeeListFormData.BookingTypeEnd = newType;
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private async Task OnCompanySelectedChanged(CompanyData newCompany)
+    {
+        accessoryFeeListFormData.Company = newCompany;
+
+        await LoadBranch();
+
+        formContext.Validate();
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnSaleBranchChanged(LoadSaleBranch newBranch, bool isFrom = true)
+    {
+        bool isSelectAll = newBranch is null;//.BranchText.Equals(Constants.SelectedAll);
+        if (isFrom)
+        {
+            accessoryFeeListFormData.BranchStart = newBranch;
+            if (!isFilterApply && isSelectAll)
+            {
+                accessoryFeeListFormData.BranchEnd = Branches.FirstOrDefault();
+            }
+        }
+        else
+        {
+            accessoryFeeListFormData.BranchEnd = newBranch;
+            if (!isFilterApply && isSelectAll)
+            {
+                accessoryFeeListFormData.BranchStart = Branches.FirstOrDefault();
+            }
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnUkeCdChanged(string newUkeCd, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            accessoryFeeListFormData.UkeCdFrom = newUkeCd;
+        }
+        else
+        {
+            accessoryFeeListFormData.UkeCdTo = newUkeCd;
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnFutaiChanged(LoadFutai newFutai, bool isFrom = true)
+    {
+        bool isSelectAll = newFutai is null;//.IsSelectedAll;
+        if (isFrom)
+        {
+            accessoryFeeListFormData.FutaiStart = newFutai;
+            if (!isFilterApply && isSelectAll)
+            {
+                accessoryFeeListFormData.FutaiEnd = Futais.FirstOrDefault();
+            }
+        }
+        else
+        {
+            accessoryFeeListFormData.FutaiEnd = newFutai;
+            if (!isFilterApply && isSelectAll)
+            {
+                accessoryFeeListFormData.FutaiStart = Futais.FirstOrDefault();
+            }
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private async Task ResetSearchOption()
+    {
+        isLoading = true;
+        isExportable = true;
+
+        accessoryFeeListFormData = new AccessoryFeeListData();
+        accessoryFeeListFormData.BookingTypes = BookingTypes;
+
+        await FilterServices.DeleteCustomFilerCondition(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, 1, filterConditionFormName);
+
+        await OnInitializedAsync();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnChangeGyosya(CustomerComponentGyosyaData value, bool isFrom = true)
+    {
+        if (isFrom)
+            accessoryFeeListFormData.SelectedGyosyaStart = value;
+        else
+            accessoryFeeListFormData.SelectedGyosyaEnd = value;
+        StateHasChanged();
+    }
+
+    private void OnChangeTokisk(CustomerComponentTokiskData value, bool isFrom = true)
+    {
+        if (isFrom)
+            accessoryFeeListFormData.SelectedTokiskStart = value;
+        else
+            accessoryFeeListFormData.SelectedTokiskEnd = value;
+        StateHasChanged();
+    }
+
+    private void OnChangeTokist(CustomerComponentTokiStData value, bool isFrom = true)
+    {
+        if (isFrom)
+            accessoryFeeListFormData.SelectedTokistStart = value;
+        else
+            accessoryFeeListFormData.SelectedTokistEnd = value;
+        StateHasChanged();
+    }
+
+    #region Print options
+    private void OnReportTypeChanged(SelectedOption<ReportType> type)
+    {
+        accessoryFeeListFormData.ReportType = type;
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnPaperSizeChanged(PaperSize newSize)
+    {
+        accessoryFeeListFormData.PaperSize = newSize;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnPageBreakChanged(SelectedOption<BreakReportPage> breakOption)
+    {
+        accessoryFeeListFormData.BreakPage = breakOption;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    #endregion
+
+    #region CSV options
+    private void OnCsvHeaderChanged(SelectedOption<CSV_Header> header)
+    {
+        accessoryFeeListFormData.CsvConfigOption.Header = header;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnGroupSymbolChanged(SelectedOption<CSV_Group> group)
+    {
+        accessoryFeeListFormData.CsvConfigOption.GroupSymbol = group;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnSeparatorChanged(SelectedOption<CSV_Delimiter> selectedItems)
+    {
+        if (accessoryFeeListFormData.CsvConfigOption.Delimiter.Option == CSV_Delimiter.Other && selectedItems.Option != CSV_Delimiter.Other)
+        {
+            accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol = string.Empty;
+        }
+
+        if (selectedItems.Option == CSV_Delimiter.FixedLength)
+        {
+            accessoryFeeListFormData.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.Where(_ => _.Option == CSV_Group.WithoutQuotes).FirstOrDefault();
+            accessoryFeeListFormData.CsvConfigOption.Header = CsvHeaderOptions.Where(_ => _.Option == CSV_Header.WithoutHeader).FirstOrDefault();
+        }
+        accessoryFeeListFormData.CsvConfigOption.Delimiter = selectedItems;
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnDelimiterTextChanged(string newValue)
+    {
+        accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol = newValue;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnExportTypeClicked(MouseEventArgs e, OutputReportType exportType)
+    {
+        if (accessoryFeeListFormData.ExportType == OutputReportType.CSV && exportType != OutputReportType.CSV)
+        {
+            //Reset fields in CSV config form
+            accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol = string.Empty;
+            accessoryFeeListFormData.CsvConfigOption.GroupSymbol = CsvGroupSymbolOptions.First();
+            accessoryFeeListFormData.CsvConfigOption.Header = CsvHeaderOptions.First();
+            accessoryFeeListFormData.CsvConfigOption.Delimiter = CsvDelimiterOptions.First();
+
+            formContext.NotifyFieldChanged(FieldIdentifier.Create(() => accessoryFeeListFormData.CsvConfigOption.Delimiter.Option));
+        }
+
+        accessoryFeeListFormData.ExportType = exportType;
+        if (!isFilterApply) StateHasChanged();
+    }
+    #endregion
+
+    #endregion
+
+    #region Export Action
+    private async Task OnButtonReportClicked(MouseEventArgs args)
+    {
+        if (formContext.Validate())
+        {
+            switch (accessoryFeeListFormData.ExportType)
+            {
+                case OutputReportType.Preview:
+                    await PreviewReport();
+                    break;
+                case OutputReportType.Print: //disable this feature
+                    notifyNotFound = true;
+                    break;
+                case OutputReportType.ExportPdf:
+                    await PDFReport();
+                    break;
+                case OutputReportType.CSV:
+                    await CSVReport();
+                    break;
+                default:
+                    break;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task PreviewReport()
+    {
+        AccessoryFeeListReportSearchParams param = new AccessoryFeeListReportSearchParams
+        {
+            TenantId = new ClaimModel().TenantID,
+            UserLoginId = new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq,
+            SearchCondition = accessoryFeeListFormData,
+        };
+        param.SearchCondition.FutaiFeeTypes = FutaiFeeTypeSelecteds.ToList();
+        param.SearchCondition.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+
+        var rpData = await AccessoryFeeListReportService.GetAccessoryFeeListReportAsync(param);
+        if (rpData.Any())
+        {
+            await SaveCurrentFilter();
+            //PreviewReportUrl = EncryptHelper.EncryptToUrl(param);
+            //isShowPreviewReport = true;
+            param.SearchCondition.BookingTypes = null;
+            var searchString = EncryptHelper.EncryptToUrl(param);
+            await IJSRuntime.InvokeVoidAsync("open", "AccessoryFeeListReportPreview?searchString=" + searchString, "_blank");
+            StateHasChanged();
+        }
+        else
+        {
+            notifyNotFound = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task PDFReport()
+    {
+        AccessoryFeeListReportSearchParams param = new AccessoryFeeListReportSearchParams
+        {
+            TenantId = new ClaimModel().TenantID,
+            UserLoginId = new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq,
+            SearchCondition = accessoryFeeListFormData,
+        };
+
+        param.SearchCondition.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+        var data = await AccessoryFeeListReportService.GetAccessoryFeeListReportPagedAsync(param);
+
+        if (data.Any() && data.FirstOrDefault().ReportDatas.Count > 1 && !data.FirstOrDefault().ReportDatas[0].IsSumRow)
+        {
+            await SaveCurrentFilter();
+            DevExpress.XtraReports.UI.XtraReport report = new DevExpress.XtraReports.UI.XtraReport();
+
+            switch (accessoryFeeListFormData.PaperSize)
+            {
+                case PaperSize.A3:
+                    report = new Reports.ReportTemplate.AccessoryFeeList.AccessoryFeeListA3();
+                    break;
+                case PaperSize.A4:
+                    report = new Reports.ReportTemplate.AccessoryFeeList.AccessoryFeeListA4();
+                    break;
+                case PaperSize.B4:
+                    report = new Reports.ReportTemplate.AccessoryFeeList.AccessoryFeeListB4();
+                    break;
+                default:
+                    break;
+            }
+
+            report.DataSource = data;
+            await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+            {
+                report.CreateDocument();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    report.ExportToPdf(ms);
+
+                    byte[] exportedFileBytes = ms.ToArray();
+                    string myExportString = Convert.ToBase64String(exportedFileBytes);
+                    IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "AccessoryFeeListReport");
+                }
+            });
+        }
+        else
+        {
+            notifyNotFound = true;
+        }
+    }
+
+    private async Task CSVReport()
+    {
+        // when export to csv File alway using detail mode
+        AccessoryFeeListData accessoryFeeListData = new AccessoryFeeListData();
+        accessoryFeeListData.SimpleCloneProperties(accessoryFeeListFormData);
+        accessoryFeeListData.ReportType = ReportTypes.Where(_ => _.Option == ReportType.Detail).FirstOrDefault();
+
+        //this temp path to check valid
+        string path = string.Format("{0}/csv/{1}.csv", HostingEnvironment.WebRootPath, Guid.NewGuid());
+
+        AccessoryFeeListReportSearchParams param = new AccessoryFeeListReportSearchParams
+        {
+            TenantId = new ClaimModel().TenantID,
+            UserLoginId = new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq,
+            SearchCondition = accessoryFeeListData,
+        };
+
+        param.SearchCondition.BookingTypes = BookingTypes.Where(_ => _ != null).ToList();
+        var reportData = await AccessoryFeeListReportService.GetAccessoryFeeListReportCsvAsync(param);
+
+        if (reportData.Any())
+        {
+            await SaveCurrentFilter();
+            var csvData = reportData.Cast<AccessoryFeeListExportData>().ToList();
+
+            var result = CsvHelper.ExportCollectionToCsv(
+                csvData,
+                new CsvConfigOption
+                {
+                    FilePath = path.Substring(0, path.LastIndexOf("/")),
+                    Delimiter = accessoryFeeListFormData.CsvConfigOption.Delimiter,
+                    DelimiterSymbol = accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol,
+                    GroupSymbol = accessoryFeeListFormData.CsvConfigOption.GroupSymbol,
+                    Header = accessoryFeeListFormData.CsvConfigOption.Header,
+                },
+                SetupHeaderCsvReport());
+
+            await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+            {
+                string myExportString = Convert.ToBase64String(result);
+                IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "csv", "AccessoryFeeListReport");
+            });
+        }
+        else
+        {
+            notifyNotFound = true;
+        }
+    }
+
+    #endregion
+
+
+    #region Helper
+    private void OnValidationStateChanged(object sender, ValidationStateChangedEventArgs args)
+    {
+        bool ctxIsInvalid = ((EditContext)sender).GetValidationMessages().Any();
+
+        isExportable = !ctxIsInvalid;
+    }
+
+    private List<string> SetupHeaderCsvReport()
+    {
+        return new List<string>
+{
+            "№",
+            "得意先業者コード", "得意先コード", "得意先支店コード",
+            "得意先業者コード名", "得意先名", "得意先略名", "得意先支店名", "得意先支店略名",
+            "配車年月日", "到着年月日", "受付営業所略名", "発生年月日", "団体名",
+            "受付番号", "請求区分名", "精算名", "精算区分名",
+            "入料金所名", "出料金所名", "数量", "単価", "手数料", "消費税", "売上額", "備考"
+        };
+    }
+    #endregion
+
+    #region History Condition
+
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(AccessoryFeeListReportService.GetFieldValues(accessoryFeeListFormData), filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+        }
+        catch (Exception) { }
+    }
+
+    private async Task ApplyFilter()
+    {
+        var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq))
+                                    .ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues()
+                                    .ConvertMultipleToSingleValues();
+        if (filterValues.Count > 0)
+        {
+            try
+            {
+                isFilterApply = true;
+                AccessoryFeeListReportService.ApplyFilter(ref accessoryFeeListFormData, filterValues, accessoryFeeListFormData.BookingTypes, listGyosya, listTokisk, listTokist);
+
+                OnDateTypeClicked(null, accessoryFeeListFormData.DateType);
+                OnStartDateChanged(accessoryFeeListFormData.StartDate);
+                OnEndDateChanged(accessoryFeeListFormData.EndDate);
+                OnInvoiceTypeChanged(InvoiceTypes.FirstOrDefault(_ => _.Option == accessoryFeeListFormData.InvoiceType.Option));
+                OnFutaiFeeTypesChanged(FutaiFeeTypes.Where(f => accessoryFeeListFormData.FutaiFeeTypes.Select(_ => _.CodeKbnSeq).Contains(f.CodeKbnSeq)));
+                await OnCompanySelectedChanged(accessoryFeeListFormData.Company == null ? null : Companies.FirstOrDefault(_ => _ != null && _.CompanyCdSeq == accessoryFeeListFormData.Company.CompanyCdSeq));
+                OnSaleBranchChanged(accessoryFeeListFormData.BranchStart == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == accessoryFeeListFormData.BranchStart.EigyoCdSeq));
+                OnSaleBranchChanged(accessoryFeeListFormData.BranchEnd == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == accessoryFeeListFormData.BranchEnd.EigyoCdSeq), false);
+                OnUkeCdChanged(accessoryFeeListFormData.UkeCdFrom, true);
+                OnUkeCdChanged(accessoryFeeListFormData.UkeCdTo, false);
+                OnFutaiChanged(accessoryFeeListFormData.FutaiStart == null ? null : Futais.FirstOrDefault(_ => _ != null && _.FutaiCdSeq == accessoryFeeListFormData.FutaiStart.FutaiCdSeq));
+                OnFutaiChanged(accessoryFeeListFormData.FutaiEnd == null ? null : Futais.FirstOrDefault(_ => _ != null && _.FutaiCdSeq == accessoryFeeListFormData.FutaiEnd.FutaiCdSeq), false);
+
+                OnReportTypeChanged(ReportTypes.FirstOrDefault(_ => _.Option == accessoryFeeListFormData.ReportType.Option));
+                OnPageBreakChanged(BreakPageOptions.FirstOrDefault(_ => _.Option == accessoryFeeListFormData.BreakPage.Option));
+                OnPaperSizeChanged(accessoryFeeListFormData.PaperSize);
+                OnCsvHeaderChanged(CsvHeaderOptions.SingleOrDefault(c => c.Option == accessoryFeeListFormData.CsvConfigOption.Header.Option));
+                OnGroupSymbolChanged(CsvGroupSymbolOptions.SingleOrDefault(c => c.Option == accessoryFeeListFormData.CsvConfigOption.GroupSymbol.Option));
+                OnSeparatorChanged(CsvDelimiterOptions.SingleOrDefault(c => c.Option == accessoryFeeListFormData.CsvConfigOption.Delimiter.Option));
+                OnDelimiterTextChanged(accessoryFeeListFormData.CsvConfigOption.DelimiterSymbol);
+                OnExportTypeClicked(null, accessoryFeeListFormData.ExportType);
+
+                IsFutaiFeeTypeSelectedAll = accessoryFeeListFormData.FutaiFeeTypes.Any(_ => _.IsSelectedAll);
+                DisplayFutaiFeeTypeCmb = IsFutaiFeeTypeSelectedAll ? Constants.SelectedAll : $"{Lang["Choices"]}: {accessoryFeeListFormData.FutaiFeeTypes.Count()}";
+
+                isFilterApply = false;
+                StateHasChanged();
+            }
+            catch(Exception)
+            {
+
+            }
+        }
+    }
+
+    #endregion
+}

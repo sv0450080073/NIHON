@@ -1,0 +1,256 @@
+﻿@inherits VehicleDailyReportListBase
+@*<div class="row m-0 mb-2 mt-2">
+        <h5>@_lang["page_title"]</h5>
+    </div>*@
+<div class="mb-2 mt-2" style="display: flex; flex: 1; flex-direction: column">
+    <div class="row mb-2 mt-2">
+        <div class="col-12">
+            <div class="@(searchParams.OutputKbn.Value == 0 ? "row justify-content-around" : "row ml-0 mr-0")">
+                <div class="div-inline">
+                    <label class="col-form-label pr-3 pl-3">@(searchParams.OutputKbn.Value == 0 ? _lang["vehicle_label"] : _lang["operationdate_label"])</label>
+                    @if (searchParams.OutputKbn.Value == 0)
+                    {
+                        <DxComboBox Data="listCurrentBus"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    AllowUserInput="false"
+                                    CssClass="width--250"
+                                    TextFieldName="Text"
+                                    SelectedItem="searchParams.selectedCurrentBus"
+                                    SelectedItemExpression="@(() => searchParams.selectedCurrentBus)"
+                                    SelectedItemChanged="@(async e => await OnCurrentBusChanged(e))">
+                        </DxComboBox>
+                    }
+                    else
+                    {
+                        <DxComboBox Data="listUnkYmd"
+                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                    AllowUserInput="false"
+                                    CssClass="width--250"
+                                    SelectedItem="searchParams.selectedUnkYmd"
+                                    SelectedItemExpression="@(() => searchParams.selectedUnkYmd)"
+                                    SelectedItemChanged="@(async e => await OnUnkYmdChanged(e))">
+                        </DxComboBox>
+                    }
+                    <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="() => OnChangedItem(0)" disabled="@OnCheckDisable(0)">
+                        <i class="fa fa-chevron-circle-left m-auto" style="font-size: 1.5rem; position: relative; top: -0.2rem; color: var(--primary)"></i>
+                    </button>
+                    <button class="btn btn-sm d-flex p-0" @onclick="() => OnChangedItem(1)" disabled="@OnCheckDisable(1)">
+                        <i class="fa fa-chevron-circle-right m-auto" style="font-size: 1.5rem; position: relative; top: -0.2rem; color: var(--primary)"></i>
+                    </button>
+                </div>
+                @if (searchParams.OutputKbn.Value == 0)
+                {
+                    <div class="div-inline">
+                        <label class="col-form-label pr-3 pl-3">@_lang["cartype_label"]</label>
+                        <input class="width--100 form-control form-control-sm dxbs-form-control" readonly
+                               value="@searchParams.selectedCurrentBus?.SyaSyuNm" />
+                    </div>
+                    <div class="div-inline">
+                        <label class="col-form-label pr-3 pl-3">@_lang["type_label"]</label>
+                        <input class="width--100 form-control form-control-sm dxbs-form-control" readonly
+                               value="@searchParams.selectedCurrentBus?.KataKbnRyakuNm" />
+                    </div>
+                    <div class="div-inline">
+                        <label class="col-form-label pr-3 pl-3">@_lang["authorization_label"]</label>
+                        <input class="width--100 form-control form-control-sm dxbs-form-control" readonly
+                               value="@searchParams.selectedCurrentBus?.NinkaKbnRyakuNm" />
+                    </div>
+                    <div class="div-inline">
+                        <label class="col-form-label pr-3 pl-3">@_lang["saleoffice_label"]</label>
+                        <input class="width--100 form-control form-control-sm dxbs-form-control" readonly
+                               value="@searchParams.selectedCurrentBus?.EigyoRyakuNm" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="row m-0 pl-2 pr-2" style="display: flex; flex: 1; flex-direction: column">
+        <div id="table-container" class="mb-2 w-100 overflow-auto grid-@fontSize" style="display: flex; flex: 1; flex-direction: column;">
+            <table class="table normal-table table-sm vehicle-table fixed-header mb-0 table-layout"
+                   style="min-width: 2000px; table-layout: fixed; border-collapse: separate; border-spacing: 0">
+                <thead>
+                    <tr>
+                        <th style="width: 50px" class="sticky header-sticky">@_lang["no_list"]</th>
+                        <th style="width: 100px; z-index: 1">@(searchParams.OutputKbn.Value == 0 ? _lang["operationdate_list"] : _lang["carnumber_list"])</th>
+                        <th style="width: 400px; z-index: 1" id="resize-header" class="resize">
+                            @_lang["organization_list"]<br />@_lang["destination_list"]
+                            <div class="resize-div" id="resize-item"></div>
+                        </th>
+                        <th style="width: 100px; z-index: 1">@_lang["customer_list"]</th>
+                        <th style="width: 130px; z-index: 1">@_lang["operatingperiod_list"]</th>
+                        <th style="width: 120px; z-index: 1">@_lang["issue/return_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["restrainttime_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["boardingpersonnel_list"]<br />@_lang["pluspersonnel_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["actualkm_list"]<br />@_lang["speed_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["forwardingkm_list"]<br />@_lang["speed_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["otherkm_list"]</th>
+                        <th style="width: 90px; z-index: 1">@_lang["totalmile_list"]</th>
+                        <th style="width: 70px; z-index: 1">@_lang["fuel1_list"]</th>
+                        <th style="width: 70px; z-index: 1">@_lang["fuel2_list"]</th>
+                        <th style="width: 70px; z-index: 1">@_lang["fuel3_list"]</th>
+                        <th style="width: 100px; z-index: 1">@_lang["reservation_list"]<br />@_lang["receiptnumber_list"]</th>
+                        <th style="width: 100px; z-index: 1">@_lang["crew_list"]</th>
+                        <th style="width: 100px; z-index: 1">@_lang["groupname2_list"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (listDataDisplay.Count > 0)
+                    {
+                        var count = 1;
+                        @foreach (var item in listDataDisplay)
+                        {
+                            <tr @ondblclick="@(async () => await OnRowDoubleClick(item))">
+                                <td class="text-center sticky col-sticky">@(currentPage * itemPerPage + count++)</td>
+                                <td class="text-center">@(searchParams.OutputKbn.Value == 0 ? item.UnkYmd.Insert(4, "/").Insert(7, "/") : item.SyaryoNm)</td>
+                                <td class="text-left resize overflow-hidden">@item.DanTaNm<br />@item.IkNm</td>
+                                <td class="text-left">@item.TokuiRyakuNm<br />@item.SitenRyakuNm</td>
+                                <td class="text-center">
+                                    @{
+                                        var displayHai = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(item.HaiSYmd))
+                                        {
+                                            var dayOfWeekHai = DateTime.ParseExact(item.HaiSYmd, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                            displayHai = dayOfWeekHai.ToString(CommonConstants.FormatYMDWithSlash);
+                                        }
+                                    }
+                                    @displayHai
+                                    <br />
+                                    @{
+                                        var displayTou = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(item.TouYmd))
+                                        {
+                                            var dayOfWeekTou = DateTime.ParseExact(item.TouYmd, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                            displayTou = dayOfWeekTou.ToString(CommonConstants.FormatYMDWithSlash);
+                                        }
+                                    }
+                                    @displayTou
+                                </td>
+                                <td class="text-center">
+                                    @item.SyukoYmd.Insert(4, "/").Insert(7, "/")
+                                    @item.Haisha_SyukoTime.Insert(2, ":")
+                                    <br />
+                                    @item.KikYmd.Insert(4, "/").Insert(7, "/")
+                                    @item.Haisha_KikTime.Insert(2, ":")
+                                </td>
+                                <td class="text-left">
+                                    @{
+                                        var total = string.Empty;
+                                        var currentDate = DateTime.Now;
+                                        var syoku = currentDate;
+                                        syoku = syoku.AddHours(Convert.ToDouble(item.Shabni_SyukoTime.Substring(0, 2)));
+                                        syoku = syoku.AddMinutes(Convert.ToDouble(item.Shabni_SyukoTime.Substring(2)));
+                                        //syoku = syoku.AddHours(Convert.ToDouble(0));
+                                        //syoku = syoku.AddMinutes(Convert.ToDouble(0));
+                                        var kik = currentDate;
+                                        kik = kik.AddHours(Convert.ToDouble(item.Shabni_KikTime.Substring(0, 2)));
+                                        kik = kik.AddMinutes(Convert.ToDouble(item.Shabni_KikTime.Substring(2)));
+                                        //kik = kik.AddHours(Convert.ToDouble(0));
+                                        //kik = kik.AddMinutes(Convert.ToDouble(0));
+                                        var hour = (kik - syoku).TotalHours;
+                                        var minute = Math.Round((hour % 1) * 60);
+                                        total = string.Format("{0}:{1}", Math.Floor(hour).ToString().PadLeft(2, '0'), minute.ToString().PadLeft(2, '0'));
+                                    }
+                                    @total
+                                </td>
+                                <td class="text-right">@item.JyoSyaJin<br />@item.PlusJin</td>
+                                <td class="text-right">@item.JisaIPKm.ToString("N2")<br />@item.JisaKSKm.ToString("N2")</td>
+                                <td class="text-right">@item.KisoIPKm.ToString("N2")<br />@item.KisoKOKm.ToString("N2")</td>
+                                <td class="text-right">@item.OthKm.ToString("N2")</td>
+                                <td class="text-right">@((item.EndMeter - item.StMeter).ToString("N"))</td>
+                                <td class="text-right">@item.NenryoRyakuNm1<br />@item.Nenryo1.ToString("N2")</td>
+                                <td class="text-right">@item.NenryoRyakuNm2<br />@item.Nenryo2.ToString("N2")</td>
+                                <td class="text-right">@item.NenryoRyakuNm3<br />@item.Nenryo3.ToString("N2")</td>
+                                <td class="text-left">@item.YoyaKbnNm<br />@item.UkeNo.Substring(5)</td>
+                                <td class="text-left">@item.SyainNm1 @item.SyainNm2 @item.SyainNm3 @item.SyainNm4 @item.SyainNm5</td>
+                                <td class="text-left">@item.DanTaNm2</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="18">@_lang["tablehasnorows"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-3">
+            <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage" 
+                                                                TotalCount="listData.Count" @ref="paging">
+            </HassyaAllrightCloud.Pages.Components.Pagination>
+        </div>
+
+        <div class="grid-@fontSize">
+            <table class="table table-sm vehicle-table w-85 mb-2 table-layout">
+                <thead>
+                    <tr>
+                        <th rowspan="2">@_lang["total_childlist"]</th>
+                        <th rowspan="2">@_lang["numberoftrips_childlist"]</th>
+                        <th rowspan="2">@_lang["boardingpersonnel_list"]</th>
+                        <th rowspan="2">@_lang["pluspersonnel_list"]</th>
+                        <th colspan="2">@_lang["actualkm_list"]</th>
+                        <th colspan="2">@_lang["forwardingkm_list"]</th>
+                        <th rowspan="2">@_lang["otherkm_list"]</th>
+                        <th rowspan="2">@_lang["totalmile_list"]</th>
+                        <th rowspan="2">@_lang["fuel1_list"]</th>
+                        <th rowspan="2">@_lang["fuel2_list"]</th>
+                        <th rowspan="2">@_lang["fuel3_list"]</th>
+                    </tr>
+                    <tr>
+                        <th>@_lang["generalspeed_childlist"]</th>
+                        <th>@_lang["highspeed_childlist"]</th>
+                        <th>@_lang["generalspeed_childlist"]</th>
+                        <th>@_lang["highspeed_childlist"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (listChild.Count > 0)
+                    {
+                        @foreach (var item in listChild)
+                        {
+                            <tr>
+                                <td><div style="min-height: 16px">@item.Text</div></td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : item.NumberOfTrips.ToString())</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.BoardingPersonnel.ToString())</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.PlusPersonnel.ToString())</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.ActualKmGeneral.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.ActualKmHighSpeed.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.ForwardingKmGeneral.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.ForwardingKmHighSpeed.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.OtherKm.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.TotalMile.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.Fuel1.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.Fuel2.ToString("N2"))</td>
+                                <td class="text-right">@(string.IsNullOrEmpty(item.Text) ? string.Empty : @item.Fuel3.ToString("N2"))</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="13">@_lang["tablehasnorows"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (isShowPopup)
+{
+    <VehicleDailyReportInput IsShowPopup="isShowPopup" selectedShabni="selectedItem" TogglePopup="TogglePopup"></VehicleDailyReportInput>
+}
+
+@if (isLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}

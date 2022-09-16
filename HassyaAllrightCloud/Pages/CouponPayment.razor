@@ -1,0 +1,438 @@
+﻿@inherits CouponPaymentBase
+@using HassyaAllrightCloud.Pages.Components
+@using HassyaAllrightCloud.Validation
+@using HassyaAllrightCloud.Commons
+<div class="coupon-payment">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center">
+            <h5 class="mb-0">@_lang["page_title"]</h5>
+        </div>
+        <div class="d-flex">
+            <div class="d-flex">
+                <div class="mw-5rem px-2 text-center mr-2 nyukinkbn-bg-2" style="color: white;">@_lang["deposited"]</div>
+                <div class="mw-5rem px-2 text-center mr-2 nyukinkbn-bg-3" style="color: white;">@_lang["some"]</div>
+                <div class="mw-5rem px-2 text-center mr-2 nyukinkbn-bg-4" style="color: white;">@_lang["overpayment"]</div>
+                <div class="mw-5rem px-2 text-center nyukinkbn-bg-1" style="color: white;">@_lang["not_payment"]</div>
+            </div>
+            <button class="btn btn-sm btn-danger btnclear" @onclick="async e => await ResetBtnOnClick()" style="margin-left: 5rem;">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                @_lang["clear_btn"]
+            </button>
+        </div>
+    </div>
+    @if (editFormContext != null)
+    {
+        <ul class="validation-errors mt-2">
+            @if (dataNotFound)
+            {
+                <li class="validation-message">@_lang["BI_T004"]</li>
+            }
+        </ul>
+    }
+    <div id="control-tab" class="title-section border">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["search_condition"]
+    </div>
+    <div style="display: none">
+        @if (editFormContext == null)
+        {
+            <p><i class="fa fa-spinner"></i> Loading</p>
+        }
+        else
+        {
+            <EditForm Context="editContext" EditContext="@editFormContext">
+                <FluentValidator TValidator="CouponPaymentValidator" />
+                <div>
+                    <DxTabs CssClass="kobo-tabs" ActiveTabIndexChanged="(e) => TriggerTabChange()">
+                        <DxTabPage Text="@_lang["search_condition"]">
+                            <div class="kobo-tab">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                @_lang["issuance_period_title"]
+                                            </div>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="col-5 has-tooltip-error">
+                                                        <Tooltip ValueExpressions="@(() => Model.StartIssuePeriod)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="@Model.StartIssuePeriod"
+                                                                    DateChanged="async v => await UpdateFormModel(nameof(Model.StartIssuePeriod), v)"
+                                                                    DateExpression="() => Model.StartIssuePeriod"
+                                                                    ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                    Format="@DateTimeFormat.yyyyMMddSlash"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                                                    </div>
+                                                    <label>～</label>
+                                                    <div class="col-5 has-tooltip-error">
+                                                        <Tooltip ValueExpressions="@(() => Model.EndIssuePeriod)"
+                                                                 Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                        <DxDateEdit Date="@Model.EndIssuePeriod"
+                                                                    DateChanged="async v => await UpdateFormModel(nameof(Model.EndIssuePeriod), v)"
+                                                                    DateExpression="() => Model.EndIssuePeriod"
+                                                                    ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                    DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                    Format="@DateTimeFormat.yyyyMMddSlash"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                @_lang["billing_address_title"]
+                                            </div>
+                                            <div class="col-9">
+                                                @if (isCustomerLoaded)
+                                                {
+                                                    <CustomerComponent @ref="customerFrom" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       RenderMode="ListRenderMode.Virtual"
+                                                                       LangDic="LangDic"
+                                                                       GyosyaExpression="() => Model.SelectedGyosyaFrom"
+                                                                       SelectedGyosya="Model.SelectedGyosyaFrom"
+                                                                       SelectedGyosyaChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedGyosyaFrom), val)"
+                                                                       DefaultGyosya="defaultFrom.GyosyaCdSeq"
+                                                                       TokiskExpression="() => Model.SelectedTokiskFrom"
+                                                                       SelectedTokisk="Model.SelectedTokiskFrom"
+                                                                       SelectedTokiskChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedTokiskFrom), val)"
+                                                                       DefaultTokisk="defaultFrom.TokiskCdSeq"
+                                                                       DefaultTokiskNullText="@_lang["tokisk_nulltext"]"
+                                                                       TokiStExpression="() => Model.SelectedTokiStFrom"
+                                                                       SelectedTokiSt="Model.SelectedTokiStFrom"
+                                                                       SelectedTokiStChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedTokiStFrom), val)"
+                                                                       DefaultTokiSt="defaultFrom.TokiStCdSeq"
+                                                                       FirstLoaded="async () => await FirstLoad(true)">
+                                                    </CustomerComponent>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                ～
+                                            </div>
+                                            <div class="col-9">
+                                                @if (isCustomerLoaded)
+                                                {
+                                                    <CustomerComponent @ref="customerTo" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       RenderMode="ListRenderMode.Virtual"
+                                                                       LangDic="LangDic"
+                                                                       GyosyaExpression="() => Model.SelectedGyosyaTo"
+                                                                       SelectedGyosya="Model.SelectedGyosyaTo"
+                                                                       SelectedGyosyaChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedGyosyaTo), val)"
+                                                                       DefaultGyosya="defaultTo.GyosyaCdSeq"
+                                                                       TokiskExpression="() => Model.SelectedTokiskTo"
+                                                                       SelectedTokisk="Model.SelectedTokiskTo"
+                                                                       SelectedTokiskChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedTokiskTo), val)"
+                                                                       DefaultTokisk="defaultTo.TokiskCdSeq"
+                                                                       DefaultTokiskNullText="@_lang["tokisk_nulltext"]"
+                                                                       TokiStExpression="() => Model.SelectedTokiStTo"
+                                                                       SelectedTokiSt="Model.SelectedTokiStTo"
+                                                                       SelectedTokiStChanged="(val) => UpdateFormModel(nameof(CouponPaymentFormModel.SelectedTokiStTo), val)"
+                                                                       DefaultTokiSt="defaultTo.TokiStCdSeq"
+                                                                       FirstLoaded="async () => await FirstLoad(false)">
+                                                    </CustomerComponent>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                @_lang["reservation_classification_title"]
+                                            </div>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="col-5 has-tooltip-error">
+                                                        <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                   LangDic="LangDic"
+                                                                                   SelectedReservationClass="Model.StartReservationClassificationSort"
+                                                                                   ReservationClassExpression="() => Model.StartReservationClassificationSort"
+                                                                                   SelectedReservationClassChanged="@(async v => await UpdateFormModel(nameof(Model.StartReservationClassificationSort), v))"
+                                                                                   @ref="reservationRef">
+                                                        </ReservationClassComponent>
+                                                        @*<Tooltip ValueExpressions="@(() => Model.StartReservationClassificationSort)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="ReservationClassifications"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(YoyaKbnItem.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.StartReservationClassificationSort"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.StartReservationClassificationSort), v)"
+                                                                        SelectedItemExpression="() => Model.StartReservationClassificationSort"
+                                                                        NullText="@_lang["reservation_classification_nulltext"]"></DxComboBox>*@
+                                                    </div>
+                                                    <label>～</label>
+                                                    <div class="col-5 has-tooltip-error">
+                                                        <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                   LangDic="LangDic"
+                                                                                   SelectedReservationClass="Model.EndReservationClassificationSort"
+                                                                                   ReservationClassExpression="() => Model.EndReservationClassificationSort"
+                                                                                   SelectedReservationClassChanged="@(async v => await UpdateFormModel(nameof(Model.EndReservationClassificationSort), v))">
+                                                        </ReservationClassComponent>
+                                                        @*<Tooltip ValueExpressions="@(() => Model.EndReservationClassification)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="ReservationClassifications"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(YoyaKbnDto.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.EndReservationClassificationSort"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.EndReservationClassificationSort), v)"
+                                                                        SelectedItemExpression="() => Model.EndReservationClassificationSort"
+                                                                        NullText="@_lang["reservation_classification_nulltext"]"></DxComboBox>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                @_lang["deposit_office_title"]
+                                            </div>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <DxComboBox Data="DepositOffices"
+                                                                    TextFieldName="@nameof(EigyoListItem.DisplayName)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.DepositOffice"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.DepositOffice), v)"
+                                                                    SelectedItemExpression="() => Model.DepositOffice"
+                                                                    NullText="@_lang["deposit_office_nulltext"]"></DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-3 my-auto">
+                                                @_lang["deposit_output_classification_title"]
+                                            </div>
+                                            <div class="col-9">
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <DxComboBox Data="DepositOutputClassifications"
+                                                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                    TextFieldName="@nameof(DepositOutputClassification.DisplayName)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.DepositOutputClassification"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.DepositOutputClassification), v)"
+                                                                    SelectedItemExpression="() => Model.DepositOutputClassification"></DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-2 my-auto" style="max-width:12.5%">
+                                        @_lang["invoice_type_title"]
+                                    </div>
+                                    <div class="col-10">
+                                        @foreach (var item in CodeKbDataItems)
+                                        {
+                                            <div class="form-check form-check-inline">
+                                                <input class="k-checkbox" checked="@Model.BillTypes?.Contains(item)" id="codekbn-@item.CodeKbn" type="checkbox" @onclick="async v => await UpdateFormModel(nameof(Model.BillTypes), item)">
+                                                <label class="ml-2 k-checkbox-label" for="codekbn-@item.CodeKbn">@item.CodeKbnNm</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                        <DxTabPage Text="@_lang["display_settings_title"]">
+                            <div class="kobo-tab">
+                                <div class="row">
+                                    <div class="col-1 my-auto">
+                                        @_lang["width_switching_title"]
+                                    </div>
+                                    <div class="col-11 d-flex">
+                                        <button type="button" class="@(string.Format("nav-btn mw-4rem mr-3 {0}", gridSizeClass == (int)ViewMode.Large ? "active":string.Empty))"
+                                                @onclick="(e) => ChangeGridSize(ViewMode.Large)">
+                                            @_lang["big"]
+                                        </button>
+                                        <button type="button" class="@(string.Format("nav-btn mw-4rem mr-3 {0}",  gridSizeClass == (int)ViewMode.Medium ? "active":string.Empty))"
+                                                @onclick="(e) =>  ChangeGridSize(ViewMode.Medium)">
+                                            @_lang["medium"]
+                                        </button>
+                                        <button type="button" class="@(string.Format("nav-btn mw-4rem {0}",  gridSizeClass == (int)ViewMode.Small ? "active":string.Empty))"
+                                                @onclick="(e) =>  ChangeGridSize(ViewMode.Small)">
+                                            @_lang["small"]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                    </DxTabs>
+                </div>
+            </EditForm>
+        }
+    </div>
+    @if (editFormContext != null)
+    {
+        <div class="coupon-payment-sub-filter mt-2">
+            <div class="row">
+                <div class="col-4">
+                    <div class="row">
+                        <div class="col-4 my-auto">@_lang["settlement_input_title"]</div>
+                        <div class="col-8 d-flex mw-3rem">
+                            <button class="btn btn-sm btn-primary mr-3 mw-4rem" @onclick="UpdateData">@_lang["individual"]</button>
+                            <button class="btn btn-sm btn-primary mw-4rem" @onclick="UpdateMultiple">@_lang["bulk"]</button>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-4 my-auto">@_lang["billing_address"]</div>
+                        <div class="col-8 d-flex">
+                            <DxComboBox Data="BillAddressItems"
+                                        TextFieldName="@nameof(BillAddressItem.DisplayName)"
+                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                        SelectedItem="Model.BillAddress"
+                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.BillAddress), v)"
+                                        SelectedItemExpression="() => Model.BillAddress"
+                                        NullText="@_lang["billing_address_nulltext"]"></DxComboBox>
+                            <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="async (e)=> await BillAddressChanged(true)" disabled="@(!BillAddressItems.Any() || BillAddressItems.IndexOf(Model.BillAddress) == 0)">
+                                <i class="fa fa-chevron-circle-left m-auto next-pre-font-size"></i>
+                            </button>
+                            <button class="btn btn-sm d-flex p-0" @onclick="async (e)=> await BillAddressChanged(false)" disabled="@(BillAddressItems.IndexOf(Model.BillAddress) == BillAddressItems.Count - 1)">
+                                <i class="fa fa-chevron-circle-right m-auto next-pre-font-size"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="">
+                        <div class="col-12">
+                            <div class="coupon-payment-group row">
+                                <div class="col-4 mt-2 mb-2">
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["full_price_setting"]</div>
+                                        <div class="col-6 text-right number @(isTotalError != null ? isTotalError.Value ? "border-invalid" : "border-valid" : string.Empty) has-tooltip-error">
+                                            @if (isTotalError ?? false)
+                                            {
+                                                <Tooltip Text="@_lang["BI_T005"]" Position="PositionTooltip.top"></Tooltip>
+                                            }
+                                            <input maxlength="9" value="@Model.Total.AddCommas()" @onchange="async e => await UpdateFormModel(nameof(CouponPaymentFormModel.Total), e.Value)" class="form-control form-control-sm " />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-6 my-auto">@_lang["fare"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalFare.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["incidental"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalIncidental.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4 mt-2 mb-2">
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["toll_fee"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalTollFee.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-6 my-auto">@_lang["arrangement_fee"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalArrangementFee.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["guide_fee"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalGuideFee.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4 mt-2 mb-2">
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["loaded_goods"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.LoadedGoods.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-6 my-auto">@_lang["cancel"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.TotalCancelFee.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 my-auto">@_lang["total"]</div>
+                                        <div class="col-6 text-right">
+                                            <input disabled value="@TotalSelectedRow.Total.AddCommas()" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="coupon-payment-grid mt-2">
+            <div class="coupon-payment-grid-body">
+                @if (Header != null && Body != null)
+                {
+                    <KoboSimpleGrid Header="Header" Body="Body" DataItems="DataItems" ShowCheckbox="ShowCheckboxOptions"
+                                    EnableSaveBtn="false" CssClass="@(string.Format("grid-flex-1 kobo-grid-size-{0}", (int)gridSizeClass))" 
+                                    OnRowDbClick="RowDbClick" OnRowClick="RowClick" CheckedItems="CheckedItems" 
+                                    CheckedItemsChanged="CheckedChange"
+                                    SelectedMode="SelectedModeEnum.Single" SelectedItems="SelectedItems"></KoboSimpleGrid>
+                }
+            </div>
+            <div class="coupon-payment-grid-footer mt-2">
+                <Pagination TotalCount="totalRows" @ref="pagination" ItemPerPage="(byte)Model.PageSize" OnChangeItemPerPage="async e => await OnChangeItemPerPage(e)" OnChangePage="async (pageNum) => await PageChanged(pageNum)"></Pagination>
+            </div>
+            <div class="coupon-payment-summary">
+                <table class="table table-sm table-bordered w--100">
+                    <thead>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center">@_lang["coupon_application_amount"]</th>
+                            <th class="text-center">@_lang["cumulative_deposit"]</th>
+                            <th class="text-center">@_lang["receivable_amount"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">@_lang["cumulative"]</td>
+                            <td class="text-right">@Summary.TotalPageCouponApplicationAmount.AddCommas()</td>
+                            <td class="text-right">@Summary.TotalPageCumulativeDeposit.AddCommas()</td>
+                            <td class="text-right">@Summary.TotalPageUnpaidAmount.AddCommas()</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">@_lang["total"]</td>
+                            <td class="text-right">@Summary.TotalAllCouponApplicationAmount.AddCommas()</td>
+                            <td class="text-right">@Summary.TotalAllCumulativeDeposit.AddCommas()</td>
+                            <td class="text-right">@Summary.TotalAllUnpaidAmount.AddCommas()</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+<DxPopup @bind-Visible="@showPopup" CssClass="custom-popup modal-dialog modal-lg modal-dialog-centered width-100rem">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["individual_popup_form_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="(e) => CloseDialog()"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <HassyaAllrightCloud.Pages.Components.CouponPayment.CouponPaymentForm CloseDialog="(e) => CloseDialog()" SearchModel="Model" SelectedItem="SelectedItems.FirstOrDefault()"></HassyaAllrightCloud.Pages.Components.CouponPayment.CouponPaymentForm>
+    </Content>
+</DxPopup>
+<DxPopup @bind-Visible="@showMultiPopup" CssClass="custom-popup modal-dialog modal-lg modal-dialog-centered width-44rem">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["multi_popup_form_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="(e) => CloseDialog()"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <HassyaAllrightCloud.Pages.Components.CouponPayment.CouponMultiPaymentForm CloseDialog="(e) => CloseDialog()" SearchModel="Model" Total="TotalSelectedRow.Total" SelectedItems="CheckedItems"></HassyaAllrightCloud.Pages.Components.CouponPayment.CouponMultiPaymentForm>
+    </Content>
+</DxPopup>

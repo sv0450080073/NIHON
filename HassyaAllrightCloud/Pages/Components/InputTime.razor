@@ -1,0 +1,192 @@
+﻿@inject IJSRuntime JSRuntime;
+
+<DxTextBox CssClass="@(CssClass + " customTime")"
+           Text="@(DisplayTime)"
+           TextChanged="@(value => SetValueChange(value))"
+           BindValueMode="BindValueMode.OnInput"
+           @onfocusin="() => FocusInChange()"
+           @onfocusout="() => FocusOutChanged()"
+           DisplayFormat="@Format"
+           TextExpression="ValueExpressions"
+           ReadOnly="@ReadOnly"
+           type="tel"
+           maxlength="5">
+</DxTextBox>
+
+
+@code {
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [Parameter] public BookingInputHelper.MyTime Time { get; set; } = new BookingInputHelper.MyTime();
+    /// <summary>
+    /// Likely to TextExpression in <see cref="DxTextBox"/>
+    /// </summary>
+    [Parameter] public System.Linq.Expressions.Expression<Func<String>> ValueExpressions { get; set; }
+    /// <summary>
+    /// Option for input <see cref="BookingInputHelper.MyTime"/> as string type
+    /// </summary>
+    [Parameter] public string MyTimeAsString { get; set; } = null;
+    /// <summary>
+    /// Fire when InputTime its value is changed  oninput. Value MyTime
+    /// </summary>
+    [Parameter] public EventCallback<BookingInputHelper.MyTime> TimeChanged { get; set; }
+    /// <summary>
+    /// Max value of the hours can be input. Default values list 23
+    /// </summary>
+    [Parameter] public int MaxHour { get; set; } = 23;
+    [Parameter] public string CssClass { get; set; } = "";
+    /// <summary>
+    /// The specified textbox is read-only. The default values are false.
+    /// </summary>
+    [Parameter] public bool ReadOnly { get; set; } = false;
+
+    public int MaxMinute { get; set; } = 59;
+    public string OldTimeValue { get; set; }
+    public string DisplayTime { get; set; } = "--:--";
+
+
+    string format = "00:00";
+    string Format { get => format; set { format = value; InvokeAsync(StateHasChanged); } }
+
+    protected override void OnInitialized()
+    {
+        SetUpValue();
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        SetUpValue();
+        base.OnParametersSet();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("loadComponentScript", "inputTimeComponent", "setEventForTimeInputField");
+    }
+
+    private void SetUpValue()
+    {
+        if (Time != null)
+        {
+            if (Time.myHour != -1 && Time.myMinute != -1)
+            {
+                DisplayTime = Time.myHour.ToString("00") + Time.myMinute.ToString("00");
+            }
+            else
+            {
+                DisplayTime = Time.Str;
+            }
+
+            ValueExpressions = () => Time.Str;
+        }
+
+        if (!string.IsNullOrEmpty(MyTimeAsString))
+        {
+            DisplayTime = CommonUtil.MyTimeFormat(MyTimeAsString, Formats.HHmm);
+        }
+
+        OldTimeValue = DisplayTime;
+    }
+
+    /// <summary>
+    /// Fire each time on input.
+    /// Prevent user input more then 4 digits.
+    /// Prevent user input not numeric characters.
+    /// Prevent user input negative number.
+    /// Accept user paster value with format XX:XX
+    /// </summary>
+    /// <param name="value">value after each input</param>
+    private void SetValueChange(string value)
+    {
+        if (ValidationHelper.ValidationInputTimeText(value))
+        {
+            value = value.ToString().Normalize(System.Text.NormalizationForm.FormKC);
+            DisplayTime = value;
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Fire on lost focus
+    /// Set validated time into Time object
+    /// Fire TimeChanged event
+    /// Fire Validate event
+    /// </summary>
+    private void FocusOutChanged()
+    {
+        bool isValid = InputTimeValueIsValid(DisplayTime);
+
+        if (isValid)
+        {
+            DisplayTime = CommonUtil.MyTimeFormat(DisplayTime, Formats.HHmm);
+
+            if (Time != null)
+                Time.Str = CommonUtil.ConvertMyTimeStrToDefaultFormat(DisplayTime);
+            else if (!string.IsNullOrEmpty(MyTimeAsString))
+                MyTimeAsString = DisplayTime;
+
+            OldTimeValue = DisplayTime;
+        }
+        else
+        {
+            DisplayTime = OldTimeValue;
+        }
+
+        InvokeTimeChangedEvent();
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// When Focus into InputTime Component.
+    /// If value == --:--, auto empty input textbox
+    /// </summary>
+    private void FocusInChange()
+    {
+        if (DisplayTime == "--:--" || DisplayTime == "0000")
+        {
+            DisplayTime = string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Validate if time is in range of valid value
+    /// </summary>
+    /// <param name="time">Time value will be check.</param>
+    /// <returns>
+    ///  <c>true</c> if time value is valid, otherwise <c>false</c>
+    ///</returns>
+    private bool InputTimeValueIsValid(string time)
+    {
+        var newTime = CommonUtil.MyTimeFormat(time, Formats.HHmm);
+
+        return ValidationHelper.ValidationTimeRange(newTime, MaxHour, MaxMinute);
+    }
+
+    private void InvokeTimeChangedEvent()
+    {
+        if (Time != null)
+        {
+            TimeChanged.InvokeAsync(Time);
+            CurrentEditContext?.NotifyFieldChanged(FieldIdentifier.Create(() => Time.Str));
+        }
+        else if (!string.IsNullOrEmpty(MyTimeAsString))
+        {
+            BookingInputHelper.MyTime time = new BookingInputHelper.MyTime();
+            string timeValue = MyTimeAsString;
+            if (!MyTimeAsString.Contains(":"))
+            {
+                timeValue = CommonUtil.ConvertMyTimeStrToDefaultFormat(MyTimeAsString);
+            }
+
+            if (!string.IsNullOrEmpty(timeValue))
+            {
+                time.Str = timeValue;
+
+                TimeChanged.InvokeAsync(time);
+                CurrentEditContext?.NotifyFieldChanged(FieldIdentifier.Create(() => MyTimeAsString));
+            }
+        }
+    }
+
+}

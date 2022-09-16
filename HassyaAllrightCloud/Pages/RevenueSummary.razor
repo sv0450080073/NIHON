@@ -1,0 +1,424 @@
+﻿@inherits RevenueSummaryBase
+@using HassyaAllrightCloud.Commons
+@using HassyaAllrightCloud.Pages.Components.RevenueSummary
+
+<div class="revenue-summary">
+    <div class="mb-3 search-panel">
+        <h5>@_lang["PageTitle"]</h5>
+        <div class="">
+            <div id="control-tab" class="title-section border">
+                <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["SearchConditionTitle"]
+            </div>
+            <div style="display: none">
+                @if (editFormContext == null)
+                {
+                    <p><i class="fa fa-spinner"></i> Loading</p>
+                }
+                else
+                {
+                    <EditForm Context="editContext" EditContext="@editFormContext">
+                        <FluentValidator TValidator="RevenueSummaryValidator" />
+                        <ul class="validation-errors mt-2">
+                            @if (showError)
+                            {
+                                <li class="validation-message">@_lang["BI_T006"]</li>
+                            }
+                        </ul>
+                        <div class="float-right">
+                            <button class="btn btn-sm btn-danger"s @onclick="async (e) => await ClearBtnOnClick()">
+                                <i class="fa fa-refresh mr-1" aria-hidden="true"></i>
+                                @_lang["ClearBtn"]
+                            </button>
+                        </div>
+                        <DxTabs CssClass="kobo-tabs" ActiveTabIndexChanged="(e) => TriggerTabChange()">
+                            <DxTabPage Text="@_lang["ConditionSettingTitle"]">
+                                <div class="kobo-tab enterField">
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["BusinessOfficeTitle"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <button class="@string.Format("btn-option {0}", Model.EigyoKbn == EigyoKbnEnum.BillingOffice ? "btn-active" : string.Empty)"
+                                                            type="button" @onclick="async (e) => await UpdateFormModel(nameof(Model.EigyoKbn), EigyoKbnEnum.BillingOffice)">
+                                                        @_lang["BillingOfficeBtn"]
+                                                    </button>
+                                                    <button class="@string.Format("btn-option ml-2 {0}", Model.EigyoKbn == EigyoKbnEnum.ReceptionOffice ? "btn-active" : string.Empty)"
+                                                            type="button" @onclick="async (e) => await UpdateFormModel(nameof(Model.EigyoKbn), EigyoKbnEnum.ReceptionOffice)">
+                                                        @_lang["ReceptionOfficeBtn"]
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["ReceiptNumberTitle"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.UkeNoFrom)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxTextBox TextChanged="async v => await UpdateFormModel(nameof(Model.UkeNoFrom), v)"
+                                                                       TextExpression="() => Model.UkeNoFrom"
+                                                                       Text="@CommonUtil.FormatCodeNumber(Model.UkeNoFrom)"
+                                                                       CssClass="code-number" maxlength="10" Id="input-focus-onload"></DxTextBox>
+                                                        </div>
+                                                        <label>～</label>
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.UkeNoTo)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxTextBox TextChanged="async v => await UpdateFormModel(nameof(Model.UkeNoTo), v)"
+                                                                       TextExpression="() => Model.UkeNoTo"
+                                                                       Text="@CommonUtil.FormatCodeNumber(Model.UkeNoTo)"
+                                                                       CssClass="code-number" maxlength="10"></DxTextBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["SalesDateTitle"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.UriYmdFrom)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxDateEdit Date="@Model.UriYmdFrom"
+                                                                        DateChanged="async v => await UpdateFormModel(nameof(Model.UriYmdFrom), v)"
+                                                                        DateExpression="() => Model.UriYmdFrom"
+                                                                        ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                        DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                        Format="@DateTimeFormat.yyyyMMddSlash"
+                                                                        NullText="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                        </div>
+                                                        <label>～</label>
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.UriYmdTo)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxDateEdit Date="@Model.UriYmdTo"
+                                                                        DateChanged="async v => await UpdateFormModel(nameof(Model.UriYmdTo), v)"
+                                                                        DateExpression="() => Model.UriYmdTo"
+                                                                        ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                        DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                                                                        Format="@DateTimeFormat.yyyyMMddSlash"
+                                                                        NullText="@DateTimeFormat.yyyyMMddSlash"></DxDateEdit>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["ReservationClassification"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                       LangDic="LangDic"
+                                                                                       SelectedReservationClass="Model.YoyaKbnFrom"
+                                                                                       ReservationClassExpression="() => Model.YoyaKbnFrom"
+                                                                                       SelectedReservationClassChanged="@(async v => await UpdateFormModel(nameof(Model.YoyaKbnFrom), v))">
+                                                            </ReservationClassComponent>
+
+                                                            @*<Tooltip ValueExpressions="@(() => Model.YoyaKbnFrom)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="yoyaKbnItems"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(Model.YoyaKbnFrom.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.YoyaKbnFrom"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.YoyaKbnFrom), v)"
+                                                                        SelectedItemExpression="() => Model.YoyaKbnFrom"
+                                                                        NullText="@_lang["YoyaKbnNullText"]"></DxComboBox>*@
+                                                        </div>
+                                                        <label>～</label>
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                       LangDic="LangDic"
+                                                                                       SelectedReservationClass="Model.YoyaKbnTo"
+                                                                                       ReservationClassExpression="() => Model.YoyaKbnTo"
+                                                                                       SelectedReservationClassChanged="@(async v => await UpdateFormModel(nameof(Model.YoyaKbnTo), v))">
+                                                            </ReservationClassComponent>
+
+                                                            @*<Tooltip ValueExpressions="@(() => Model.YoyaKbnTo)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="yoyaKbnItems"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(Model.YoyaKbnTo.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.YoyaKbnTo"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.YoyaKbnTo), v)"
+                                                                        SelectedItemExpression="() => Model.YoyaKbnTo"
+                                                                        NullText="@_lang["YoyaKbnNullText"]"></DxComboBox>*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["CompanyTitle"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5">
+                                                            <DxComboBox Data="companyListItems"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(Model.Company.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.Company"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.Company), v)"
+                                                                        SelectedItemExpression="() => Model.Company"
+                                                                        NullText="@_lang["CompanyNullText"]"></DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["ClassificationIncludingFees"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5">
+                                                            <DxComboBox Data="tesuInKbnItems"
+                                                                        TextFieldName="@nameof(Model.TesuInKbn.Text)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.TesuInKbn"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.TesuInKbn), v)"
+                                                                        SelectedItemExpression="() => Model.TesuInKbn"></DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["SalesOfficeTitle"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="row">
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.EigyoFrom)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="eigyoListItems"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(Model.EigyoFrom.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.EigyoFrom"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.EigyoFrom), v)"
+                                                                        SelectedItemExpression="() => Model.EigyoFrom"
+                                                                        NullText="@_lang["SalesOfficeNullText"]"></DxComboBox>
+                                                        </div>
+                                                        <label>～</label>
+                                                        <div class="col-5 has-tooltip-error">
+                                                            <Tooltip ValueExpressions="@(() => Model.EigyoTo)"
+                                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                            <DxComboBox Data="eigyoListItems"
+                                                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                                        TextFieldName="@nameof(Model.EigyoTo.DisplayName)"
+                                                                        FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                        SelectedItem="Model.EigyoTo"
+                                                                        SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.EigyoTo), v)"
+                                                                        SelectedItemExpression="() => Model.EigyoTo"
+                                                                        NullText="@_lang["SalesOfficeNullText"]"></DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <div class="col-3 my-auto text-left">
+                                                    @_lang["OutputSpecification"]
+                                                </div>
+                                                <div class="col-9">
+                                                    <button class="@string.Format("btn-option {0}", Model.DailyTable ? "btn-active" : string.Empty)"
+                                                            type="button" @onclick="async v => await UpdateFormModel(nameof(Model.DailyTable), true)">
+                                                        @_lang["DailyAccountTable"]
+                                                    </button>
+                                                    <button class="@string.Format("btn-option ml-2 {0}", Model.TotalTable ? "btn-active" : string.Empty)"
+                                                            type="button" @onclick="async v => await UpdateFormModel(nameof(Model.TotalTable), true)">
+                                                        @_lang["TotalTable"]
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DxTabPage>
+                            <DxTabPage Text="@_lang["DisplayTitle"]">
+                                <div class="kobo-tab enterField">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            @_lang["FontSizeTitle"]
+                                        </div>
+                                        <div class="col-11 d-flex">
+                                            <button class="@string.Format("btn-option {0}", gridSizeClass == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="e => ChangeGridSize(ViewMode.Large)">
+                                                @_lang["Large"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", gridSizeClass == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="(e) =>  ChangeGridSize(ViewMode.Medium)">
+                                                @_lang["Medium"]
+                                            </button>
+                                            <button class="@string.Format("btn-option {0}", gridSizeClass == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                                    @onclick="(e) =>  ChangeGridSize(ViewMode.Small)">
+                                                @_lang["Small"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DxTabPage>
+                            <DxTabPage Text="@_lang["PrintSettingTitle"]">
+                                <div class="kobo-tab enterField">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            @_lang["InstructionTitle"]
+                                        </div>
+                                        <div class="col-9">
+                                            <button class="@string.Format("btn-option {0}", Model.OutputType == OutputType.Preview ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="(e) => ChangeOuputType(OutputType.Preview)">
+                                                @_lang["PreviewBtn"]
+                                            </button>
+                                            <button class="@string.Format("btn-option mx-2 {0}", Model.OutputType == OutputType.ExportPdf ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="(e) => ChangeOuputType(OutputType.ExportPdf)">
+                                                @_lang["PDFBtn"]
+                                            </button>
+                                            <button class="@string.Format("btn-option {0}", Model.OutputType == OutputType.CSV ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="(e) => ChangeOuputType(OutputType.CSV)">
+                                                @_lang["CSVBtn"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-1">
+                                            @_lang["PageSizeTitle"]
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="csv-group-btns">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex">
+                                                        <div class="mw-6rem">@_lang["PageSize"]</div>
+                                                        <DxComboBox ReadOnly="Model.OutputType == OutputType.CSV"
+                                                                    Data="pageSizeListItems"
+                                                                    TextFieldName="@nameof(Model.PageSize.Text)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.PageSize"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.PageSize), v)"
+                                                                    SelectedItemExpression="() => Model.PageSize"
+                                                                    CssClass="ml-3"></DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-1">
+                                            @_lang["CSVGroupControlsTitle"]
+                                        </div>
+                                        <div class="col-11">
+                                            <div class="csv-group-btns">
+                                                <div class="row">
+                                                    <div class="col-4 d-flex">
+                                                        <div class="mw-6rem">
+                                                            @_lang["ShowHeaderTitle"]
+                                                        </div>
+                                                        <DxComboBox ReadOnly="Model.OutputType != OutputType.CSV"
+                                                                    Data="showHeaderOptions"
+                                                                    TextFieldName="@nameof(Model.OutputWithHeader.Text)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.OutputWithHeader"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.OutputWithHeader), v)"
+                                                                    SelectedItemExpression="() => Model.OutputWithHeader"
+                                                                    CssClass="ml-3">
+                                                        </DxComboBox>
+                                                    </div>
+                                                    <div class="col-4 d-flex">
+                                                        <div class="mw-6rem">
+                                                            @_lang["EncloseTitle"]
+                                                        </div>
+                                                        <DxComboBox ReadOnly="Model.OutputType != OutputType.CSV"
+                                                                    Data="kukuriKbnItems"
+                                                                    TextFieldName="@nameof(Model.KukuriKbn.Text)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.KukuriKbn"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.KukuriKbn), v)"
+                                                                    SelectedItemExpression="() => Model.KukuriKbn"
+                                                                    CssClass="ml-3">
+                                                        </DxComboBox>
+                                                    </div>
+                                                    <div class="col-4 d-flex">
+                                                        <div class="mw-9rem">
+                                                            @_lang["SeparatorTitle"]
+                                                        </div>
+                                                        <DxComboBox ReadOnly="Model.OutputType != OutputType.CSV"
+                                                                    Data="separatorOptions"
+                                                                    TextFieldName="@nameof(Model.KugiriCharType.Text)"
+                                                                    FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                                    SelectedItem="Model.KugiriCharType"
+                                                                    SelectedItemChanged="async v => await UpdateFormModel(nameof(Model.KugiriCharType), v)"
+                                                                    SelectedItemExpression="() => Model.KugiriCharType"
+                                                                    CssClass="ml-3">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3 text-center">
+                                        <div class="col-12">
+                                            <DxButton CssClass="btn btn-primary width-7rem"
+                                                      Text="@_lang["StartBtn"]" Click="(e) => ExportBtnClicked()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </DxTabPage>
+                            <DxTabPage Text="@_lang["LayoutSettingHeader"]">
+                                <div class="kobo-tab enterField">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button class="btn btn-sm mw-6rem btn-primary mr-3">@_lang["SaveBtn"]</button>
+                                            <button class="btn btn-sm mw-6rem btn-primary">@_lang["InitializeBtn"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DxTabPage>
+                        </DxTabs>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+    @if (editFormContext != null)
+    {
+        <div class="transportation-report">
+            <div style="@(Model.DailyTable ? "display: flex; flex-direction: column; flex: 1;" : "display: none")">
+                <TransportationDailyReport DataChanged="DataChanged" IsLoadOnInit="Model.DailyTable" @ref="TransportationDailyReport" GridSize="gridSizeClass" Model="RevenueSearchModel"></TransportationDailyReport>
+            </div>
+            <div style="@(Model.TotalTable ? "display: flex; flex-direction: column; flex: 1;" : "display: none")">
+                <TransportationMonthlyReport DataChanged="DataChanged" IsLoadOnInit="Model.TotalTable" @ref="TransportationMonthlyReport" GridSize="gridSizeClass" Model="RevenueSearchModel"></TransportationMonthlyReport>
+            </div>
+        </div>
+    }
+</div>
+
+<HassyaAllrightCloud.Pages.Components.ReportLoading @ref="reportLoading"></HassyaAllrightCloud.Pages.Components.ReportLoading>

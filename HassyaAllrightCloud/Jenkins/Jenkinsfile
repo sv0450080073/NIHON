@@ -1,0 +1,107 @@
+pipeline {
+    environment {
+        CREDENTIALS_ID = '4c15cc23-9706-4927-b622-aa0d9ab93d7e'
+        GIT_BRANCH = 'dev'
+        REPO_NAME = "HassyaAllrightCloud"
+        GIT_SOURCE = 'mgt-khobho@mgt-khobho.git.backlog.com:/SINSINHO_WEBSYSTEM/HassyaAllrightCloud.git'
+        GIT_TARGET = 'mgt-khobho@mgt-khobho.git.backlog.com:/SINSINHO_WEBSYSTEM/AutoDeployTestEnv.git'
+        WORK_DIR = "/var/lib/jenkins/kobojobs/hoc_dev"
+        REPO_PATH = "$WORK_DIR/repo"
+        SOURCE_PATH = "$WORK_DIR/source"
+        PROJECT_PATH = "$SOURCE_PATH"
+        WWWROOT_PATH = "$PROJECT_PATH/wwwroot"
+        PUBLISH_PATH = "$WORK_DIR/published"
+        PUBLISH_BRANCH = 'jenkins-Kashikiri-Test'
+        PUBLISH_CREDENTIALS_ID = "5e084205-7434-4fad-8b81-d1b19eb33204"
+        PUBLISH_URL = "ec2-18-176-43-165.ap-northeast-1.compute.amazonaws.com"
+        PUBLISH_USER = "root"
+        PUBLISH_PROFILE = "hoctest"
+    }
+    agent any
+    stages {
+        stage('Clean') {
+            steps {
+                dir (SOURCE_PATH) {
+                    sh "rm -rf $SOURCE_PATH/*"
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                dir (REPO_PATH) {
+                    git branch: GIT_BRANCH, credentialsId: CREDENTIALS_ID, url: GIT_SOURCE
+                    sshagent(credentials : [CREDENTIALS_ID]) {
+                        sh "git submodule update --init --recursive"
+                        sh 'git submodule foreach "(git checkout dev; git pull)"'
+                    }
+                    sh "cp -Rp $REPO_PATH/* $SOURCE_PATH"
+                }
+            }
+        }
+
+        stage('Compile SCSS') {
+            steps {
+                dir (WWWROOT_PATH) {
+                    sh "sass sass/style.scss css/style.css"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir (PUBLISH_PATH) {
+                    sshagent(credentials : [CREDENTIALS_ID]) {
+                        sh "git checkout -f $PUBLISH_BRANCH"
+                        sh 'git pull'
+                    }
+                }
+                dir (PROJECT_PATH) {
+                    sh 'dotnet publish --configuration Release --output $PUBLISH_PATH'
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                dir (PUBLISH_PATH) {
+                    sshagent(credentials : [CREDENTIALS_ID]) {
+                        sh 'git add -A'
+                        sh "git diff-index --quiet HEAD || git commit -am 'Jenkins $JOB_NAME $BUILD_NUMBER'"
+                        sh 'git push'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Backup AutoDeployTestEnv"
+                sh "sudo ssh $PUBLISH_PROFILE rm -rf /opt/sourcecode/AutoDeployTestEnvBackup"
+                sh "sudo ssh $PUBLISH_PROFILE mkdir /opt/sourcecode/AutoDeployTestEnvBackup"
+                sh "sudo ssh $PUBLISH_PROFILE cp -R /opt/sourcecode/AutoDeployTestEnv/* /opt/sourcecode/AutoDeployTestEnvBackup/"
+
+                echo "Pull source"
+                sh "sudo ssh $PUBLISH_PROFILE 'cd /opt/sourcecode/AutoDeployTestEnv && git checkout -f $PUBLISH_BRANCH && git pull'"
+                sh "sudo ssh $PUBLISH_PROFILE 'yes | cp /DONT_DELETE/appsettings.json /opt/sourcecode/AutoDeployTestEnv'"
+
+                echo "Restart service"
+                sh "sudo ssh $PUBLISH_PROFILE systemctl restart dotnetcore"
+                sh "sleep 10"
+                sh "sudo ssh $PUBLISH_PROFILE systemctl status dotnetcore"
+            }
+        }
+    }
+    post {
+        failure {
+            script {
+                CHATWORKTOKEN = "c3b8445b9cb5920251a4869c1a93cfdb"
+                ROOMID = "231365336"
+                POSTMESSAGE = "[info][title]${JOB_NAME} ${BUILD_DISPLAY_NAME} (${GIT_BRANCH})[/title] builded ${currentBuild.currentResult} ${BUILD_URL}[/info]"
+                POSTURL = "https://api.chatwork.com/v2/rooms/${ROOMID}/messages"
+            }
+            echo 'Done'
+            sh "curl -X POST -H \"X-ChatWorkToken:${CHATWORKTOKEN}\" -d \"body=${POSTMESSAGE}\" \"${POSTURL}\""
+        }
+    }
+}

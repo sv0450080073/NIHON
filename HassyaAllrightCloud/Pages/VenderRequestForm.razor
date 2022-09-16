@@ -1,0 +1,643 @@
+﻿@page "/venderrequestform"
+@inject IJSRuntime IJSRuntime
+@inject IStringLocalizer<VenderRequestForm> Lang
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_EigyosDataListService BranchDataService
+@inject ICustomerListService CustomerService
+@inject IVenderRequestService VenderRequestService
+@inject IFilterCondition FilterServices
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient Http
+@using HassyaAllrightCloud.IService.CommonComponents
+@inject IReservationClassComponentService _service
+@inject ICustomerComponentService _customerService
+@using HassyaAllrightCloud.Pages.Components.CommonComponents
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+
+<DxPopup CssClass="custom-popup" @bind-Visible="@notifyNotFound" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["Information"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => notifyNotFound = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true" />
+        @NotFound
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => notifyNotFound = false)" Text="@Lang["OK"]" />
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-xl" @bind-Visible="@isShowPreviewReport" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Lang["ReportTitle"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => isShowPreviewReport = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <DxDocumentViewer ReportUrl="@($"{nameof(IVenderRequestService)}?" + PreviewReportUrl)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    </Content>
+</DxPopup>
+
+@*<div class="d-flex justify-content-between pb-2">
+        <h5>@PageTitle</h5>
+        <FilterCombobox FormName="KU4700" OnCreateFilter="GetFieldValues" OnApplyFilter="ApplyFilter" SyainCdSeq="new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq"></FilterCombobox>
+    </div>*@
+@if (isLoading)
+{
+    <div class="loader loader-search">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+    <EditForm EditContext="@formContext">
+        <DataAnnotationsValidator />
+        <FluentValidator TValidator="VenderRequestFormValidator" />
+        <div class="d-flex justify-content-between align-items-center pb-2">
+            <h5 class="mb-0">@PageTitle</h5>
+            <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                @Lang["Clear"]
+            </button>
+        </div>
+
+        <div class="express-condition mb-3 border-dotted">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>@Lang["OutputSettings"]</h5>
+                    </div>
+                    <div class="pl-5">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@Lang["OutputInstruction"]</label>
+                            <nav class="nav nav-pills">
+                                <a href="javascript:void(0)" class="nav-link @(data.OutputSetting == OutputInstruction.Preview ? "active" : null)" @onclick="@(e => data.OutputSetting = OutputInstruction.Preview)">@Lang["PreviewButton"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(data.OutputSetting == OutputInstruction.Pdf ? "active" : null)" @onclick="@(e => data.OutputSetting = OutputInstruction.Pdf)">@Lang["PDF"]</a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="express-condition mb-3 border-dotted">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>@Lang["OutputConditions"]</h5>
+                    </div>
+                    <div class="pl-5">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@ReceiptNumber</label>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() =>data.UkeCdFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox Text="@data.UkeCdFrom"
+                                           TextChanged="@((newValue) => OnUkeCdChanged(newValue))"
+                                           TextExpression="@(() => data.UkeCdFrom)"
+                                           CssClass="width--130 length10">
+                                </DxTextBox>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() =>data.UkeCdFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxTextBox Text="@data.UkeCdTo"
+                                           TextChanged="@((newValue) => OnUkeCdChanged(newValue, false))"
+                                           TextExpression="@(() => data.UkeCdFrom)"
+                                           CssClass="width--130 length10">
+                                </DxTextBox>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--90 mr-4">@ReservationCategory</label>
+                                <div class="col-8">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       SelectedReservationClass="data.BookingTypeStart"
+                                                                       ReservationClassExpression="() => data.BookingTypeStart"
+                                                                       SelectedReservationClassChanged="@((newType)=> OnBookingTypeChanged(newType))">
+                                            </ReservationClassComponent>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       SelectedReservationClass="data.BookingTypeEnd"
+                                                                       ReservationClassExpression="() => data.BookingTypeEnd"
+                                                                       SelectedReservationClassChanged="@((newType)=> OnBookingTypeChanged(newType, false))">
+                                            </ReservationClassComponent>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@DateOfDispatch</label>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() =>data.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit Date="@data.StartDate"
+                                            Format="yyyy/MM/dd"
+                                            DateChanged="@((newValue) => OnStartDateChanged(newValue))"
+                                            DateExpression="@(() => data.StartDate)"
+                                            CssClass="width--130">
+                                </DxDateEdit>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class="has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() =>data.StartDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit Date="@data.EndDate"
+                                            Format="yyyy/MM/dd"
+                                            DateChanged="@((newValue) => OnEndDateChanged(newValue))"
+                                            DateExpression="@(() => data.StartDate)"
+                                            CssClass="width--130">
+                                </DxDateEdit>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@ReceptionOffice</label>
+                            <DxComboBox Data="@Branches"
+                                        TextFieldName="BranchInfo"
+                                        AllowUserInput="false"
+                                        NullText="@Lang["BranchNullText"]"
+                                        SelectedItem="@data.Branch"
+                                        SelectedItemChanged="@(e => OnSaleBranchChanged(e))"
+                                        SelectedItemExpression="@(() => data.Branch)"
+                                        CssClass="width--290">
+                            </DxComboBox>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-4 width--90">@CarDestination</label>
+                            <div class="col-8">
+                                <div class="row mr-0">
+                                    <div class="has-tooltip-error w-100 mb-2">
+                                        <CustomerComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                           LangDic="LangDic"
+                                                           SelectedGyosya="data.SelectedGyosyaFrom"
+                                                           SelectedGyosyaChanged="(e) => OnChangeGyosya(e)"
+                                                           GyosyaExpression="() => data.SelectedGyosyaFrom"
+                                                           SelectedTokisk="data.SelectedTokiskFrom"
+                                                           SelectedTokiskChanged="(e) => OnChangeTokisk(e)"
+                                                           TokiskExpression="() => data.SelectedTokiskFrom"
+                                                           SelectedTokiSt="data.SelectedTokiStFrom"
+                                                           SelectedTokiStChanged="(e) => OnChangeTokist(e)"
+                                                           TokiStExpression="() => data.SelectedTokiStFrom"
+                                                           DefaultGyosya="data.SelectedGyosyaFrom?.GyosyaCdSeq ?? -1"
+                                                           DefaultTokisk="data.SelectedTokiskFrom?.TokuiSeq ?? 0"
+                                                           DefaultTokiSt="data.SelectedTokiStFrom?.SitenCdSeq ?? 0"
+                                                           DropDownDirection="DropDownDirection.Up"
+                                                           DefaultTokiskNullText="@Lang["TokiskNullText"]">
+                                        </CustomerComponent>
+                                    </div>
+                                    <span class="text-center p-1 position-absolute" style="left: -2rem; top: 2.5rem">～</span>
+                                    <div class="has-tooltip-error w-100">
+                                        <CustomerComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                           LangDic="LangDic"
+                                                           SelectedGyosya="data.SelectedGyosyaTo"
+                                                           SelectedGyosyaChanged="(e) => OnChangeGyosya(e, false)"
+                                                           GyosyaExpression="() => data.SelectedGyosyaTo"
+                                                           SelectedTokisk="data.SelectedTokiskTo"
+                                                           SelectedTokiskChanged="(e) => OnChangeTokisk(e, false)"
+                                                           TokiskExpression="() => data.SelectedTokiskTo"
+                                                           SelectedTokiSt="data.SelectedTokiStTo"
+                                                           SelectedTokiStChanged="(e) => OnChangeTokist(e, false)"
+                                                           TokiStExpression="() => data.SelectedTokiStTo"
+                                                           DefaultGyosya="data.SelectedGyosyaTo?.GyosyaCdSeq ?? -1"
+                                                           DefaultTokisk="data.SelectedTokiskTo?.TokuiSeq ?? 0"
+                                                           DefaultTokiSt="data.SelectedTokiStTo?.SitenCdSeq ?? 0"
+                                                           DropDownDirection="DropDownDirection.Up"
+                                                           DefaultTokiskNullText="@Lang["TokiskNullText"]">
+                                        </CustomerComponent>
+                                    </div>
+                                </div>
+                            </div>
+                            @*</div>
+                                    <div class="form-group d-flex justify-content-end align-items-center">
+                                        <DxButton Text="@Preview"
+                                                    RenderStyle="@ButtonRenderStyle.Primary"
+                                                    CssClass="width--130 mx-2"
+                                                    Click="OnPreviewReportClicked">
+                                        </DxButton>
+                                        <DxButton Text="@Export"
+                                                    RenderStyle="@ButtonRenderStyle.Primary"
+                                                    CssClass="width--130 mx-2"
+                                                    Click="OnExportReportClicked">
+                                        </DxButton>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-dotted text-center">
+            <DxButton Text="@Output"
+                      RenderStyle="@ButtonRenderStyle.Primary"
+                      @onclick="@BtnSubmitClick"
+                      CssClass="width--100"
+                      disabled="@(formContext.GetValidationMessages().Distinct().Any())">
+            </DxButton>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string Option { get; set; }
+    [Parameter] public string UkeCd { get; set; }
+    [Parameter] public string UnkRen { get; set; }
+    [Parameter] public string YouTblSeq { get; set; }
+    [Parameter] public string Date { get; set; }
+
+    [Inject] public IReportLayoutSettingService _reportLayoutSettingService { get; set; }
+
+    public VenderRequestFormData data = new VenderRequestFormData();
+    private bool notifyNotFound = false;
+    private bool isShowPreviewReport = false;
+    private bool isFilterApply = false;
+    private string PreviewReportUrl = string.Empty;
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    EditContext formContext;
+
+    private List<LoadSaleBranch> Branches = new List<LoadSaleBranch>();
+
+    private bool isLoading = true;
+
+    string baseUrl;
+    string filterConditionFormName = "KU4700";
+
+    private List<CustomerComponentGyosyaData> listGyoSya { get; set; }
+    private List<CustomerComponentTokiskData> listTokisk { get; set; }
+    private List<CustomerComponentTokiStData> listTokist { get; set; }
+
+    #region string LocalizationInit
+
+    string NotFound;
+    string PageTitle;
+    string ReceiptNumber;
+    string ReservationCategory;
+    string DateOfDispatch;
+    string ReceptionOffice;
+    string CarDestination;
+    string Preview;
+    string Export;
+    string Output;
+
+    /// <summary>
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        NotFound = Lang["BI_T001"];
+        PageTitle = Lang["PageTitle"];
+        ReceiptNumber = Lang["ReceiptNumber"];
+        ReservationCategory = Lang["ReservationCategory"];
+        DateOfDispatch = Lang["DateOfDispatch"];
+        ReceptionOffice = Lang["ReceptionOffice"];
+        CarDestination = Lang["CarDestination"];
+        Preview = Lang["Preview"];
+        Export = Lang["Export"];
+        Output = Lang["Output"];
+
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+    /// <summary>
+    /// Invoked once, after OnInit is finished.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            LocalizationInit();
+            formContext = new EditContext(data);
+            baseUrl = AppSettingsService.GetBaseUrl();
+
+            await LoadBranch();
+
+            var taskReservation = _service.GetListReservationClass();
+            var taskGyosya = _customerService.GetListGyosya();
+            var taskTokisk = _customerService.GetListTokisk();
+            var taskTokist = _customerService.GetListTokiSt();
+
+            await Task.WhenAll(taskReservation, taskGyosya, taskTokisk, taskTokist);
+
+            data.BookingTypes = taskReservation.Result;
+            listGyoSya = taskGyosya.Result;
+            listTokisk = taskTokisk.Result;
+            listTokist = taskTokist.Result;
+
+            DateTime dateTimeConvert;
+            if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(Date) && !string.IsNullOrEmpty(UkeCd)
+           && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()) && !string.IsNullOrEmpty(UnkRen))
+            {
+                dateTimeConvert = DateTime.ParseExact(Date, "yyyyMMdd", new CultureInfo("ja-JP"));
+                data.UkeCdFrom = UkeCd;
+                data.UkeCdTo = UkeCd;
+                data._ukeCdFrom = int.Parse(UkeCd);
+                data._ukeCdTo = int.Parse(UkeCd);
+                data.StartDate = dateTimeConvert;
+                data.EndDate = dateTimeConvert.AddYears(1);
+                data.OutputSetting = OutputInstruction.Pdf;
+                var reportDatas = await VenderRequestService.GetVenderRequestReport(data, new ClaimModel().TenantID);
+                var reportResult = await VenderRequestService.GetVenderRequestReportPaged(reportDatas);
+                if (reportResult.Any())
+                {
+                    var report = await _reportLayoutSettingService.GetCurrentTemplate(ReportIdForSetting.Venderrequestform, BaseNamespace.Venderrequestform, new ClaimModel().TenantID, new ClaimModel().EigyoCdSeq, (byte)PaperSize.A4);
+                    report.DataSource = reportResult;
+                    await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                    {
+                        report.CreateDocument();
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            report.ExportToPdf(ms);
+
+                            byte[] exportedFileBytes = ms.ToArray();
+                            string myExportString = Convert.ToBase64String(exportedFileBytes);
+                            IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "VenderRequestReport");
+                        }
+                    });
+                }
+                else
+                {
+                    notifyNotFound = true;
+                }
+            }
+
+            await ApplyFilter();
+            isLoading = false;
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
+    #endregion
+
+    #region Load Data
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await IJSRuntime.InvokeAsync<string>("addMaxLength", "length", 10);
+    }
+
+    private async Task LoadBranch()
+    {
+        Branches = await BranchDataService.GetBranchDataByTenantId(new ClaimModel().TenantID);
+        InsertSelectAll(Branches);
+
+        data.Branch = Branches.FirstOrDefault();
+    }
+
+    private void InsertSelectAll<T>(List<T> source) where T : class
+    {
+        if (source.Any(item => item is null))
+            return;
+
+        source.Insert(0, null);
+    }
+    #endregion
+
+    #region Value changed methods
+
+    private void OnUkeCdChanged(string newUkeCd, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            data.UkeCdFrom = newUkeCd;
+        }
+        else
+        {
+            data.UkeCdTo = newUkeCd;
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnBookingTypeChanged(ReservationClassComponentData newType, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            data.BookingTypeStart = newType;
+        }
+        else
+        {
+            data.BookingTypeEnd = newType;
+        }
+
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnStartDateChanged(DateTime newDate)
+    {
+        data.StartDate = newDate;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnEndDateChanged(DateTime newDate)
+    {
+        data.EndDate = newDate;
+        if (!isFilterApply) StateHasChanged();
+    }
+
+    private void OnSaleBranchChanged(LoadSaleBranch e)
+    {
+        data.Branch = e;
+
+        if (!isFilterApply)
+            StateHasChanged();
+    }
+
+    protected void OnChangeGyosya(CustomerComponentGyosyaData gyosya, bool isFrom = true)
+    {
+        if (isFrom)
+            data.SelectedGyosyaFrom = gyosya;
+        else
+            data.SelectedGyosyaTo = gyosya;
+    }
+
+    protected void OnChangeTokisk(CustomerComponentTokiskData tokisk, bool isFrom = true)
+    {
+        if (isFrom)
+            data.SelectedTokiskFrom = tokisk;
+        else
+            data.SelectedTokiskTo = tokisk;
+    }
+
+    protected void OnChangeTokist(CustomerComponentTokiStData tokist, bool isFrom = true)
+    {
+        if (isFrom)
+            data.SelectedTokiStFrom = tokist;
+        else
+            data.SelectedTokiStTo = tokist;
+    }
+
+    #endregion
+
+    #region Button Action
+
+    private async void OnPreviewReportClicked(MouseEventArgs args)
+    {
+        await SaveCurrentFilter();
+        var hadData = await VenderRequestService.VenderRequestReportHadData(data, new ClaimModel().TenantID);
+        if (hadData)
+        {
+            string baseUrl = AppSettingsService.GetBaseUrl();
+            PreviewReportUrl = EncryptHelper.EncryptToUrl(data);
+            string url = baseUrl + "/VenderRequestFormPreview";
+            url = url + string.Format("/?PreviewReportUrl={0}", PreviewReportUrl);
+            await IJSRuntime.InvokeVoidAsync("open", url, "_blank");
+            //isShowPreviewReport = true;
+        }
+        else
+        {
+            notifyNotFound = true;
+        }
+        StateHasChanged();
+    }
+
+    private async void OnExportReportClicked(MouseEventArgs args)
+    {
+        await SaveCurrentFilter();
+        var reportDatas = await VenderRequestService.GetVenderRequestReport(data, new ClaimModel().TenantID);
+
+        var reportResult = await VenderRequestService.GetVenderRequestReportPaged(reportDatas);
+
+        if (reportResult.Any())
+        {
+            var report = await _reportLayoutSettingService.GetCurrentTemplate(ReportIdForSetting.Venderrequestform, BaseNamespace.Venderrequestform, new ClaimModel().TenantID, new ClaimModel().EigyoCdSeq, (byte)PaperSize.A4);
+            report.DataSource = reportResult;
+            await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+            {
+                report.CreateDocument();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    report.ExportToPdf(ms);
+
+                    byte[] exportedFileBytes = ms.ToArray();
+                    string myExportString = Convert.ToBase64String(exportedFileBytes);
+                    IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "VenderRequestReport");
+                }
+            });
+        }
+        else
+        {
+            notifyNotFound = true;
+        }
+        StateHasChanged();
+    }
+
+    #endregion
+
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(VenderRequestService.GetFieldValues(data), filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+        }
+        catch (Exception) { }
+    }
+
+    private async Task ApplyFilter()
+    {
+        var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq)).ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+        if (filterValues.Count > 0)
+        {
+            try
+            {
+                VenderRequestService.ApplyFilter(ref data, filterValues, data.BookingTypes, listGyoSya, listTokisk, listTokist);
+                isFilterApply = true;
+
+                OnUkeCdChanged(data.UkeCdFrom);
+                OnUkeCdChanged(data.UkeCdTo, false);
+                OnStartDateChanged(data.StartDate);
+                OnEndDateChanged(data.EndDate);
+                OnSaleBranchChanged(data.Branch == null ? null : Branches.FirstOrDefault(_ => _ != null && _.EigyoCdSeq == data.Branch.EigyoCdSeq));
+
+                isFilterApply = false;
+            }
+            catch (Exception) { }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void ResetForm()
+    {
+        isLoading = true;
+        await InvokeAsync(StateHasChanged);
+
+        //isExportable = true;
+
+        data = new VenderRequestFormData();
+
+        await FilterServices.DeleteCustomFilerCondition(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, 1, filterConditionFormName);
+
+        await OnInitializedAsync();
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async void BtnSubmitClick()
+    {
+        if (formContext.Validate())
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var reportDatas = await VenderRequestService.GetVenderRequestReport(data, new ClaimModel().TenantID);
+            var reportResult = await VenderRequestService.GetVenderRequestReportPaged(reportDatas);
+
+            if (reportResult.Any())
+            {
+                await SaveCurrentFilter();
+
+                if (data.OutputSetting == OutputInstruction.Preview)
+                {
+                    string baseUrl = AppSettingsService.GetBaseUrl();
+                    PreviewReportUrl = EncryptHelper.EncryptToUrl(data);
+                    string url = baseUrl + "/VenderRequestFormPreview";
+                    url = url + string.Format("/?PreviewReportUrl={0}", PreviewReportUrl);
+                    await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                    {
+                        IJSRuntime.InvokeVoidAsync("open", url, "_blank");
+                    });
+                }
+                else if (data.OutputSetting == OutputInstruction.Pdf)
+                {
+                    var report = await _reportLayoutSettingService.GetCurrentTemplate(ReportIdForSetting.Venderrequestform, BaseNamespace.Venderrequestform, new ClaimModel().TenantID, new ClaimModel().EigyoCdSeq, (byte)PaperSize.A4);
+                    report.DataSource = reportResult;
+                    await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                    {
+                        report.CreateDocument();
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            report.ExportToPdf(ms);
+
+                            byte[] exportedFileBytes = ms.ToArray();
+                            string myExportString = Convert.ToBase64String(exportedFileBytes);
+                            IJSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "VenderRequestReport");
+                        }
+                    });
+                }
+            }
+            else
+            {
+                notifyNotFound = true;
+            }
+
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

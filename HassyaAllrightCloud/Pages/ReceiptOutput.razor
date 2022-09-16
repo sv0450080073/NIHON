@@ -1,0 +1,396 @@
+﻿@page "/receiptoutput"
+@inherits ReceiptOutputBase;
+@using HassyaAllrightCloud.Pages.Components.CommonComponents;
+
+<EditForm Context="editContext" EditContext="@editFormContext">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="ReceiptOutputSearchValidator" />
+    <div class="mb-3 search-panel">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="col-md-7 pl-0">
+                <h5 class="mb-0">@_lang["Header"]</h5>
+            </div>
+
+            <div class="col-auto float-right pr-0">
+                <button class="btn btn-sm btn-danger btnclear" @onclick="ClearFormSeach">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>@_lang["BtnClear"]
+                </button>
+            </div>
+        </div>
+        <div>
+            <ul class="text-danger">
+                @if (IsDataNotFound)
+                {
+                    <li class="validation-message">@_lang["DataNotFound"]</li>
+                }
+            </ul>
+        </div>
+        <div id="control-tab" class="title-section border busrepair-accordion-header">
+            <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["ConditionSearch"]
+        </div>
+        @if (editFormContext == null)
+        {
+            <p><i class="fa fa-spinner"></i> Loading</p>
+        }
+        else
+        {
+            <div class="express-condition mb-2" style="display: none">
+                <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" @onclick="async () => await LoadJS()">
+                    <DxTab Text="@_lang["Tab1"]"></DxTab>
+                    <DxTab Text="@_lang["Tab2"]"></DxTab>
+                </DxTabs>
+                <div class="card dxbs-border-top-0 dxbs-border-radius-top-0 focus-form">
+                    <div class="card-body">
+                        @switch (ActiveTabIndex)
+                        {
+                            case 0:
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-2 text-left mt-1">@_lang["SalesOffice"]</label>
+                                            <div class="row has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => searchModel.BillOffice)"
+                                                         Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <DxComboBox SelectedItem="searchModel.BillOffice"
+                                                            SelectedItemExpression="@(() => searchModel.BillOffice)"
+                                                            Data="@billOfficeReceipt"
+                                                            NullText="営業所コード : 営業所名 "
+                                                            @bind-Value="@SelectedBillOffice"
+                                                            TextFieldName="Text"
+                                                            AllowUserInput="false"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            SelectedItemChanged="@((value) => UpdateFormValue(nameof(searchModel.BillOffice),value))">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-2 text-left mt-1">@_lang["BillingAddress"]</label>
+                                            <div class="row">
+                                                <div class="custom-validate">
+                                                    <CustomerComponent @ref="CustomerRef" VehicleClassification="1" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       RenderMode="ListRenderMode.Virtual"
+                                                                       LangDic="_langDic"
+                                                                       isGyosyaAddNull="true"
+                                                                       isTokiskAddNull="true"
+                                                                       isTokiStAddNull="true"
+                                                                       GyosyaExpression="() => searchModel.CustomerModelFrom.SelectedGyosya"
+                                                                       SelectedGyosya="searchModel.CustomerModelFrom.SelectedGyosya"
+                                                                       SelectedGyosyaChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelFrom.SelectedGyosya), val ,true)"
+                                                                       DefaultGyosya="DefaultValueFrom.GyosyaCdSeq"
+                                                                       GyosyaTextError="@(!isGyosyaValid ? _lang["BI_T002"] : string.Empty)"
+                                                                       TokiskExpression="() => searchModel.CustomerModelFrom.SelectedTokisk"
+                                                                       SelectedTokisk="searchModel.CustomerModelFrom.SelectedTokisk"
+                                                                       SelectedTokiskChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelFrom.SelectedTokisk), val,true)"
+                                                                       DefaultTokisk="DefaultValueFrom.TokiskCdSeq"
+                                                                       TokiskTextError="@(!isTokiskValid ? _lang["BI_T002"] : string.Empty)"
+                                                                       TokiStExpression="() => searchModel.CustomerModelFrom.SelectedTokiSt"
+                                                                       SelectedTokiSt="searchModel.CustomerModelFrom.SelectedTokiSt"
+                                                                       SelectedTokiStChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelFrom.SelectedTokiSt), val,true)"
+                                                                       DefaultTokiSt="DefaultValueFrom.TokiStCdSeq"
+                                                                       TokiStTextError="@(!isTokistValid ? _lang["BI_T002"] : string.Empty)">
+                                                    </CustomerComponent>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-2 text-left mt-1">～</label>
+                                            <div class="row">
+                                                <div class="custom-validate">
+                                                    <CustomerComponent @ref="CustomerRef" VehicleClassification="1" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       RenderMode="ListRenderMode.Virtual"
+                                                                       LangDic="_langDic"
+                                                                       isGyosyaAddNull="true"
+                                                                       isTokiskAddNull="true"
+                                                                       isTokiStAddNull="true"
+                                                                       GyosyaExpression="() => searchModel.CustomerModelTo.SelectedGyosya"
+                                                                       SelectedGyosya="searchModel.CustomerModelTo.SelectedGyosya"
+                                                                       SelectedGyosyaChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelTo.SelectedGyosya), val, false)"
+                                                                       DefaultGyosya="DefaultValueTo.GyosyaCdSeq"
+                                                                       GyosyaTextError="@(!isGyosyaValid ? _lang["BI_T002"] : string.Empty)"
+                                                                       TokiskExpression="() => searchModel.CustomerModelTo.SelectedTokisk"
+                                                                       SelectedTokisk="searchModel.CustomerModelTo.SelectedTokisk"
+                                                                       SelectedTokiskChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelTo.SelectedTokisk), val, false)"
+                                                                       DefaultTokisk="DefaultValueTo.TokiskCdSeq"
+                                                                       TokiskTextError="@(!isTokiskValid ? _lang["BI_T002"] : string.Empty)"
+                                                                       TokiStExpression="() => searchModel.CustomerModelTo.SelectedTokiSt"
+                                                                       SelectedTokiSt="searchModel.CustomerModelTo.SelectedTokiSt"
+                                                                       SelectedTokiStChanged="(val) => OnModelChanged(nameof(searchModel.CustomerModelTo.SelectedTokiSt), val, false)"
+                                                                       DefaultTokiSt="DefaultValueTo.TokiStCdSeq"
+                                                                       TokiStTextError="@(!isTokistValid ? _lang["BI_T002"] : string.Empty)">
+                                                    </CustomerComponent>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-3 text-left mt-1">@_lang["BillingDate"]</label>
+                                            <div class="form-group d-flex flex-nowrap has-tooltip-error">
+                                                <DxDateEdit Date="searchModel.InvoiceYearMonth"
+                                                            PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker"
+                                                            ScrollPickerFormat="yyyy MM"
+                                                            DisplayFormat="yyyy/MM"
+                                                            Format="yyyy/MM"
+                                                            DateChanged="@((value) => UpdateFormValue(nameof(searchModel.InvoiceYearMonth), value))"
+                                                            DateExpression="@(() => searchModel.InvoiceYearMonth)"></DxDateEdit>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-3 text-left mt-1">@_lang["InvoiceIssuancePeriod"]</label>
+                                            <div class="form-group d-flex flex-nowrap ">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.StaInvoicingDate)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="searchModel.StaInvoicingDate"
+                                                                Format="yyyy/MM/dd"
+                                                                DateChanged="@((value) => UpdateFormValue(nameof(searchModel.StaInvoicingDate), value))"
+                                                                DateExpression="@(() => searchModel.StaInvoicingDate)"></DxDateEdit>
+                                                </div>
+                                                <span class="mx-3 mt-1">～</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.EndInvoicingDate)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxDateEdit Date="searchModel.EndInvoicingDate"
+                                                                Format="yyyy/MM/dd"
+                                                                DateChanged="@((value) => UpdateFormValue(nameof(searchModel.EndInvoicingDate), value))"
+                                                                DateExpression="@(() => searchModel.EndInvoicingDate)"></DxDateEdit>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-3 text-left mt-1">@_lang["InvoiceNumber"]</label>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.StaInvoiceOutNum)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.StaInvoiceOutNum"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(searchModel.StaInvoiceOutNum),value))"
+                                                               CssClass="code-number-ser" maxlength="8"
+                                                               TextExpression="@(() => searchModel.StaInvoiceOutNum)"></DxTextBox>
+                                                </div>
+                                                <span class="mx-1 mt-1">-</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.StaInvoiceSerNum)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.StaInvoiceSerNum"
+                                                               CssClass="code-number-num" maxlength="4"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(searchModel.StaInvoiceSerNum),value))"
+                                                               TextExpression="@(() => searchModel.StaInvoiceSerNum)"></DxTextBox>
+                                                </div>
+                                                <span class="ml-2 mr-2 mt-1 mb-auto">～</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.EndInvoiceOutNum)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.EndInvoiceOutNum"
+                                                               CssClass="code-number-ser" maxlength="8"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(searchModel.EndInvoiceOutNum),value))"
+                                                               TextExpression="@(() => searchModel.EndInvoiceOutNum)"></DxTextBox>
+                                                </div>
+                                                <span class="mx-1 mt-1">-</span>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => searchModel.EndInvoiceSerNum)"
+                                                             Lang="@_langDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox Text="@searchModel.EndInvoiceSerNum"
+                                                               CssClass="code-number-num" maxlength="4"
+                                                               TextChanged="@((value) => UpdateFormValue(nameof(searchModel.EndInvoiceSerNum),value))"
+                                                               TextExpression="@(() => searchModel.EndInvoiceSerNum)"></DxTextBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+                            case 1:
+                                <div class="d-flex">
+                                    <div class="form-group d-sm-flex flex-nowrap">
+                                        <label class="col-form-label width--100">@_lang["TextTab2"]</label>
+                                        <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                                type="button" @onclick="@(e => ClickVAsync(e, (int)ViewMode.Large))">
+                                            @_lang["WidthLarge"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="@(e => ClickVAsync(e, (int)ViewMode.Medium))">
+                                            @_lang["WidthMedium"]
+                                        </button>
+                                        <button class="@string.Format("btn-option mx-2 {0}", ActiveV == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                                @onclick="@(e => ClickVAsync(e, (int)ViewMode.Small))">
+                                            @_lang["WidthSmall"]
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                </div>
+                                <div class="d-flex">
+                                </div>
+                                break;
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</EditForm>
+
+<div class="receiptOutput">
+    <div class="d-flex mt-4 mb-4">
+        <div class="row">
+            <div class="form-group d-flex flex-nowrap mt-1 mr-4">
+                <label class="col-form-label-sm ml-3 mr-4">@_lang["BillingAddress"]</label>
+                <DxButton CssClass="btn btn-sm fa fa-chevron-circle-left mr-2" @onclick="(value) => BillAddressReceiptsChangedAsync(false)" Enabled="@(billAddressReceipt.Any() && SelectedBillAddressReceipt != null && SelectedBillAddressReceipt != billAddressReceipt.FirstOrDefault())"></DxButton>
+                <DxComboBox SelectedItem="@searchModel.BillAddressReceipt"
+                            SelectedItemExpression="@(() => searchModel.BillAddressReceipt)"
+                            Data="@billAddressReceipt"
+                            CssClass="width--290"
+                            TextFieldName="Text"
+                            AllowUserInput="false"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            SelectedItemChanged="@(async e => await OnChangeBillAddressReceipt(e))">
+                </DxComboBox>
+                <DxButton CssClass=" btn btn-sm fa fa-chevron-circle-right ml-2" @onclick="(value) =>  BillAddressReceiptsChangedAsync(true)" Enabled="@(billAddressReceipt.Any() && SelectedBillAddressReceipt != billAddressReceipt.LastOrDefault())"></DxButton>
+            </div>
+        </div>
+        <div class="itemMide">
+            <div>
+                <label class="col-form-label-sm ml-4 mt-1">@_lang["SelectBillingAmount"]</label>
+                <label class="col-form-label-sm mr-4">@SelectedBillingAmount</label>
+                <label class="col-form-label-sm">@_lang["SelectiveConsumptionTax"]</label>
+                <label class="col-form-label-sm mr-4">@SelectedTaxAmount</label>
+                <label class="col-form-label-sm">@_lang["SelectionFee"]</label>
+                <label class="col-form-label-sm mr-4">@SelectedFeeAmount</label>
+            </div>
+        </div>
+        <div class="itemRight">
+            <div class="text-center form-group">
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="(e => {IsShowPopupOutput = true;searchModel.IssueDate = DateTime.Now; })" CssClass="width--100 mt-1" Enabled="@(SelectedInvoices?.Count() > 0)" Text="@_lang["ReceiptOutput"]"></DxButton>
+            </div>
+        </div>
+    </div>
+    <div class="grid-@ActiveV receipt-output-grid">
+        <table class="table table-bordered table-sm text-center mt-4 table-layout">
+            <thead>
+                <tr class="header-row">
+                    <th class="check-box align-items-center sticky">
+                        <div class="align-items-center ">
+                            <DxCheckBox Checked="@ItemCheckAll" CheckedExpression="@(() => ItemCheckAll)"
+                                        CheckedChanged="@((value)=> CheckedItemAllChanged(value))"
+                                        CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                        </div>
+                    </th>
+                    <th class="text-center sticky">@_lang["NO"]</th>
+                    <th class="text-center sticky">@_lang["InvoiceControlNumber"]</th>
+                    <th class="text-center sticky">@_lang["BillingOffice"]</th>
+                    <th class="text-center sticky">@_lang["BillingAddress"]</th>
+                    <th class="text-center sticky">@_lang["BillingDate"]</th>
+                    <th class="text-center sticky">@_lang["LastCarryForwardAmount"]</th>
+                    <th class="text-center sticky">@_lang["SalesAmountThisTime"]</th>
+                    <th class="text-center sticky">@_lang["ConsumptionTaxAmount"]</th>
+                    <th class="text-center sticky">@_lang["TimeFeeAmount"]</th>
+                    <th class="text-center sticky">@_lang["DepositAmount"]</th>
+                    <th class="text-center sticky">@_lang["BilledAmount"]</th>
+                    <th class="text-center sticky">@_lang["InvoiceIssuanceDate"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (DataSourcePaging != null)
+                {
+                    @foreach (var data in DataSourcePaging.Select((value, i) => new { i, value }))
+                    {
+                        <tr class="body-receipt-row-1">
+                            <td class="row-2 check-box align-items-center">
+                                <div class="align-items-center ">
+                                    <DxCheckBox Checked="@data.value.Checked" CheckedExpression="@(() => data.value.Checked)"
+                                                CheckedChanged="@((value)=> CheckedValueGridChanged(data.value, value, false))"
+                                                CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                                </div>
+                            </td>
+                            <td class="text-center">@data.value.ListNo</td>
+                            <td class="text-left">@data.value.ListInvoiceNo</td>
+                            <td class="text-left">@data.value.ListBillingOffice</td>
+                            <td class="text-left">@data.value.ListBillingAddress</td>
+                            <td class="text-left">@data.value.ListInvoiceYearMonth</td>
+                            <td class="text-right">@data.value.PreviousCarryAmount</td>
+                            <td class="text-right">@data.value.ThisAmount</td>
+                            <td class="text-right">@data.value.ThisTaxAmount</td>
+                            <td class="text-right">@data.value.ThisFeeAmount</td>
+                            <td class="text-right">@data.value.ThisDeposit</td>
+                            <td class="text-right">@data.value.ThisBillingAmount</td>
+                            <td class="text-left">@data.value.InvoiceDate</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-2 mt-3">
+        <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="ItemPerPage" OnChangeItemPerPage="(e => ItemPerPage = e)"
+                                                         TotalCount="DataSource.Count" @ref="Paging">
+        </HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+</div>
+
+<DxPopup CssClass="custom-popup" Visible="@IsShowPopupOutput">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["HeaderPopup"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => IsShowPopupOutput = false)"></a>
+        </div>
+        @if (searchModel.IssueDate == null)
+        {
+            <li class="text-danger ml-3 validation-message">@_lang["BI_T006"]</li>
+        }
+    </HeaderTemplate>
+    <Content>
+        <div>
+            <label>@_lang["IssueDate"]</label>
+            <br>
+            <DxDateEdit Date="searchModel.IssueDate"
+                        Format="yyyy/MM/dd"
+                        DateChanged="@((value) => UpdateFormValue(nameof(searchModel.IssueDate), value))"
+                        DateExpression="@(() => searchModel.IssueDate)"
+                        CssClass="width--160 mt-2"></DxDateEdit>
+        </div>
+    </Content>
+
+    <FooterTemplate>
+        <div class="text-right">
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="@_lang["CancelBtn"]" @onclick="@((e) => IsShowPopupOutput = false)" />
+            <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn margin-0 lifecycle-btn" RenderStyle="@ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained"
+                      Text="@_lang["OutputBtn"]" @onclick="@(async () => await OutputBtn())" />
+        </div>
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup" Visible="@IsShowPopupDowload">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["HeaderPopup"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(async () => IsShowPopupDowload = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <input type="text" id="copy-url-@S3File.Name" style="position: fixed; top: -1000px;" value="@Url" />
+        <label class="pb-2">@_lang["MessageConfirm"]</label>
+        <table class="table-bordered w-100">
+            <tr>
+                <td class="text-center">@FileName</td>
+                <td class="text-center"><a href="javascript:void(0);" class="text-decoration-none mr-2" style="color: var(--primary)" @onclick="e => DowloadFile()">ダウンロード</a></td>
+                <td class="text-center"><a href="javascript:void(0);" class="text-decoration-none" style="color: var(--primary)" @onclick="e => CopyUrl()">URLコピー</a></td>
+            </tr>
+        </table>
+    </Content>
+</DxPopup>
+
+@if (IsLoading)
+{
+    <div id="components-reconnect-modal" style="position: fixed;top: 0px;right: 0px;bottom: 0px;left: 0px;z-index: 10001;display: block;overflow: hidden;background-color: rgb(255, 255, 255);opacity: 0.8;text-align: center;font-weight: bold;justify-content: center;">
+        <div style="top: 50%; position: relative;">
+            <div class="loader">
+                <div class="loader-icon"></div>
+            </div>
+        </div>
+    </div>
+}
+

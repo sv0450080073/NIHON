@@ -1,0 +1,12 @@
+﻿@page "/HikiukeshoReport"
+@using DevExpress.Blazor.Reporting
+@inject CustomNavigation MyNavigationManager
+
+<DxDocumentViewer ReportUrl="@(MyNavigationManager.Uri)" Height="1000px" Width="100">
+    <DxDocumentViewerTabPanelSettings Width="180" />
+</DxDocumentViewer>
+
+@code {
+    [Parameter]
+    public string Params { get; set; }
+}

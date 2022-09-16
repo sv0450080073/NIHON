@@ -1,0 +1,19 @@
+﻿@inject ILoadingService loadingService
+
+<div class="kobo-loading" style="display: @(Show ? "block" : "none")">
+    <div class="loader-icon"></div>
+</div>
+
+@code {
+    private bool Show { get; set; }
+    protected override void OnInitialized()
+    {
+        loadingService.AddChangeEvent(TriggerLoading);
+    }
+
+    private async Task TriggerLoading()
+    {
+        Show = loadingService.IsShow();
+        await InvokeAsync(StateHasChanged);
+    }
+}

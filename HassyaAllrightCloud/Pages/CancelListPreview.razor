@@ -1,0 +1,91 @@
+﻿@using HassyaAllrightCloud.IService.CommonComponents;
+@inject IReservationClassComponentService _yoyakuservice
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents;
+@if (!string.IsNullOrEmpty(PreportUrl) && !string.IsNullOrWhiteSpace(PreportUrl))
+{
+    <DxDocumentViewer ReportUrl="@($"{nameof(ICancelListReportService)}?" + PreportUrl)" Height="800px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+
+@code {
+    [Parameter] public string SearchString { get; set; }
+    List<ReservationClassComponentData> reservationlst = new List<ReservationClassComponentData>();
+    public CancelListDataUri CancelListDataUri { get; set; } = new CancelListDataUri();
+    public CancelListReportSearchParamsUri CancelListReportSearchParamsUri { get; set; } = new CancelListReportSearchParamsUri();
+    private string PreportUrl { get; set; } = "";
+    protected override async Task OnInitializedAsync()
+    {
+        reservationlst = await _yoyakuservice.GetListReservationClass();
+        if (reservationlst == null)
+        {
+            reservationlst = new List<ReservationClassComponentData>();
+        }
+        else
+        {
+            reservationlst.Insert(0, new ReservationClassComponentData());
+        }
+        CancelListReportSearchParamsUri = EncryptHelper.Decrypt<CancelListReportSearchParamsUri>(SearchString);
+        PreportUrl = EncryptHelper.EncryptToUrl(SetValueUri(CancelListReportSearchParamsUri));
+        // NavManager.NavigateTo("/CancelListPreview", false);
+    }
+    private CancelListReportSearchParams SetValueUri(CancelListReportSearchParamsUri data)
+    {
+        var result = new CancelListReportSearchParams();
+        result.TenantId = data.TenantId;
+        result.UserLoginId = data.UserLoginId;
+        result.BookingKeys = data.BookingKeys;
+        result.SearchCondition = SetValueCancelListData(data.SearchCondition);
+        return result;
+    }
+    private List<ReservationClassComponentData> CutSpecialCharactersReservationList(string strValue)
+    {
+        var result = new List<ReservationClassComponentData>();
+        if (!string.IsNullOrEmpty(strValue))
+        {
+            string[] strValueArr = strValue.Split('-');
+            result = reservationlst.Where(x => strValueArr.Contains(x.YoyaKbnSeq.ToString())).ToList();
+        }
+        return result;
+    }
+    private CancelListData SetValueCancelListData(CancelListDataUri data)
+    {
+        var result = new CancelListData();
+        result._ukeCdFrom = data._ukeCdFrom;
+        result._ukeCdTo = data._ukeCdTo;
+        result.DateType = data.DateType;
+        result.DateTypeText = data.DateTypeText;
+        result.Sort = data.Sort;
+        result.SortText = data.SortText;
+        result.YoyakuFrom = data.YoyakuFrom;
+        result.YoyakuTo = data.YoyakuTo;
+        result.StartDate = data.StartDate;
+        result.EndDate = data.EndDate;
+        result.Company = data.Company;
+        result.CancelBookingType = data.CancelBookingType;
+        result.CancelCharge = data.CancelCharge;
+        result.BreakPage = data.BreakPage;
+        result.BranchStart = data.BranchStart;
+        result.BranchEnd = data.BranchEnd;
+        result.GyosyaTokuiSakiFrom = data.GyosyaTokuiSakiFrom;
+        result.GyosyaTokuiSakiTo = data.GyosyaTokuiSakiTo;
+        result.GyosyaShiireSakiFrom = data.GyosyaShiireSakiFrom;
+        result.GyosyaShiireSakiTo = data.GyosyaShiireSakiTo;
+        result.TokiskTokuiSakiFrom = data.TokiskTokuiSakiFrom;
+        result.TokiskTokuiSakiTo = data.TokiskTokuiSakiTo;
+        result.TokiskShiireSakiFrom = data.TokiskShiireSakiFrom;
+        result.TokiskShiireSakiTo = data.TokiskShiireSakiTo;
+        result.TokiStShiireSakiFrom = data.TokiStShiireSakiFrom;
+        result.TokiStShiireSakiTo = data.TokiStShiireSakiTo;
+        result.TokiStTokuiSakiFrom = data.TokiStTokuiSakiFrom;
+        result.TokiStTokuiSakiTo = data.TokiStTokuiSakiTo;
+        result.StaffStart = data.StaffStart;
+        result.StaffEnd = data.StaffEnd;
+        result.CancelStaffStart = data.CancelStaffStart;
+        result.CancelStaffEnd = data.CancelStaffEnd;
+        result.ExportType = data.ExportType;
+        result.PaperSize = data.PaperSize;
+        result.CsvConfigOption = data.CsvConfigOption;
+        return result;
+    }
+}

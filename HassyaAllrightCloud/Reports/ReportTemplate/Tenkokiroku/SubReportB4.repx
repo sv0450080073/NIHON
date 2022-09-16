@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="SubReportB4" Landscape="true" Margins="25, 25, 0, 0" PaperKind="B4" PageWidth="1390" PageHeight="984" Version="20.1" DataMember="Pro_GetInfoHaiinDrive_R" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Name="Ukeno" />
+    <Item2 Ref="4" Name="UnkRen" />
+    <Item3 Ref="5" Name="TeiDanNo" />
+    <Item4 Ref="6" Name="BunkRen" />
+    <Item5 Ref="7" Description="EigyoCdSeq" Name="EigyoCdSeq" />
+    <Item6 Ref="8" Description="RowIndex" Name="RowIndex" />
+    <Item7 Ref="9" Description="SyasyuNm" Name="SyasyuNm" />
+    <Item8 Ref="10" Description="SyaRyoNm" Name="SyaRyoNm" />
+    <Item9 Ref="11" Description="TotalBusRun" Name="TotalBusRun" />
+    <Item10 Ref="12" Description="TotalDayBusRun" Name="TotalDayBusRun" />
+    <Item11 Ref="13" Description="DayBusRunning" Name="DayBusRunning" />
+    <Item12 Ref="14" Description="SyukoTime" Name="SyukoTime" />
+    <Item13 Ref="15" Description="HaisTime" Name="HaisTime" />
+    <Item14 Ref="16" Description="DantaNm" Name="DantaNm" />
+    <Item15 Ref="17" Description="IkiNm" Name="IkiNm" />
+    <Item16 Ref="18" Description="HaiSNm" Name="HaiSNm" />
+    <Item17 Ref="19" Description="HaiSKouKNm" Name="HaiSKouKNm" />
+    <Item18 Ref="20" Description="TouNm" Name="TouNm" />
+    <Item19 Ref="21" Description="TouSkouKNm" Name="TouSkouKNm" />
+    <Item20 Ref="22" Description="KikTime" Name="KikTime" />
+    <Item21 Ref="23" Visible="false" Description="SyutuYmd" AllowNull="true" Name="SyutuYmd" />
+    <Item22 Ref="24" Description="RowNum" Name="RowNum" />
+    <Item23 Ref="25" Description="VistLocation" Name="VistLocation" />
+    <Item24 Ref="26" Description="VistLocationCompact" Name="VistLocationCompact" />
+    <Item25 Ref="27" Description="SyuKoTimeMain" Name="SyuKoTimeMain" />
+    <Item26 Ref="28" Description="HaiSTimeMain" Name="HaiSTimeMain" />
+    <Item27 Ref="29" Description="KikTimeMain" Name="KikTimeMain" />
+    <Item28 Ref="30" Visible="false" Description="HaiShaSyuKoYmd" Name="HaiShaSyuKoYmd" />
+    <Item29 Ref="31" Visible="false" Description="TenantCdSeq" Name="TenantCdSeq" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="32" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="0" />
+    <Item2 Ref="33" ControlType="DetailBand" Name="detailBand1" HeightF="37.15">
+      <Controls>
+        <Item1 Ref="34" ControlType="XRTable" Name="table2" TextAlignment="TopCenter" SizeF="1340,37.15" LocationFloat="0,0" Font="MS PGothic, 5.25pt, charSet=0" Padding="2,2,0,0,96" Borders="All">
+          <Rows>
+            <Item1 Ref="35" ControlType="XRTableRow" Name="tableRow7" Weight="0.46874859419729814">
+              <Cells>
+                <Item1 Ref="36" ControlType="XRTableCell" Name="tableCell35" Weight="0.2757543341523101" CanGrow="false" RowSpan="4" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="37" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0, ?RowNum, '')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="38" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="39" ControlType="XRTableCell" Name="tableCell37" Weight="1.399790795784517" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 5pt" Padding="2,2,2,0,100" Borders="Left, Right" BorderDashStyle="Solid">
+                  <ExpressionBindings>
+                    <Item1 Ref="40" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0, ?SyasyuNm, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="41" UseFont="false" UsePadding="false" UseBorders="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="42" ControlType="XRTableCell" Name="tableCell39" Weight="0.49992488741712315" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="43" EventName="BeforePrint" PropertyName="Text" Expression="Iif([DataSource.CurrentRowIndex] = 0,?TotalBusRun+'台中', '')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="44" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="45" ControlType="XRTableCell" Name="tableCell58" Weight="0.44993237166397149" CanGrow="false" RowSpan="4" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="46" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?TotalDayBusRun + ' - ' + ?DayBusRunning&#xA;, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="47" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="48" ControlType="XRTableCell" Name="tableCell61" Weight="0.41064350021797891" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="49" EventName="BeforePrint" PropertyName="Text" Expression="Iif(?SyuKoTimeMain='    ','',Iif( [DataSource.CurrentRowIndex] = 0,Substring(?SyuKoTimeMain,0, 2)+':'+Substring(?SyuKoTimeMain,2, 2), '')&#xA;)" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="50" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="51" ControlType="XRTableCell" Name="tableCell64" Weight="0.7663873955791" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="TopCenter" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="52" EventName="BeforePrint" PropertyName="Text" Expression="[DR_SyainNm]&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="53" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="54" ControlType="XRTableCell" Name="tableCell67" Weight="1.8352069277965872" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="55" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?DantaNm&#xA;, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="56" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="57" ControlType="XRTableCell" Name="tableCell70" Weight="1.5924954506461866" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="TopLeft" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="58" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?VistLocation&#xA;, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="59" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="60" ControlType="XRTableCell" Name="tableCell73" Weight="0.44993266981981161" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="61" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="62" ControlType="XRTableCell" Name="tableCell76" Weight="0.53958288489511763" CanGrow="false" Multiline="true" Text="1 2 3 4" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="63" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="64" ControlType="XRTableCell" Name="tableCell77" Weight="0.39569413139351173" CanGrow="false" RowSpan="4" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom" CanPublish="false">
+                  <StylePriority Ref="65" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item11>
+                <Item12 Ref="66" ControlType="XRTableCell" Name="tableCell78" Weight="0.61449166783997722" CanGrow="false" RowSpan="4" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom" CanPublish="false">
+                  <StylePriority Ref="67" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item12>
+                <Item13 Ref="68" ControlType="XRTableCell" Name="tableCell79" Weight="0.449932046745405" CanGrow="false" RowSpan="3" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="69" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item13>
+                <Item14 Ref="70" ControlType="XRTableCell" Name="tableCell80" Weight="0.50361071407516456" CanGrow="false" RowSpan="4" Multiline="true" Text="1 2 3 4&#xD;&#xA;5(有・無)" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="71" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item14>
+                <Item15 Ref="72" ControlType="XRTableCell" Name="tableCell81" Weight="0.39625540967481582" CanGrow="false" RowSpan="4" Multiline="true" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="73" UseFont="false" UseBorders="false" />
+                </Item15>
+                <Item16 Ref="74" ControlType="XRTableCell" Name="tableCell82" Weight="0.64990394455206313" CanGrow="false" RowSpan="4" Multiline="true" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="75" UseFont="false" UseBorders="false" />
+                </Item16>
+                <Item17 Ref="76" ControlType="XRTableCell" Name="tableCell83" Weight="0.44993020939967032" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="77" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item17>
+                <Item18 Ref="78" ControlType="XRTableCell" Name="tableCell84" Weight="0.539584369337919" CanGrow="false" Multiline="true" Text="1 2 3 4" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="79" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                </Item18>
+                <Item19 Ref="80" ControlType="XRTableCell" Name="tableCell85" Weight="0.3602833788198434" CanGrow="false" RowSpan="4" Multiline="true" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="81" UseFont="false" UseBorders="false" />
+                </Item19>
+                <Item20 Ref="82" ControlType="XRTableCell" Name="tableCell86" Weight="0.6499028779963818" CanGrow="false" RowSpan="4" Multiline="true" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="83" UseFont="false" UseBorders="false" />
+                </Item20>
+                <Item21 Ref="84" ControlType="XRTableCell" Name="tableCell87" Weight="1.6132949609347258" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleLeft" Font="MS PGothic, 5pt" ForeColor="Black" Padding="2,2,2,0,100" Borders="Left, Right">
+                  <ExpressionBindings>
+                    <Item1 Ref="85" EventName="BeforePrint" PropertyName="Text" Expression="Iif([DataSource.CurrentRowIndex] = 0,?TouNm, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="86" UseFont="false" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item21>
+                <Item22 Ref="87" ControlType="XRTableCell" Name="tableCell88" Weight="0.55099636442953548" CanGrow="false" RowSpan="4" Multiline="true" Font="MS PGothic, 5pt" Borders="Left, Right, Bottom">
+                  <StylePriority Ref="88" UseFont="false" UseBorders="false" />
+                </Item22>
+                <Item23 Ref="89" ControlType="XRTableCell" Name="tableCell89" Weight="0.64406993995152972" CanGrow="false" RowSpan="4" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt" ForeColor="Black" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="90" EventName="BeforePrint" PropertyName="Text" Expression="Iif(?KikTimeMain='    ','',Iif([DataSource.CurrentRowIndex] = 0,Substring(?KikTimeMain,0, 2)+':'+Substring(?KikTimeMain,2, 2), '')&#xA;)" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="91" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                </Item23>
+              </Cells>
+            </Item1>
+            <Item2 Ref="92" ControlType="XRTableRow" Name="tableRow9" Weight="0.46874859419729809">
+              <Cells>
+                <Item1 Ref="93" ControlType="XRTableCell" Name="tableCell113" Weight="0.2757543341523101" CanGrow="false" Multiline="true" />
+                <Item2 Ref="94" ControlType="XRTableCell" Name="tableCell114" Weight="1.399790795784517" CanGrow="false" Multiline="true" />
+                <Item3 Ref="95" ControlType="XRTableCell" Name="tableCell115" Weight="0.49992488741712315" CanGrow="false" Multiline="true" />
+                <Item4 Ref="96" ControlType="XRTableCell" Name="tableCell116" Weight="0.44993237166397149" CanGrow="false" Multiline="true" />
+                <Item5 Ref="97" ControlType="XRTableCell" Name="tableCell117" Weight="0.41064350021797891" CanGrow="false" Multiline="true" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="98" UseFont="false" />
+                </Item5>
+                <Item6 Ref="99" ControlType="XRTableCell" Name="tableCell118" Weight="0.7663873955791" CanGrow="false" Multiline="true" />
+                <Item7 Ref="100" ControlType="XRTableCell" Name="tableCell119" Weight="1.8352069277965872" CanGrow="false" Multiline="true" />
+                <Item8 Ref="101" ControlType="XRTableCell" Name="tableCell120" Weight="1.592494840385948" CanGrow="false" Multiline="true" />
+                <Item9 Ref="102" ControlType="XRTableCell" Name="tableCell121" Weight="0.44993266981981128" CanGrow="false" Multiline="true" Text="tableCell121" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="103" UseFont="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="104" ControlType="XRTableCell" Name="tableCell122" Weight="0.53958363237838236" CanGrow="false" Multiline="true" Text="5 6 7 8" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="105" UseFont="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="106" ControlType="XRTableCell" Name="tableCell123" Weight="0.39569413139351145" CanGrow="false" Multiline="true" Text="tableCell123" />
+                <Item12 Ref="107" ControlType="XRTableCell" Name="tableCell124" Weight="0.614491530616951" CanGrow="false" Multiline="true" Text="tableCell124" />
+                <Item13 Ref="108" ControlType="XRTableCell" Name="tableCell125" Weight="0.449932046745405" CanGrow="false" Multiline="true" Text="tableCell125" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="109" UseFont="false" UseTextAlignment="false" />
+                </Item13>
+                <Item14 Ref="110" ControlType="XRTableCell" Name="tableCell126" Weight="0.50361071407516456" CanGrow="false" Multiline="true" Text="tableCell126" />
+                <Item15 Ref="111" ControlType="XRTableCell" Name="tableCell127" Weight="0.39625540967481582" CanGrow="false" Multiline="true" Text="tableCell127" />
+                <Item16 Ref="112" ControlType="XRTableCell" Name="tableCell128" Weight="0.649902724031586" CanGrow="false" Multiline="true" Text="tableCell128" />
+                <Item17 Ref="113" ControlType="XRTableCell" Name="tableCell129" Weight="0.44993142992014756" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="114" UseFont="false" UseTextAlignment="false" />
+                </Item17>
+                <Item18 Ref="115" ControlType="XRTableCell" Name="tableCell130" Weight="0.53958436933791876" CanGrow="false" Multiline="true" Text="5 6 7 8" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="116" UseFont="false" UseTextAlignment="false" />
+                </Item18>
+                <Item19 Ref="117" ControlType="XRTableCell" Name="tableCell131" Weight="0.36028337881984351" CanGrow="false" Multiline="true" />
+                <Item20 Ref="118" ControlType="XRTableCell" Name="tableCell132" Weight="0.64990287799638158" CanGrow="false" Multiline="true" />
+                <Item21 Ref="119" ControlType="XRTableCell" Name="tableCell133" Weight="1.6132949609347262" CanGrow="false" Multiline="true" />
+                <Item22 Ref="120" ControlType="XRTableCell" Name="tableCell134" Weight="0.55099636442953537" CanGrow="false" Multiline="true" />
+                <Item23 Ref="121" ControlType="XRTableCell" Name="tableCell135" Weight="0.64406993995152972" CanGrow="false" Multiline="true" />
+              </Cells>
+            </Item2>
+            <Item3 Ref="122" ControlType="XRTableRow" Name="tableRow8" Weight="0.46874859419729831">
+              <Cells>
+                <Item1 Ref="123" ControlType="XRTableCell" Name="tableCell90" Weight="0.2757543341523101" CanGrow="false" Multiline="true" />
+                <Item2 Ref="124" ControlType="XRTableCell" Name="tableCell91" Weight="1.399790795784517" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomLeft" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="All">
+                  <ExpressionBindings>
+                    <Item1 Ref="125" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?SyaRyoNm, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="126" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="127" ControlType="XRTableCell" Name="tableCell92" Weight="0.49992488741712315" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomCenter" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="128" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?TeiDanNo+'号車', '')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="129" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="130" ControlType="XRTableCell" Name="tableCell93" Weight="0.44993237166397149" CanGrow="false" Multiline="true" />
+                <Item5 Ref="131" ControlType="XRTableCell" Name="tableCell94" Weight="0.41064350021797891" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomCenter" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="132" EventName="BeforePrint" PropertyName="Text" Expression="Iif(?HaiSTimeMain='    ','',Iif( [DataSource.CurrentRowIndex] = 0,Substring(?HaiSTimeMain,0,2)+':'+Substring(?HaiSTimeMain,2, 2)&#xA;,'')&#xA;)" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="133" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item5>
+                <Item6 Ref="134" ControlType="XRTableCell" Name="tableCell95" Weight="0.7663873955791" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomCenter" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="135" EventName="BeforePrint" PropertyName="Text" Expression="[GUI_SyainNm]&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="136" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item6>
+                <Item7 Ref="137" ControlType="XRTableCell" Name="tableCell96" Weight="1.8352069277965872" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomLeft" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="138" EventName="BeforePrint" PropertyName="Text" Expression="Iif( [DataSource.CurrentRowIndex] = 0,?IkiNm, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="139" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item7>
+                <Item8 Ref="140" ControlType="XRTableCell" Name="tableCell97" Weight="1.592494840385948" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomLeft" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="141" EventName="BeforePrint" PropertyName="Text" Expression="Iif([DataSource.CurrentRowIndex] = 0,?VistLocationCompact, '')&#xA;" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="142" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item8>
+                <Item9 Ref="143" ControlType="XRTableCell" Name="tableCell98" Weight="0.4499326698198115" CanGrow="false" Multiline="true" Text="対面" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="144" UseFont="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="145" ControlType="XRTableCell" Name="tableCell99" Weight="0.53958363237838236" CanGrow="false" Multiline="true" Text="9(有・無)" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="146" UseFont="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="147" ControlType="XRTableCell" Name="tableCell100" Weight="0.39569411576638619" CanGrow="false" Multiline="true" Text="tableCell100" />
+                <Item12 Ref="148" ControlType="XRTableCell" Name="tableCell101" Weight="0.61449093598383786" CanGrow="false" Multiline="true" Text="tableCell101" />
+                <Item13 Ref="149" ControlType="XRTableCell" Name="tableCell102" Weight="0.44993337323465771" CanGrow="false" Multiline="true" Text="tableCell102" TextAlignment="MiddleCenter" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="150" UseFont="false" UseTextAlignment="false" />
+                </Item13>
+                <Item14 Ref="151" ControlType="XRTableCell" Name="tableCell103" Weight="0.50361068396128128" CanGrow="false" Multiline="true" Text="tableCell103" />
+                <Item15 Ref="152" ControlType="XRTableCell" Name="tableCell104" Weight="0.39625472355968511" CanGrow="false" Multiline="true" Text="tableCell104" />
+                <Item16 Ref="153" ControlType="XRTableCell" Name="tableCell105" Weight="0.64990394455206313" CanGrow="false" Multiline="true" Text="tableCell105" />
+                <Item17 Ref="154" ControlType="XRTableCell" Name="tableCell106" Weight="0.44993020939967021" CanGrow="false" Multiline="true" Text="対面" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="155" UseFont="false" UseTextAlignment="false" />
+                </Item17>
+                <Item18 Ref="156" ControlType="XRTableCell" Name="tableCell107" Weight="0.53958433808366835" CanGrow="false" Multiline="true" Text="9(有・無)" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="157" UseFont="false" UseTextAlignment="false" />
+                </Item18>
+                <Item19 Ref="158" ControlType="XRTableCell" Name="tableCell108" Weight="0.36028218955361718" CanGrow="false" Multiline="true" />
+                <Item20 Ref="159" ControlType="XRTableCell" Name="tableCell109" Weight="0.6499040985168586" CanGrow="false" Multiline="true" />
+                <Item21 Ref="160" ControlType="XRTableCell" Name="tableCell110" Weight="1.6132949609347262" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="BottomLeft" Font="MS PGothic, 5pt" Padding="2,2,0,2,100" Borders="Left, Right, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="161" EventName="BeforePrint" PropertyName="Text" Expression="Iif([DataSource.CurrentRowIndex] = 0,?TouSkouKNm, '')" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="162" UseFont="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                </Item21>
+                <Item22 Ref="163" ControlType="XRTableCell" Name="tableCell111" Weight="0.55099636442953537" CanGrow="false" Multiline="true" />
+                <Item23 Ref="164" ControlType="XRTableCell" Name="tableCell112" Weight="0.64406993995152972" CanGrow="false" Multiline="true" />
+              </Cells>
+            </Item3>
+            <Item4 Ref="165" ControlType="XRTableRow" Name="tableRow10" Weight="0.46874859419729825">
+              <Cells>
+                <Item1 Ref="166" ControlType="XRTableCell" Name="tableCell136" Weight="0.2757543341523101" CanGrow="false" Multiline="true" />
+                <Item2 Ref="167" ControlType="XRTableCell" Name="tableCell137" Weight="1.399790795784517" CanGrow="false" Multiline="true" />
+                <Item3 Ref="168" ControlType="XRTableCell" Name="tableCell138" Weight="0.49992488741712315" CanGrow="false" Multiline="true" />
+                <Item4 Ref="169" ControlType="XRTableCell" Name="tableCell139" Weight="0.44993237166397149" CanGrow="false" Multiline="true" />
+                <Item5 Ref="170" ControlType="XRTableCell" Name="tableCell140" Weight="0.41064350021797891" CanGrow="false" Multiline="true" Font="MS PGothic, 8pt">
+                  <StylePriority Ref="171" UseFont="false" />
+                </Item5>
+                <Item6 Ref="172" ControlType="XRTableCell" Name="tableCell141" Weight="0.7663873955791" CanGrow="false" Multiline="true" />
+                <Item7 Ref="173" ControlType="XRTableCell" Name="tableCell142" Weight="1.8352069277965872" CanGrow="false" Multiline="true" />
+                <Item8 Ref="174" ControlType="XRTableCell" Name="tableCell143" Weight="1.592494840385948" CanGrow="false" Multiline="true" />
+                <Item9 Ref="175" ControlType="XRTableCell" Name="tableCell144" Weight="0.4499326698198115" CanGrow="false" Multiline="true" Text="電話" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="176" UseFont="false" UseTextAlignment="false" />
+                </Item9>
+                <Item10 Ref="177" ControlType="XRTableCell" Name="tableCell145" Weight="0.53958434860739646" CanGrow="false" Multiline="true" Text="10(有・無)" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="178" UseFont="false" UseTextAlignment="false" />
+                </Item10>
+                <Item11 Ref="179" ControlType="XRTableCell" Name="tableCell146" Weight="0.39569413139351128" CanGrow="false" Multiline="true" Text="tableCell146" />
+                <Item12 Ref="180" ControlType="XRTableCell" Name="tableCell147" Weight="0.61449096695299665" CanGrow="false" Multiline="true" Text="tableCell147" />
+                <Item13 Ref="181" ControlType="XRTableCell" Name="tableCell148" Weight="0.44993204674540532" CanGrow="false" Multiline="true" Text="電話" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="182" UseFont="false" UseTextAlignment="false" />
+                </Item13>
+                <Item14 Ref="183" ControlType="XRTableCell" Name="tableCell149" Weight="0.50361069873313091" CanGrow="false" Multiline="true" Text="tableCell149" />
+                <Item15 Ref="184" ControlType="XRTableCell" Name="tableCell150" Weight="0.39625527245178965" CanGrow="false" Multiline="true" Text="tableCell150" />
+                <Item16 Ref="185" ControlType="XRTableCell" Name="tableCell151" Weight="0.64990394455206313" CanGrow="false" Multiline="true" Text="tableCell151" />
+                <Item17 Ref="186" ControlType="XRTableCell" Name="tableCell152" Weight="0.44993265044062458" CanGrow="false" Multiline="true" Text="電話" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="187" UseFont="false" UseTextAlignment="false" />
+                </Item17>
+                <Item18 Ref="188" ControlType="XRTableCell" Name="tableCell153" Weight="0.539581417546125" CanGrow="false" Multiline="true" Text="10(有・無)" TextAlignment="MiddleCenter" Font="MS PGothic, 5pt">
+                  <StylePriority Ref="189" UseFont="false" UseTextAlignment="false" />
+                </Item18>
+                <Item19 Ref="190" ControlType="XRTableCell" Name="tableCell154" Weight="0.36028270719147104" CanGrow="false" Multiline="true" />
+                <Item20 Ref="191" ControlType="XRTableCell" Name="tableCell155" Weight="0.64990406037559412" CanGrow="false" Multiline="true" />
+                <Item21 Ref="192" ControlType="XRTableCell" Name="tableCell156" Weight="1.613294960934726" CanGrow="false" Multiline="true" />
+                <Item22 Ref="193" ControlType="XRTableCell" Name="tableCell157" Weight="0.55099636442953537" CanGrow="false" Multiline="true" />
+                <Item23 Ref="194" ControlType="XRTableCell" Name="tableCell158" Weight="0.64406993995152972" CanGrow="false" Multiline="true" />
+              </Cells>
+            </Item4>
+          </Rows>
+          <StylePriority Ref="195" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+        </Item1>
+      </Controls>
+    </Item2>
+    <Item3 Ref="196" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="0" />
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.Sql.SqlDataSource,DevExpress.DataAccess.v20.1" Name="sqlDataSource1" Base64="PFNxbERhdGFTb3VyY2UgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxDb25uZWN0aW9uIE5hbWU9IlNxbERiQ29udGV4dCIgRnJvbUFwcENvbmZpZz0idHJ1ZSIgLz48UXVlcnkgVHlwZT0iU3RvcmVkUHJvY1F1ZXJ5IiBOYW1lPSJQcm9fR2V0SW5mb0hhaWluRHJpdmVfUiI+PFBhcmFtZXRlciBOYW1lPSJAVWtlbm8iIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLlN0cmluZykoP1VrZW5vKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/VW5rUmVuKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFRlaURhbk5vIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5TdHJpbmcpKD9UZWlEYW5Obyk8L1BhcmFtZXRlcj48UGFyYW1ldGVyIE5hbWU9IkBCdW5rUmVuIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5TdHJpbmcpKD9CdW5rUmVuKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQEhhaVNoYVN5dUtvWW1kIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5TdHJpbmcpKD9IYWlTaGFTeXVLb1ltZCk8L1BhcmFtZXRlcj48UGFyYW1ldGVyIE5hbWU9IkBUZW5hbnRDZFNlcSIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/VGVuYW50Q2RTZXEpPC9QYXJhbWV0ZXI+PFByb2NOYW1lPlByb19HZXRJbmZvSGFpaW5Ecml2ZV9SPC9Qcm9jTmFtZT48L1F1ZXJ5PjxSZXN1bHRTY2hlbWE+PERhdGFTZXQgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxWaWV3IE5hbWU9IlByb19HZXRJbmZvSGFpaW5Ecml2ZV9SIiAvPjwvRGF0YVNldD48L1Jlc3VsdFNjaGVtYT48Q29ubmVjdGlvbk9wdGlvbnMgQ2xvc2VDb25uZWN0aW9uPSJ0cnVlIiAvPjwvU3FsRGF0YVNvdXJjZT4=" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

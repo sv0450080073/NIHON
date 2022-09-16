@@ -1,0 +1,184 @@
+﻿@inherits DailyBatchCopyBase
+@using HassyaAllrightCloud.Validation 
+
+<div>
+    <div class="mb-3 search-panel">
+        <div class="row mb-2">
+            <div class="col-6">
+                <h5>@_lang["page_title"]</h5>
+            </div>
+            <div class="col-6 text-right">
+                <button class="btn btn-sm btn-danger" @onclick="() => OnInitData(1)">
+                    <i class="fa fa-refresh" aria-hidden="true"></i> &nbsp;&nbsp;@_lang["clear_btn"]
+                </button>
+            </div>
+        </div>
+        @*<div>
+            <ul class="validation-errors mt-2">
+                @foreach (var item in searchForm.GetValidationMessages().Distinct())
+                {
+                    <li class="validation-message">@_lang[item]</li>
+                }
+            </ul>
+        </div>*@
+        <div id="control-tab" class="title-section border busrepair-accordion-header">
+            <i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;@_lang["SearchConditionTitle"]
+        </div>
+        <div class="border-green focus-form" style="display: none">
+            <EditForm EditContext="@searchForm">
+                <FluentValidator TValidator="DailyBatchCopyValidator" />
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row m-0 mb-2">
+                                    <label class="col-form-label col-3">@_lang["copy_classification"]</label>
+                                    <div class="col-6 pl-0">
+                                        <div class="d-inline-block width--140 radio-item" style="margin-top: 0.4rem">
+                                            <input class="so-radio-icon k-radio" type="radio" id="vehicle" name="vehicle"
+                                                    value="1"
+                                                    checked="@(searchModel.Vehicle)"
+                                                    @onchange="(args => OnRaidoButtonChanged(args, nameof(searchModel.Vehicle)))">
+                                            <label class="so-label-radio k-radio-label" for="drvingorderclassification_type_1">@_lang["vehicle"]</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row m-0 mb-2">
+                                    <label class="col-form-label col-3">@_lang["start_date"]</label>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <DxDateEdit Date="searchModel.StartDate"
+                                                        DateExpression="@(() => searchModel.StartDate)"
+                                                        DateChanged="@(v => OnHandleChanged(v, nameof(searchModel.StartDate)))"
+                                                        DisplayFormat="yyyy/MM/dd"
+                                                        CssClass="w-25"></DxDateEdit>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row m-0">
+                                    <label class="col-form-label col-3">@_lang["copy_item"]</label>
+                                    <div class="col-9">
+                                        <div class="row" style="margin-top: 0.4rem">
+                                            <DxCheckBox Checked="searchModel.IsProcess"
+                                                        CheckedExpression="() => searchModel.IsProcess"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsProcess)))"
+                                                        CssClass="mr-2">@_lang["process"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsArrangement"
+                                                        CheckedExpression="() => searchModel.IsArrangement"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsArrangement)))"
+                                                        CssClass="mr-2">@_lang["arrangement"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsLoadedGoods"
+                                                        CheckedExpression="() => searchModel.IsLoadedGoods"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsLoadedGoods)))"
+                                                        CssClass="mr-2">@_lang["loaded_goods"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsIncidental"
+                                                        CheckedExpression="() => searchModel.IsIncidental"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsIncidental)))">@_lang["incidental"]</DxCheckBox>
+                                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row m-0 mb-2">
+                                    <label class="col-form-label col-3">@_lang["date_type_selection"]</label>
+                                    <div class="col-9 pl-0">
+                                        <button class="@string.Format("btn-option {0}", !searchModel.IsDayOfWeek ? "btn-active" : string.Empty)"
+                                                type="button" @onclick="@(() => searchModel.IsDayOfWeek = false)">
+                                            @_lang["specified_date_btn"]
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row m-0 mb-2">
+                                    <label class="col-form-label col-3"></label>
+                                    <div class="col-9 pl-0">
+                                        <div class="@(string.Format("div-list {0}", searchModel.IsDayOfWeek ? "disabled-element" : string.Empty))">
+                                            @foreach (var date in listDate)
+                                            {
+                                                <div class="div-list-item">@date<i class="fa fa-times close-icon float-right" @onclick="() => OnRemoveDate(date)"></i></div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row m-0 mb-2">
+                                    <label class="col-form-label col-3"></label>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <button class="@string.Format("btn-option {0}", searchModel.IsDayOfWeek ? "btn-active" : string.Empty)"
+                                                    type="button" @onclick="@(() => searchModel.IsDayOfWeek = true)">
+                                                @_lang["day_of_week"]
+                                            </button>
+                                        </div>
+                                        <div class="row" style="margin-top: 0.4rem">
+                                            <DxCheckBox Checked="searchModel.IsMonday"
+                                                        CheckedExpression="() => searchModel.IsMonday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsMonday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["monday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsTuesday"
+                                                        CheckedExpression="() => searchModel.IsTuesday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsTuesday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["tuesday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsWebnesday"
+                                                        CheckedExpression="() => searchModel.IsWebnesday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsWebnesday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["wednesday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsThursday"
+                                                        CheckedExpression="() => searchModel.IsThursday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsThursday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["thursday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsFriday"
+                                                        CheckedExpression="() => searchModel.IsFriday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsFriday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["friday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsSaturday"
+                                                        CheckedExpression="() => searchModel.IsSaturday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsSaturday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["saturday"]</DxCheckBox>
+                                            <DxCheckBox Checked="searchModel.IsSunday"
+                                                        CheckedExpression="() => searchModel.IsSunday"
+                                                        CheckedChanged="@(v => OnHandleChanged(v, nameof(searchModel.IsSunday)))"
+                                                        CssClass="mr-2"
+                                                        Enabled="searchModel.IsDayOfWeek">@_lang["sunday"]</DxCheckBox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row m-0">
+                                    <label class="col-form-label col-3">@_lang["repeated_end"]</label>
+                                    <div class="col-9 pl-0">
+                                        <div class="has-tooltip-error w-25">
+                                            <Tooltip ValueExpressions="@(() => searchModel.RepeatEnd)"
+                                                     Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                            <DxDateEdit Date="searchModel.RepeatEnd"
+                                                        DateExpression="@(() => searchModel.RepeatEnd)"
+                                                        DateChanged="@(v => OnHandleChanged(v, nameof(searchModel.RepeatEnd)))"
+                                                        DisplayFormat="yyyy/MM/dd"
+                                                        ReadOnly="@(!searchModel.IsDayOfWeek)"></DxDateEdit>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+            <div class="row">
+                <div class="col-12 text-center mt-2 mb-3">
+                    <button class="btn btn-sm width--100 btn-primary" @onclick="@(async () => await OnCopy())">
+                        @_lang["copy_btn"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="m-0" style="display: flex; flex: 1; flex-direction: column">
+    <div style="display: flex; flex: 1; flex-direction: column">
+        <HassyaAllrightCloud.Pages.Components.DailyBatchCopy.ListData listData="listData" RemoveItem="OnRemoveItem"></HassyaAllrightCloud.Pages.Components.DailyBatchCopy.ListData>
+    </div>
+</div>
+<HassyaAllrightCloud.Pages.Components.MessageBox IsShow="isShow" Type="type" EventCallback="OnCloseMessageBox" Message="@message"></HassyaAllrightCloud.Pages.Components.MessageBox>

@@ -1,0 +1,128 @@
+﻿@using HassyaAllrightCloud.Commons
+@inherits AvailabilityCheckBase
+@layout SPLayout
+<div class="availability-check">
+    <div class="d-flex justify-content-between bg-primary custom-py">
+        <button class="btn btn-sm bg-white ml-3 custom-btn-radius custom-btn-height" @onclick="CurrentDateClick">@lang["current-btn"]</button>
+        <div id="expept-date-picker">
+            <DxDateEdit Date="@SelectedDate"
+                        DateChanged="async v => await SelectedDateChanged(v)"
+                        DateExpression="() => SelectedDate"
+                        ScrollPickerFormat="@DateTimeFormat.yyyyMMddSlash"
+                        DisplayFormat="@DateTimeFormat.yyyyMMddSlash"
+                        Format="@DateTimeFormat.yyyyMMddSlash"
+                        NullText="@DateTimeFormat.yyyyMMddSlash"
+                        PickerDisplayMode="DatePickerDisplayMode.Calendar"></DxDateEdit>
+        </div>
+        <button class="btn btn-sm bg-white mr-3 custom-btn-radius custom-btn-size" @onclick="RefreshClick"><i class="fa fa-rotate-left"></i></button>
+    </div>
+    <div class="d-flex justify-content-between custom-py" style="background-color: #EBEFF9">
+        <p class="mt-auto mb-auto ml-3">@(string.Format(lang["month-year-format"], DaysOf2Weeks.First().Year, DaysOf2Weeks.First().Month))</p>
+        <div>
+            <button class="btn btn-sm bg-white mr-2 custom-btn-radius custom-btn-size" @onclick="PreviousClick"><i class="fa fa-angle-left"></i></button>
+            <button class="btn btn-sm bg-white mr-3 custom-btn-radius custom-btn-size" @onclick="NextClick"><i class="fa fa-angle-right"></i></button>
+        </div>
+    </div>
+    <div class="mt-3 d-flex flex-column flex-1">
+        <div class="ml-3 mr-3 flex-column d-flex flex-1">
+            <div class="bus-info h-50 flex-column d-flex flex-1">
+                <div class="d-flex justify-content-between">
+                    @foreach (var date in DaysOf2Weeks)
+                    {
+                        <div class="custom-col @GetDayClass(date)">@date.Day</div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between">
+                    @foreach (var date in DaysOf2Weeks)
+                    {
+                        <div class="custom-col @GetDayClass(date)">@date.ToString("ddd")</div>
+                    }
+                </div>
+                <div class="mr-3 mt-3">
+                    <div>@lang["empty-bus"]</div>
+                </div>
+                <div class="d-flex justify-content-between my-3 flex-1">
+                    @foreach (var busInfo in BusInfos)
+                    {
+                        <div class="full" @onclick="e => ShowPopup(e, busInfo, null)" @onmousedown="e => MouseDown()" @onmouseup="e => MouseUp(busInfo.DateSelected)">
+                            <div style="top: @GetHeightForBus(busInfo)" class="used @(Sbi == busInfo ? "col-active" : string.Empty)">
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="driver-info h-50 h-50 flex-column d-flex flex-1">
+                <div>
+                    <div>@lang["empty-driver"]</div>
+                </div>
+                <div class="d-flex justify-content-between my-3 flex-1">
+                    @foreach (var driver in DriverInfos)
+                    {
+                        <div class="full" @onclick="e => ShowPopup(e, null, driver)" @onmousedown="e => MouseDown()" @onmouseup="e => MouseUp(driver.DateSelected)">
+                            <div style="top: @GetHeightForDriver(driver)" class="used @(Sdi == driver ? "col-active" : string.Empty)">
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between">
+                    @foreach (var date in DaysOf2Weeks)
+                    {
+                        <div class="custom-col @GetDayClass(date)">@date.Day</div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between">
+                    @foreach (var date in DaysOf2Weeks)
+                    {
+                        <div class="custom-col @GetDayClass(date)">@date.ToString("ddd")</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="availability-check-detail-popup" id="availability-check-detail-popup" style="@CustomStyle">
+        @if (Sbi != null)
+        {
+            <table class="border-black">
+                <tr>
+                    <td rowspan="3">@lang["empty-bus"]:</td>
+                    <td class="@(Sbi.LargeBusCount - Sbi.InUseLargeBusCount < 0 ? "text-danger" : string.Empty)">@(Sbi.LargeBusCount - Sbi.InUseLargeBusCount)台</td>
+                    <td>大型</td>
+                    <td>@string.Format("({0}/{1})", Sbi.InUseLargeBusCount, Sbi.LargeBusCount)</td>
+                </tr>
+                <tr>
+                    <td class="@(Sbi.MediumBusCount - Sbi.InUseMediumBusCount < 0 ? "text-danger" : string.Empty)">@(Sbi.MediumBusCount - Sbi.InUseMediumBusCount)台</td>
+                    <td>中型</td>
+                    <td>@string.Format("({0}/{1})", Sbi.InUseMediumBusCount, Sbi.MediumBusCount)</td>
+                </tr>
+                <tr>
+                    <td class="@(Sbi.SmallBusCount - Sbi.InUseSmallBusCount < 0 ? "text-danger" : string.Empty)">@(Sbi.SmallBusCount - Sbi.InUseSmallBusCount)台</td>
+                    <td>小型</td>
+                    <td>@string.Format("({0}/{1})", Sbi.InUseSmallBusCount, Sbi.SmallBusCount)</td>
+                </tr>
+            </table>
+        }
+        else if (Sdi != null)
+        {
+            <table class="border-black">
+                <tr>
+                    <td rowspan="3">@lang["empty-bus"]:</td>
+                    <td>大型</td>
+                    <td class="@(Sdi.LargeDriverCount - Sdi.AbsenceLargeDriverCount < 0 ? "text-danger" : string.Empty)">@(Sdi.LargeDriverCount - Sdi.AbsenceLargeDriverCount)人</td>
+                    <td>@string.Format("({0}/{1})", Sdi.AbsenceLargeDriverCount, Sdi.LargeDriverCount)</td>
+                </tr>
+                <tr>
+                    <td>中型</td>
+                    <td class="@(Sdi.MediumDriverCount - Sdi.AbsenceMediumDriverCount < 0 ? "text-danger" : string.Empty)">@(Sdi.MediumDriverCount - Sdi.AbsenceMediumDriverCount)人</td>
+                    <td>@string.Format("({0}/{1})", Sdi.AbsenceMediumDriverCount, Sdi.MediumDriverCount)</td>
+                </tr>
+                <tr>
+                    <td>小型</td>
+                    <td class="@(Sdi.SmallDriverCount - Sdi.AbsenceSmallDriverCount < 0 ? "text-danger" : string.Empty)">@(Sdi.SmallDriverCount - Sdi.AbsenceSmallDriverCount)人</td>
+                    <td>@string.Format("({0}/{1})", Sdi.AbsenceSmallDriverCount, Sdi.SmallDriverCount)</td>
+                </tr>
+            </table>
+        }
+    </div>
+</div>
+

@@ -1,0 +1,152 @@
+﻿@using HassyaAllrightCloud.Domain.Dto.BookingInputData
+@inject IUpdateBookingInputService UpdateBookingInputService
+@inject IStringLocalizer<Components.EditBookingComponent.RemoveBusPopUp> Lang
+@inject CustomHttpClient Http
+@inject AppSettingsService appsettings
+@inject IErrorHandlerService ErrorService
+
+<div>
+    @if (Buses != null && Buses.Count != 0 && !isLoading)
+    {
+        @foreach (var syasyu in Buses.Select(b => b.SyaSyuRen).Distinct())
+        {
+            var remain = SyaSyuRenRemoveLimitation[syasyu] - Buses.Where(b => b.SyaSyuRen == syasyu && b.IsSelect).Count();
+            <div>@Lang["RemainRemoveBus"]: @remain</div>
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">@Lang["Check"]</th>
+                        <th scope="col">@Lang["GoSya"]</th>
+                        <th scope="col">@Lang["StartEnd"]</th>
+                        <th scope="col">@Lang["SyasyuNm"]</th>
+                        <th scope="col">@Lang["BranchNm"]</th>
+                        <th scope="col">@Lang["SyaRyoNm"]</th>
+                        <th scope="col">@Lang["HasTsukomi"]</th>
+                        <th scope="col">@Lang["HasFutai"]</th>
+                        <th scope="col">@Lang["HasBorrow"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bus in Buses.Where(b => b.SyaSyuRen == syasyu).OrderBy(b => b.TeidanNo))
+                    {
+                        <tr>
+                            <td scope="col">
+                                <DxCheckBox Checked="bus.IsSelect"
+                                            CheckedChanged="@((e) => OnCheckboxOfSelectBus(e, bus))" Enabled="@(SyaSyuRenDisableLimitation[syasyu] || bus.IsSelect)" />
+                            </td>
+                            <td scope="col">@bus.GoSya</td>
+                            <td scope="col">@(bus.GetStartEnd(Lang["CultureInfo"]))</td>
+                            <td scope="col">@bus.SyaSyuNm</td>
+                            <td scope="col">@(bus.IsBorrow ? bus.BorrowBranch : bus.BranchName)</td>
+                            <td scope="col">@bus.SyaRyoNm</td>
+                            <td scope="col">@bus.Tsukomi</td>
+                            <td scope="col">@bus.Futai</td>
+                            <td scope="col">@bus.HasBorrow</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+    else
+    {
+        <div class="loader">
+            <div class="loader-icon"></div>
+        </div>
+    }
+</div>
+<div class="text-center">
+    <button class="btn btn-primary" @onclick="ProcessRemoveCar" disabled="@isDisableExcuteBtn">@Lang["execute_btn"]</button>
+    <button class="btn btn-danger" @onclick="CancelRemoveCar">@Lang["cancel_btn"]</button>
+</div>
+
+@code {
+    [CascadingParameter] public BookingFormData Bookingdata { get; set; }
+    [Parameter] public EventCallback<bool> HandleRemoveBus { get; set; }
+    private List<HaishaInfoData> Buses { get; set; }
+    private string baseUrl { get; set; }
+    private bool isLoading { get; set; } = true;
+    private List<HaishaInfoData> AllBuses { get; set; }
+    private List<HaishaInfoData> BusesRemovedBySyaSyuRen { get; set; } = new List<HaishaInfoData>();
+    private Dictionary<short, int> SyaSyuRenRemoveLimitation { get; set; } = new Dictionary<short, int>();
+    private Dictionary<short, bool> SyaSyuRenDisableLimitation { get; set; } = new Dictionary<short, bool>();
+    private bool isDisableExcuteBtn { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitialComponent();
+        await base.OnInitializedAsync().ContinueWith((t) => { isLoading = false; });
+        StateHasChanged();
+    }
+
+    public void OnCheckboxOfSelectBus(bool value, HaishaInfoData bus)
+    {
+        bus.IsSelect = value;
+        SyaSyuRenDisableLimitation[bus.SyaSyuRen] = !(Buses.Where(b => b.SyaSyuRen == bus.SyaSyuRen && b.IsSelect).Count() >= SyaSyuRenRemoveLimitation[bus.SyaSyuRen]);
+        isDisableExcuteBtn = !(SyaSyuRenRemoveLimitation.Sum(s => s.Value) == Buses.Where(b => b.IsSelect).Count());
+        StateHasChanged();
+    }
+
+    public void ProcessRemoveCar()
+    {
+        Bookingdata.ListToRemove = Buses.Where(b => b.IsSelect).Union(BusesRemovedBySyaSyuRen).ToList();
+        HandleRemoveBus.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    public void CancelRemoveCar()
+    {
+        Bookingdata.ListToRemove = new List<HaishaInfoData>();
+        HandleRemoveBus.InvokeAsync(false);
+        StateHasChanged();
+    }
+
+    public async Task InitialComponent()
+    {
+        baseUrl = appsettings.GetBaseUrl();
+        if (Bookingdata.UkeNo != null)
+        {
+            AllBuses = await UpdateBookingInputService.GetHaishaInfoDatas(Bookingdata.UkeNo, Bookingdata.UnkRen);
+            await CalculateRemoveRow();
+            StateHasChanged();
+        }
+    }
+
+    public async Task CalculateRemoveRow()
+    {
+        BookingFormData currentData = new BookingFormData();
+        try
+        {
+            currentData = await Http.GetJsonAsync<BookingFormData>(baseUrl + "/api/BookingInput/" + Bookingdata.UkeNo);
+            var currentSyaSyuRen = currentData.VehicleGridDataList.Select(v => v.RowID);
+            var newSyaSyuRen = Bookingdata.VehicleGridDataList.Select(v => v.RowID);
+            var removeSyaSyuRen = currentSyaSyuRen.Except(newSyaSyuRen);
+            foreach (var row in Bookingdata.VehicleGridDataList.Select(v => v.RowID))
+            {
+                var newBusNum = Bookingdata.VehicleGridDataList.FirstOrDefault(v => v.RowID == row).BusNum;
+                var currentBusNum = currentData.VehicleGridDataList.FirstOrDefault(v => v.RowID == row)?.BusNum ?? newBusNum;
+                if (int.Parse(newBusNum) < int.Parse(currentBusNum))
+                {
+                    SyaSyuRenRemoveLimitation[short.Parse(row)] = int.Parse(currentBusNum) - int.Parse(newBusNum);
+                    SyaSyuRenDisableLimitation[short.Parse(row)] = true;
+                }
+            }
+            var selectSyaSyuRen = SyaSyuRenRemoveLimitation.Keys.ToList();
+            BusesRemovedBySyaSyuRen = AllBuses.Where(b => removeSyaSyuRen.Contains(b.SyaSyuRen.ToString())).ToList();
+            Buses = AllBuses.Except(BusesRemovedBySyaSyuRen).Where(b => selectSyaSyuRen.Contains(b.SyaSyuRen)).ToList();
+
+        }
+        catch (Exception ex)
+        {
+            CancelRemoveCar();
+            throw;
+        }
+    }
+
+    public async Task OpenPopup()
+    {
+        isLoading = true;
+        await InitialComponent().ContinueWith((t) => { isLoading = false; });
+        await InvokeAsync(StateHasChanged);
+    }
+}

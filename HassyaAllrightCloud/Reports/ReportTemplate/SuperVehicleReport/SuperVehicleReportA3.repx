@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="SuperVehicleReportA3" Landscape="true" Margins="100, 100, 89, 1" PaperKind="A3" PageWidth="1654" PageHeight="1169" Version="20.1" DataSource="#Ref-0">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="88.8888855">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label76" Multiline="true" Text=" : " SizeF="12.7221222,15.0000038" LocationFloat="103.760277,47.9166679" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="4" UseFont="false" />
+        </Item1>
+        <Item2 Ref="5" ControlType="XRPageInfo" Name="pageInfo1" TextFormatString="{0}/{1} ページ" SizeF="120.553284,17.9999886" LocationFloat="1323.4469,21.16667" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="6" UseFont="false" />
+        </Item2>
+        <Item3 Ref="7" ControlType="XRLabel" Name="label3" Multiline="true" Text="配車年月日 " SizeF="93.7603455,15.0000076" LocationFloat="9.999932,47.9166679" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="8" UseFont="false" />
+        </Item3>
+        <Item4 Ref="9" ControlType="XRLabel" Name="label1" Multiline="true" Text="車輌一覧" TextAlignment="MiddleCenter" SizeF="117.92334,18" LocationFloat="631.973267,21.1666737" Font="MS PGothic, 16pt, style=Bold, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="10" UseFont="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="11" ControlType="XRLabel" Name="label18" Multiline="true" SizeF="120.553284,17.9999886" LocationFloat="1179.63159,21.1666813" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="12" EventName="BeforePrint" PropertyName="Text" Expression="[CurrentDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="13" UseFont="false" />
+        </Item5>
+        <Item6 Ref="14" ControlType="XRLabel" Name="label20" Multiline="true" SizeF="83.47236,15" LocationFloat="220.954559,47.9166679" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="15" EventName="BeforePrint" PropertyName="Text" Expression="[DispatchDateTo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="16" UseFont="false" />
+        </Item6>
+        <Item7 Ref="17" ControlType="XRLabel" Name="label19" Multiline="true" TextAlignment="TopCenter" SizeF="16,15.0000038" LocationFloat="199.954742,47.9166679" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="18" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([DispatchDateFrom]) Or Not IsNullOrEmpty([DispatchDateTo]), '～', '')&#xA;&#xA;" />
+          </ExpressionBindings>
+          <StylePriority Ref="19" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="20" ControlType="XRLabel" Name="label17" Multiline="true" SizeF="83.47236,14.9999962" LocationFloat="116.482376,47.9166679" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="21" EventName="BeforePrint" PropertyName="Text" Expression="[DispatchDateFrom]" />
+          </ExpressionBindings>
+          <StylePriority Ref="22" UseFont="false" />
+        </Item8>
+        <Item9 Ref="23" ControlType="XRLabel" Name="label7" Multiline="true" SizeF="83.47236,15" LocationFloat="586.166565,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="24" EventName="BeforePrint" PropertyName="Text" Expression="[ArrivalDateFrom]" />
+          </ExpressionBindings>
+          <StylePriority Ref="25" UseFont="false" />
+        </Item9>
+        <Item10 Ref="26" ControlType="XRLabel" Name="label6" Multiline="true" TextAlignment="TopCenter" SizeF="16,15.0000038" LocationFloat="669.639,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="27" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([DispatchDateFrom]) Or Not IsNullOrEmpty([DispatchDateTo]), '～', '')&#xA;&#xA;" />
+          </ExpressionBindings>
+          <StylePriority Ref="28" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="29" ControlType="XRLabel" Name="label5" Multiline="true" SizeF="83.47236,15" LocationFloat="685.639,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="30" EventName="BeforePrint" PropertyName="Text" Expression="[ArrivalDateTo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="31" UseFont="false" />
+        </Item11>
+        <Item12 Ref="32" ControlType="XRLabel" Name="label4" Multiline="true" Text="到着年月日" SizeF="82.09259,15.0000114" LocationFloat="489.4906,47.9166451" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="33" UseFont="false" />
+        </Item12>
+        <Item13 Ref="34" ControlType="XRLabel" Name="label2" Multiline="true" Text=" : " SizeF="12.7221222,15.0000038" LocationFloat="573.4446,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="35" UseFont="false" />
+        </Item13>
+        <Item14 Ref="36" ControlType="XRLabel" Name="label12" Multiline="true" SizeF="83.47236,15" LocationFloat="1031.84265,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="37" EventName="BeforePrint" PropertyName="Text" Expression="[ReceiptDateFrom]" />
+          </ExpressionBindings>
+          <StylePriority Ref="38" UseFont="false" />
+        </Item14>
+        <Item15 Ref="39" ControlType="XRLabel" Name="label11" Multiline="true" TextAlignment="TopCenter" SizeF="16,15.0000038" LocationFloat="1115.315,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="40" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([DispatchDateFrom]) Or Not IsNullOrEmpty([DispatchDateTo]), '～', '')&#xA;&#xA;" />
+          </ExpressionBindings>
+          <StylePriority Ref="41" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="42" ControlType="XRLabel" Name="label10" Multiline="true" SizeF="83.47236,15" LocationFloat="1131.315,47.9166527" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="43" EventName="BeforePrint" PropertyName="Text" Expression="[ReceiptDateTo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="44" UseFont="false" />
+        </Item16>
+        <Item17 Ref="45" ControlType="XRLabel" Name="label9" Multiline="true" Text="予約年月日 " SizeF="85.27765,15.0000114" LocationFloat="931.98175,47.9166451" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="46" UseFont="false" />
+        </Item17>
+        <Item18 Ref="47" ControlType="XRLabel" Name="label8" Multiline="true" Text=" : " SizeF="12.7221222,15.0000038" LocationFloat="1019.12036,47.9166527" Font="MS PGothic, 7pt, charSet=0" Padding="2,2,0,0,100">
+          <StylePriority Ref="48" UseFont="false" />
+        </Item18>
+      </Controls>
+    </Item1>
+    <Item2 Ref="49" ControlType="DetailBand" Name="detailBand1" HeightF="0" />
+    <Item3 Ref="50" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="0.8525001" />
+    <Item4 Ref="51" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="ListData" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="52" ControlType="DetailBand" Name="Detail" HeightF="39.7959747">
+          <Controls>
+            <Item1 Ref="53" ControlType="XRTable" Name="table2" SizeF="1454,39.3" LocationFloat="0,0" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,96">
+              <Rows>
+                <Item1 Ref="54" ControlType="XRTableRow" Name="tableRow2" Weight="1.571999969482422">
+                  <Cells>
+                    <Item1 Ref="55" ControlType="XRTableCell" Name="tableCell14" Weight="1.2092397441217593" Multiline="true" Text="tableCell14" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Left, Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="56" ControlType="XRLabel" Name="label29" Multiline="true" TextAlignment="MiddleLeft" SizeF="114.176964,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="57" EventName="BeforePrint" PropertyName="Text" Expression="[UkeNo]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="58" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="59" ControlType="XRLabel" Name="label30" Multiline="true" TextAlignment="MiddleLeft" SizeF="114.176964,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="60" EventName="BeforePrint" PropertyName="Text" Expression="[ReserveClassification]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="61" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="62" ControlType="XRLabel" Name="label31" Multiline="true" TextAlignment="MiddleLeft" SizeF="114.176964,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="63" EventName="BeforePrint" PropertyName="Text" Expression="[ReceptionDate]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="64" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="65" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="66" ControlType="XRTableCell" Name="tableCell15" Weight="2.0149233198493168" Multiline="true" Text="tableCell15" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="67" ControlType="XRLabel" Name="label13" Multiline="true" TextAlignment="MiddleLeft" SizeF="190.249969,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="68" EventName="BeforePrint" PropertyName="Text" Expression="[Customer]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="69" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="70" ControlType="XRLabel" Name="label14" Multiline="true" TextAlignment="MiddleLeft" SizeF="190.249969,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="71" EventName="BeforePrint" PropertyName="Text" Expression="[Organization]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="72" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="73" ControlType="XRLabel" Name="label15" Multiline="true" TextAlignment="MiddleLeft" SizeF="190.249969,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="74" EventName="BeforePrint" PropertyName="Text" Expression="[Organization2]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="75" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="76" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="77" ControlType="XRTableCell" Name="tableCell16" Weight="1.9599951291695394" Multiline="true" Text="tableCell16" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="78" ControlType="XRLabel" Name="label16" Multiline="true" TextAlignment="MiddleLeft" SizeF="185.063629,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="79" EventName="BeforePrint" PropertyName="Text" Expression="[Dispatch]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="80" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="81" ControlType="XRLabel" Name="label21" Multiline="true" TextAlignment="MiddleLeft" SizeF="185.063629,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="82" EventName="BeforePrint" PropertyName="Text" Expression="[Arrival]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="83" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="84" ControlType="XRLabel" Name="label22" Multiline="true" TextAlignment="MiddleLeft" SizeF="185.063629,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="85" EventName="BeforePrint" PropertyName="Text" Expression="[Destination]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="86" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="87" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="88" ControlType="XRTableCell" Name="tableCell12" Weight="1.6361044571222909" Multiline="true" Text="tableCell12" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="89" ControlType="XRLabel" Name="label23" Multiline="true" TextAlignment="MiddleLeft" SizeF="154.48172,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="90" EventName="BeforePrint" PropertyName="Text" Expression="[ExitingDate]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="91" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="92" ControlType="XRLabel" Name="label24" Multiline="true" TextAlignment="MiddleLeft" SizeF="154.48172,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="93" EventName="BeforePrint" PropertyName="Text" Expression="[EnteringDate]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="94" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="95" ControlType="XRLabel" Name="label25" Multiline="true" TextAlignment="MiddleLeft" SizeF="154.48172,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="96" EventName="BeforePrint" PropertyName="Text" Expression="[OfficeAddress]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="97" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="98" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="99" ControlType="XRTableCell" Name="tableCell18" Weight="1.4862467093767946" Multiline="true" Text="tableCell18" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="100" ControlType="XRLabel" Name="label26" Multiline="true" TextAlignment="MiddleLeft" SizeF="140.332092,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="101" EventName="BeforePrint" PropertyName="Text" Expression="[SyaSyuNm]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="102" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="103" ControlType="XRLabel" Name="label27" Multiline="true" TextAlignment="MiddleLeft" SizeF="140.332092,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="104" EventName="BeforePrint" PropertyName="Text" Expression="[BusName]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="105" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="106" ControlType="XRLabel" Name="label28" Multiline="true" TextAlignment="MiddleLeft" SizeF="140.332092,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="107" EventName="BeforePrint" PropertyName="Text" Expression="Iif(Not IsNullOrEmpty([BusNo]), [BusNo] + '号車', '')" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="108" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="109" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="110" ControlType="XRTableCell" Name="tableCell19" Weight="0.9706354889141372" Multiline="true" Text="tableCell19" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="111" ControlType="XRLabel" Name="label34" Multiline="true" TextAlignment="MiddleLeft" SizeF="91.64783,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="112" EventName="BeforePrint" PropertyName="Text" Expression="[VehicleNm]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="113" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="114" ControlType="XRLabel" Name="label35" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="91.64783,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="115" EventName="BeforePrint" PropertyName="Text" Expression="Iif([SyaRyoUnc] != 0 And Not IsNullOrEmpty([SyaRyoUnc]), [SyaRyoUnc], '')" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="116" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="117" ControlType="XRLabel" Name="label36" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="91.64783,13.0000038" LocationFloat="0,26.2999763" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="118" EventName="BeforePrint" PropertyName="Text" Expression="Iif([SyaRyoSyo] != 0 And Not IsNullOrEmpty([SyaRyoSyo]), [SyaRyoSyo], '')" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="119" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="120" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="121" ControlType="XRTableCell" Name="tableCell24" Weight="0.95399909295576069" Multiline="true" Text="tableCell24" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="122" ControlType="XRLabel" Name="label37" Multiline="true" TextAlignment="MiddleLeft" SizeF="90.07703,13" LocationFloat="0,0.0127792358" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="123" EventName="BeforePrint" PropertyName="Text" Expression="[YousyaNm]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="124" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="125" ControlType="XRLabel" Name="label43" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="90.07703,12.9999952" LocationFloat="0,13.3000269" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="126" EventName="BeforePrint" PropertyName="Text" Expression="Iif([YoushaUnc] != 0 And Not IsNullOrEmpty([YoushaUnc]), [YoushaUnc], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="127" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="128" ControlType="XRLabel" Name="label50" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="90.07703,13.0000038" LocationFloat="0,26.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="129" EventName="BeforePrint" PropertyName="Text" Expression="Iif([YoushaSyo] != 0 And Not IsNullOrEmpty([YoushaSyo]), [YoushaSyo], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="130" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="131" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="132" ControlType="XRTableCell" Name="tableCell20" Weight="1.5956777043216308" Multiline="true" Text="tableCell20" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="133" ControlType="XRLabel" Name="label32" Multiline="true" TextAlignment="MiddleLeft" SizeF="150.664612,39.3" LocationFloat="0,0" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="134" EventName="BeforePrint" PropertyName="Text" Expression="Iif([NumberOfDrivers] != 0 ||  [NumberOfGuides] != 0, '運 ' + ToStr([NumberOfDrivers]) + '人／ガ ' +　ToStr([NumberOfGuides]) + '人 ' &#xA;+ [Crew], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="135" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                      </Controls>
+                      <StylePriority Ref="136" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="137" ControlType="XRTableCell" Name="tableCell21" Weight="0.88684134725013131" Multiline="true" Text="tableCell21" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="138" ControlType="XRLabel" Name="label38" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.73596,13" LocationFloat="0,0.0127792358" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="139" EventName="BeforePrint" PropertyName="Text" Expression="Iif([InServiceHighSpeed] != 0 ||  [InServiceKilo] != 0, ToFloat([InServiceHighSpeed]) + ToFloat([InServiceKilo])&#xA;, '')" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="140" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="141" ControlType="XRLabel" Name="label39" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.73596,12.9999952" LocationFloat="0,13.3000059" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="142" EventName="BeforePrint" PropertyName="Text" Expression="Iif([ForwardingeHighSpeed] != 0 ||  [ForwardingKilo] != 0, ToFloat([ForwardingeHighSpeed]) + ToFloat([ForwardingKilo])&#xA;, '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="143" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="144" ControlType="XRLabel" Name="label40" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.73596,13.0000019" LocationFloat="0,26.2999859" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="145" EventName="BeforePrint" PropertyName="Text" Expression="Iif([OtherKilo] != 0 And Not IsNullOrEmpty([OtherKilo]), [OtherKilo], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="146" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                      </Controls>
+                      <StylePriority Ref="147" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="148" ControlType="XRTableCell" Name="tableCell22" Weight="0.91211852345343747" Multiline="true" Text="tableCell22" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="149" ControlType="XRLabel" Name="label41" Multiline="true" TextAlignment="MiddleRight" SizeF="86.12268,13" LocationFloat="0,0.012769537" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="150" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Person] != 0 And Not IsNullOrEmpty([Person]), [Person], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="151" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="152" ControlType="XRLabel" Name="label42" Multiline="true" TextAlignment="MiddleRight" SizeF="86.12268,12.9999981" LocationFloat="0,13.3000069" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="153" EventName="BeforePrint" PropertyName="Text" Expression="Iif([PersonPlus] != 0 And Not IsNullOrEmpty([PersonPlus]), [PersonPlus], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="154" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="155" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="156" ControlType="XRTableCell" Name="tableCell23" Weight="1.7734244419665455" Multiline="true" Text="tableCell23" TextAlignment="MiddleLeft" Font="MS Gothic, 8pt, charSet=0" Borders="Right, Bottom">
+                      <Controls>
+                        <Item1 Ref="157" ControlType="XRLabel" Name="label47" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleLeft" SizeF="57.8487549,12.999999" LocationFloat="109.598755,0.30000183" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="158" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Fuel1Value] != 0 And Not IsNullOrEmpty([Fuel1Value]), [Fuel1Value], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="159" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="160" ControlType="XRLabel" Name="label48" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleLeft" SizeF="57.8487549,12.9999952" LocationFloat="109.598755,13.5872507" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="161" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Fuel2Value] != 0 And Not IsNullOrEmpty([Fuel2Value]), [Fuel2Value], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="162" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                        <Item3 Ref="163" ControlType="XRLabel" Name="label49" TextFormatString="{0:#,##0.00}" Multiline="true" TextAlignment="MiddleLeft" SizeF="57.8487549,13.0000019" LocationFloat="109.598755,26.5872135" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="164" EventName="BeforePrint" PropertyName="Text" Expression="Iif([Fuel3Value] != 0 And Not IsNullOrEmpty([Fuel3Value]), [Fuel3Value], '')&#xA;" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="165" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item3>
+                        <Item4 Ref="166" ControlType="XRLabel" Name="label44" Multiline="true" TextAlignment="MiddleLeft" SizeF="99.59888,13.000001" LocationFloat="0,0.0127814282" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="167" EventName="BeforePrint" PropertyName="Text" Expression="[Fuel1Name]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="168" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item4>
+                        <Item5 Ref="169" ControlType="XRLabel" Name="label45" Multiline="true" TextAlignment="MiddleLeft" SizeF="99.59888,12.9999952" LocationFloat="0,13.3000078" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="170" EventName="BeforePrint" PropertyName="Text" Expression="[Fuel2Name]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="171" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item5>
+                        <Item6 Ref="172" ControlType="XRLabel" Name="label46" Multiline="true" TextAlignment="MiddleLeft" SizeF="99.59888,13" LocationFloat="0,26.3000145" Font="MS PGothic, 8pt, charSet=0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="173" EventName="BeforePrint" PropertyName="Text" Expression="[Fuel3Name]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="174" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                        </Item6>
+                      </Controls>
+                      <StylePriority Ref="175" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item11>
+                  </Cells>
+                </Item1>
+              </Rows>
+              <StylePriority Ref="176" UseFont="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="177" ControlType="ReportHeaderBand" Name="ReportHeader" HeightF="55.46265">
+          <Controls>
+            <Item1 Ref="178" ControlType="XRTable" Name="table1" SizeF="1454,55.46265" LocationFloat="0,0" Padding="2,2,0,0,96">
+              <Rows>
+                <Item1 Ref="179" ControlType="XRTableRow" Name="tableRow1" Weight="1.0670999334006337">
+                  <Cells>
+                    <Item1 Ref="180" ControlType="XRTableCell" Name="tableCell1" Weight="1.2745506409149803" Multiline="true" Text="受付項目" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="All">
+                      <StylePriority Ref="181" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="182" ControlType="XRTableCell" Name="tableCell2" Weight="2.1237491672357929" Multiline="true" Text="得意先名・得意先担当者名&#xD;&#xA;団体名&#xD;&#xA;団体名２" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="183" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="184" ControlType="XRTableCell" Name="tableCell3" Weight="2.0658542877744672" Multiline="true" Text="配車日時・地名&#xD;&#xA;到着日時・地名&#xD;&#xA;行き先名" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="185" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="186" ControlType="XRTableCell" Name="tableCell4" Weight="1.7244702138490848" Multiline="true" Text="出庫日時・営&#xD;&#xA;帰庫日時・営&#xD;&#xA;車輌営" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="187" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="188" ControlType="XRTableCell" Name="tableCell5" Weight="1.5665188031586348" Multiline="true" Text="車種／車号／号車" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="189" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="190" ControlType="XRTableCell" Name="tableCell6" Weight="1.0230592769471854" Multiline="true" Text="車輌項目" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="191" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="192" ControlType="XRTableCell" Name="tableCell10" Weight="1.005524478558514" Multiline="true" Text="傭車項目" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="193" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="194" ControlType="XRTableCell" Name="tableCell7" Weight="1.6818600261214602" Multiline="true" Text="乗車員数／乗務員名" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="195" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="196" ControlType="XRTableCell" Name="tableCell8" Weight="0.93473956575821715" Multiline="true" Text="走行キロ" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="197" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="198" ControlType="XRTableCell" Name="tableCell9" Weight="0.96138236892043327" Multiline="true" Text="乗車人員" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="199" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="200" ControlType="XRTableCell" Name="tableCell11" Weight="1.8692067938163519" Multiline="true" Text="燃料" TextAlignment="MiddleCenter" Font="MS PGothic, 11pt, charSet=0" Borders="Top, Right, Bottom">
+                      <StylePriority Ref="201" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item11>
+                  </Cells>
+                </Item1>
+              </Rows>
+            </Item1>
+          </Controls>
+        </Item2>
+      </Bands>
+    </Item4>
+    <Item5 Ref="202" ControlType="DetailReportBand" Name="DetailReport1" Level="1" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="203" ControlType="DetailBand" Name="Detail1" HeightF="0" />
+        <Item2 Ref="204" ControlType="GroupFooterBand" Name="GroupFooter1" PageBreak="AfterBand" HeightF="40.6944466">
+          <Controls>
+            <Item1 Ref="205" ControlType="XRLabel" Name="label84" Multiline="true" SizeF="131.454468,15.0000019" LocationFloat="1048.17712,25.6944447" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="206" EventName="BeforePrint" PropertyName="Text" Expression="[UserCode]" />
+              </ExpressionBindings>
+              <StylePriority Ref="207" UseFont="false" />
+            </Item1>
+            <Item2 Ref="208" ControlType="XRLabel" Name="label51" Multiline="true" SizeF="274.3683,14.9999943" LocationFloat="1179.63159,25.6944447" Font="MS PGothic, 11pt, charSet=0" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="209" EventName="BeforePrint" PropertyName="Text" Expression="[UserName]" />
+              </ExpressionBindings>
+              <StylePriority Ref="210" UseFont="false" />
+            </Item2>
+          </Controls>
+        </Item2>
+      </Bands>
+    </Item5>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5TdXBlck1lbnVWZWhpY2xlUmVwb3J0UERGLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

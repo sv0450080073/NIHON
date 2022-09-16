@@ -1,0 +1,86 @@
+﻿@inject IBusTypeListReportService BusTypeListReportService
+
+
+<div class="gridBusType__row @ClassCss">
+    <div class="col-name">
+        @if(BusTypeItem != null)
+        { 
+            @BusTypeItem.SyaSyuNmFormat;
+        }
+        else
+        {
+            @BusTypeName
+        }
+    </div>
+    <div class="col-timeline">
+        @if ((ModeLine == ViewModeBusType.BusTypeNormal || ModeLine == ViewModeBusType.SumEmployee) && BusTypeDetailDataRow != null && BusTypeDetailDataRow.Any())
+        {
+            foreach (var item in BusTypeDetailDataRow)
+            {
+                if (ModeLine == ViewModeBusType.BusTypeNormal)
+                {
+                    if (item.Number > BusTypeItem.CountNumberOfVehicle)
+                    {
+                        <div class="col-timeline__item " style="color:red">@item.NumberText</div>
+                    }
+                    else
+                    {
+                        <div class="col-timeline__item">@item.NumberText</div>
+                    }
+                }
+                else
+                {
+                    <div class="col-timeline__item">@item.NumberText</div>
+                }
+
+            }
+        }
+        @if ((ModeLine == ViewModeBusType.BusUnAsign || ModeLine == ViewModeBusType.BusHiring) && BusUnAsignData != null && BusUnAsignData.Any())
+        {
+            @foreach (var item in BusUnAsignData)
+            {
+                <div class="col-timeline__item">@item.NumberOfVehicleText</div>
+            }
+        }
+        @if ((ModeLine == ViewModeBusType.SumVehicle) && BusTypeDetailDataBySizeList != null && BusTypeDetailDataBySizeList.Any())
+        {
+            @foreach (var item in BusTypeDetailDataBySizeList)
+            {
+                <div class="col-timeline__item">@item.NumberText</div>
+            }
+        }
+        @if ((BusUnAsignData == null || !BusUnAsignData.Any()) && (BusTypeDetailDataRow == null || !BusTypeDetailDataRow.Any()) && (BusTypeDetailDataBySizeList == null || !BusTypeDetailDataBySizeList.Any()))
+        {
+            @for (var i = 0; i < number_of_day; i++)
+            {
+                <div class="col-timeline__item"></div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string BusTypeName { get; set; } = "";
+    [Parameter] public string ClassCss { get; set; }
+    [Parameter] public int GridSize { get; set; }
+    [Parameter] public Dictionary<string, string> Lang { get; set; }
+    [Parameter] public BusTypeListData ConditionSearch { get; set; }
+    [Parameter] public List<NumberVehicleOfBusUnAsign> BusUnAsignData { get; set; }
+    [Parameter] public ViewModeBusType ModeLine { get; set; }
+    [Parameter] public List<BusTypeDetailDataReport> BusTypeDetailDataRow { get; set; }
+    [Parameter] public List<BusTypeDetailDataReport> BusTypeDetailDataBySizeList { get; set; }
+    [Parameter] public BusTypeItemDataReport BusTypeItem { get; set; }
+    [Parameter] public int number_of_day { get; set; }
+
+    CultureInfo ci = new CultureInfo("ja-JP");
+
+
+    protected override async void OnParametersSet()
+    {
+    }
+    /* protected override async Task OnInitializedAsync()
+     {
+
+     }*/
+
+}

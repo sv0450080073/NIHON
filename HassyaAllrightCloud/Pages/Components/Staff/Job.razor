@@ -1,0 +1,38 @@
+﻿@inject IBlazorContextMenuService blazorContextMenuService
+
+<div class="editable draggable" style="@Item.CCSStyle" draggable="true" @ondragstart="@(() => HandleDragStart(Item))" @ondrop:stopPropagation @ondrop="HandleDropJob">
+    <div class="time @Item.ColorLine">
+        <div class="data-line text">@Item.DanTaNm</div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    [Parameter] public List<int> ID { get; set; }
+    [Parameter] public JobItem Item { get; set; }
+    DateTime startView, endView, start, end;
+
+    protected override void OnParametersSet()
+    {
+        DateTime.TryParseExact(Item.SyuKoYmd + Item.SyuKoTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out start);
+        DateTime.TryParseExact(Item.KikYmd + Item.KikTime, "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out end);
+        startView = new DateTime(Container.Date.Year, Container.Date.Month, Container.Date.Day, 0, 0, 0);
+        endView = new DateTime(Container.Date.AddDays(1).Year, Container.Date.AddDays(1).Month, Container.Date.AddDays(1).Day, 0, 0, 0);
+    }
+
+    private void HandleDragStart(JobItem selectItem)
+    {
+        Container.Job = selectItem;
+        Container.isSwapJob = true;
+        Container.OnChange();
+    }
+
+    private async Task HandleDropJob()
+    {
+        if (Container.Job == null || ID.Contains(Container.Job.JobID))
+        {
+            return;
+        }
+        await Container.SwapJobAsync(Item.JobID);
+    }
+}

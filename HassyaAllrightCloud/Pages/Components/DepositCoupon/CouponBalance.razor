@@ -1,0 +1,68 @@
+﻿@inherits CouponBalanceBase
+
+<DxPopup CssClass="modal-dialog modal-dialog-centered"
+         @bind-Visible="@isOpenCouponBalancePopUp">
+    <HeaderTemplate>
+        <div class="bg-primary text-white p-2 rounded-top">
+            <span>@Lang["PageTitle"]</span>
+            <a class="close-button text-black float-right mr-2" href="javascript:;" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(e => CloseModal())">✖</a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        @if (couponBalances.Any())
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-bill-wrapper" style="min-height: calc(50vh - 150px);max-height: calc(50vh - 150px);">
+                                    <table class="table-bill-layout table-layout">
+                                        <thead>
+                                            <tr class="header-row">
+                                                <th>@Lang["GridNo"]</th>
+                                                <th>@Lang["GridIssuedDate"]</th>
+                                                <th>@Lang["GridCouponNumber"]</th>
+                                                <th>@Lang["GridFaceValue"]</th>
+                                                <th>@Lang["GridZandaka"]</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var data in couponBalances.Select((value, i) => new { i, value }))
+                                            {
+                                                <tr>
+                                                    <td style="width: 10%" class="text-center">@(data.i + 1)</td>
+                                                    <td style="width: 20%">
+                                                        @string.Format("{0:yyyy/MM/dd}", string.IsNullOrWhiteSpace(data.value.HakoYmd) ? DateTime.Now
+                                                   : DateTime.ParseExact(data.value.HakoYmd, "yyyyMMdd", CultureInfo.CurrentCulture))
+                                                    </td>
+                                                    <td style="width: 20%">@(data.value.CouNo)</td>
+                                                    <td style="width: 25%" class="text-right">@string.Format("{0:#,0}", data.value.CouGkin)</td>
+                                                    <td style="width: 25%" class="text-right">@string.Format("{0:#,0}", data.value.CouZan)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <table class="table-bill-layout table-layout">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 10%;color: white;background-color: #1AB394 !important;">@Lang["Total"]</td>
+                                            <td style="width: 20%"></td>
+                                            <td style="width: 20%"></td>
+                                            <td style="width: 25%" class="text-right">@string.Format("{0:#,0}", couponBalances.Sum(x => x.CouGkin))</td>
+                                            <td style="width: 25%" class="text-right">@string.Format("{0:#,0}", couponBalances.Sum(x => x.CouZan))</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        } else {
+            <p class="text-center" style="color: rgba(255, 0, 0, 0.75);">@Lang["NoData"]</p>
+        }
+    </Content>
+</DxPopup>
+

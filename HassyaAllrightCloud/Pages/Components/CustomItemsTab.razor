@@ -1,0 +1,46 @@
+﻿@using Microsoft.Extensions.DependencyInjection
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inherits OwningComponentBase
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Index> Lang
+@inject CustomNavigation NavManager
+
+<div class="d-flex flex-wrap justify-content-between">
+    @foreach (var field in CustomFieldList)
+    {
+        <CustomInput FieldConfigs="field"
+                    Value="@BookingData.CustomData[field.id.ToString()]"
+                    ValueChanged="@(value => SetData(field.id.ToString(), value))"></CustomInput>
+    }
+</div>
+
+@code {
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [Parameter] public BookingFormData BookingData { get; set; }
+    public List<CustomFieldConfigs> CustomFieldList { get; set; } = new List<CustomFieldConfigs>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customService = ScopedServices.GetRequiredService<ICustomItemService>();
+        CustomFieldList = await customService.GetCustomFieldConfigs(new ClaimModel().TenantID);
+        if (BookingData.CustomData == null)
+        {
+            BookingData.CustomData = new Dictionary<string, string>();
+        }
+        foreach (var field in CustomFieldList)
+        {
+            if (!BookingData.CustomData.ContainsKey(field.id.ToString()))
+            {
+                BookingData.CustomData[field.id.ToString()] = "";
+            }
+        }
+    }
+
+    private void SetData(string fieldId, string value)
+    {
+        BookingData.CustomData[fieldId] = value;
+        CurrentEditContext?.Validate();
+        InvokeAsync(StateHasChanged);
+    }
+}

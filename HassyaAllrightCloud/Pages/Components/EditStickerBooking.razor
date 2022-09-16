@@ -1,0 +1,386 @@
+﻿@inject IStringLocalizer<Sticker> Lang
+
+    <td colspan="@(data.ProcessingDivision == "予約データ" ? 15: 11)" class="p-2">
+        <div class="express-condition my-2">
+            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+                <DxTab Text="@Lang["Sticker"]"></DxTab>
+                <DxTab Text="@Lang["SideSticker"]"></DxTab>
+            </DxTabs>
+            <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+                <div class="card-body py-3">
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">@Lang["CategoryName"]：</label>
+                                <DxComboBox Data="@categorynamelst"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.CategoryName"
+                                            SelectedItemChanged="OnCategoryNameChanged"
+                                            SelectedItemExpression="@(() => data.CategoryName)"
+                                            CssClass="width--130">
+                                </DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">@Lang["Sticker"]：</label>
+                                <textarea class="width--575" rows="3" @bind="@data.Sticker"></textarea>
+                            </div>
+                            <div class="d-flex flex-nowrap">
+                                <div class="mr-4">
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["StickerUsed"]：</label>
+                                        <DxComboBox Data="@stickerusedlst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.StickerUsed"
+                                                    SelectedItemChanged="OnStickerUsedChanged"
+                                                    SelectedItemExpression="@(() => data.StickerUsed)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="d-flex flex-nowrap justify-content-between">
+                                        <div class="form-group d-flex flex-nowrap mr-4">
+                                            <label class="col-form-label-sm width--130">@Lang["NumberOfSheets"]：</label>
+                                            <DxTextBox Text="@data.NumberOfSheets.ToString()"
+                                                       TextChanged="@((newValue) => OnNumberOfSheetsChange(newValue))"
+                                                       TextExpression="@(() => data.NumberOfSheets.ToString())"
+                                                       CssClass="width--90">
+                                            </DxTextBox>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-form-label-sm">@Lang["CarNo"]：</label>
+                                            <DxTextBox Text="@data.CarNo"
+                                                       TextChanged="@((newValue) => OnCarNoChange(newValue))"
+                                                       TextExpression="@(() => data.CarNo)"
+                                                       CssClass="width--90">
+                                            </DxTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["CourseNumber"]：</label>
+                                        <div>
+                                            <DxTextBox Text="@data.CourseNumber"
+                                                       TextChanged="@((newValue) => OnCourseNumberChange(newValue))"
+                                                       TextExpression="@(() => data.CourseNumber)"
+                                                       CssClass="mb-2">
+                                            </DxTextBox>
+                                            <DxButton RenderStyle="@ButtonRenderStyle.Primary"
+                                                      Text="@Lang["Copy"]"
+                                                      CssClass="width--260">
+                                            </DxButton>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontName"]：</label>
+                                        <DxComboBox Data="@fontnamelst"
+                                                    SelectedItem="@data.FontName"
+                                                    SelectedItemChanged="OnFontNameChanged"
+                                                    SelectedItemExpression="@(() => data.FontName)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontStyle"]：</label>
+                                        <DxComboBox Data="@fontstylelst"
+                                                    SelectedItem="@data.FontStyle"
+                                                    SelectedItemChanged="OnFontStyleChanged"
+                                                    SelectedItemExpression="@(() => data.FontStyle)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontSize"]：</label>
+                                        <DxComboBox Data="@fontsizelst"
+                                                    SelectedItem="@data.FontSize"
+                                                    SelectedItemChanged="OnFontSizeChanged"
+                                                    SelectedItemExpression="@(() => data.FontSize)"
+                                                    CssClass="width--90">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontScript"]：</label>
+                                        <DxComboBox Data="@fontscriptlst"
+                                                    SelectedItem="@data.FontScript"
+                                                    SelectedItemChanged="OnFontScriptChanged"
+                                                    SelectedItemExpression="@(() => data.FontScript)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">@Lang["Sample"]：</label>
+                                <textarea class="text-center width--575 " placeholder="Aaあぁアァ亜宇" disabled></textarea>
+                            </div>
+                            <div class="mt-4 d-flex justify-content-center align-items-center">
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Save"]" @onclick="Save"></DxButton>
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Clear"]" @onclick="Clear"></DxButton>
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Close"]" @onclick="Close"></DxButton>
+                            </div>
+                            break;
+                        case 1:
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">&nbsp;</label>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">@Lang["Sticker"]：</label>
+                                <textarea class="width--575" rows="3" @bind="@data.Sticker"></textarea>
+                            </div>
+                            <div class="d-flex flex-nowrap">
+                                <div class="mr-4">
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["StickerUsed"]：</label>
+                                        <DxComboBox Data="@stickerusedlst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.StickerUsed"
+                                                    SelectedItemChanged="OnStickerUsedChanged"
+                                                    SelectedItemExpression="@(() => data.StickerUsed)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="d-flex flex-nowrap justify-content-between">
+                                        <div class="form-group d-flex flex-nowrap mr-4">
+                                            <label class="col-form-label-sm width--130">@Lang["NumberOfSheets"]：</label>
+                                            <DxTextBox Text="@data.NumberOfSheets.ToString()"
+                                                       TextChanged="@((newValue) => OnNumberOfSheetsChange(newValue))"
+                                                       TextExpression="@(() => data.NumberOfSheets.ToString())"
+                                                       CssClass="width--90">
+                                            </DxTextBox>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-form-label-sm">@Lang["CarNo"]：</label>
+                                            <DxTextBox Text="@data.CarNo"
+                                                       TextChanged="@((newValue) => OnCarNoChange(newValue))"
+                                                       TextExpression="@(() => data.CarNo)"
+                                                       CssClass="width--90">
+                                            </DxTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["CourseNumber"]：</label>
+                                        <DxTextBox Text="@data.CourseNumber"
+                                                   TextChanged="@((newValue) => OnCourseNumberChange(newValue))"
+                                                   TextExpression="@(() => data.CourseNumber)"
+                                                   CssClass="width--260">
+                                        </DxTextBox>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontName"]：</label>
+                                        <DxComboBox Data="@fontnamelst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.FontName"
+                                                    SelectedItemChanged="OnFontNameChanged"
+                                                    SelectedItemExpression="@(() => data.FontName)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontStyle"]：</label>
+                                        <DxComboBox Data="@fontstylelst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.FontStyle"
+                                                    SelectedItemChanged="OnFontStyleChanged"
+                                                    SelectedItemExpression="@(() => data.FontStyle)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontSize"]：</label>
+                                        <DxComboBox Data="@fontsizelst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.FontSize"
+                                                    SelectedItemChanged="OnFontSizeChanged"
+                                                    SelectedItemExpression="@(() => data.FontSize)"
+                                                    CssClass="width--90">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130">@Lang["FontScript"]：</label>
+                                        <DxComboBox Data="@fontscriptlst"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.FontScript"
+                                                    SelectedItemChanged="OnFontScriptChanged"
+                                                    SelectedItemExpression="@(() => data.FontScript)"
+                                                    CssClass="width--160">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm width--130">@Lang["Sample"]：</label>
+                                <textarea class="text-center width--575" placeholder="Aaあぁアァ亜宇" disabled></textarea>
+                            </div>
+                            <div class="mt-4 d-flex justify-content-center align-items-center">
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Save"]" @onclick="Save"></DxButton>
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Clear"]" @onclick="Clear"></DxButton>
+                                <DxButton RenderStyle="@ButtonRenderStyle.Primary" CssClass="width--90 mx-2" Text="@Lang["Close"]" @onclick="Close"></DxButton>
+                            </div>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </td>
+
+@code {
+    [Parameter] public StickerData data { get; set; }
+    [Parameter] public List<string> categorynamelst { get; set; }
+    [Parameter] public List<string> stickerusedlst { get; set; }
+    [Parameter] public List<string> fontnamelst { get; set; }
+    [Parameter] public List<string> fontstylelst { get; set; }
+    [Parameter] public List<string> fontsizelst { get; set; }
+    [Parameter] public List<string> fontscriptlst { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public EventCallback<int> OnSubmit { get; set; }
+    [Parameter] public EventCallback<int> OnCancel { get; set; }
+
+    int activeTabIndex = 0;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; StateHasChanged(); } }
+
+    #region Component Lifecycle
+    protected override void OnInitialized()
+    {
+        if (IsEditMode)
+        {
+            // to do
+        }
+        else
+        {
+            data = new StickerData();
+            data.CategoryName = categorynamelst.First();
+            data.StickerUsed = stickerusedlst.First();
+            data.FontName = fontnamelst.First();
+            data.FontStyle = fontstylelst.First();
+            data.FontSize = fontsizelst.First();
+            data.FontScript = fontscriptlst.First();
+        }
+    }
+    #endregion
+
+    #region Value changed methods
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnCategoryNameChanged(string selectedItem)
+    {
+        data.CategoryName = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnStickerUsedChanged(string selectedItem)
+    {
+        data.StickerUsed = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnNumberOfSheetsChange(string newValue)
+    {
+        data.NumberOfSheets = int.Parse(newValue);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnCarNoChange(string newValue)
+    {
+        data.CarNo = newValue;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnCourseNumberChange(string newValue)
+    {
+        data.CourseNumber = newValue;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnFontNameChanged(string selectedItem)
+    {
+        data.FontName = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnFontStyleChanged(string selectedItem)
+    {
+        data.FontStyle = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnFontSizeChanged(string selectedItem)
+    {
+        data.FontSize = selectedItem;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    void OnFontScriptChanged(string selectedItem)
+    {
+        data.FontScript = selectedItem;
+        StateHasChanged();
+    }
+    #endregion
+
+    #region Button Action
+    /// <summary>
+    ///
+    /// </summary>
+    void Save()
+    {        
+        OnSubmit.InvokeAsync(data.Index);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Close()
+    {
+        OnCancel.InvokeAsync(data.Index);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    void Clear()
+    {
+        data = new StickerData();
+        data.CategoryName = categorynamelst.First();
+        data.StickerUsed = stickerusedlst.First();
+        data.FontName = fontnamelst.First();
+        data.FontStyle = fontstylelst.First();
+        data.FontSize = fontsizelst.First();
+        data.FontScript = fontscriptlst.First();
+    }    
+    #endregion
+}

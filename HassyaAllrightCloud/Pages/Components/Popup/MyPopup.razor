@@ -1,0 +1,54 @@
+﻿
+<DxPopup CssClass="custom-popup" Visible="@Model.IsShow">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @Model.Title
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup"
+               @onclick="OnClose">
+            </a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        @switch (Model.IconType)
+        {
+            case MyPopupIconType.Error:
+                <i class="fa fa-2x fa fa-times-circle mr-3" style="color: red" aria-hidden="true"></i>
+                break;
+            case MyPopupIconType.Warning:
+                <i class="fa fa-2x fa-exclamation-triangle text-warning mr-2" aria-hidden="true"></i>
+                break;
+            case MyPopupIconType.Info:
+            default:
+                <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+                break;
+        }
+        @if(ContentBody != null)
+        {
+            @ContentBody
+        }
+        else
+        {
+            @Model.BodyText
+        }
+    </ChildContent>
+    <FooterTemplate>
+        @if (ContentFooter != null)
+        {
+            @ContentFooter
+        }
+        else
+        {
+            @foreach (var item in Model.FooterButtons)
+            {
+                <DxButton RenderStyle="item.ButtonStyle" Text="@item.Text" @onclick="item.OnClick" />
+            }
+        }
+    </FooterTemplate>
+</DxPopup>
+
+@code {
+    [Parameter] public RenderFragment ContentBody { get; set; }
+    [Parameter] public RenderFragment ContentFooter { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public MyPopupModel Model { get; set; }
+}

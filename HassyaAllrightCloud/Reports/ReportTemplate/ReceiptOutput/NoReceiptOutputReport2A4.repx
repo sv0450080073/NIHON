@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="ReceiptOutputReport" Bookmark="ReceiptOutputReport" Margins="24, 19, 0, 1" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="20.1" DataSource="#Ref-0" Font="MS PGothic, 9.75pt">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="0" />
+    <Item2 Ref="3" ControlType="DetailBand" Name="detailBand1" HeightF="530.749939">
+      <Controls>
+        <Item1 Ref="4" ControlType="XRLabel" Name="label9" Multiline="true" TextAlignment="TopRight" SizeF="87.24774,21.9999847" LocationFloat="665.345947,289.722229" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="5" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[TekaSeikyuTouNo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="6" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="7" ControlType="XRPictureBox" Name="pictureBox1" Sizing="StretchImage" ImageAlignment="MiddleCenter" SizeF="106.395081,103.000092" LocationFloat="648.584351,76.80826">
+          <ExpressionBindings>
+            <Item1 Ref="8" EventName="BeforePrint" PropertyName="ImageUrl" Expression="[MainInfoReport].[ComSealImgUrl]" />
+          </ExpressionBindings>
+        </Item2>
+        <Item3 Ref="9" ControlType="XRLabel" Name="label43" Multiline="true" Text="印" TextAlignment="MiddleCenter" SizeF="106.944458,101.141617" LocationFloat="648.584167,77.80827" Padding="2,2,0,0,100" Borders="All">
+          <StylePriority Ref="10" UseBorders="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="11" ControlType="XRLabel" Name="label6" Multiline="true" Text="Paging" SizeF="129.229309,22.9999752" LocationFloat="648.584351,21.3030281" Padding="2,2,0,0,100">
+          <Scripts Ref="12" OnEvaluateBinding="label28_EvaluateBinding" OnPrintOnPage="label28_PrintOnPage_1" />
+          <ExpressionBindings>
+            <Item1 Ref="13" EventName="BeforePrint" PropertyName="Text" Expression="Concat([HeaderResultOutput].[NoPageReceipt], '/', [HeaderResultOutput].[PageSize],' ページ')&#xA;" />
+          </ExpressionBindings>
+        </Item4>
+        <Item5 Ref="14" ControlType="XRLine" Name="line2" SizeF="258.1943,10.0555115" LocationFloat="7.548014,183.808426" />
+        <Item6 Ref="15" ControlType="XRLabel" Name="label26" Multiline="true" Text="011-665-4717" TextAlignment="TopRight" SizeF="87.24774,23" LocationFloat="665.345947,312.414551" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="16" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigFaxNo]" />
+          </ExpressionBindings>
+          <StylePriority Ref="17" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="18" ControlType="XRLabel" Name="label27" Multiline="true" Text="〒335-0012" SizeF="76.03531,23" LocationFloat="506.5489,197.7222" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="19" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigZipCd]" />
+          </ExpressionBindings>
+        </Item7>
+        <Item8 Ref="20" ControlType="XRLabel" Name="label28" Multiline="true" Text="00000271 - 0001" SizeF="129.229309,22.9999752" LocationFloat="648.5842,44.3030472" Padding="2,2,0,0,100">
+          <Scripts Ref="21" OnEvaluateBinding="label28_EvaluateBinding" OnPrintOnPage="label28_PrintOnPage_1" />
+          <ExpressionBindings>
+            <Item1 Ref="22" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiOutSeqSeiRen]" />
+          </ExpressionBindings>
+        </Item8>
+        <Item9 Ref="23" ControlType="XRLabel" Name="label29" Multiline="true" Text="TEL：" SizeF="36.5828857,22.9999847" LocationFloat="497.32312,312.414551" Padding="2,2,0,0,100" />
+        <Item10 Ref="24" ControlType="XRLabel" Name="label32" Multiline="true" Text="011-665-4717" SizeF="89.26764,23" LocationFloat="533.906067,312.414551" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="25" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigTelNo]" />
+          </ExpressionBindings>
+        </Item10>
+        <Item11 Ref="26" ControlType="XRLabel" Name="label33" Multiline="true" Text="FAX：" SizeF="42.171936,23" LocationFloat="623.1737,312.414551" Padding="2,2,0,0,100" />
+        <Item12 Ref="27" ControlType="XRLabel" Name="label34" Multiline="true" Text="様" SizeF="22.3887024,27.3839722" LocationFloat="244.3536,156.424377" Font="MS PGothic, 14pt, style=Bold" Padding="2,2,0,0,100">
+          <StylePriority Ref="28" UseFont="false" />
+        </Item12>
+        <Item13 Ref="29" ControlType="XRLabel" Name="label35" Multiline="true" Text="埼玉県戸田市中町2-1-21" TextAlignment="TopRight" SizeF="169.608887,23" LocationFloat="582.5843,197.7222" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="30" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigJyus1]" />
+          </ExpressionBindings>
+          <StylePriority Ref="31" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="32" ControlType="XRLabel" Name="label36" Multiline="true" Text="北海トラべル株式会社&#xD;" SizeF="213.004974,23.0000153" LocationFloat="7.54818726,137.808289" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="33" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[TokuiNm]" />
+          </ExpressionBindings>
+        </Item14>
+        <Item15 Ref="34" ControlType="XRLabel" Name="label37" Multiline="true" Text="札幌支店&#xD;" SizeF="213.004974,23" LocationFloat="7.54818726,160.808319" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="35" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SitenNm]" />
+          </ExpressionBindings>
+        </Item15>
+        <Item16 Ref="36" ControlType="XRLabel" Name="label38" Multiline="true" Text="北４条ビルディング１８階" SizeF="213.004974,23" LocationFloat="7.54818726,114.808273" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="37" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[Jyus2]" />
+          </ExpressionBindings>
+        </Item16>
+        <Item17 Ref="38" ControlType="XRLabel" Name="label39" Multiline="true" Text="札幌市中央区北４条西７丁目１６" SizeF="213.004974,23" LocationFloat="7.548184,91.80827" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="39" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[Jyus1]" />
+          </ExpressionBindings>
+        </Item17>
+        <Item18 Ref="40" ControlType="XRLabel" Name="label40" Multiline="true" Text="〒 060" SizeF="100,23" LocationFloat="7.548014,68.80827" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="41" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[ZipCd]" />
+          </ExpressionBindings>
+        </Item18>
+        <Item19 Ref="42" ControlType="XRLine" Name="line4" SizeF="163.1944,2" LocationFloat="288.174438,54.0252457" />
+        <Item20 Ref="43" ControlType="XRLabel" Name="label10" Multiline="true" Text="工房バス株式会社 本社" TextAlignment="TopRight" SizeF="154.4574,23.0000153" LocationFloat="598.136047,266.7223" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="44" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigEigyoNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="45" UseTextAlignment="false" />
+        </Item20>
+        <Item21 Ref="46" ControlType="XRLabel" Name="label2" Multiline="true" Text="株式会社工房&#xD;" TextAlignment="TopRight" SizeF="98.53131,23" LocationFloat="654.062134,243.722275" Padding="2,2,0,0,100">
+          <StylePriority Ref="47" UseTextAlignment="false" />
+        </Item21>
+        <Item22 Ref="48" ControlType="XRLabel" Name="label22" Multiline="true" Text="label1" TextAlignment="TopRight" SizeF="169.608582,23" LocationFloat="582.5842,220.7222" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="49" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[SeiEigJyus2]" />
+          </ExpressionBindings>
+          <StylePriority Ref="50" UseTextAlignment="false" />
+        </Item22>
+        <Item23 Ref="51" ControlType="XRLabel" Name="label7" Multiline="true" Text="領　収　書" TextAlignment="MiddleCenter" SizeF="163.194427,32.7222176" LocationFloat="287.174469,21.3030281" Font="MS PGothic, 16pt, style=Bold" ForeColor="Red" Padding="2,2,0,0,100">
+          <StylePriority Ref="52" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item23>
+        <Item24 Ref="53" ControlType="XRLabel" Name="label45" Multiline="true" Text="登録番号：" SizeF="67.2096558,22.6921387" LocationFloat="598.136,289.722351" Padding="2,2,0,0,100" />
+        <Item25 Ref="54" ControlType="XRLabel" Name="label4" Multiline="true" Text="発 行 日 " SizeF="61.6755371,21.194437" LocationFloat="586.908752,21.3030281" Padding="2,2,0,0,100" />
+        <Item26 Ref="55" ControlType="XRLabel" Name="label5" Multiline="true" Text="        No. " SizeF="61.1543579,24.8055534" LocationFloat="586.9086,43.497467" Padding="2,2,0,0,100" />
+        <Item27 Ref="56" ControlType="XRLabel" Name="label3" Multiline="true" Text="下 記 、 正 に 領 収 い た し ま し た 。&#xD;" SizeF="234.4996,25.0000458" LocationFloat="9.999932,225.722183" Padding="2,2,0,0,100" />
+        <Item28 Ref="57" ControlType="XRTable" Name="table5" SizeF="388.6817,150.000076" LocationFloat="7.548184,380.749878" Padding="2,2,0,0,96" Borders="All">
+          <Rows>
+            <Item1 Ref="58" ControlType="XRTableRow" Name="tableRow8" Weight="1">
+              <Cells>
+                <Item1 Ref="59" ControlType="XRTableCell" Name="tableCell19" Weight="0.98696063902906994" Multiline="true" Text="小 計" TextAlignment="MiddleLeft" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="60" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="61" ControlType="XRTableCell" Name="tableCell44" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell44" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <Summary Ref="62" Running="Report" />
+                  <ExpressionBindings>
+                    <Item1 Ref="63" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[KonUriG]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="64" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item1>
+            <Item2 Ref="65" ControlType="XRTableRow" Name="tableRow10" Weight="1">
+              <Cells>
+                <Item1 Ref="66" ControlType="XRTableCell" Name="tableCell45" Weight="0.98696063902906994" Multiline="true" Text="10%対象計" TextAlignment="MiddleRight" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <Scripts Ref="67" OnAfterPrint="tableCell45_AfterPrint" />
+                  <StylePriority Ref="68" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="69" ControlType="XRTableCell" Name="tableCell48" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell48" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <Scripts Ref="70" OnBeforePrint="tableCell25_BeforePrint" />
+                  <Summary Ref="71" Running="Report" />
+                  <ExpressionBindings>
+                    <Item1 Ref="72" EventName="BeforePrint" PropertyName="Text" Expression="[DetailedResultOutput][ToDecimal(10) == [Zeiritsu]].Sum([UriGakKin])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="73" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item2>
+            <Item3 Ref="74" ControlType="XRTableRow" Name="tableRow3" Weight="1">
+              <Cells>
+                <Item1 Ref="75" ControlType="XRTableCell" Name="tableCell1" Weight="0.98696063902906994" Multiline="true" Text="8%対象計" TextAlignment="MiddleRight" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="76" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="77" ControlType="XRTableCell" Name="tableCell2" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell2" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="78" EventName="BeforePrint" PropertyName="Text" Expression="[DetailedResultOutput][ToDecimal(8) == [Zeiritsu]].Sum([UriGakKin])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="79" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item3>
+            <Item4 Ref="80" ControlType="XRTableRow" Name="tableRow4" Weight="1">
+              <Cells>
+                <Item1 Ref="81" ControlType="XRTableCell" Name="tableCell4" Weight="0.98696063902906994" Multiline="true" Text="消費税 " TextAlignment="MiddleLeft" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="82" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="83" ControlType="XRTableCell" Name="tableCell5" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell5" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="84" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[KonSyoG]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="85" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item4>
+            <Item5 Ref="86" ControlType="XRTableRow" Name="tableRow5" Weight="1">
+              <Cells>
+                <Item1 Ref="87" ControlType="XRTableCell" Name="tableCell7" Weight="0.98696063902906994" Multiline="true" Text="消費税（10%）" TextAlignment="MiddleRight" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="88" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="89" ControlType="XRTableCell" Name="tableCell8" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell8" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="90" EventName="BeforePrint" PropertyName="Text" Expression="[DetailedResultOutput][ToDecimal(10) == [Zeiritsu]].Sum([SyaRyoSyo])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="91" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item5>
+            <Item6 Ref="92" ControlType="XRTableRow" Name="tableRow6" Weight="1">
+              <Cells>
+                <Item1 Ref="93" ControlType="XRTableCell" Name="tableCell9" Weight="0.98696063902906994" Multiline="true" Text="消費税（8%）" TextAlignment="MiddleRight" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="94" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="95" ControlType="XRTableCell" Name="tableCell10" Weight="2.01303936097093" TextFormatString="¥{0:#,##0}" Multiline="true" Text="tableCell10" TextAlignment="MiddleRight" Borders="All" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="96" EventName="BeforePrint" PropertyName="Text" Expression="[DetailedResultOutput][ToDecimal(8) == [Zeiritsu]].Sum([SyaRyoSyo])" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="97" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+              </Cells>
+            </Item6>
+          </Rows>
+          <StylePriority Ref="98" UseBorders="false" />
+          <Scripts Ref="99" OnAfterPrint="table5_AfterPrint" OnBeforePrint="table5_BeforePrint" OnPrintOnPage="table5_PrintOnPage" OnParentChanged="table5_ParentChanged" />
+        </Item28>
+        <Item29 Ref="100" ControlType="XRTable" Name="table2" SizeF="236.951523,50" LocationFloat="7.548014,262.7222" Padding="2,2,0,0,96" Borders="All">
+          <Rows>
+            <Item1 Ref="101" ControlType="XRTableRow" Name="tableRow1" Weight="1">
+              <Cells>
+                <Item1 Ref="102" ControlType="XRTableCell" Name="tableCell3" Weight="3" Multiline="true" Text="合 計 金 額 " TextAlignment="MiddleCenter" BackColor="Lavender" Borders="All" BorderWidth="1">
+                  <StylePriority Ref="103" UseBackColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+              </Cells>
+            </Item1>
+            <Item2 Ref="104" ControlType="XRTableRow" Name="tableRow2" Weight="1">
+              <Cells>
+                <Item1 Ref="105" ControlType="XRTableCell" Name="tableCell6" Weight="3" TextFormatString="{0:#,##0}" Multiline="true" Text="￥19,008" TextAlignment="MiddleCenter" Font="MS PGothic, 10.75pt" Borders="Left, Right, Bottom" BorderWidth="1">
+                  <ExpressionBindings>
+                    <Item1 Ref="106" EventName="BeforePrint" PropertyName="Text" Expression="[HeaderResultOutput].[KonSeiGFormat]" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="107" UseFont="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+              </Cells>
+            </Item2>
+          </Rows>
+          <StylePriority Ref="108" UseBorders="false" />
+          <Scripts Ref="109" OnPrintOnPage="table2_PrintOnPage_1" />
+        </Item29>
+        <Item30 Ref="110" ControlType="XRLabel" Name="label1" Multiline="true" Text="但" SizeF="31.7218361,18.0556641" LocationFloat="9.999932,344.7777" Padding="2,2,0,0,100" />
+      </Controls>
+    </Item2>
+    <Item3 Ref="111" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="1" />
+    <Item4 Ref="112" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="DetailedResultOutput" DataSource="#Ref-0" Expanded="false" PageBreak="AfterBandExceptLastEntry">
+      <Bands>
+        <Item1 Ref="113" ControlType="DetailBand" Name="Detail" FillEmptySpace="true" HeightF="25">
+          <MultiColumn Ref="114" Mode="UseColumnWidth" />
+        </Item1>
+        <Item2 Ref="115" ControlType="GroupHeaderBand" Name="GroupHeader1" RepeatEveryPage="true" HeightF="37.8888855" />
+      </Bands>
+    </Item4>
+    <Item5 Ref="116" ControlType="PageHeaderBand" Name="PageHeader" Expanded="false" HeightF="16.9595928" />
+  </Bands>
+  <Scripts Ref="117" OnBandHeightChanged="ReceiptOutputReport_BandHeightChanged" OnAfterPrint="ReceiptOutputReport_AfterPrint_1" OnBeforePrint="ReceiptOutputReport_BeforePrint_1" />
+  <ComponentStorage>
+    <Item1 Ref="118" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5CaWxsUHJpbnQuUGF5bWVudFJlcXVlc3RSZXBvcnQsIEhhc3N5YUFsbHJpZ2h0Q2xvdWQsIFZlcnNpb249MS4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsIiAvPjwvT2JqZWN0RGF0YVNvdXJjZT4=" />
+    <Item2 Ref="119" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource2" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTIiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5SZWNlaXB0RGV0YWlsUmVwb3J0LCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item3 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource3" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTMiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5SZWNlaXB0T3V0cHV0UmVwb3J0LCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item4 Ref="120" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource4" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTQiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5SZWNlaXB0T3V0cHV0UmVwb3J0LCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

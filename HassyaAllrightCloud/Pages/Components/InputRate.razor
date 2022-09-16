@@ -1,0 +1,42 @@
+﻿@inject IJSRuntime JSRuntime
+@using HassyaAllrightCloud.Commons.Constants
+
+<DxTextBox CssClass="@CssClass"
+           TextExpression="@(() => RateValue)"
+           Text="@RateValue"
+           TextChanged="@((rate) => OnRateChanged(rate))"
+           ReadOnly="@ReadOnly"
+           type="tel">
+</DxTextBox>
+
+@code {
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [Parameter] public string RateValue { get; set; }
+    [Parameter] public string CssClass { get; set; } = String.Empty;
+    [Parameter] public bool ReadOnly { get; set; } = false;
+    [Parameter] public Action<string> RateChanged { get; set; }
+    [Parameter] public float MinRate { get; set; } = Constants.MinimumOfRate;
+    [Parameter] public float MaxRate { get; set; } = Constants.MaximumOfRate;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) 
+        {
+            await JSRuntime.InvokeVoidAsync("loadComponentScript", "inputRateComponent", "setEventforInputRateField");
+        }
+    }
+
+    /// <summary>
+    /// Occurs when rate value changed.
+    /// </summary>
+    /// <param name="newRate">New rate value</param>
+    private void OnRateChanged(string newRate)
+    {
+        if (ValidationHelper.ValidateRateRange(newRate, MinRate, MaxRate))
+        {
+            RateValue = newRate;
+        }
+        RateChanged.Invoke(RateValue);
+    }
+}
+

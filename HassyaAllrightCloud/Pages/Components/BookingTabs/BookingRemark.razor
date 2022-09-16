@@ -1,0 +1,37 @@
+﻿@inherits BookingRemarkBase
+
+@if (IsLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+else
+{
+<EditForm EditContext="FormContext">
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <ul class="validation-errors">
+            <li class="validation-message">@Lang[errorMessage]</li>
+        </ul>
+    }
+    <div class="mb-2 @(IsDisableEdit ? "disabled-content" : "")">
+        <div class="form-group">
+            <label class="col-form-label-sm mr-3">@Lang["Remarks"]</label>
+            <div class="has-tooltip-error">
+                <textarea style="width:800px" rows="10" class="form-control" maxlength="250" @bind="@BikoNm" @oninput="(newValue => BikoNmChanged( newValue))" />
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-2 mb-2">
+        <DxButton CssClass="width--100 btnbookingform"
+                  SubmitFormOnClick="false"
+                  Text="@Lang["UpdateButton"]"
+                  IconCssClass="fa fa-check"
+                  @onclick="async () => await HandleSave()"
+                  RenderStyle="@ButtonRenderStyle.Primary"
+                  Enabled="IsEnable">
+        </DxButton>
+    </div>
+</EditForm>
+}

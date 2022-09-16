@@ -1,0 +1,1102 @@
+﻿@using DevExpress.Blazor.Reporting
+@using DevExpress.XtraPrinting
+@using HassyaAllrightCloud.Pages.Components.CommonComponents
+@using HassyaAllrightCloud.IService.CommonComponents;
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents;
+@page "/buscoordination"
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<BusCoordination> Lang
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject AppSettingsService AppSettingsService
+@inject CustomHttpClient Http
+@inject ICustomerListService CustomerListService;
+@inject IServiceOfficeService ServiceOfficeService;
+@inject IStaffListService StaffListService;
+@inject IBusCoordinationReportService BusCoordinationReportService;
+@inject IFilterCondition FilterServices
+@inject CustomNavigation NavManager
+@inject IBusCoordinationReportService CoordinationReportService
+@inject IErrorHandlerService errorModalService
+@inject ICustomerComponentService _service
+@inject IReservationClassComponentService _yoyakuservice
+
+<div class="d-flex justify-content-between align-items-center pb-2">
+    <h5 class="mb-0">@PageTitleReport</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Clear
+    </button>
+</div>
+
+<DxPopup CssClass="custom-popup modal-xl" @bind-Visible="@OpenPopPreview" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @TitlePopupViewer
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => OpenPopPreview = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <DxDocumentViewer ReportUrl="@($"{nameof(IBusCoordinationReportService)}?"+searchString)" Height="800px" Width="100%">
+            <DxDocumentViewerTabPanelSettings Width="180" />
+        </DxDocumentViewer>
+    </Content>
+</DxPopup>
+<DxPopup CssClass="custom-popup" @bind-Visible="@PopupCheckData" Scrollable="true">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @TitlePopupInfo
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => PopupCheckData = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>@MessageCheckDataExist
+        </div>
+    </Content>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="@(() => PopupCheckData = false)" Text="OK" />
+    </FooterTemplate>
+</DxPopup>
+<EditForm EditContext="@formContext" OnSubmit="@OnHandleValidSubmit">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BusCoordinationValidator" />
+    <div class="express-condition mb-3 border-dotted">
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputSettings"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@Lang["OutputInstruction"]</label>
+                        <nav class="nav nav-pills">
+                            <a href="javascript:void(0)" class="nav-link @(report.OutputSetting == OutputInstruction.Preview ? "active" : null)" @onclick="@(e => report.OutputSetting = OutputInstruction.Preview)">@Preview</a>
+                            <a href="javascript:void(0)" class="nav-link @(report.OutputSetting == OutputInstruction.Pdf ? "active" : null)" @onclick="@(e => report.OutputSetting = OutputInstruction.Pdf)">@PDF</a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="express-condition mb-3 border-dotted bus-coordination">
+        <div class="card border-0">
+            <div class="card-body py-3 pl-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>@Lang["OutputConditions"]</h5>
+                </div>
+                <div class="pl-5">
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@DateType</label>
+                        <div>
+                            <nav class="nav nav-pills">
+                                <a href="javascript:void(0)" class="nav-link @(datetype == (int)DateTypeContract.Dispatch ? "active" : null)" @onclick="@(e => OnClickDateType(e, (int)DateTypeContract.Dispatch))">@DispatchDate</a>
+                                <a href="javascript:void(0)" class="nav-link @(datetype == (int)DateTypeContract.Arrival ? "active" : null)" @onclick="@(e => OnClickDateType(e, (int)DateTypeContract.Arrival))">@ArrivalDate</a>
+                                <a href="javascript:void(0)" class="nav-link @(datetype == (int)DateTypeContract.Reception ? "active" : null)" @onclick="@(e => OnClickDateType(e, (int)DateTypeContract.Reception))">@ReceptionDate</a>
+                            </nav>
+                            <div class="d-flex mt-2">
+                                <DxDateEdit Date="@startdate"
+                                            Format="yyyy/MM/dd"
+                                            DateChanged="@((newValue) => OnStartDateChanged(newValue))"
+                                            DateExpression="@(() => report.StartDate)"
+                                            CssClass="width--130"></DxDateEdit>
+                                <span class="mx-2">～</span>
+                                <div class="has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() =>report.EndDate)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit Date="@enddate"
+                                                Format="yyyy/MM/dd"
+                                                DateChanged="@((newValue) => OnEndDateChanged(newValue))"
+                                                DateExpression="@(() => report.EndDate)"
+                                                CssClass="width--130"></DxDateEdit>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="form-group d-flex flex-nowrap">
+            <label class="col-form-label-sm mr-2 width--90">@BookingCategory</label>
+            <div class="dropdown dropdown-listbox ">
+                <div class=@("has-tooltip-error custom-listbox-invalid " + formContext.FieldCssClass(() => @report.ReservationList))>
+                    <Tooltip ValueExpressions="@(() => @report.ReservationList)" Lang="@LangDic" Text="@(EmptyBookingType?emptyItemMessage[nameof(EmptyBookingTypeMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                    <div class="input-group input-group-sm dx-listbox width--160 multi-combobox dropdown-toggle" id="lstcompany" data-toggle="dropdown">
+                        <p class="form-control form-control-sm text-overflow">@GetSelectedReservationText()</p>
+                        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu dropdownlist " role="menu" aria-labelledby="lstcompany">
+                        <DxListBox Data="@reservationlst"
+                                   TextFieldName="Text"
+                                   ListRenderMode="ListRenderMode.Entire"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   SelectedItems="SelectedReservations"
+                                   SelectedItemsChanged="@OnSelectedReservationsChanged"
+                                   SelectedItemsExpression="() => report.ReservationList"
+                                   ShowCheckboxes="true"
+                                   CssClass="width--160">
+                        </DxListBox>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@BookingCategory</label>
+                        <div class="item-inline width--190">
+                            <ReservationClassComponent LangDic="@LangDic"
+                                                       isAddNullItem="true"
+                                                       DefaultValue="@(report.YoyakuFrom != null ? report.YoyakuFrom.YoyaKbnSeq : 0)"
+                                                       SelectedReservationClass="@report.YoyakuFrom"
+                                                       ReservationClassExpression="@(() => report.YoyakuFrom)"
+                                                       SelectedReservationClassChanged="@((e) => OnBookingFromSelectedChanged(e))">
+                            </ReservationClassComponent>
+                        </div>
+                        <span class="mx-3">～</span>
+                        <div class="item-inline width--190">
+                            <ReservationClassComponent LangDic="@LangDic"
+                                                       isAddNullItem="true"
+                                                       DefaultValue="@(report.YoyakuTo != null ? report.YoyakuTo.YoyaKbnSeq : 0)"
+                                                       SelectedReservationClass="@report.YoyakuTo"
+                                                       ReservationClassExpression="@(() => report.YoyakuTo)"
+                                                       SelectedReservationClassChanged="@((e) => OnBookingToSelectedChanged(e))">
+                            </ReservationClassComponent>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap w-customer-busco">
+                        <label class="col-form-label-sm mr-4 width--90">@Customer</label>
+                        <div class="item-inline  custom-width-cmbtk cmb-from">
+                            <CustomerComponent @ref="@refCustomerFrom"
+                                               SiyoDateStr="@strDateGetCustomer"
+                                               SiyoDateEnd="@endDateGetCustomer"
+                                               LangDic="@LangDic"
+                                               isGyosyaAddNull="true"
+                                               isTokiskAddNull="true"
+                                               isTokiStAddNull="true"
+                                               DefaultGyosya="@(report.GyosyaTokuiSakiFrom != null ? report.GyosyaTokuiSakiFrom.GyosyaCdSeq : 0)"
+                                               SelectedGyosya="@report.GyosyaTokuiSakiFrom"
+                                               GyosyaExpression="@(() => report.GyosyaTokuiSakiFrom)"
+                                               SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(report.GyosyaTokuiSakiFrom), newValue, formContext))"
+                                               DefaultTokisk="@(report.TokiskTokuiSakiFrom != null ? report.TokiskTokuiSakiFrom.TokuiSeq : 0)"
+                                               SelectedTokisk="@report.TokiskTokuiSakiFrom"
+                                               TokiskExpression="@(() => report.TokiskTokuiSakiFrom)"
+                                               SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(report.TokiskTokuiSakiFrom), newValue, formContext))"
+                                               DefaultTokiSt="@(report.TokiStTokuiSakiFrom != null ? report.TokiStTokuiSakiFrom.SitenCdSeq : 0)"
+                                               SelectedTokiSt="@report.TokiStTokuiSakiFrom"
+                                               TokiStExpression="@(() => report.TokiStTokuiSakiFrom)"
+                                               SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(report.TokiStTokuiSakiFrom), newValue, formContext))"></CustomerComponent>
+
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap w-customer-busco">
+                        <label class="col-form-label-sm mr-4 width--90 lbl-to">～</label>
+                        <div class="item-inline custom-width-cmbtk cmb-to">
+                            <CustomerComponent @ref="@refCustomerTo"
+                                               SiyoDateStr="@strDateGetCustomer"
+                                               SiyoDateEnd="@endDateGetCustomer"
+                                               LangDic="@LangDic"
+                                               isGyosyaAddNull="true"
+                                               isTokiskAddNull="true"
+                                               isTokiStAddNull="true"
+                                               DefaultGyosya="@(report.GyosyaTokuiSakiTo != null ? report.GyosyaTokuiSakiTo.GyosyaCdSeq : 0)"
+                                               SelectedGyosya="@report.GyosyaTokuiSakiTo"
+                                               GyosyaExpression="@(() => report.GyosyaTokuiSakiTo)"
+                                               SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(report.GyosyaTokuiSakiTo), newValue, formContext))"
+                                               DefaultTokisk="@(report.TokiskTokuiSakiTo != null ? report.TokiskTokuiSakiTo.TokuiSeq : 0)"
+                                               SelectedTokisk="@report.TokiskTokuiSakiTo"
+                                               TokiskExpression="@(() => report.TokiskTokuiSakiTo)"
+                                               SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(report.TokiskTokuiSakiTo), newValue, formContext))"
+                                               DefaultTokiSt="@(report.TokiStTokuiSakiTo != null ? report.TokiStTokuiSakiTo.SitenCdSeq : 0)"
+                                               SelectedTokiSt="@report.TokiStTokuiSakiTo"
+                                               TokiStExpression="@(() => report.TokiStTokuiSakiTo)"
+                                               SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(report.TokiStTokuiSakiTo), newValue, formContext))"></CustomerComponent>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap w-customer-busco">
+                        <label class="col-form-label-sm mr-4 width--90">@Supplier</label>
+                        <div class="item-inline custom-width-cmbtk cmb-from">
+                            <CustomerComponent @ref="@refSupplierFrom"
+                                               SiyoDateStr="@strDateGetCustomer"
+                                               SiyoDateEnd="@endDateGetCustomer"
+                                               LangDic="@LangDic"
+                                               DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                               isGyosyaAddNull="true"
+                                               isTokiskAddNull="true"
+                                               isTokiStAddNull="true"
+                                               DefaultGyosya="@(report.GyosyaShiireSakiFrom != null ? report.GyosyaShiireSakiFrom.GyosyaCdSeq : 0)"
+                                               SelectedGyosya="@report.GyosyaShiireSakiFrom"
+                                               GyosyaExpression="@(() => report.GyosyaShiireSakiFrom)"
+                                               SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(report.GyosyaShiireSakiFrom), newValue, formContext))"
+                                               DefaultTokisk="@(report.TokiskShiireSakiFrom != null ? report.TokiskShiireSakiFrom.TokuiSeq : 0)"
+                                               SelectedTokisk="@report.TokiskShiireSakiFrom"
+                                               TokiskExpression="@(() => report.TokiskShiireSakiFrom)"
+                                               SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(report.TokiskShiireSakiFrom), newValue, formContext))"
+                                               DefaultTokiSt="@(report.TokiStShiireSakiFrom != null ? report.TokiStShiireSakiFrom.SitenCdSeq : 0)"
+                                               SelectedTokiSt="@report.TokiStShiireSakiFrom"
+                                               TokiStExpression="@(() => report.TokiStShiireSakiFrom)"
+                                               SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(report.TokiStShiireSakiFrom), newValue, formContext))"></CustomerComponent>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap w-customer-busco">
+                        <label class="col-form-label-sm mr-4 width--90 lbl-to">～</label>
+                        <div class="item-inline custom-width-cmbtk cmb-to">
+                            <CustomerComponent @ref="@refSupplierTo"
+                                               SiyoDateStr="@strDateGetCustomer"
+                                               SiyoDateEnd="@endDateGetCustomer"
+                                               LangDic="@LangDic"
+                                               isGyosyaAddNull="true"
+                                               isTokiskAddNull="true"
+                                               isTokiStAddNull="true"
+                                               DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                               DefaultGyosya="@(report.GyosyaShiireSakiTo != null ? report.GyosyaShiireSakiTo.GyosyaCdSeq : 0)"
+                                               SelectedGyosya="@report.GyosyaShiireSakiTo"
+                                               GyosyaExpression="@(() => report.GyosyaShiireSakiTo)"
+                                               SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(report.GyosyaShiireSakiTo), newValue, formContext))"
+                                               DefaultTokisk="@(report.TokiskShiireSakiTo != null ? report.TokiskShiireSakiTo.TokuiSeq : 0)"
+                                               SelectedTokisk="@report.TokiskShiireSakiTo"
+                                               TokiskExpression="@(() => report.TokiskShiireSakiTo)"
+                                               SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(report.TokiskShiireSakiTo), newValue, formContext))"
+                                               DefaultTokiSt="@(report.TokiStShiireSakiTo != null ? report.TokiStShiireSakiTo.SitenCdSeq : 0)"
+                                               SelectedTokiSt="@report.TokiStShiireSakiTo"
+                                               TokiStExpression="@(() => report.TokiStShiireSakiTo)"
+                                               SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(report.TokiStShiireSakiTo), newValue, formContext))"></CustomerComponent>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@ReceptionOffice</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @report.SaleBranch)" Lang="@LangDic" Text="@(EmptySaleBranch?emptyItemMessage[nameof(EmptySaleBranchMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="salebranchlst"
+                                        NullText="@Lang["ReceptionOfficeNullText"]"
+                                        TextFieldName="OfficeText"
+                                        AllowUserInput="false"
+                                        SelectedItem="@report.SaleBranch"
+                                        SelectedItemChanged="@(e => OnSaleBranchChanged(e))"
+                                        SelectedItemExpression="@(() => report.SaleBranch)"
+                                        CssClass="width--290 custom-combo-box">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@ReceiptNumber</label>
+                        <DxTextBox Text="@strReceiptNumberFrom"
+                                   TextChanged="@((newValue) => OnBookingFromChange(newValue))"
+                                   TextExpression="@(() => report.BookingFrom)"
+                                   CssClass="width--130 code-number number length10"></DxTextBox>
+                        <span class="mx-2">～</span>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @report.BookingTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                            <DxTextBox Text="@strReceiptNumberTo"
+                                       TextChanged="@((newValue) => OnBookingToChange(newValue))"
+                                       TextExpression="@(() => report.BookingTo)"
+                                       CssClass="width--130 code-number number length10"></DxTextBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@SalesRepresentative</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @report.Staff)" Lang="@LangDic" Text="@(EmptyStaff?emptyItemMessage[nameof(EmptyStaffMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox NullText="@Lang["SalesRepresentativeNullText"]"
+                                        Data="stafflst"
+                                        TextFieldName="StaffText"
+                                        AllowUserInput="false"
+                                        SelectedItem="@report.Staff"
+                                        SelectedItemChanged="@((newValue) => OnStaffChanged(newValue))"
+                                        SelectedItemExpression="@(() => report.Staff)"
+                                        CssClass="width--190 custom-combo-box">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex flex-nowrap">
+                        <label class="col-form-label-sm mr-4 width--90">@PersonInput</label>
+                        <div class="has-tooltip-error">
+                            <Tooltip ValueExpressions="@(() => @report.PersonInput)" Lang="@LangDic" Text="@(EmptyStaff?emptyItemMessage[nameof(EmptyStaffMessage)]:"")" Position="PositionTooltip.top"></Tooltip>
+                            <DxComboBox Data="stafflst"
+                                        NullText="@Lang["PersonInputNullText"]"
+                                        TextFieldName="StaffText"
+                                        AllowUserInput="false"
+                                        SelectedItem="@report.PersonInput"
+                                        SelectedItemChanged="@((newValue) => OnPersonInputChanged(newValue))"
+                                        SelectedItemExpression="@(() => report.PersonInput)"
+                                        CssClass="width--190 custom-combo-box">
+                            </DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border-dotted button-fixed-bottom">
+        <DxButton Text="@Lang["Output"]"
+                  RenderStyle="@ButtonRenderStyle.Primary"
+                  CssClass="width--100"
+                  @onclick="() => BtnSubmitClick()"
+                  disabled="@((formContext.GetValidationMessages().Distinct().Any() || checkNullItem )  )">
+        </DxButton>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string Option { get; set; }
+    [Parameter]
+    public string UnkobiDate { get; set; }
+    [Parameter]
+    public string Ukeno { get; set; }
+    [Parameter]
+    public string UnkRen { get; set; }
+    [Parameter]
+    public string UkenoList { get; set; }
+    [Parameter]
+    public string FormOutput { get; set; }
+
+    [Inject] public IReportLayoutSettingService _reportLayoutSettingService { get; set; }
+
+    EditContext formContext;
+    BusCoordinationSearchParam report = new BusCoordinationSearchParam();
+    DateTime startdate = DateTime.Today;
+    DateTime enddate = DateTime.Today;
+    IEnumerable<ReservationData> SelectedReservations = new List<ReservationData>();
+    List<LoadCustomerList> customerlst = new List<LoadCustomerList>();
+    List<SupplierData> supplierlst = new List<SupplierData>();
+    List<LoadServiceOffice> salebranchlst = new List<LoadServiceOffice>();
+    List<LoadStaffList> stafflst = new List<LoadStaffList>();
+    ReservationData allreservation = new ReservationData();
+    LoadCustomerList allCustomer = new LoadCustomerList();
+    LoadServiceOffice allBranch = new LoadServiceOffice();
+    LoadStaffList allStaff = new LoadStaffList();
+    protected List<CustomerComponentGyosyaData> ListGyosya { get; set; } = new List<CustomerComponentGyosyaData>();
+    protected List<CustomerComponentTokiskData> TokiskData { get; set; } = new List<CustomerComponentTokiskData>();
+    protected List<CustomerComponentTokiStData> TokiStData { get; set; } = new List<CustomerComponentTokiStData>();
+    protected List<ReservationClassComponentData> ListReservationClass { get; set; } = new List<ReservationClassComponentData>();
+
+    // bool CheckSelectedReservationEndAll = true;
+    // bool CheckSelectedSupplierEndAll = true;
+    bool checkNullItem = false;
+    bool isFilterApply;
+    int datetype { get; set; }
+    long bookingFrom { get; set; } = 0;
+    long bookingTo { get; set; } = 9999999999;
+    string baseUrl;
+    // List<string> emptyItemMessage = new List<string>();
+    Dictionary<string, string> emptyItemMessage = new Dictionary<string, string>();
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    string EmptyBookingTypeMessage = "";
+    string EmptyCustomerMessage = "";
+    string EmptySaleBranchMessage = "";
+    string EmptyStaffMessage = "";
+    string TitlePopupInfo = "";
+    string TitlePopupViewer = "";
+    string MessageCheckDataExist = "";
+    bool PopupCheckData { get; set; } = false;
+    bool OpenPopPreview = false;
+    bool isSelectAllReservation = true;
+    string searchString = "";
+    string filterConditionFormName = "KU4300";
+
+    bool CustomerError = false;
+    bool Customer01Error = false;
+    bool DateError = false;
+    bool BookingError = false;
+    bool EmptyBookingType = false;
+    bool EmptySaleBranch = false;
+    bool EmptyCustomer = false;
+    bool EmptyStaff = false;
+    string MessageCustomerError;
+    string MessageCustomer01Error;
+    string MessageDateError;
+    string MessageBookingError;
+
+    protected string strDateGetCustomer = DateTime.Now.ToString(CommonConstants.FormatYMD);
+    protected string endDateGetCustomer = DateTime.Now.ToString(CommonConstants.FormatYMD);
+    protected CustomerComponent refCustomerFrom = new CustomerComponent();
+    protected CustomerComponent refCustomerTo = new CustomerComponent();
+    protected CustomerComponent refSupplierFrom = new CustomerComponent();
+    protected CustomerComponent refSupplierTo = new CustomerComponent();
+
+    #region string LocalizationInit
+    string PageTitleReport;
+    string DateType;
+    string DispatchDate;
+    string ArrivalDate;
+    string ReceptionDate;
+    string Date;
+    string BookingCategory;
+    string Customer;
+    string Supplier;
+    string ReceptionOffice;
+    string ReceiptNumber;
+    string SalesRepresentative;
+    string PersonInput;
+    string Preview;
+    string Export;
+    string Clear;
+    string PDF;
+    bool isUkenoEmpty = false;
+    string strReceiptNumberFrom { get; set; } = "";
+    string strReceiptNumberTo { get; set; } = "";
+
+    private void LocalizationInit()
+    {
+        PageTitleReport = Lang["PageTitleReport"];
+        DateType = Lang["date_setting"];
+        DispatchDate = Lang["dispatch_date"];
+        ArrivalDate = Lang["arrival_date"];
+        ReceptionDate = Lang["reception_date"];
+        Date = Lang["date"];
+        BookingCategory = Lang["booking_category"];
+        Customer = Lang["customer"];
+        Supplier = Lang["supplier"];
+        ReceptionOffice = Lang["reception_office"];
+        ReceiptNumber = Lang["receipt_number"];
+        SalesRepresentative = Lang["sales_representative"];
+        PersonInput = Lang["person_input"];
+        Preview = Lang["btn_preview"];
+        Export = Lang["btn_export"];
+        EmptyBookingTypeMessage = Lang["BI_T006"];
+        EmptyCustomerMessage = Lang["BI_T007"];
+        EmptySaleBranchMessage = Lang["BI_T008"];
+        EmptyStaffMessage = Lang["BI_T008"];
+        MessageCheckDataExist = Lang["BI_T007"];
+        TitlePopupInfo = Lang["TitlePopupInfo"];
+        TitlePopupViewer = Lang["TitlePopupViewer"];
+        Clear = Lang["Clear"];
+        PDF = Lang["PDF"];
+        var dataLang = Lang.GetAllStrings();
+        LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+    }
+    #endregion
+
+    #region Component Lifecycle
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        LocalizationInit();
+        formContext = new EditContext(report);
+        datetype = (int)DateTypeContract.Dispatch;
+        ListReservationClass = await _yoyakuservice.GetListReservationClass();
+
+        // 得意先, 仕入先
+        ListGyosya = await _service.GetListGyosya();
+
+        salebranchlst = await ServiceOfficeService.GetBranchReport(new ClaimModel().TenantID);
+        if (salebranchlst == null)
+        {
+            salebranchlst = new List<LoadServiceOffice>();
+        }
+        else
+        {
+            salebranchlst.Insert(0, allBranch);
+        }
+        stafflst = await StaffListService.GetStaffReport(new ClaimModel().TenantID, startdate.ToString("yyyyMMdd"));
+        if (stafflst == null)
+        {
+            stafflst = new List<LoadStaffList>();
+        }
+        else
+        {
+            stafflst.Insert(0, allStaff);
+        }
+        CheckDataNullFromService();
+        await Load().ContinueWith(async t =>
+        {
+            await ApplyFilter();
+        });
+    }
+    async Task Load()
+    {
+        report.OutputSetting = OutputInstruction.Preview;
+        if (emptyItemMessage.Count > 0) checkNullItem = true;
+        report.DateType = datetype;
+        report.StartDate = startdate;
+        report.EndDate = enddate;
+
+        if (salebranchlst.Count >= 1)
+        {
+            report.SaleBranch = salebranchlst.First();
+        }
+        else
+        {
+            EmptySaleBranch = true;
+        }
+        if (stafflst.Count >= 1)
+        {
+            report.Staff = stafflst.First();
+            report.PersonInput = stafflst.First();
+        }
+        else
+        {
+            EmptyStaff = true;
+        }
+        if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(UnkobiDate) && !string.IsNullOrEmpty(Ukeno)
+        && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()) && !string.IsNullOrEmpty(UnkRen))
+        {
+            DateTime dateTimeConvert;
+            try
+            {
+                dateTimeConvert = DateTime.ParseExact(UnkobiDate, "yyyyMMdd", new CultureInfo("ja-JP"));
+                report.StartDate = dateTimeConvert;
+                report.EndDate = dateTimeConvert;
+                report.BookingFrom = Ukeno;
+                report.BookingTo = Ukeno;
+                startdate = dateTimeConvert;
+                enddate = dateTimeConvert;
+                bookingFrom = long.TryParse(Ukeno, out long valueFrom) ? valueFrom : 0;
+                bookingTo = long.TryParse(Ukeno, out long valueTo) ? valueTo : 0;
+                report.UnkRen = short.Parse(UnkRen);
+                NavManager.NavigateTo("/buscoordination", false);
+                bool checkDataExist = false;
+                checkDataExist = await BusCoordinationReportService.CheckExistDataReport(report);
+                if (checkDataExist)
+                {
+                    if (Option == OptionReport.Preview.ToString())//preview
+                    {
+                        await OnExportPdf(0);
+                    }
+                    else //download
+                    {
+                        report.OutputSetting = OutputInstruction.Pdf;
+                        strReceiptNumberFrom = Ukeno;
+                        strReceiptNumberTo = Ukeno;
+                        await OnExportPdf(1);
+                    }
+                }
+                else
+                {
+                    PopupCheckData = true;
+                }
+            }
+            catch
+            {
+                PopupCheckData = true;
+            }
+            await SaveCurrentFilter();
+        }
+        else if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(UkenoList) && !string.IsNullOrEmpty(FormOutput))
+        {
+            DatetimeData datetimeData = new DatetimeData();
+            datetimeData = await CoordinationReportService.GetUnkobiDatebyUkenoList(UkenoList);
+            report.StartDate = datetimeData.DateStart;
+            report.EndDate = datetimeData.DateEnd;
+            report.UkenoList = UkenoList;
+            NavManager.NavigateTo("/buscoordination", false);
+            bool checkDataExist = false;
+            checkDataExist = await BusCoordinationReportService.CheckExistDataReport(report);
+            if (checkDataExist)
+            {
+                if (Option == OptionReport.Preview.ToString())//preview
+                {
+                    await OnExportPdf(0);
+                }
+                else //download
+                {
+                    report.OutputSetting = OutputInstruction.Pdf;
+                    strReceiptNumberFrom = Ukeno;
+                    strReceiptNumberTo = Ukeno;
+                    await OnExportPdf(1);
+                }
+            }
+            else
+            {
+                PopupCheckData = true;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    #endregion
+    //check data null
+    void CheckDataNullFromService()
+    {
+        if (ListReservationClass.Count == 0 || ListReservationClass == null)
+        {
+            emptyItemMessage[nameof(EmptyBookingTypeMessage)] = EmptyBookingTypeMessage;
+        }
+        if (ListGyosya.Count == 0 || ListGyosya == null)
+        {
+            emptyItemMessage[nameof(EmptyCustomerMessage)] = EmptyCustomerMessage;
+        }
+        if (salebranchlst.Count == 0 || salebranchlst == null)
+        {
+            emptyItemMessage[nameof(EmptySaleBranchMessage)] = EmptySaleBranchMessage;
+        }
+        if (stafflst.Count == 0 || stafflst == null)
+        {
+            emptyItemMessage[nameof(EmptyStaffMessage)] = EmptyStaffMessage;
+        }
+    }
+    #region value changed method
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newDate"></param>
+    async void OnStartDateChanged(DateTime newDate)
+    {
+        startdate = newDate;
+        report.StartDate = newDate;
+        report.GyosyaTokuiSakiFrom = null;
+        report.GyosyaTokuiSakiTo = null;
+        report.TokiskTokuiSakiFrom = null;
+        report.TokiskTokuiSakiTo = null;
+        report.TokiStTokuiSakiFrom = null;
+        report.TokiStTokuiSakiTo = null;
+        report.GyosyaShiireSakiFrom = null;
+        report.GyosyaShiireSakiTo = null;
+        report.TokiskShiireSakiFrom = null;
+        report.TokiskShiireSakiTo = null;
+        report.TokiStShiireSakiFrom = null;
+        report.TokiStShiireSakiTo = null;
+        report.Staff = stafflst.First();
+        report.PersonInput = stafflst.First();
+
+        if (formContext.Validate())
+        {
+            callResetCustomer();
+        }
+        stafflst = await StaffListService.GetStaffReport(new ClaimModel().TenantID, report.StartDate.ToString("yyyyMMdd"));
+        stafflst.Insert(0, allStaff);
+        formContext.Validate();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newDate"></param>
+    async void OnEndDateChanged(DateTime newDate)
+    {
+        enddate = newDate;
+        report.EndDate = newDate;
+        if (formContext.Validate())
+        {
+            callResetCustomer();
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    private async void callResetCustomer()
+    {
+        strDateGetCustomer = report.StartDate.ToString(CommonConstants.FormatYMD);
+        endDateGetCustomer = report.EndDate.ToString(CommonConstants.FormatYMD);
+        // 得意先, 仕入先
+        var taskTokisk = _service.GetListTokisk(strDateGetCustomer, endDateGetCustomer);
+        var taskTokiSt = _service.GetListTokiSt(strDateGetCustomer, endDateGetCustomer);
+
+        await Task.WhenAll(taskTokisk, taskTokiSt);
+
+        TokiskData = taskTokisk.Result;
+        TokiStData = taskTokiSt.Result;
+
+        refCustomerFrom.OnchangeCustomerDataByTime(TokiskData, TokiStData);
+        refCustomerTo.OnchangeCustomerDataByTime(TokiskData, TokiStData);
+        refSupplierFrom.OnchangeCustomerDataByTime(TokiskData, TokiStData);
+        refSupplierTo.OnchangeCustomerDataByTime(TokiskData, TokiStData);
+    }
+    /// <summary>
+    /// Change value customer from, to
+    /// </summary>
+    /// <param name="ValueName"></param>
+    /// <param name="value"></param>
+    /// <param name="formContext"></param>
+    /// <returns></returns>
+    private void ChangeValueForm(string ValueName, dynamic value, EditContext formContext)
+    {
+        try
+        {
+            if (value is string && string.IsNullOrEmpty(value))
+            {
+                value = null;
+            }
+
+            var propertyInfo = report.GetType().GetProperty(ValueName);
+            propertyInfo.SetValue(report, value, null);
+            formContext.Validate();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnBookingFromChange(string newValue)
+    {
+        if (string.IsNullOrEmpty(newValue))
+        {
+            report.BookingFrom = "";
+            strReceiptNumberFrom = "";
+        }
+        else
+        {
+            long bookingfromParse;
+            if (CommonUtil.NumberTryParse(newValue, out bookingfromParse) && bookingfromParse >= 0)
+            {
+                report.BookingFrom = bookingfromParse.ToString();
+                strReceiptNumberFrom = bookingfromParse.ToString().Length == 10 ? bookingfromParse.ToString() : bookingfromParse.ToString().PadLeft(10, '0');
+            }
+            else
+            {
+                strReceiptNumberFrom = report.BookingFrom.Length == 10 ? report.BookingFrom : report.BookingFrom.PadLeft(10, '0');
+                report.BookingFrom = report.BookingFrom == "" ? strReceiptNumberFrom : report.BookingFrom;
+            }
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    void OnBookingToChange(string newValue)
+    {
+        if (string.IsNullOrEmpty(newValue))
+        {
+            report.BookingTo = "";
+            strReceiptNumberTo = "";
+        }
+        else
+        {
+            long bookingToParse;
+            if (CommonUtil.NumberTryParse(newValue, out bookingToParse) && bookingToParse >= 0)
+            {
+                report.BookingTo = bookingToParse.ToString();
+                strReceiptNumberTo = bookingToParse.ToString().Length == 10 ? bookingToParse.ToString() : bookingToParse.ToString().PadLeft(10, '0');
+            }
+            else
+            {
+                strReceiptNumberTo = report.BookingTo.Length == 10 ? report.BookingTo : report.BookingTo.PadLeft(10, '0');
+                report.BookingTo = report.BookingTo == "" ? strReceiptNumberTo : report.BookingTo;
+            }
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="number"></param>
+    void OnClickDateType(MouseEventArgs e, int number)
+    {
+        datetype = number;
+        report.DateType = number;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnSaleBranchChanged(LoadServiceOffice e)
+    {
+        report.SaleBranch = e ?? new LoadServiceOffice();
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnStaffChanged(LoadStaffList e, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            report.Staff = e ?? new LoadStaffList();
+        }
+        else
+        {
+            report.Staff01 = e ?? new LoadStaffList();
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    void OnPersonInputChanged(LoadStaffList e, bool isFrom = true)
+    {
+        if (isFrom)
+        {
+            report.PersonInput = e ?? new LoadStaffList();
+        }
+        else
+        {
+            report.PersonInput01 = e ?? new LoadStaffList();
+        }
+        formContext.Validate();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    private void OnHandleValidSubmit()
+    {
+        bool isValid = formContext.Validate();
+        if (isValid)
+        {
+            try
+            {
+                var client = new HttpClient();
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    async void OpenPopupPreview()
+    {
+        if (formContext.Validate())
+        {
+            await SaveCurrentFilter();
+            bool checkDataExistInDB = await BusCoordinationReportService.CheckExistDataReport(report);
+            if (checkDataExistInDB)
+            {
+                await OnExportPdf(0);
+            }
+            else
+            {
+                PopupCheckData = true;
+            }
+        }
+        StateHasChanged();
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    async void DownLoadReport()
+    {
+        if (formContext.Validate())
+        {
+            await SaveCurrentFilter();
+            bool checkDataExistInDB = await BusCoordinationReportService.CheckExistDataReport(report);
+            if (checkDataExistInDB)
+            {
+                await OnExportPdf(1);
+            }
+            else
+            {
+                PopupCheckData = true;
+            }
+        }
+        StateHasChanged();
+    }
+    private async Task OnExportPdf(byte type)
+    {
+        if (type == 0)
+        {
+            searchString = EncryptHelper.EncryptToUrl(report);
+            OpenPopPreview = true;
+        }
+        else
+        {
+            await SaveCurrentFilter();
+            var data = await BusCoordinationReportService.GetPDFData(report);
+            if (data.Count > 0)
+            {
+                var report = await _reportLayoutSettingService.GetCurrentTemplate(ReportIdForSetting.Buscoordination, BaseNamespace.Buscoordination, new ClaimModel().TenantID, new ClaimModel().EigyoCdSeq, (byte)PaperSize.A4);
+                report.DataSource = data;
+                await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+                {
+                    report.CreateDocument();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        /*if (type == 1)
+                        {
+                            PrintToolBase tool = new PrintToolBase(report.PrintingSystem);
+                            tool.Print();
+                            return;
+                        }*/
+                        report.ExportToPdf(ms);
+                        byte[] exportedFileBytes = ms.ToArray();
+                        string myExportString = Convert.ToBase64String(exportedFileBytes);
+                        JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, "pdf", "Busutehaisyo");
+                    }
+                });
+            }
+        }
+    }
+
+    #endregion
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeAsync<string>("addMaxLength", "length", 10);
+    }
+
+    private async Task SaveCurrentFilter()
+    {
+        await FilterServices.SaveCustomFilterAndConditions(GetFieldValues(), filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq);
+    }
+
+    private async Task ApplyFilter()
+    {
+        var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq)).ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+        if (filterValues.Count > 0)
+        {
+            isFilterApply = true;
+            if (string.IsNullOrEmpty(Option) && string.IsNullOrEmpty(UnkobiDate) && string.IsNullOrEmpty(Ukeno) && string.IsNullOrEmpty(UnkRen))
+            {
+                BusCoordinationReportService.ApplyFilter(ref report, ListReservationClass, ListGyosya, _service, salebranchlst, stafflst, filterValues);
+                report.UnkRen = 0;
+            }
+            datetype = report.DateType;
+            startdate = report.StartDate;
+            enddate = report.EndDate;
+            if (!string.IsNullOrEmpty(report.BookingFrom))
+            {
+                bookingFrom = long.TryParse(report.BookingFrom, out long fromValue) ? fromValue : 0;
+                strReceiptNumberFrom = bookingFrom.ToString().Length == 10 ? bookingFrom.ToString() : bookingFrom.ToString().PadLeft(10, '0');
+            }
+            else
+            {
+                strReceiptNumberFrom = "";
+            }
+            if (!string.IsNullOrEmpty(report.BookingTo))
+            {
+                bookingTo = long.TryParse(report.BookingTo, out long toValue) ? toValue : 0;
+                strReceiptNumberTo = bookingTo.ToString().Length == 10 ? bookingTo.ToString() : bookingTo.ToString().PadLeft(10, '0');
+            }
+            else
+            {
+                strReceiptNumberTo = "";
+            }
+            // CheckSelectedReservationEndAll = report.ReservationList.Any(_ => _ == 0);
+
+            if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(UnkobiDate) && !string.IsNullOrEmpty(Ukeno)
+&& (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()) && !string.IsNullOrEmpty(UnkRen))
+            {
+                DateTime dateTimeConvert;
+                try
+                {
+                    dateTimeConvert = DateTime.ParseExact(UnkobiDate, "yyyyMMdd", new CultureInfo("ja-JP"));
+                    report.StartDate = dateTimeConvert;
+                    report.EndDate = dateTimeConvert;
+                    report.BookingFrom = Ukeno;
+                    report.BookingTo = Ukeno;
+                    startdate = dateTimeConvert;
+                    enddate = dateTimeConvert;
+                    bookingFrom = int.Parse(Ukeno);
+                    bookingTo = int.Parse(Ukeno);
+                    report.UnkRen = short.Parse(UnkRen);
+                    await SaveCurrentFilter();
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            isFilterApply = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private Dictionary<string, string> GetFieldValues()
+    {
+        var result = new Dictionary<string, string>();
+        result = BusCoordinationReportService.GetFieldValues(report);
+        return result;
+    }
+
+    async void ResetForm()
+    {
+        report.OutputSetting = OutputInstruction.Preview;
+        datetype = (int)DateTypeContract.Dispatch;
+        report.DateType = datetype;
+        startdate = DateTime.Today;
+        enddate = DateTime.Today;
+        report.StartDate = startdate;
+        report.EndDate = enddate;
+        strReceiptNumberFrom = "";
+        strReceiptNumberTo = "";
+        report.BookingFrom = "";
+        report.BookingTo = "";
+        report.YoyakuFrom = null;
+        report.YoyakuTo = null;
+        report.GyosyaTokuiSakiFrom = null;
+        report.GyosyaTokuiSakiTo = null;
+        report.TokiskTokuiSakiFrom = null;
+        report.TokiskTokuiSakiTo = null;
+        report.TokiStTokuiSakiFrom = null;
+        report.TokiStTokuiSakiTo = null;
+        report.GyosyaShiireSakiFrom = null;
+        report.GyosyaShiireSakiTo = null;
+        report.TokiskShiireSakiFrom = null;
+        report.TokiskShiireSakiTo = null;
+        report.TokiStShiireSakiFrom = null;
+        report.TokiStShiireSakiTo = null;
+
+        if (salebranchlst.Count >= 1)
+        {
+            report.SaleBranch = salebranchlst.First();
+        }
+        else
+        {
+            EmptySaleBranch = true;
+        }
+        if (stafflst.Count >= 1)
+        {
+            report.Staff = stafflst.First();
+            report.PersonInput = stafflst.First();
+        }
+        else
+        {
+            EmptyStaff = true;
+        }
+        formContext = new EditContext(report);
+        await FilterServices.DeleteCustomFilerCondition(new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq, 1, filterConditionFormName);
+        StateHasChanged();
+    }
+
+    private async void BtnSubmitClick()
+    {
+        await SaveCurrentFilter();
+        bool checkDataExist = false;
+        checkDataExist = await BusCoordinationReportService.CheckExistDataReport(report);
+        if (checkDataExist)
+        {
+            if (report.OutputSetting == OutputInstruction.Preview)
+            {
+                string baseUrl = AppSettingsService.GetBaseUrl();
+                searchString = EncryptHelper.EncryptToUrl(report);
+                string url = baseUrl + "/BusCoordinationReportPreview";
+                url = url + string.Format("/?SearchString={0}", searchString);
+                JSRuntime.InvokeVoidAsync("open", url, "_blank");
+            }
+            else if (report.OutputSetting == OutputInstruction.Pdf)
+            {
+                await OnExportPdf(1);
+            }
+        }
+        else
+        {
+            PopupCheckData = true;
+        }
+        formContext = new EditContext(report);
+        StateHasChanged();
+    }
+    void OnBookingFromSelectedChanged(ReservationClassComponentData value)
+    {
+        report.YoyakuFrom = value;
+        if (!isFilterApply) StateHasChanged();
+    }
+    void OnBookingToSelectedChanged(ReservationClassComponentData value)
+    {
+        report.YoyakuTo = value;
+        if (!isFilterApply) StateHasChanged();
+    }
+}

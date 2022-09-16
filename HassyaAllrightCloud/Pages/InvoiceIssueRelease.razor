@@ -1,0 +1,259 @@
+﻿@page "/invoiceissuerelease"
+@inherits InvoiceIssueReleaseBase
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="col-md-7">
+        <h5 class="mb-0">@Lang["Title"]</h5>
+    </div>
+    <div id="div-color-deposit" class="d-flex col-auto flex-wrap align-items-center">
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-1">@Lang["Deposited"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-2">@Lang["Coupon"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-3">@Lang["Some"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-4">@Lang["OneEntry"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-5">@Lang["OverDeposit"]</span>
+        <span class="mr-2 mb-1 mb-lg-0 text-white grid-bill-color-6">@Lang["Unpaid"]</span>
+    </div>
+    <div class="col-auto float-right pr-0">
+        <button class="btn btn-sm btn-danger btnclear" @onclick="async e => await OnReset()">
+            <i class="fa fa-refresh" aria-hidden="true"></i>@Lang["EraseAll"]
+        </button>
+    </div>
+</div>
+
+<EditForm EditContext="formContext" Context="formContext">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="InvoiceIssueReleaseValidator" />
+    <ul class="validation-errors">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <li class="validation-message">@Lang[errorMessage]</li>
+        }
+    </ul>
+    <div id="control-tab" class="title-section border busrepair-accordion-header">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+    </div>
+    <div class="express-condition mb-2 enterField tab-border-form" style="display: none">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["FilterCondition"]"></DxTab>
+            <DxTab Text="@Lang["TabTitle1"]"></DxTab>
+            @*<DxTab Text="@Lang["SaveLayout"]"></DxTab>*@
+        </DxTabs>
+        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0 enterField">
+            <div class="card-body bills-checklist-form focus-form">
+
+                <div class="form-row" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["InvoiceNumber"]</label>
+                            <DxSpinEdit DisplayFormat="D8" MinValue="0" MaxValue="99999999" ShowSpinButtons="false"
+                                        CssClass="width--250 my-text-box"
+                                        ValueExpression="() => invoiceIssueFilter.BillOutputSeq"
+                                        Value="@invoiceIssueFilter.BillOutputSeq"
+                                        ValueChanged="@(async (newValue) => await ChangeValueForm(nameof(invoiceIssueFilter.BillOutputSeq), newValue))"
+                                        maxlength="8"></DxSpinEdit>
+                            <label class="pr-2 pl-2">-</label>
+                            <DxSpinEdit DisplayFormat="D4" MinValue="0" MaxValue="9999" ShowSpinButtons="false"
+                                        CssClass="width--110 my-text-box"
+                                        ValueExpression="() => invoiceIssueFilter.BillSerialNumber"
+                                        Value="@invoiceIssueFilter.BillSerialNumber"
+                                        ValueChanged="@(async (newValue) => await ChangeValueForm(nameof(invoiceIssueFilter.BillSerialNumber), newValue))"
+                                        maxlength="4"></DxSpinEdit>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left">@Lang["InvoiceIssuancePeriod"]</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => invoiceIssueFilter.StartBillIssuedDate)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxDateEdit CssClass="filter-inline date-sm"
+                                            Date="@invoiceIssueFilter.StartBillIssuedDate"
+                                            DateExpression="@(() => invoiceIssueFilter.StartBillIssuedDate)"
+                                            Format=@dateFormat
+                                            DateChanged="@(async (newValue) => await ChangeValueForm(nameof(invoiceIssueFilter.StartBillIssuedDate), newValue))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+
+                                </DxDateEdit>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline">
+                                <DxDateEdit CssClass="filter-inline date-sm"
+                                            Date="@invoiceIssueFilter.EndBillIssuedDate"
+                                            DateExpression="@(() => invoiceIssueFilter.EndBillIssuedDate)"
+                                            Format=@dateFormat
+                                            DateChanged="@(async (newValue) => await ChangeValueForm(nameof(invoiceIssueFilter.EndBillIssuedDate), newValue))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                                </DxDateEdit>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left pl-5">@Lang["BillingAddress"]</label>
+                            @if (isCustomerLoaded)
+                            {
+                                <div class="w-100">
+                                    <CustomerComponent @ref="customerFrom" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       RenderMode="ListRenderMode.Virtual"
+                                                       LangDic="LangDic"
+                                                       GyosyaExpression="() => invoiceIssueFilter.SelectedGyosyaFrom"
+                                                       SelectedGyosya="invoiceIssueFilter.SelectedGyosyaFrom"
+                                                       SelectedGyosyaChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedGyosyaFrom), val)"
+                                                       DefaultGyosya="defaultFrom.GyosyaCdSeq"
+                                                       TokiskExpression="() => invoiceIssueFilter.SelectedTokiskFrom"
+                                                       SelectedTokisk="invoiceIssueFilter.SelectedTokiskFrom"
+                                                       SelectedTokiskChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedTokiskFrom), val)"
+                                                       DefaultTokisk="defaultFrom.TokiskCdSeq"
+                                                       DefaultTokiskNullText="@Lang["tokisk_nulltext"]"
+                                                       TokiStExpression="() => invoiceIssueFilter.SelectedTokiStFrom"
+                                                       SelectedTokiSt="invoiceIssueFilter.SelectedTokiStFrom"
+                                                       SelectedTokiStChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedTokiStFrom), val)"
+                                                       DefaultTokiSt="defaultFrom.TokiStCdSeq"
+                                                       FirstLoaded="async () => await FirstLoad(true)">
+                                    </CustomerComponent>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label condition-label-custom text-left pl-5">～</label>
+                            @if (isCustomerLoaded)
+                            {
+                                <div class="w-100">
+                                    <CustomerComponent @ref="customerTo" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       RenderMode="ListRenderMode.Virtual"
+                                                       LangDic="LangDic"
+                                                       GyosyaExpression="() => invoiceIssueFilter.SelectedGyosyaTo"
+                                                       SelectedGyosya="invoiceIssueFilter.SelectedGyosyaTo"
+                                                       SelectedGyosyaChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedGyosyaTo), val)"
+                                                       DefaultGyosya="defaultTo.GyosyaCdSeq"
+                                                       TokiskExpression="() => invoiceIssueFilter.SelectedTokiskTo"
+                                                       SelectedTokisk="invoiceIssueFilter.SelectedTokiskTo"
+                                                       SelectedTokiskChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedTokiskTo), val)"
+                                                       DefaultTokisk="defaultTo.TokiskCdSeq"
+                                                       DefaultTokiskNullText="@Lang["tokisk_nulltext"]"
+                                                       TokiStExpression="() => invoiceIssueFilter.SelectedTokiStTo"
+                                                       SelectedTokiSt="invoiceIssueFilter.SelectedTokiStTo"
+                                                       SelectedTokiStChanged="async (val) => await ChangeValueForm(nameof(invoiceIssueFilter.SelectedTokiStTo), val)"
+                                                       DefaultTokiSt="defaultTo.TokiStCdSeq"
+                                                       FirstLoaded="async () => await FirstLoad(false)">
+                                    </CustomerComponent>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                    <div class="col-sm-12">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["WidthChange"]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            <button class="@string.Format("btn-option mx-2 {0}", invoiceIssueFilter.ActiveV == (int)ViewMode.Large ? "btn-active" : string.Empty)"
+                                    type="button" @onclick="@(async e => await ChangeValueForm(nameof(invoiceIssueFilter.ActiveV), (int)ViewMode.Large))">
+                                @Lang["WidthLarge"]
+                            </button>
+                            <button class="@string.Format("btn-option mx-2 {0}", invoiceIssueFilter.ActiveV == (int)ViewMode.Medium ? "btn-active" : string.Empty)" type="button"
+                                    @onclick="@(async e => await ChangeValueForm(nameof(invoiceIssueFilter.ActiveV), (int)ViewMode.Medium))">
+                                @Lang["WidthMedium"]
+                            </button>
+                            <button class="@string.Format("btn-option ml-2 {0}", invoiceIssueFilter.ActiveV == (int)ViewMode.Small ? "btn-active" : string.Empty)" type="button"
+                                    @onclick="@(async e => await ChangeValueForm(nameof(invoiceIssueFilter.ActiveV), (int)ViewMode.Small))">
+                                @Lang["WidthSmall"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-row" style="@(ActiveTabIndex != 2 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="d-flex">
+                                <DxButton CssClass="savegridlayout" Text="@Lang["SaveGridLayout"]"  Click="@(async e => await SaveGridLayout(true))" SizeMode="SizeMode.Small" />
+                                <DxButton CssClass="savegridlayout" Text="@Lang["InitGridLayout"]" Click="@(async e => await SaveGridLayout(false))" SizeMode="SizeMode.Small" />
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</EditForm>
+<div id="div-color-deposit" class="d-flex flex-wrap align-items-center">
+    @if (GridCheckDatas.Any(x => x.Checked))
+    {
+        <span @onclick="async e => await ReleaseInvoice()"><i class="fa fa-trash fa-2x remove-icon" title="@Lang["ReleaseInvoiceTitle"]"></i></span>
+    }
+    else
+    {
+        <span><i class="fa fa-trash fa-2x" style="opacity:0.7;color: #dc3545;" title="@Lang["ReleaseInvoiceTitle"]"></i></span>
+    }
+</div>
+<div class="table-bill-wrapper grid-@invoiceIssueFilter.ActiveV" id="table-bill-wrapper">
+    <table class="table-bill-layout table-layout">
+        <thead>
+            <tr class="header-row">
+                <th class="check-box align-items-center">
+                    <div class="align-items-center ">
+                        <DxCheckBox Checked="@itemCheckAll" CheckedExpression="@(() => itemCheckAll)"
+                                    CheckedChanged="@((value)=> CheckedItemAllChanged(value))"
+                                    CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                    </div>
+                </th>
+                <th class="bill-no">@Lang["GridNo"]</th>
+                <th class="bill-date">@Lang["GridBillNumber"]</th>
+                <th class="bill-office">@Lang["GridBillDate"]</th>
+                <th class="bill-customer">@Lang["GridBillAddressName"]</th>
+                <th class="bill-receipt">@Lang["GridBillAmount"]</th>
+                <th class="bill-receipt">@Lang["GridSalesAmount"]</th>
+                <th class="bill-incident">@Lang["GridTax"]</th>
+                <th class="incident-load">@Lang["GridFee"]</th>
+                <th class="sale-amount">@Lang["GridIssueDate"]</th>
+                <th class="tax-amount">@Lang["GridIssueTime"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (GridDatas != null)
+            {
+                @foreach (var data in GridDatas.Select((value, i) => new { i, value }))
+                {
+                    <tr class="body-bill-row-1">
+                        <td class="row-2 check-box align-items-center sticky-col first-sticky-col">
+                            <div class="align-items-center ">
+                                <DxCheckBox Checked="@data.value.Checked" CheckedExpression="@(() => data.value.Checked)"
+                                            CheckedChanged="@((value)=> CheckedValueGridChanged(data.value, value, false))"
+                                            CssClass="mr-1 d-inline-block label-font-weight-normal"></DxCheckBox>
+                            </div>
+                        </td>
+                        <td class="row-2 bill-no sticky-col second-sticky-col">@(CurrentPage * itemPerPage + data.i + 1)</td>
+                        <td class="row-2 bill-date">@(data.value.SeiOutSeq + "-" + data.value.SeiRen)</td>
+                        <td class="row-2 bill-office">
+                            @((string.IsNullOrWhiteSpace(data.value.MinSeiTaiYmd) && string.IsNullOrWhiteSpace(data.value.MaxSeiTaiYmd)) ? string.Empty
+                        : ((string.IsNullOrWhiteSpace(data.value.MinSeiTaiYmd) ? string.Empty : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.MinSeiTaiYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))
+                        + "～" + (string.IsNullOrWhiteSpace(data.value.MaxSeiTaiYmd) ? string.Empty : string.Format("{0:yyyy/MM/dd}", DateTime.ParseExact(data.value.MaxSeiTaiYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))))
+
+                        </td>
+                        <td class="row-2 bill-office">@(data.value.SeiRyakuNm + " " + data.value.SeiSitRyakuNm)</td>
+                        <td class="sales-amount">@(string.Format("{0:#,0}", data.value.KonSeiG))</td>
+                        <td class="sales-amount">@(string.Format("{0:#,0}", data.value.KonUriG))</td>
+                        <td class="sales-amount">@(string.Format("{0:#,0}", data.value.KonSyoG))</td>
+                        <td class="sales-amount">@(string.Format("{0:#,0}", data.value.KonTesG))</td>
+                        <td class="bill-date">@(string.IsNullOrWhiteSpace(data.value.SeiHatYmd) ? string.Empty : string.Format("{0:yy/MM/dd}", DateTime.ParseExact(data.value.SeiHatYmd, "yyyyMMdd", CultureInfo.CurrentCulture)))</td>
+                        <td class="bill-date">
+                            @(string.IsNullOrWhiteSpace(data.value.SeiOutTime) ? string.Empty
+                        : (new TimeSpan(Int32.Parse(data.value.SeiOutTime.Substring(0, 2)), Int32.Parse(data.value.SeiOutTime.Substring(2, 2)), 0)).ToString(@"hh\:mm"))
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+@if (NumberOfPage > itemPerPage)
+{
+    <div class="mb-2 mt-3">
+        <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                         TotalCount="NumberOfPage" @ref="paging">
+        </HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+}
+<div id="total-bill-area" class="total-bill-table"></div>

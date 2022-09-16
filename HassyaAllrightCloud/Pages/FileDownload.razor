@@ -1,0 +1,22 @@
+﻿
+@layout EmptyLayout
+<DownloadDocument FileId="@fileId" UpdSyainCd="new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq" Loading="UpdateLoading" OnError="OnError"></DownloadDocument>
+@code { 
+    [Parameter] public string fileId { get; set; }
+    [Inject] ILoadingService _loading { get; set; }
+    [Inject] protected IErrorHandlerService _errService { get; set; }
+
+    void UpdateLoading(bool loading)
+    {
+        if (loading)
+            _loading.ShowAsync();
+        else
+            _loading.HideAsync();
+    }
+
+    private void OnError(Exception ex)
+    {
+        _errService.HandleError(ex);
+    }
+}
+ 

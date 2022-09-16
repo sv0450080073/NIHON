@@ -1,0 +1,2157 @@
+﻿@page "/bustypelist"
+@inject CustomNavigation NavManager
+@inject IStringLocalizer<BusTypeList> Lang
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject ITPM_CompnyDataListService CompanyDataService
+@inject ITPM_EigyosDataListService BranchDataService
+@inject IBusTypeListService BusTypeService
+@inject IStaffListService StaffListService
+@inject IVehicleAvailabilityConfirmationMobileService _service
+@inject CustomHttpClient Http
+@inject AppSettingsService AppSettingsService
+@inject IBusTypeListReportService BusTypeListReportService
+@inject ITPM_CodeSyService TPM_CodeSyService
+@inject IJSRuntime JSRuntime
+@inject ITPM_CompnyDataListService TPM_CompnyDataService
+@inject IFilterCondition FilterServices
+@using HassyaAllrightCloud.Commons.Helpers.ExcelExport;
+@inject IErrorHandlerService ErrorModalService
+@using BlazorDownloadFile;
+@using HassyaAllrightCloud.Pages.Components.CommonComponents
+@using HassyaAllrightCloud.Domain.Dto.CommonComponents
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">@Lang["page_title"]</h5>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="async () => await ResetSearchOption()">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["clear"]
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<EditForm EditContext="@formContext" id="bustypelistrp" OnSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <FluentValidator TValidator="BusTypeListValidator" />
+    <div id="control-tab" class="title-section mb-2">
+        <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["conditions"]
+    </div>
+    <div class="express-condition mb-2" style="display: none;">
+        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxTab Text="@Lang["basic_conditions"]"></DxTab>
+            <DxTab Text="@Lang["detail_conditions"]"></DxTab>
+            <DxTab Text="@Lang["display_settings"]"></DxTab>
+            <DxTab Text="@Lang["output_settings"]"></DxTab>
+        </DxTabs>
+        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+            <div class="card-body pb-0">
+                @switch (ActiveTabIndex)
+                {
+                    case 0:
+                        <div class="d-flex">
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["startdate"]</label>
+                                <DxDateEdit Date="@data.StartDate"
+                                            DateChanged="@((newValue) => OnDateChanged(newValue))"
+                                            DateExpression="@(() => data.StartDate)"
+                                            Format="yyyy/MM/dd"
+                                            CssClass="width--120 withtabindex">
+                                </DxDateEdit>
+                                <button type="button" class="btn btn-secondary btn-sm mx-2 text-nowrap" @onclick="@((e) => TodayClick(e))">@Lang["btn_today"]</button>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["booking"]</label>
+                                @*+ (IsEmptyBranch ? " invalid" : ""
+                                    IsEmptyBranch?emptyItemMessage[nameof(EmptyBranchMessage)] :""
+                                *@
+                                <div class="col-10">
+                                    <div class="row">
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       SelectedReservationClass="data.BookingTypeFrom"
+                                                                       SelectedReservationClassChanged="(e) => OnBookingSelectedItemChanged(e)"
+                                                                       ReservationClassExpression="() => data.BookingTypeFrom"
+                                                                       @ref="component">
+                                            </ReservationClassComponent>
+                                        </div>
+                                        <span class="text-center p-1">～</span>
+                                        <div class="has-tooltip-error w-46">
+                                            <ReservationClassComponent ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                       LangDic="LangDic"
+                                                                       SelectedReservationClass="data.BookingTypeTo"
+                                                                       SelectedReservationClassChanged="(e) => OnBookingSelectedItemChanged(e, false)"
+                                                                       ReservationClassExpression="() => data.BookingTypeTo">
+                                            </ReservationClassComponent>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["company"]</label>
+                                <DxComboBox Data="@Companies"
+                                            NullText="@Lang["CompanyCodeName"]"
+                                            TextFieldName="CompanyTextReport"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.Company"
+                                            SelectedItemChanged="async (e) => await OnCompanySelectedChanged(e)"
+                                            SelectedItemExpression="@(() => data.Company)"
+                                            CssClass="custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        break;
+                    case 1:
+                        <div class="form-group d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-3 width--75">@Lang["sales_office"]</label>
+                            <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                <Tooltip ValueExpressions="@(() => data.BranchEnd )"
+                                         Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                <DxComboBox Data="@Branches"
+                                            NullText="@Lang["SalesOfficeCodeName"]"
+                                            TextFieldName="BranchTextReport"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.BranchStart"
+                                            SelectedItemChanged="@((newBranch) => OnSaleBranchChanged(newBranch))"
+                                            SelectedItemExpression="@(() => data.BranchEnd)"
+                                            CssClass="width--290 custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                <Tooltip ValueExpressions="@(() => data.BranchEnd )"
+                                         Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                <DxComboBox Data="@Branches"
+                                            NullText="@Lang["SalesOfficeCodeName"]"
+                                            TextFieldName="BranchTextReport"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.BranchEnd"
+                                            SelectedItemChanged="@((newBranch) => OnSaleBranchChanged(newBranch, false))"
+                                            SelectedItemExpression="@(() => data.BranchEnd)"
+                                            CssClass="width--290 custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-3">
+                                <label class="col-form-label-sm mr-3 width--75">@Lang["sales_representative"]</label>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.SalesStaffEnd )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="StaffList"
+                                                NullText="@Lang["SalesRepresentativeCodeName"]"
+                                                TextFieldName="StaffText"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="data.SalesStaffStart"
+                                                SelectedItemChanged="@((e) => OnStaffChanged(e))"
+                                                SelectedItemExpression="@(() => data.SalesStaffEnd)"
+                                                CssClass="width--205 custom-combo-box withtabindex">
+                                    </DxComboBox>
+                                </div>
+                                <span class="mx-2">～</span>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.SalesStaffEnd )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="StaffList"
+                                                NullText="@Lang["SalesRepresentativeCodeName"]"
+                                                TextFieldName="StaffText"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="data.SalesStaffEnd"
+                                                SelectedItemChanged="@((e) => OnStaffChanged(e, false))"
+                                                SelectedItemExpression="@(() => data.SalesStaffEnd)"
+                                                CssClass="width--205 custom-combo-box withtabindex ">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                <label class="col-form-label-sm mr-3 width--75">@Lang["input_person"]</label>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.PersonInputEnd )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="StaffList"
+                                                NullText="@Lang["SalesRepresentativeCodeName"]"
+                                                TextFieldName="StaffText"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="data.PersonInputStart"
+                                                SelectedItemChanged="@((e) => OnPersonInputChanged(e))"
+                                                SelectedItemExpression="@(() => data.PersonInputEnd)"
+                                                CssClass="width--205 custom-combo-box  withtabindex">
+                                    </DxComboBox>
+                                </div>
+                                <span class="mx-2">～</span>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.PersonInputEnd )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="StaffList"
+                                                NullText="@Lang["SalesRepresentativeCodeName"]"
+                                                TextFieldName="StaffText"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="data.PersonInputEnd"
+                                                SelectedItemChanged="@((e) => OnPersonInputChanged(e, false))"
+                                                SelectedItemExpression="@(() => data.PersonInputEnd)"
+                                                CssClass="width--205 custom-combo-box withtabindex ">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-3 width--75">@Lang["destination"]</label>
+                            <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                <Tooltip ValueExpressions="@(() => data.DestinationEnd )"
+                                         Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                <DxComboBox Data="DestinationList"
+                                            NullText="@Lang["DestinationCodeName"]"
+                                            TextFieldName="TextReport"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.DestinationStart"
+                                            SelectedItemChanged="@((e) => OnSelectedDestinationChanged(e))"
+                                            SelectedItemExpression="@(() => data.DestinationEnd)"
+                                            CssClass="width--290 custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                            <span class="mx-2">～</span>
+                            <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                <Tooltip ValueExpressions="@(() => data.DestinationEnd )"
+                                         Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                <DxComboBox Data="DestinationList"
+                                            NullText="@Lang["DestinationCodeName"]"
+                                            TextFieldName="TextReport"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.DestinationEnd"
+                                            SelectedItemChanged="@((e) => OnSelectedDestinationChanged(e, false))"
+                                            SelectedItemExpression="@(() => data.DestinationEnd)"
+                                            CssClass="width--290 custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-3">
+                                <label class="col-form-label-sm mr-3 width--75">@Lang["bus_type"]</label>
+                                <DxComboBox Data="BusTypes"
+                                            NullText="@Lang["TypeCodeName"]"
+                                            TextFieldName="TextBusTypeList"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            SelectedItem="@data.BusType"
+                                            SelectedItemChanged="OnBusTypeSelectedChanged"
+                                            SelectedItemExpression="@(() => data.BusType)"
+                                            CssClass="width--205 custom-combo-box withtabindex">
+                                </DxComboBox>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                <label class="col-form-label-sm mr-3">@Lang["vehicle_type"]</label>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.VehicleTo )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="VehicleTypes"
+                                                NullText="@Lang["ModelCodeName"]"
+                                                TextFieldName="Text"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="@data.VehicleFrom"
+                                                SelectedItemChanged="@((e) => OnShashuChanged(e))"
+                                                SelectedItemExpression="@(() => data.VehicleTo)"
+                                                CssClass="width--205 custom-combo-box withtabindex ">
+                                    </DxComboBox>
+                                </div>
+                                <span class="mx-2">～</span>
+                                <div class=@("has-tooltip-error custom-listbox-invalid" )>
+                                    <Tooltip ValueExpressions="@(() => data.VehicleTo )"
+                                             Lang="@LangDic" Position="PositionTooltip.top" Text="@("")"></Tooltip>
+                                    <DxComboBox Data="VehicleTypes"
+                                                NullText="@Lang["ModelCodeName"]"
+                                                TextFieldName="Text"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                SelectedItem="@data.VehicleTo"
+                                                SelectedItemChanged="@((e) => OnShashuChanged(e, false))"
+                                                SelectedItemExpression="@(() => data.VehicleTo)"
+                                                CssClass="width--205 custom-combo-box withtabindex ">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        break;
+                    case 2:
+                        <div class="d-flex">
+                            <div class="form-group d-flex flex-nowrap align-items-center mr-5">
+                                <label class="col-form-label-sm mr-3">@Lang["WidthChange"]</label>
+                                <nav class="nav nav-pills text-center">
+                                    <a href="javascript:void(0)" class="nav-link width--75 withtabindex  @(gridsize == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => ViewChanged(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                    <a href="javascript:void(0)" class="nav-link width--75 withtabindex @(gridsize == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => ViewChanged(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                    <a href="javascript:void(0)" class="nav-link width--75 withtabindex @(gridsize == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => ViewChanged(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                                </nav>
+                            </div>
+                            <div class="form-group d-flex flex-nowrap">
+                                <label class="col-form-label-sm mr-3">@Lang["grouping"]</label>
+                                <nav class="nav nav-pills text-center">
+                                    <a href="javascript:void(0)" class="nav-link width--90 withtabindex @(group == (int)GroupMode.All ? "active" : null)" @onclick="@(e => GroupChanged(e, (int)GroupMode.All))">@Lang["group_all"]</a>
+                                    <a href="javascript:void(0)" class="nav-link width--90 withtabindex @(group == (int)GroupMode.Branch ? "active" : null)" @onclick="@(e => GroupChanged(e, (int)GroupMode.Branch))">@Lang["group_branch"]</a>
+                                    <a href="javascript:void(0)" class="nav-link width--90 withtabindex @(group == (int)GroupMode.Company ? "active" : null)" @onclick="@(e => GroupChanged(e, (int)GroupMode.Company))">@Lang["group_company"]</a>
+                                </nav>
+                            </div>
+                        </div>
+                        break;
+                    case 3:
+                        <div class="form-group d-flex flex-nowrap">
+                            <label class="col-form-label-sm mr-3">@Lang["OutputInst"]</label>
+                            <nav class="nav nav-pills text-center">
+                                <a href="javascript:void(0)" class="nav-link width--110 withtabindex @(data.OutputType == OutputReportType.Preview ? "active" : null)" @onclick="@(e => data.OutputType = OutputReportType.Preview)">@Lang["preview"]</a>
+                                <a href="javascript:void(0)" class="nav-link width--110 withtabindex @(data.OutputType == OutputReportType.ExportPdf ? "active" : null)" @onclick="@(e => data.OutputType = OutputReportType.ExportPdf)">@Lang["pdf"]</a>
+                                <a href="javascript:void(0)" class="nav-link width--110 withtabindex @(data.OutputType == OutputReportType.Excel ? "active" : null)" @onclick="@(e => data.OutputType = OutputReportType.Excel)">@Lang["Excel"]</a>
+                            </nav>
+                        </div>
+                        <div class="form-group d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-3">@Lang["PageSizeTitle"]</label>
+                            <div class="border px-2 pt-2">
+                                <div class="d-flex">
+                                    <div class="form-group d-flex flex-nowrap mr-5">
+                                        <label class="col-form-label-sm mr-3">@Lang["PageSize"]</label>
+                                        <DxComboBox ReadOnly="data.OutputType == OutputReportType.Excel"
+                                                    Data="@PaperSizeOptions"
+                                                    AllowUserInput="false"
+                                                    SelectedItem="@data.PaperSize"
+                                                    SelectedItemChanged="@OnPaperSizeChanged"
+                                                    SelectedItemExpression="() => data.PaperSize"
+                                                    CssClass=" withtabindex ">
+                                        </DxComboBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm mr-3">@Lang["FormOutput"]</label>
+                                        <DxComboBox ReadOnly="data.OutputType == OutputReportType.Excel"
+                                                    Data="@DepositOutputs"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="Text"
+                                                    SelectedItem="@data.DepositOutputTemplate"
+                                                    SelectedItemExpression="@(() => data.DepositOutputTemplate)"
+                                                    SelectedItemChanged="@OnDepositOutputsChanged"
+                                                    CssClass=" withtabindex ">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center form-group">
+                            <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="width--100 withtabindex " Text="@Lang["Output"]"
+                                      @onclick="() => BtnSubmitClick()"
+                                      disabled="@((formContext.GetValidationMessages().Distinct().Any() || isLoading))">
+                            </DxButton>
+                            @*|| IsSelectEmptyCompany || isExporting *@
+                        </div>
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+<div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="date-section d-flex align-items-center mb-2 mb-lg-0">
+        <a class="nav-link py-0 px-0 " href="javascript:void(0)" @onclick="@((e) => OnPrevious(e))">
+            <i class="fa fa-caret-left " aria-hidden="true"></i> @Lang["weekago"]
+        </a>
+        <DxDateEdit Date="@data.StartDate"
+                    DateChanged="@((newValue) => OnDateChanged(newValue))"
+                    DateExpression="@(() => data.StartDate)"
+                    Format="yyyy/MM/dd"
+                    CssClass="width--120 mx-2 ">
+        </DxDateEdit>
+        <a class="nav-link py-0 px-0 " href="javascript:void(0)" @onclick="@((e) => OnNext(e))">
+            @Lang["weeklater"] <i class="fa fa-caret-right" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="list-button">
+        @*<a class="btn btn-sm btn-secondary withtabindex " @onclick="@((e) => ClickBusschedule(e))">
+                <i class="fa fa-bus  " aria-hidden="true"></i> @Lang["delineation_by_vehicle"]
+            </a>*@
+        <button class="btn btn-sm btn-secondary  " @onclick="@((e) => ClickBusschedule(e))">
+            <i class="fa fa-bus  " aria-hidden="true"></i> @Lang["delineation_by_vehicle"]
+        </button>
+    </div>
+</div>
+
+@if (data.GroupMode == GroupMode.All)
+{
+    <div class="gridBusType gridsize--@gridsize mb-2">
+        <div class="gridBusType__content" style="width: calc(4rem * 30 + 16rem);">
+            <div class="gridBusType__head">
+                <div class="col-name">@Lang["model_name"]</div>
+                <div class="col-timeline">
+                    @for (var i = 0; i < number_of_days; i++)
+                    {
+                        bool isDayOff = false;
+                        DateTime date = data.StartDate.AddDays(i);
+                        //var dayOffByCom = CalendarReportList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+                        if (CalendarReportList.Any())
+                        {
+                            var dataOff = CalendarReportList.Where(x => x.CalenYmd == date.ToString("yyyyMMdd")).ToList();
+                            isDayOff = dataOff.Any() ? true : false;
+                        }
+                        <div class="col-timeline__item @date.DayOfWeek.ToString("G").ToLower() @(isDayOff? " sunday " :string.Empty )">
+                            <span>@date.ToString("MM月dd日", ci)</span>
+                            <span>@date.ToString("(ddd)", ci)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="gridBusType__body">
+                @foreach (var item in busTypeList)
+                {
+                    var numberVehicleByBusTypeData = BusTypeDataRowList.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq).ToList();
+                    var numberBusType = NumberOfBusTypeByGroup.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq).FirstOrDefault();
+                    <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@numberVehicleByBusTypeData" ConditionSearch="@data" BusTypeItem="numberBusType" ModeLine="ViewModeBusType.BusTypeNormal" number_of_day="@number_of_days" @ref="BusTypeLineComponentChild"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                }
+                @for (int i = 1; i <= 3; i++)
+                {
+                    var busUnAsignDataByKataKbn = BusUnAsignDataRowList.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                    string TypeNm = i == 1 ? UnTemporaryLarge : i == 2 ? UnTemporaryMedium : UnTemporarySmall;
+                    <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-untemporary " BusUnAsignData="@busUnAsignDataByKataKbn" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusUnAsign"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                }
+                <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TotalUnTemporary" ClassCss=" summary-untemporary " BusUnAsignData="@BusHiringDataRow" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusHiring"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                @for (int i = 1; i <= 3; i++)
+                {
+                    var totalBusTypeRow = TotalBusTypeDataRowList.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                    string TypeNm = i == 1 ? TotalLarge : i == 2 ? TotalMedium : TotalSmall;
+                    <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-total " BusTypeDetailDataBySizeList="@totalBusTypeRow" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumVehicle"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                }
+                @for (int i = 1; i <= 2; i++)
+                {
+                    var totalEmploee = TotalEmployeeDataRowList.Where(x => x.IsDriver == i).ToList();
+                    string TypeNm = i == 1 ? TotalDriver : TotalGuide;
+                    if (totalEmploee != null)
+                    {
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@totalEmploee" ClassCss=" summary-total " ConditionSearch="@data" BusTypeName="@TypeNm" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumEmployee"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (data.GroupMode == GroupMode.Company)
+{
+    @foreach (var com in comBusTypeNormalList)
+    {
+        var busTypeByComSeq = BusTypeDataRowList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+        var busUnAsignByComSeq = BusUnAsignDataRowList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+        var busHiringByComSeq = BusHiringDataRowList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+        var totalBusTypeByComSeq = TotalBusTypeDataRowList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+        var totalEmployeeByComSeq = TotalEmployeeDataRowList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq).ToList();
+        <div class="title-section mb-2">
+            <i class="fa fa-angle-down" aria-hidden="true"></i>@com.COM_RyakuNm
+        </div>
+        <div class="gridBusType gridsize--@gridsize mb-2">
+            <div class="gridBusType__content">
+                <div class="gridBusType__head">
+                    <div class="col-name">@Lang["model_name"]</div>
+                    <div class="col-timeline">
+                        @for (var i = 0; i < number_of_days; i++)
+                        {
+                            bool isDayOff = false;
+                            DateTime date = data.StartDate.AddDays(i);
+                            var dayOffByCom = CalendarReportList.Where(x => x.CompanyCdSeq == com.CompanyCdSeq || x.CompanyCdSeq == 0).ToList();
+                            if (dayOffByCom.Any())
+                            {
+                                var dataOff = dayOffByCom.Where(x => x.CalenYmd == date.ToString("yyyyMMdd")).ToList();
+                                isDayOff = dataOff.Any() ? true : false;
+                            }
+                            <div class="col-timeline__item @date.DayOfWeek.ToString("G").ToLower() @(isDayOff? " sunday " :string.Empty )">
+                                <span>@date.ToString("MM月dd日", ci)</span>
+                                <span>@date.ToString("(ddd)", ci)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="gridBusType__body">
+                    @foreach (var item in busTypeList) //todo checknull
+                    {
+                        @if (item != null)
+                        {
+                            var numberVehicleOfBusTypeData = busTypeByComSeq.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq).ToList();
+                            var numberBusType = NumberOfBusTypeByGroup.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq && x.CompanyCdSeq == com.CompanyCdSeq).FirstOrDefault();
+                            if (numberVehicleOfBusTypeData != null)
+                            {
+                                <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@numberVehicleOfBusTypeData" ConditionSearch="@data" BusTypeName="@item.SyaSyuNmFormat" BusTypeItem="numberBusType" ModeLine="ViewModeBusType.BusTypeNormal" number_of_day="@number_of_days" @ref="BusTypeLineComponentChild"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                            }
+                        }
+                    }
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        var busUnAsignDataByKataKbn = busUnAsignByComSeq.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                        string TypeNm = i == 1 ? UnTemporaryLarge : i == 2 ? UnTemporaryMedium : UnTemporarySmall;
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-untemporary " BusUnAsignData="@busUnAsignDataByKataKbn" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusUnAsign"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @if (busHiringByComSeq != null)
+                    {
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TotalUnTemporary" ClassCss=" summary-untemporary " BusUnAsignData="@busHiringByComSeq" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusHiring"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        var totalBusTypeRow = totalBusTypeByComSeq.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                        string TypeNm = i == 1 ? TotalLarge : i == 2 ? TotalMedium : TotalSmall;
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-total " BusTypeDetailDataBySizeList="@totalBusTypeRow" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumVehicle"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @for (int i = 1; i <= 2; i++)
+                    {
+                        var totalEmployee = totalEmployeeByComSeq.Where(x => x.IsDriver == i).ToList();
+                        string TypeNm = i == 1 ? TotalDriver : TotalGuide;
+                        if (totalEmployee != null)
+                        {
+                            <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@totalEmployee" ClassCss=" summary-total " ConditionSearch="@data" BusTypeName="@TypeNm" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumEmployee"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+}
+@if (data.GroupMode == GroupMode.Branch)
+{
+    @foreach (var branch in branchBusTypeNormalList)
+    {
+        var busTypeByBranchSeq = BusTypeDataRowList.Where(x => x.EigyoCdSeq == branch.EigyoCdSeq).ToList();
+        var busUnAsignByBranchSeq = BusUnAsignDataRowList.Where(x => x.UkeEigCdSeq == branch.EigyoCdSeq).ToList();
+        var busHiringByBranchSeq = BusHiringDataRowList.Where(x => x.UkeEigCdSeq == branch.EigyoCdSeq).ToList();
+        var totalBusTypeByBranchSeq = TotalBusTypeDataRowList.Where(x => x.EigyoCdSeq == branch.EigyoCdSeq).ToList();
+        var totalEmployeeByBranchSeq = TotalEmployeeDataRowList.Where(x => x.EigyoCdSeq == branch.EigyoCdSeq).ToList();
+        <div class="title-section mb-2">
+            <i class="fa fa-angle-down" aria-hidden="true"></i>@branch.Ei_RyakuNm
+        </div>
+        <div class="gridBusType gridsize--@gridsize mb-2">
+            <div class="gridBusType__content">
+                <div class="gridBusType__head">
+                    <div class="col-name">@Lang["model_name"]</div>
+                    <div class="col-timeline">
+                        @for (var i = 0; i < number_of_days; i++)
+                        {
+                            bool isDayOff = false;
+                            DateTime date = data.StartDate.AddDays(i);
+                            var dayOffByCom = CalendarReportList.Where(x => x.CompanyCdSeq == branch.CompanyCdSeq || x.CompanyCdSeq == 0).ToList();
+                            if (dayOffByCom.Any())
+                            {
+                                var dataOff = dayOffByCom.Where(x => x.CalenYmd == date.ToString("yyyyMMdd")).ToList();
+                                isDayOff = dataOff.Any() ? true : false;
+                            }
+                            <div class="col-timeline__item @date.DayOfWeek.ToString("G").ToLower()  @(isDayOff? " sunday " :string.Empty )">
+                                <span>@date.ToString("MM月dd日", ci)</span>
+                                <span>@date.ToString("(ddd)", ci)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="gridBusType__body">
+                    @foreach (var item in busTypeList) //todo checknull
+                    {
+                        @if (item != null)
+                        {
+                            var numberVehicleOfBusTypeData = busTypeByBranchSeq.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq).ToList();
+                            var numberBusType = NumberOfBusTypeByGroup.Where(x => x.SyaSyuCdSeq == item.SyaSyuCdSeq && x.EigyoCdSeq == branch.EigyoCdSeq).FirstOrDefault();
+                            if (numberVehicleOfBusTypeData != null)
+                            {
+                                <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@numberVehicleOfBusTypeData" ConditionSearch="@data" BusTypeName="@item.SyaSyuNmFormat" BusTypeItem="numberBusType" ModeLine="ViewModeBusType.BusTypeNormal" number_of_day="@number_of_days" @ref="BusTypeLineComponentChild"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                            }
+                        }
+                    }
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        var busUnAsignDataByKataKbn = busUnAsignByBranchSeq.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                        string TypeNm = i == 1 ? UnTemporaryLarge : i == 2 ? UnTemporaryMedium : UnTemporarySmall;
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-untemporary " BusUnAsignData="@busUnAsignDataByKataKbn" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusUnAsign"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @if (busHiringByBranchSeq != null)
+                    {
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TotalUnTemporary" ClassCss=" summary-untemporary " BusUnAsignData="@busHiringByBranchSeq" number_of_day="@number_of_days" ModeLine="ViewModeBusType.BusHiring"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        var totalBusTypeRow = totalBusTypeByBranchSeq.Where(x => x.KataKbn == i).OrderBy(x => x.SyuKoYmd).ToList();
+                        string TypeNm = i == 1 ? TotalLarge : i == 2 ? TotalMedium : TotalSmall;
+                        <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent ConditionSearch="@data" BusTypeName="@TypeNm" ClassCss=" summary-total " BusTypeDetailDataBySizeList="@totalBusTypeRow" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumVehicle"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                    }
+                    @for (int i = 1; i <= 2; i++)
+                    {
+                        var totalEmployee = totalEmployeeByBranchSeq.Where(x => x.IsDriver == i).ToList();
+                        string TypeNm = i == 1 ? TotalDriver : TotalGuide;
+                        if (totalEmployee != null)
+                        {
+                            <HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeDetailDataRow="@totalEmployee" ClassCss=" summary-total " ConditionSearch="@data" BusTypeName="@TypeNm" number_of_day="@number_of_days" ModeLine="ViewModeBusType.SumEmployee"></HassyaAllrightCloud.Pages.Components.BusTypeLineComponent>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+}
+
+
+@code {
+    #region Variables
+    CultureInfo ci = new CultureInfo("ja-JP");
+    EditContext formContext;
+    BusTypeListData data = new BusTypeListData();
+    List<CompanyData> Companies = new List<CompanyData>();
+    List<LoadSaleBranch> Branches = new List<LoadSaleBranch>();
+    List<LoadStaffList> StaffList = new List<LoadStaffList>();
+    List<DestinationData> DestinationList = new List<DestinationData>();
+    List<TPM_CodeKbCodeSyuData> BusTypes = new List<TPM_CodeKbCodeSyuData>();
+    List<BusTypesData> VehicleTypes = new List<BusTypesData>();
+    List<DepositOutputClass> DepositOutputs = new List<DepositOutputClass>();
+    //checked
+    List<BusTypeItemDataReport> BusTypesDataList = new List<BusTypeItemDataReport>();
+    List<BusTypeDetailDataReport> BusTypeDataRow { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeDetailDataReport> BusTypeDataRowList { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeItemDataReport> comBusTypeNormalList = new List<BusTypeItemDataReport>();
+    List<BusTypeItemDataReport> branchBusTypeNormalList = new List<BusTypeItemDataReport>();
+    List<BusTypeItemDataReport> busTypeList = new List<BusTypeItemDataReport>();
+    //UnAsign
+    List<NumberVehicleOfBusUnAsign> BusUnAsignDataRow { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    List<NumberVehicleOfBusUnAsign> BusUnAsignDataRowList { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    //Hirirng
+    List<NumberVehicleOfBusUnAsign> BusHiringDataSource { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    List<NumberVehicleOfBusUnAsign> BusHiringDataRow { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    List<NumberVehicleOfBusUnAsign> BusHiringDataRowList { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    //Total BusType
+    List<BusTypeDetailDataReport> TotalBusTypeDataRow { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeDetailDataReport> TotalBusTypeDataRowList { get; set; } = new List<BusTypeDetailDataReport>();
+    //Total Employee
+    List<BusTypeDetailDataReport> TotalEmployeeDataRow { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeDetailDataReport> TotalEmployeeDataRowList { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeDetailDataReport> NumberVehicleOfGuiSuList { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeItemDataReport> BusTypeWithBranchOrCom { get; set; } = new List<BusTypeItemDataReport>();
+    List<NumberVehicleOfBusUnAsign> BusUnAsignDataSource { get; set; } = new List<NumberVehicleOfBusUnAsign>();
+    List<BusTypeDetailDataReport> BusTypeDetailDataList { get; set; } = new List<BusTypeDetailDataReport>();
+    List<BusTypeItemDataReport> NumberOfBusTypeByGroup { get; set; } = new List<BusTypeItemDataReport>();
+    List<CalendarReport> CalendarReportList { get; set; } = new List<CalendarReport>();
+    VpmSyain SyainNmItem = new VpmSyain();
+    Dictionary<string, string> LangDic = new Dictionary<string, string>();
+    CompanyData allCompany = new CompanyData();
+    LoadSaleBranch allBranch = new LoadSaleBranch();
+    LoadStaffList allStaff = new LoadStaffList();
+    DestinationData allDestination = new DestinationData();
+    TPM_CodeKbCodeSyuData alLBustype = new TPM_CodeKbCodeSyuData();
+    BusTypesData allVehicleType = new BusTypesData();
+    ReservationData allreservation = new ReservationData();
+    IEnumerable<BusCompanyType> lstBusCompanyType = new List<BusCompanyType>();
+    private HassyaAllrightCloud.Pages.Components.BusTypeLineComponent BusTypeLineComponentChild;
+    private int SyainCdSeqLogin { get; set; } = (new ClaimModel()).SyainCdSeq;
+    bool IsFilterApply { get; set; }
+    bool isLoading;
+    string baseUrl = string.Empty;
+    int activeTabIndex = 0;
+    int ActiveTabIndex { get => activeTabIndex; set { activeTabIndex = value; StateHasChanged(); } }
+    public int gridsize { get; set; } = (int)ViewMode.Large;
+    public int group { get; set; } = (int)GroupMode.All;
+    int number_of_days = 31;
+    private List<PaperSize> PaperSizeOptions = new List<PaperSize>();
+    #endregion
+
+    #region Localization string
+    string UnTemporaryLarge;
+    string UnTemporaryMedium;
+    string UnTemporarySmall;
+    string TotalUnTemporary;
+    string TotalLarge;
+    string TotalMedium;
+    string TotalSmall;
+    string TotalDriver;
+    string TotalGuide;
+    string filterConditionFormName = "KJ0300";
+
+    private ReservationClassComponent component = new ReservationClassComponent();
+
+    /// <summary>
+    /// Initialize localization strings
+    /// </summary>
+    private void LocalizationInit()
+    {
+        try
+        {
+            UnTemporaryLarge = "☆" + Lang["untemporary_car"] + "（" + Lang["large_size"] + "）";
+            UnTemporaryMedium = "☆" + Lang["untemporary_car"] + "（" + Lang["medium_size"] + "）";
+            UnTemporarySmall = "☆" + Lang["untemporary_car"] + "（" + Lang["small_size"] + "）";
+            TotalUnTemporary = "○" + Lang["car"];
+            TotalLarge = "●" + Lang["total"] + "（" + Lang["large_size"] + "）";
+            TotalMedium = "●" + Lang["total"] + "（" + Lang["medium_size"] + "）";
+            TotalSmall = "●" + Lang["total"] + "（" + Lang["small_size"] + "）";
+            TotalDriver = "●" + Lang["total"] + "（" + Lang["number_of_driver"] + "）";
+            TotalGuide = "●" + Lang["total"] + "（" + Lang["number_of_guide"] + "）";
+            var dataLang = Lang.GetAllStrings();
+            LangDic = dataLang.ToDictionary(l => l.Name, l => l.Value);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+    #endregion
+
+    #region Component Lifecycle
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            formContext = new EditContext(data);
+            baseUrl = AppSettingsService.GetBaseUrl();
+            LocalizationInit();
+            await LoadCompany();
+            await LoadBranch();
+            await LoadStaff();
+            await LoadDestination();
+            await LoadBusType();
+            await LoadVehicleType();
+            int tenantIdByCodeSyu = await TPM_CodeSyService.CheckTenantByKanriKbnAsync(data.TenantCdSeq, "KATAKBN");
+            data.TenantCdSeqByCodeSyu = tenantIdByCodeSyu;
+            SyainNmItem = await TPM_CompnyDataService.GetSyainNmBySyainCdSeq(new ClaimModel().SyainCdSeq);
+            data.SyainCd = SyainNmItem.SyainCd;
+            data.SyainNm = SyainNmItem.SyainNm;
+            GenerateStaticData();
+            await ApplyFilter().ContinueWith(async (t) =>
+            {
+                await LoadResult();
+                await InvokeAsync(StateHasChanged);
+            });
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        try
+        {
+            JSRuntime.InvokeAsync<string>("loadPageScript", "busTypeListPage", "tabKey");
+            JSRuntime.InvokeAsync<string>("loadPageScript", "busTypeListPage", "enterKey");
+            JSRuntime.InvokeVoidAsync("setEventforCurrencyField");
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Load Data
+    /// <summary>
+    /// Load data Company
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadCompany()
+    {
+        try
+        {
+            Companies = await CompanyDataService.GetCompanyByTenantIdAsync(new ClaimModel().TenantID);
+            InsertSelectAll(Companies, _ => _.IsSelectedAll, new CompanyData { IsSelectedAll = true });
+            if (Companies != null && Companies.Any())
+            {
+                data.Company = Companies.FirstOrDefault();
+            }
+            else
+            {
+                Companies = new List<CompanyData>();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    /// <summary>
+    /// Load data Sales Office
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadBranch()
+    {
+        try
+        {
+            if (data.Company != null)
+            {
+                if (data.Company.IsSelectedAll)
+                {
+                    Branches = await BranchDataService.GetBranchDataByTenantId(new ClaimModel().TenantID);
+                }
+                else
+                {
+                    Branches = await BranchDataService.GetBranchDataByCompany(data.Company.CompanyCdSeq, new ClaimModel().TenantID);
+                }
+                Branches = BusTypeListHelper.OrderByBranchByBranchCd(Branches);
+                if (Branches.Any())
+                {
+                    if (Branches.FirstOrDefault().CompanyCdSeq != 0)
+                    {
+                        Branches.Insert(0, allBranch);
+                    }
+                }
+                data.BranchStart = Branches.FirstOrDefault();
+                data.BranchEnd = Branches.FirstOrDefault();
+            }
+            else
+            {
+                Branches = new List<LoadSaleBranch>();
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Load data Staff
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadStaff()
+    {
+        try
+        {
+            StaffList = await StaffListService.GetStaffReport(new ClaimModel().TenantID, data.StartDate.ToString("yyyyMMdd"));
+            StaffList.Insert(0, allStaff);
+            if (StaffList != null && StaffList.Any())
+            {
+                data.SalesStaffStart = StaffList.FirstOrDefault();
+                data.SalesStaffEnd = StaffList.FirstOrDefault();
+                data.PersonInputStart = StaffList.FirstOrDefault();
+                data.PersonInputEnd = StaffList.FirstOrDefault();
+            }
+            else
+            {
+                StaffList = new List<LoadStaffList>();
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Load data Destination
+    /// </summary>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    private async Task LoadDestination()
+    {
+        try
+        {
+            DestinationList = await Http.GetJsonAsync<List<DestinationData>>(baseUrl + "/api/BookingInput/Reservation/Destination");
+            DestinationList.Insert(0, allDestination);
+            if (DestinationList != null && DestinationList.Any())
+            {
+                data.DestinationStart = DestinationList.FirstOrDefault();
+                data.DestinationEnd = DestinationList.FirstOrDefault();
+            }
+            else
+            {
+                DestinationList = new List<DestinationData>();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    /// Load data Bus Types
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadBusType()
+    {
+        try
+        {
+            BusTypes = await BusTypeListReportService.GetCodeKbn(new ClaimModel().TenantID, "KATAKBN");
+            BusTypes.Insert(0, alLBustype);
+            if (BusTypes != null && BusTypes.Any())
+            {
+                data.BusType = BusTypes.FirstOrDefault();
+            }
+            else
+            {
+                BusTypes = new List<TPM_CodeKbCodeSyuData>();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    /// Load data Vehicle Types
+    /// </summary>
+    /// <returns></returns>
+    private async Task LoadVehicleType()
+    {
+        try
+        {
+            int value = 0;
+            int.TryParse(data.BusType.CodeKbn, out value);
+            if (data.BusType == null || value == 0)
+            {
+                VehicleTypes = await BusTypeService.GetAll(new ClaimModel().TenantID);
+            }
+            else
+            {
+                VehicleTypes = await BusTypeService.GetBusTypeBySyaSyuCd(new ClaimModel().TenantID, int.Parse(data.BusType.CodeKbn));
+            }
+            VehicleTypes.Insert(0, allVehicleType);
+            if (VehicleTypes != null && VehicleTypes.Any())
+            {
+                data.VehicleFrom = VehicleTypes.FirstOrDefault();
+                data.VehicleTo = VehicleTypes.FirstOrDefault();
+            }
+            else
+            {
+                VehicleTypes = new List<BusTypesData>();
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    /// <summary>
+    ///
+    /// </summary>
+    private void GenerateStaticData()
+    {
+        try
+        {
+            //number_of_days = CalculateDayFromDateTime(DateTime.Now);
+            data.numberDay = number_of_days;
+            data.GridSize = ViewMode.Large;
+            gridsize = (int)data.GridSize;
+            data.OutputType = OutputReportType.Preview;
+            PaperSizeOptions = new List<PaperSize>
+{
+            PaperSize.A3,
+            PaperSize.A4,
+            PaperSize.B4,
+        };
+            data.PaperSize = PaperSizeOptions.FirstOrDefault();
+            DepositOutputs.Add(new DepositOutputClass()
+            {
+                Id = 1,
+                Name = Lang["DepositList"]
+            });
+            DepositOutputs.Add(new DepositOutputClass()
+            {
+                Id = 2,
+                Name = Lang["DepositOfficeType"]
+            });
+            data.DepositOutputTemplate = DepositOutputs.FirstOrDefault();
+            data.GroupMode = GroupMode.All;
+            data.TenantCdSeq = new ClaimModel().TenantID;
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    async Task LoadResult()
+    {
+        try
+        {
+            number_of_days = 31;
+            data.numberDay = number_of_days;
+            if (formContext.Validate())
+            {
+                isLoading = true;
+                await SaveCurrentFilter();
+                ClearDataOld();
+                LoadReservationList();
+                BusTypesDataList = await BusTypeListReportService.GetBusTypeListReport(data);
+                busTypeList = await BusTypeListReportService.GroupDataByGroupOption(BusTypesDataList, GroupMode.All);
+                branchBusTypeNormalList = await BusTypeListReportService.GroupDataByGroupOption(BusTypesDataList, GroupMode.Branch);
+                comBusTypeNormalList = await BusTypeListReportService.GroupDataByGroupOption(BusTypesDataList, GroupMode.Company);
+                BusUnAsignDataSource = await BusTypeListReportService.GetNumberOfBusUnAsignDataReport(data, BusMode.BusUnAsign);
+                BusHiringDataSource = await BusTypeListReportService.GetNumberOfBusUnAsignDataReport(data, BusMode.BusHiring);
+                CalendarReportList = await BusTypeListReportService.GetDayOff(Constants.CountryCdSeq, new ClaimModel().TenantID, comBusTypeNormalList);
+                await GetNumberOfVehicleData(data);
+                await FillterDataByModeGroup().ContinueWith(t => isLoading = false);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    private async Task GetNumberOfVehicleData(BusTypeListData conditionSearch)
+    {
+        try
+        {
+            BusTypeDetailDataList = await BusTypeListReportService.GetBusTypeDetailData(conditionSearch);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Value Changed Method
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    private async Task OnPrevious(MouseEventArgs e)
+    {
+        try
+        {
+            data.StartDate = data.StartDate.AddDays(-7);
+            //number_of_days = CalculateDayFromDateTime(data.StartDate);
+            data.numberDay = number_of_days;
+            StaffList = await StaffListService.GetStaffReport(new ClaimModel().TenantID, data.StartDate.ToString("yyyyMMdd"));
+            StaffList.Insert(0, allStaff);
+            data.SalesStaffStart = StaffList.FirstOrDefault();
+            data.SalesStaffEnd = StaffList.FirstOrDefault();
+            data.PersonInputStart = StaffList.FirstOrDefault();
+            data.PersonInputEnd = StaffList.FirstOrDefault();
+            await LoadResult();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    private async Task OnNext(MouseEventArgs e)
+    {
+        try
+        {
+            data.StartDate = data.StartDate.AddDays(7);
+            //number_of_days = CalculateDayFromDateTime(data.StartDate);
+            data.numberDay = number_of_days;
+            StaffList = await StaffListService.GetStaffReport(new ClaimModel().TenantID, data.StartDate.ToString("yyyyMMdd"));
+            StaffList.Insert(0, allStaff);
+            data.SalesStaffStart = StaffList.FirstOrDefault();
+            data.SalesStaffEnd = StaffList.FirstOrDefault();
+            data.PersonInputStart = StaffList.FirstOrDefault();
+            data.PersonInputEnd = StaffList.FirstOrDefault();
+            await LoadResult();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+
+
+    private async Task TodayClick(MouseEventArgs e)
+    {
+        try
+        {
+            data.StartDate = DateTime.Today;
+            //number_of_days = CalculateDayFromDateTime(data.StartDate);
+            data.numberDay = number_of_days;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                StaffList = await StaffListService.GetStaffReport(new ClaimModel().TenantID, data.StartDate.ToString("yyyyMMdd"));
+                StaffList.Insert(0, allStaff);
+                data.SalesStaffStart = StaffList.FirstOrDefault();
+                data.SalesStaffEnd = StaffList.FirstOrDefault();
+                data.PersonInputStart = StaffList.FirstOrDefault();
+                data.PersonInputEnd = StaffList.FirstOrDefault();
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    private async void OnDateChanged(DateTime newValue)
+    {
+        try
+        {
+            data.StartDate = newValue;
+            // number_of_days = CalculateDayFromDateTime(newValue);
+            data.numberDay = number_of_days;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                StaffList = await StaffListService.GetStaffReport(new ClaimModel().TenantID, data.StartDate.ToString("yyyyMMdd"));
+                StaffList.Insert(0, allStaff);
+                data.SalesStaffStart = StaffList.FirstOrDefault();
+                data.SalesStaffEnd = StaffList.FirstOrDefault();
+                data.PersonInputStart = StaffList.FirstOrDefault();
+                data.PersonInputEnd = StaffList.FirstOrDefault();
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    private async void OnBookingSelectedItemChanged(ReservationClassComponentData newValue, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.BookingTypeFrom = newValue;
+            }
+            else
+            {
+                data.BookingTypeTo = newValue;
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    /// <returns></returns>
+    private async Task OnCompanySelectedChanged(CompanyData newValue)
+    {
+        try
+        {
+            data.Company = newValue;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadBranch();
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newBranch"></param>
+    /// <param name="isFrom"></param>
+    private async void OnSaleBranchChanged(LoadSaleBranch newBranch, bool isFrom = true)
+    {
+        bool isSelectAll = false;
+        try
+        {
+            if (newBranch != null)
+            {
+                isSelectAll = newBranch.BranchText.Equals(Constants.SelectedAll);
+            }
+            if (isFrom)
+            {
+                data.BranchStart = newBranch;
+                if (isSelectAll)
+                {
+                    data.BranchEnd = Branches.FirstOrDefault();
+                }
+            }
+            else
+            {
+                data.BranchEnd = newBranch;
+                if (isSelectAll)
+                {
+                    data.BranchStart = Branches.FirstOrDefault();
+                }
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newStaff"></param>
+    /// <param name="isFrom"></param>
+    private async void OnStaffChanged(LoadStaffList newStaff, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.SalesStaffStart = newStaff;
+            }
+            else
+            {
+                data.SalesStaffEnd = newStaff;
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newStaff"></param>
+    /// <param name="isFrom"></param>
+    private async void OnPersonInputChanged(LoadStaffList newStaff, bool isFrom = true)
+    {
+
+        try
+        {
+            if (isFrom)
+            {
+                data.PersonInputStart = newStaff;
+            }
+            else
+            {
+                data.PersonInputEnd = newStaff;
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newData"></param>
+    /// <param name="isFrom"></param>
+    protected async void OnSelectedDestinationChanged(DestinationData newData, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.DestinationStart = newData;
+            }
+            else
+            {
+                data.DestinationEnd = newData;
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    protected async void OnBusTypeSelectedChanged(TPM_CodeKbCodeSyuData newValue)
+    {
+        try
+        {
+            data.BusType = newValue;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadVehicleType();
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newValue"></param>
+    /// <param name="isFrom"></param>
+    protected async void OnShashuChanged(BusTypesData newValue, bool isFrom = true)
+    {
+        try
+        {
+            if (isFrom)
+            {
+                data.VehicleFrom = newValue;
+            }
+            else
+            {
+                data.VehicleTo = newValue;
+            }
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await LoadResult();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="number"></param>
+    private async void ViewChanged(MouseEventArgs e, int number)
+    {
+        try
+        {
+            gridsize = number;
+            data.GridSize = (ViewMode)number;
+            formContext.Validate();
+            await SaveCurrentFilter();
+            if (!IsFilterApply)
+                StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="number"></param>
+    private async void GroupChanged(MouseEventArgs e, int number)
+    {
+        try
+        {
+            group = number;
+            data.GroupMode = (GroupMode)number;
+            formContext.Validate();
+            await FillterDataByModeGroup();
+            await SaveCurrentFilter();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    #endregion
+
+    #region Functions
+    /// <summary>
+    ///
+    /// </summary>
+    private async Task ResetSearchOption()
+    {
+        try
+        {
+            isLoading = true;
+            data.StartDate = DateTime.Now;
+            data.BookingTypeFrom = null;
+            data.BookingTypeTo = null;
+            data.Company = Companies.FirstOrDefault();
+            data.BranchStart = Branches.FirstOrDefault();
+            data.BranchEnd = Branches.FirstOrDefault();
+            data.SalesStaffStart = StaffList.FirstOrDefault();
+            data.SalesStaffEnd = StaffList.FirstOrDefault();
+            data.PersonInputStart = StaffList.FirstOrDefault();
+            data.PersonInputEnd = StaffList.FirstOrDefault();
+            data.DestinationStart = DestinationList.FirstOrDefault();
+            data.DestinationEnd = DestinationList.FirstOrDefault();
+            data.BusType = BusTypes.FirstOrDefault();
+            data.VehicleFrom = VehicleTypes.FirstOrDefault();
+            data.VehicleTo = VehicleTypes.FirstOrDefault();
+            gridsize = (int)ViewMode.Large;
+            data.GroupMode = GroupMode.All;
+            group = (int)GroupMode.All;
+            data.OutputType = OutputReportType.Preview;
+            data.PaperSize = PaperSizeOptions.FirstOrDefault();
+            data.DepositOutputTemplate = DepositOutputs.FirstOrDefault();
+            data.TenantCdSeq = new ClaimModel().TenantID;
+            SyainNmItem = await TPM_CompnyDataService.GetSyainNmBySyainCdSeq(new ClaimModel().SyainCdSeq);
+            data.SyainCd = SyainNmItem.SyainCd;
+            data.SyainNm = SyainNmItem.SyainNm;
+            int tenantIdByCodeSyu = await TPM_CodeSyService.CheckTenantByKanriKbnAsync(data.TenantCdSeq, "KATAKBN");
+            data.TenantCdSeqByCodeSyu = tenantIdByCodeSyu;
+            GenerateStaticData();
+            formContext.Validate();
+            formContext = new EditContext(data);
+            await LoadResult().ContinueWith(t => isLoading = false);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+            await LoadResult();
+            formContext.Validate();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+
+    #region Helper
+    /// <summary>
+    /// Add null item to first position for combobox data list
+    /// </summary>
+    /// <param name="source">Data list of combobox</param>
+    private void InsertSelectAll<T>(List<T> source, Func<T, bool> predicate, T emptyObj = null) where T : class
+    {
+        try
+        {
+            if (source.Any() && !source.Where(predicate).Any())
+                source.Insert(0, emptyObj != null ? emptyObj : (T)Activator.CreateInstance(typeof(T))); // Insert a item to mark choose all in first line
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    private async void OnPaperSizeChanged(PaperSize newSize)
+    {
+        try
+        {
+            data.PaperSize = newSize;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await SaveCurrentFilter();
+                StateHasChanged();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    private async void OnDepositOutputsChanged(DepositOutputClass newvalue)
+    {
+        try
+        {
+            data.DepositOutputTemplate = newvalue;
+            formContext.Validate();
+            if (!IsFilterApply)
+            {
+                await SaveCurrentFilter();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    void LoadReservationList()
+    {
+        try
+        {
+            data.ReservationList = component.ListReservationClass;
+            if (data.BookingTypeFrom != null)
+                data.ReservationList = data.ReservationList.Where(_ => _.YoyaKbn >= data.BookingTypeFrom.YoyaKbn).ToList();
+            if (data.BookingTypeTo != null)
+                data.ReservationList = data.ReservationList.Where(_ => _.YoyaKbn <= data.BookingTypeTo.YoyaKbn).ToList();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    private async Task FillterDataByModeGroup()
+    {
+        try
+        {
+            ClearDataOld();
+            if (data.GroupMode == GroupMode.All)
+            {
+                NumberOfBusTypeByGroup = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.All);
+                //busTypeNormal
+                foreach (var item in busTypeList)
+                {
+                    BusTypeDataRow = await BusTypeListReportService.FillterDataByBusType(BusTypeDetailDataList, data, item);
+                    BusTypeDataRowList.AddRange(BusTypeDataRow);
+                }
+                //busUnAsign
+                for (int i = 1; i <= 3; i++)
+                {
+                    BusUnAsignDataRow = await BusTypeListReportService.FillterBusUnAsignDataByKataKbn(BusUnAsignDataSource, data, i, ShowMode.Screen);
+                    BusUnAsignDataRowList.AddRange(BusUnAsignDataRow);
+                }
+                //busHiring
+                BusHiringDataRow = await BusTypeListReportService.FillterBusHiringData(BusHiringDataSource, data);
+                BusHiringDataRowList.AddRange(BusHiringDataRow);
+                //Total BusType
+                for (int i = 1; i <= 3; i++)
+                {
+                    TotalBusTypeDataRow = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.All, null, ShowMode.Screen);
+                    TotalBusTypeDataRowList.AddRange(TotalBusTypeDataRow);
+                }
+                //Total Driver and Gui
+                for (int i = 1; i <= 2; i++)
+                {
+                    var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                    TotalEmployeeDataRow = await BusTypeListReportService.FillterDataByEmployee(BusTypeDetailDataList, data, isDriver, null, GroupMode.All);
+                    TotalEmployeeDataRowList.AddRange(TotalEmployeeDataRow);
+                }
+            }
+            if (data.GroupMode == GroupMode.Company)
+            {
+                NumberOfBusTypeByGroup = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.Company);
+                //Busnormal
+                BusTypeWithBranchOrCom = await BusTypeListReportService.GroupDataByBusType(BusTypesDataList, GroupMode.Company, comBusTypeNormalList);
+                foreach (var item in BusTypeWithBranchOrCom)
+                {
+                    BusTypeDataRow = await BusTypeListReportService.FillterDataByModeGroup(BusTypeDetailDataList, data, item, GroupMode.Company);
+                    BusTypeDataRowList.AddRange(BusTypeDataRow);
+                }
+                foreach (var item in comBusTypeNormalList)
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        BusUnAsignDataRow = await BusTypeListReportService.FillterBusUnAsignDataByModeGroup(BusUnAsignDataSource, data, item, GroupMode.Company, i);
+                        BusUnAsignDataRowList.AddRange(BusUnAsignDataRow);
+                    }
+                    //busHiring
+                    BusHiringDataRow = await BusTypeListReportService.FillterBusHiringDataByModeGroup(BusHiringDataSource, data, item, GroupMode.Company);
+                    BusHiringDataRowList.AddRange(BusHiringDataRow);
+                    //Total Bus Type
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        TotalBusTypeDataRow = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.Company, item, ShowMode.Screen);
+                        TotalBusTypeDataRowList.AddRange(TotalBusTypeDataRow); //todo clear
+                    }
+                    //TOTAL EMPLOYEE
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                        TotalEmployeeDataRow = await BusTypeListReportService.FillterDataByEmployee(BusTypeDetailDataList, data, isDriver, item, GroupMode.Company);
+                        TotalEmployeeDataRowList.AddRange(TotalEmployeeDataRow);
+                    }
+                }
+            }
+            else if (data.GroupMode == GroupMode.Branch)
+            {
+                NumberOfBusTypeByGroup = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.Branch);
+                //BusnORMAL
+                BusTypeWithBranchOrCom = await BusTypeListReportService.GroupDataByBusType(BusTypesDataList, GroupMode.Branch, branchBusTypeNormalList);
+                foreach (var item in BusTypeWithBranchOrCom)
+                {
+                    BusTypeDataRow = await BusTypeListReportService.FillterDataByModeGroup(BusTypeDetailDataList, data, item, GroupMode.Branch);
+                    BusTypeDataRowList.AddRange(BusTypeDataRow);
+                }
+                //BusUnAsign
+                foreach (var item in branchBusTypeNormalList)
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        BusUnAsignDataRow = await BusTypeListReportService.FillterBusUnAsignDataByModeGroup(BusUnAsignDataSource, data, item, GroupMode.Branch, i);
+                        BusUnAsignDataRowList.AddRange(BusUnAsignDataRow);
+                    }
+                    //busHiring
+                    BusHiringDataRow = await BusTypeListReportService.FillterBusHiringDataByModeGroup(BusHiringDataSource, data, item, GroupMode.Branch);
+                    BusHiringDataRowList.AddRange(BusHiringDataRow); //todoclear
+
+                    //Total busType
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        TotalBusTypeDataRow = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.Branch, item, ShowMode.Screen);
+                        TotalBusTypeDataRowList.AddRange(TotalBusTypeDataRow); //todo clear
+                    }
+                    //tOTAL EMPLOYYE
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                        TotalEmployeeDataRow = await BusTypeListReportService.FillterDataByEmployee(BusTypeDetailDataList, data, isDriver, item, GroupMode.Branch);
+                        TotalEmployeeDataRowList.AddRange(TotalEmployeeDataRow);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private void ClearDataOld()
+    {
+        try
+        {
+            BusTypeDataRowList.Clear();
+            BusUnAsignDataRowList.Clear();
+            BusHiringDataRowList.Clear();
+            TotalBusTypeDataRowList.Clear();
+            TotalEmployeeDataRowList.Clear();
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    #endregion
+    #region Handler Submit Report
+    async void BtnSubmitClick()
+    {
+        try
+        {
+            if (formContext.Validate())
+            {
+
+                isLoading = true;
+                await SaveCurrentFilter();
+                if (data.OutputType == OutputReportType.Preview)
+                {
+                    string baseUrl = AppSettingsService.GetBaseUrl();
+                    var searchString = EncryptHelper.EncryptToUrl(SetValueUri(data));
+                    string url = baseUrl + "/bustypelistPreview";
+                    url = url + string.Format("/?SearchString={0}", searchString);
+                    JSRuntime.InvokeVoidAsync("open", url, "_blank");
+                    isLoading = false;
+                }
+                else if (data.OutputType == OutputReportType.ExportPdf)
+                {
+                    await ExportReportAsPdf(1, "").ContinueWith(t => isLoading = false);
+                }
+                else if (data.OutputType == OutputReportType.Excel)
+                {
+                    await DownloadExcel().ContinueWith(t => isLoading = false);
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        StateHasChanged();
+    }
+
+    async Task ExportReportAsPdf(int printMode, string uri)
+    {
+        try
+        {
+            data.numberDay = CalculateDayFromDateTime(data.StartDate);
+            var resultReport = new List<BusTypeListReportPDF>();
+            var resultReportGroup = new List<BusTypeListReportGroupPDF>();
+            if (data.DepositOutputTemplate.Id == 1)
+            {
+                resultReport = await BusTypeListReportService.GetPDFData(data);
+            }
+            else if (data.DepositOutputTemplate.Id == 2)
+            {
+                resultReportGroup = await BusTypeListReportService.GetPDFDataReportGroup(data);
+            }
+            DevExpress.XtraReports.UI.XtraReport report = new DevExpress.XtraReports.UI.XtraReport();
+            if (data.DepositOutputTemplate.Id == 1)
+            {
+                if (resultReport.Any() && resultReport != null)
+                {
+                    switch (data.PaperSize)
+                    {
+                        case PaperSize.A3:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeListA3();
+                            break;
+                        case PaperSize.A4:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeList();
+                            break;
+                        case PaperSize.B4:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeListB4();
+                            break;
+                        default:
+                            break;
+                    }
+                    report.DataSource = resultReport;
+                }
+                else
+                {
+                    //todo check null
+                }
+            }
+            else if (data.DepositOutputTemplate.Id == 2)
+            {
+                if (resultReportGroup.Any() && resultReportGroup != null)
+                {
+                    switch (data.PaperSize)
+                    {
+                        case PaperSize.A3:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeListGroupA3();
+                            break;
+                        case PaperSize.A4:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeListGroupA4();
+                            break;
+                        case PaperSize.B4:
+                            report = new Reports.ReportTemplate.BusTypeList.BusTypeListGroupB4();
+                            break;
+                        default:
+                            break;
+                    }
+                    report.DataSource = resultReportGroup;
+                }
+                else
+                {
+                    //todo check
+                }
+            }
+            await new System.Threading.Tasks.TaskFactory().StartNew(() =>
+            {
+                string fileType = "";
+                report.CreateDocument();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    report.ExportToPdf(ms);
+                    byte[] exportedFileBytes = ms.ToArray();
+                    string myExportString = Convert.ToBase64String(exportedFileBytes);
+                    fileType = "pdf";
+                    JSRuntime.InvokeVoidAsync("downloadFileClientSide", myExportString, fileType, "BusTypeList");
+                }
+            });
+
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+    private BusTypeListDataUri SetValueUri(BusTypeListData data)
+    {
+        var result = new BusTypeListDataUri();
+        try
+        {
+            if (data != null)
+            {
+                result.StartDate = data.StartDate;
+                result.BookingTypeFrom = data.BookingTypeFrom;
+                result.BookingTypeTo = data.BookingTypeTo;
+                result.Company = data.Company;
+                result.BranchStart = data.BranchStart;
+                result.BranchEnd = data.BranchEnd;
+                result.SalesStaffStart = data.SalesStaffStart;
+                result.SalesStaffEnd = data.SalesStaffEnd;
+                result.PersonInputStart = data.PersonInputStart;
+                result.PersonInputEnd = data.PersonInputEnd;
+                result.DestinationStart = data.DestinationStart;
+                result.DestinationEnd = data.DestinationEnd;
+                result.BusType = data.BusType;
+                result.VehicleFrom = data.VehicleFrom;
+                result.VehicleTo = data.VehicleTo;
+                result.OutputType = data.OutputType;
+                result.DepositOutputTemplate = data.DepositOutputTemplate;
+                result.PaperSize = data.PaperSize;
+                result.GridSize = data.GridSize;
+                result.GroupMode = data.GroupMode;
+                result.TenantCdSeq = data.TenantCdSeq;
+                result.SyainNm = data.SyainNm;
+                result.SyainCd = data.SyainCd;
+                result.TenantCdSeqByCodeSyu = data.TenantCdSeqByCodeSyu;
+                result.ReservationListID = string.Join('-', data.ReservationList.Select(_ => _.YoyaKbnSeq));
+                result.numberDayUri = CalculateDayFromDateTime(data.StartDate);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+
+    [Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
+    int BufferSize = 32768;
+    private async Task DownloadExcel()
+    {
+        try
+        {
+            var busTypeDataRowExcel = new List<BusTypeDetailDataReport>();
+            var busTypeDataRowListExcel = new List<BusTypeDetailDataReport>();
+            var comBusTypeNormalListExcel = new List<BusTypeItemDataReport>();
+            var branchBusTypeNormalListExcel = new List<BusTypeItemDataReport>();
+            var busTypeList = new List<BusTypeItemDataReport>();
+            //UnAsign
+            var busUnAsignDataRowExcel = new List<NumberVehicleOfBusUnAsign>();
+            var busUnAsignDataRowListExcel = new List<NumberVehicleOfBusUnAsign>();
+            //Hirirng
+            var busHiringDataSourceExcel = new List<NumberVehicleOfBusUnAsign>();
+            var busHiringDataRowExcel = new List<NumberVehicleOfBusUnAsign>();
+            var busHiringDataRowListExcel = new List<NumberVehicleOfBusUnAsign>();
+            //Total BusType
+            var totalBusTypeDataRowExcel = new List<BusTypeDetailDataReport>();
+            var totalBusTypeDataRowListExcel = new List<BusTypeDetailDataReport>();
+            //Total Employee
+            var totalEmployeeDataRowExcel = new List<BusTypeDetailDataReport>();
+            var totalEmployeeDataRowListExcel = new List<BusTypeDetailDataReport>();
+            var numberVehicleOfGuiSuListExcel = new List<BusTypeDetailDataReport>();
+            var busTypeWithBranchOrComExcel = new List<BusTypeItemDataReport>();
+            var busUnAsignDataSourceExcel = new List<NumberVehicleOfBusUnAsign>();
+            var busTypeDetailDataListExcel = new List<BusTypeDetailDataReport>();
+            var numberOfBusTypeByGroupExcel = new List<BusTypeItemDataReport>();
+
+            //Load data excel
+            data.numberDay = CalculateDayFromDateTime(data.StartDate);
+            busTypeDetailDataListExcel = await BusTypeListReportService.GetBusTypeDetailData(data);
+            var busTypesDataListExcel = await BusTypeListReportService.GetBusTypeListReport(data);
+            var busTypeListExcel = await BusTypeListReportService.GroupDataByGroupOption(busTypesDataListExcel, GroupMode.All);
+            branchBusTypeNormalListExcel = await BusTypeListReportService.GroupDataByGroupOption(BusTypesDataList, GroupMode.Branch);
+            comBusTypeNormalListExcel = await BusTypeListReportService.GroupDataByGroupOption(BusTypesDataList, GroupMode.Company);
+
+
+            if (data.GroupMode == GroupMode.All)
+            {
+                numberOfBusTypeByGroupExcel = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.All);
+                //busTypeNormal
+                foreach (var item in busTypeListExcel)
+                {
+                    busTypeDataRowExcel = await BusTypeListReportService.FillterDataByBusType(busTypeDetailDataListExcel, data, item);
+                    busTypeDataRowListExcel.AddRange(busTypeDataRowExcel);
+                }
+                //busUnAsign
+                for (int i = 1; i <= 3; i++)
+                {
+                    busUnAsignDataRowExcel = await BusTypeListReportService.FillterBusUnAsignDataByKataKbn(BusUnAsignDataSource, data, i, ShowMode.Screen);
+                    busUnAsignDataRowListExcel.AddRange(busUnAsignDataRowExcel);
+                }
+                //busHiring
+                busHiringDataRowExcel = await BusTypeListReportService.FillterBusHiringData(BusHiringDataSource, data);
+                busHiringDataRowListExcel.AddRange(busHiringDataRowExcel);
+                //Total BusType
+                for (int i = 1; i <= 3; i++)
+                {
+                    totalBusTypeDataRowExcel = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.All, null, ShowMode.Screen);
+                    totalBusTypeDataRowListExcel.AddRange(totalBusTypeDataRowExcel);
+                }
+                //Total Driver and Gui
+                for (int i = 1; i <= 2; i++)
+                {
+                    var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                    totalEmployeeDataRowExcel = await BusTypeListReportService.FillterDataByEmployee(busTypeDetailDataListExcel, data, isDriver, null, GroupMode.All);
+                    totalEmployeeDataRowListExcel.AddRange(totalEmployeeDataRowExcel);
+                }
+            }
+            if (data.GroupMode == GroupMode.Company)
+            {
+                numberOfBusTypeByGroupExcel = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.Company);
+                //Busnormal
+                busTypeWithBranchOrComExcel = await BusTypeListReportService.GroupDataByBusType(BusTypesDataList, GroupMode.Company, comBusTypeNormalList);
+                foreach (var item in busTypeWithBranchOrComExcel)
+                {
+                    busTypeDataRowExcel = await BusTypeListReportService.FillterDataByModeGroup(busTypeDetailDataListExcel, data, item, GroupMode.Company);
+                    busTypeDataRowListExcel.AddRange(busTypeDataRowExcel);
+                }
+                foreach (var item in comBusTypeNormalList)
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        busUnAsignDataRowExcel = await BusTypeListReportService.FillterBusUnAsignDataByModeGroup(BusUnAsignDataSource, data, item, GroupMode.Company, i);
+                        busUnAsignDataRowListExcel.AddRange(busUnAsignDataRowExcel);
+                    }
+                    //busHiring
+                    busHiringDataRowExcel = await BusTypeListReportService.FillterBusHiringDataByModeGroup(BusHiringDataSource, data, item, GroupMode.Company);
+                    busHiringDataRowListExcel.AddRange(busHiringDataRowExcel);
+                    //Total Bus Type
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        totalBusTypeDataRowExcel = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.Company, item, ShowMode.Screen);
+                        totalBusTypeDataRowListExcel.AddRange(totalBusTypeDataRowExcel); //todo clear
+                    }
+                    //TOTAL EMPLOYEE
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                        totalEmployeeDataRowExcel = await BusTypeListReportService.FillterDataByEmployee(busTypeDetailDataListExcel, data, isDriver, item, GroupMode.Company);
+                        totalEmployeeDataRowListExcel.AddRange(totalEmployeeDataRowExcel);
+                    }
+                }
+            }
+            else if (data.GroupMode == GroupMode.Branch)
+            {
+                numberOfBusTypeByGroupExcel = await BusTypeListReportService.FillterNumberOfBusTypeByGroupOption(BusTypesDataList, GroupMode.Branch);
+                //BusnORMAL
+                busTypeWithBranchOrComExcel = await BusTypeListReportService.GroupDataByBusType(BusTypesDataList, GroupMode.Branch, branchBusTypeNormalList);
+                foreach (var item in busTypeWithBranchOrComExcel)
+                {
+                    busTypeDataRowExcel = await BusTypeListReportService.FillterDataByModeGroup(busTypeDetailDataListExcel, data, item, GroupMode.Branch);
+                    busTypeDataRowListExcel.AddRange(busTypeDataRowExcel);
+                }
+                //BusUnAsign
+                foreach (var item in branchBusTypeNormalList)
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        busUnAsignDataRowExcel = await BusTypeListReportService.FillterBusUnAsignDataByModeGroup(BusUnAsignDataSource, data, item, GroupMode.Branch, i);
+                        busUnAsignDataRowListExcel.AddRange(busUnAsignDataRowExcel);
+                    }
+                    //busHiring
+                    busHiringDataRowExcel = await BusTypeListReportService.FillterBusHiringDataByModeGroup(BusHiringDataSource, data, item, GroupMode.Branch);
+                    busHiringDataRowListExcel.AddRange(busHiringDataRowExcel); //todoclear
+
+                    //Total busType
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        totalBusTypeDataRowExcel = await BusTypeListReportService.SumDataByKataKbn(BusTypeDataRowList, i, GroupMode.Branch, item, ShowMode.Screen);
+                        totalBusTypeDataRowListExcel.AddRange(totalBusTypeDataRowExcel); //todo clear
+                    }
+                    //tOTAL EMPLOYYE
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        var isDriver = i == 1 ? StaffPos.Driver : StaffPos.GuiSu;
+                        totalEmployeeDataRowExcel = await BusTypeListReportService.FillterDataByEmployee(busTypeDetailDataListExcel, data, isDriver, item, GroupMode.Branch);
+                        totalEmployeeDataRowListExcel.AddRange(totalEmployeeDataRowExcel);
+                    }
+                }
+            }
+            var excelPackage = ExcelExportBusTypeListHelper.GenerateBusTypeList(data, busTypeListExcel, busTypeDataRowListExcel, busUnAsignDataRowListExcel,
+                busHiringDataRowListExcel, totalBusTypeDataRowListExcel, totalEmployeeDataRowListExcel,
+                comBusTypeNormalList,
+                branchBusTypeNormalListExcel, CalendarReportList, numberOfBusTypeByGroupExcel);
+            var Base64Nyan = excelPackage.GetAsByteArray();
+            await BlazorDownloadFileService.DownloadFile("bustypelist.xlsx", Base64Nyan, BufferSize, "application/octet-stream");
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion
+
+    #region Save Fillter
+    private async Task SaveCurrentFilter()
+    {
+        try
+        {
+            await FilterServices.SaveCustomFilterAndConditions(GetFieldValues(), filterConditionFormName, SyainCdSeqLogin);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+    }
+    private Dictionary<string, string> GetFieldValues()
+    {
+        var result = new Dictionary<string, string>();
+        try
+        {
+            result = BusTypeListReportService.GetFieldValues(data);
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+        return result;
+    }
+
+    private async Task ApplyFilter()
+    {
+        try
+        {
+            var filterValues = (await FilterServices.GetFilterCondition(filterConditionFormName, SyainCdSeqLogin)).ToDictionary(inp => inp.ItemNm, inp => inp.JoInput).ConvertMultipleToSingleValues();
+            if (filterValues.Count > 0)
+            {
+                IsFilterApply = true;
+                BusTypeListReportService.ApplyFilter(ref data, component.ListReservationClass, Companies, Branches, StaffList, DestinationList, BusTypes, VehicleTypes, DepositOutputs, filterValues);
+                OnDateChanged(data.StartDate);
+                OnCompanySelectedChanged(data.Company == null ? null : Companies.Where(x => x.CompanyCdSeq == data.Company.CompanyCdSeq).FirstOrDefault());
+                if (data.Company.CompanyCdSeq == 0)
+                {
+                    Branches = await BranchDataService.GetBranchDataByTenantId(new ClaimModel().TenantID);
+                }
+                else
+                {
+                    Branches = await BranchDataService.GetBranchDataByCompany(data.Company.CompanyCdSeq, new ClaimModel().TenantID);
+                }
+                if (Branches.Any())
+                {
+                    if (Branches.FirstOrDefault().CompanyCdSeq != 0)
+                    {
+                        Branches.Insert(0, allBranch);
+                    }
+                }
+                Branches = BusTypeListHelper.OrderByBranchByBranchCd(Branches);
+                OnSaleBranchChanged(data.BranchStart == null ? null : Branches.Where(x => x.EigyoCdSeq == data.BranchStart.EigyoCdSeq).FirstOrDefault(), true);
+                OnSaleBranchChanged(data.BranchEnd == null ? null : Branches.Where(x => x.EigyoCdSeq == data.BranchEnd.EigyoCdSeq).FirstOrDefault(), false);
+                OnStaffChanged(data.SalesStaffStart == null ? null : StaffList.Where(x => x.SyainCdSeq == data.SalesStaffStart.SyainCdSeq).FirstOrDefault(), true);
+                OnStaffChanged(data.SalesStaffEnd == null ? null : StaffList.Where(x => x.SyainCdSeq == data.SalesStaffEnd.SyainCdSeq).FirstOrDefault(), false);
+                OnPersonInputChanged(data.PersonInputStart == null ? null : StaffList.Where(x => x.SyainCdSeq == data.PersonInputStart.SyainCdSeq).FirstOrDefault(), true);
+                OnPersonInputChanged(data.PersonInputEnd == null ? null : StaffList.Where(x => x.SyainCdSeq == data.PersonInputEnd.SyainCdSeq).FirstOrDefault(), false);
+                OnSelectedDestinationChanged(data.DestinationStart == null ? null : DestinationList.Where(x => x.BasyoMapCdSeq == data.DestinationStart.BasyoMapCdSeq).FirstOrDefault(), true);
+                OnSelectedDestinationChanged(DestinationList.Where(x => x.BasyoMapCdSeq == data.DestinationEnd.BasyoMapCdSeq).FirstOrDefault(), false);
+                OnBusTypeSelectedChanged(data.DestinationEnd == null ? null : BusTypes.Where(x => x.CodeKbn == data.BusType.CodeKbn).FirstOrDefault());
+                int value = 0;
+                int.TryParse(data.BusType.CodeKbn, out value);
+                if (data.BusType == null || value == 0)
+                {
+                    VehicleTypes = await BusTypeService.GetAll(new ClaimModel().TenantID);
+                }
+                else
+                {
+                    VehicleTypes = await BusTypeService.GetBusTypeBySyaSyuCd(new ClaimModel().TenantID, int.Parse(data.BusType.CodeKbn));
+                }
+                VehicleTypes.Insert(0, allVehicleType);
+                OnShashuChanged(data.VehicleFrom == null ? null : VehicleTypes.Where(x => x.SyaSyuCdSeq == data.VehicleFrom.SyaSyuCdSeq).FirstOrDefault(), true);
+                OnShashuChanged(data.VehicleTo == null ? null : VehicleTypes.Where(x => x.SyaSyuCdSeq == data.VehicleTo.SyaSyuCdSeq).FirstOrDefault(), false);
+                gridsize = (int)data.GridSize;
+                group = (int)data.GroupMode;
+                OnPaperSizeChanged(data.PaperSize);
+                OnDepositOutputsChanged(data.DepositOutputTemplate == null ? null : DepositOutputs.Where(x => x.Id == data.DepositOutputTemplate.Id).FirstOrDefault());
+                //number_of_days = CalculateDayFromDateTime(data.StartDate);
+                data.numberDay = number_of_days;
+                IsFilterApply = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task ClickBusschedule(MouseEventArgs e)
+    {
+        try
+        {
+            string url = baseUrl + "/busschedule";
+            url = url + string.Format("/?date={0}", data.StartDate.ToString("yyyyMMdd"));
+            JSRuntime.InvokeVoidAsync("open", url, "_blank");
+        }
+        catch (Exception ex)
+        {
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+
+    }
+    #endregion
+    #region Function Calculate Day in Form search
+    private int CalculateDayFromDateTime(DateTime datetimeForm)
+    {
+        int numberDayofMonth = 0;
+        try
+        {
+            DateTime now = datetimeForm;
+            var startDate = new DateTime(now.Year, now.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            int res = DateTime.Compare(startDate, datetimeForm);
+            if (res == 0)
+            {
+                numberDayofMonth = DateTime.DaysInMonth(datetimeForm.Year, datetimeForm.Month);
+            }
+            else
+            {
+                numberDayofMonth = 31;
+            }
+            return numberDayofMonth;
+        }
+        catch (Exception ex)
+        {
+            return numberDayofMonth;
+            ErrorModalService.ShowErrorPopup("Error", ex.GetOriginalException()?.Message);
+        }
+    }
+
+    #endregion
+    #region Filter Data Excel by day new
+
+    #endregion
+}

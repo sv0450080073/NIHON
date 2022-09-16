@@ -1,0 +1,389 @@
+﻿@using HassyaAllrightCloud.Commons.Extensions
+@inherits TransportationDailyReportBase
+<div class="row">
+    <div class="col-4">
+        <div class="row">
+            <div class="col-4 text-right">
+                @(Model.EigyoKbn == EigyoKbnEnum.ReceptionOffice ? _baseLang["ReceptionOfficeLabel"] : _baseLang["BillingOfficeLabel"])
+            </div>
+            <div class="col-8 d-flex">
+                <DxComboBox Data="eigyoListItems"
+                            TextFieldName="@nameof(searchModel.Eigyo.DisplayName)"
+                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                            SelectedItem="searchModel.Eigyo"
+                            SelectedItemChanged="async (v) => await EigyoListItemsChanged(v)"
+                            SelectedItemExpression="() => searchModel.Eigyo"
+                            NullText="@_baseLang["SalesOfficeNullText"]"></DxComboBox>
+                <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="async (e)=> await EigyoListItemsChanged(null, true)" disabled="@(!eigyoListItems.Any() || eigyoListItems.IndexOf(searchModel.Eigyo) == 0)">
+                    <i class="fa fa-chevron-circle-left m-auto next-pre-font-size"></i>
+                </button>
+                <button class="btn btn-sm d-flex p-0" @onclick="async (e)=> await EigyoListItemsChanged(null, false)" disabled="@(eigyoListItems.IndexOf(searchModel.Eigyo) == eigyoListItems.Count - 1)">
+                    <i class="fa fa-chevron-circle-right m-auto next-pre-font-size"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="row">
+            <div class="col-5 text-right">
+                @_lang["SalesDateTitle"]
+            </div>
+            <div class="col-7 d-flex">
+                <DxComboBox Data="uriYmdList"
+                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                            SelectedItem="searchModel.UriYmd"
+                            SelectedItemChanged="async (v) => await UriYmdChanged(v)"
+                            SelectedItemExpression="() => searchModel.UriYmd"
+                            NullText="@_lang["SalesNullText"]"></DxComboBox>
+                <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="async (e)=> await UriYmdChanged(null, true)" disabled="@(!uriYmdList.Any() || uriYmdList.IndexOf(searchModel.UriYmd) == 0)">
+                    <i class="fa fa-chevron-circle-left m-auto next-pre-font-size"></i>
+                </button>
+                <button class="btn btn-sm d-flex p-0" @onclick="async (e)=> await UriYmdChanged(null, false)" disabled="@(uriYmdList.IndexOf(searchModel.UriYmd) == uriYmdList.Count - 1)">
+                    <i class="fa fa-chevron-circle-right m-auto next-pre-font-size"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="row">
+            <div class="col-5 text-right">
+                @_baseLang["ClassificationTitle"]
+            </div>
+            <div class="col-7">
+                <DxTextBox NullText="@_baseLang["ClassificationTitle"]" ReadOnly="true"
+                           @bind-Text="searchModel.TesukomiKbn"></DxTextBox>
+            </div>
+        </div>
+    </div>
+</div>
+<div style=" display: flex; flex-direction: column; flex: 1;">
+    <div class="mt-3" style=" flex: 1; position: relative; overflow: auto; width: 100%;">
+        <div class="sticky-table grid-@GridSize">
+            <table class="table table-bordered table-sm mb-0 table-result table-layout" id="daily-report">
+                <tr>
+                    <th class="text-center">@_lang["no_col"]</th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["receipt_number_col"]</div>
+                        <div>@_lang["reception_office_col"]</div>
+                    </th>
+                    <th class="text-center width-12rem">
+                        <div>@_lang["customer_name_col"]</div>
+                        <div>@_lang["supplier_name_col"]</div>
+                    </th>
+                    <th class="text-center width-20rem">
+                        <div>@_lang["organization_name_col"]</div>
+                        <div>@_lang["destination_name_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">@_lang["number_of_days_col"]</th>
+                    <th class="text-center width-8rem">@_lang["fares_including_tax_col"]</th>
+                    <th class="text-center width-8rem">@_lang["mercenary_name_col"]</th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["mercenary_col"]</div>
+                        <div>@_lang["number_of_units_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["mercenary_items_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["car_hire_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["own_item_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["guide_fee_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["other_incidentals_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">
+                        <div>@_lang["cancellation_charge_col"]</div>
+                        <div>@_lang["total_col"]</div>
+                    </th>
+                    <th class="text-center width-8rem">@_lang["fare_profit_loss_col"]</th>
+                    <th class="text-center width-20rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["merchandise_item_col"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-4 cell-border-right">@_lang["fare_col"]</div>
+                            <div class="padding-03 col-4">@_lang["consumption_tax_col"]</div>
+                            <div class="padding-03 col-4 cell-border-left">@_lang["fee_amount"]</div>
+                        </div>
+                    </th>
+                    <th class="text-center width-20rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["car_hire_col1"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-4 cell-border-right">@_lang["amount_generated_col"]</div>
+                            <div class="padding-03 col-4">@_lang["consumption_tax_col"]</div>
+                            <div class="padding-03 col-4 cell-border-left">@_lang["fee_amount"]</div>
+                        </div>
+                    </th>
+                    <th class="text-center width-25rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["company_items_col"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-3 cell-border-right">@_lang["fare_col"]</div>
+                            <div class="padding-03 col-3 cell-border-right">@_lang["number_of_units_col"]</div>
+                            <div class="padding-03 col-3">@_lang["consumption_tax_col"]</div>
+                            <div class="padding-03 col-3 cell-border-left">@_lang["fee_amount"]</div>
+                        </div>
+                    </th>
+                    <th class="text-center width-20rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["guide_fee_col1"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-4 cell-border-right">@_lang["sales_amount_col"]</div>
+                            <div class="padding-03 col-4">@_lang["consumption_tax_col"]</div>
+                            <div class="padding-03 col-4 cell-border-left">@_lang["fee_amount"]</div>
+                        </div>
+                    </th>
+                    <th class="text-center width-20rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["other_incidentals_col"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-4 cell-border-right">@_lang["sales_amount_col"]</div>
+                            <div class="padding-03 col-4">@_lang["consumption_tax_col"]</div>
+                            <div class="padding-03 col-4 cell-border-left">@_lang["fee_amount"]</div>
+                        </div>
+                    </th>
+                    <th class="text-center width-15rem p-0" style="width: 15rem">
+                        <div class="padding-03">@_lang["cancellation_charge_col"]</div>
+                        <div class="row m-0 cell-border-top">
+                            <div class="padding-03 col-6 cell-border-right">@_lang["amount_of_money_col"]</div>
+                            <div class="padding-03 col-6">@_lang["consumption_tax_col"]</div>
+                        </div>
+                    </th>
+                </tr>
+                @foreach (var item in actualRevenueItems)
+                {
+                    <tr class="tr-selectable">
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-center">
+                                    @item.No
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12">
+                                    @item.UkeNo
+                                    <br />
+                                    @item.UkeRyakuNm
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12">
+                                    @item.TokRyakuNm @item.SitRyakuNm
+                                    <br />
+                                    @item.SirRyakuNm @item.SirSitRyakuNm
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12">
+                                    @item.DanTaNm
+                                    <br />
+                                    @item.IkNm
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.Nissu.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.KeiKin.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                @foreach (var subItem in item.DetailItems)
+                                {
+                                    <div class="padding-03 col-12">
+                                        @subItem.YouRyakuNm
+                                        <br />
+                                        @subItem.YouSitRyakuNm
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                @foreach (var subItem in item.DetailItems)
+                                {
+                                    <div class="padding-03 col-12 text-right">
+                                        @subItem.YouSyaSyuDai.AddCommas()
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                @foreach (var subItem in item.DetailItems)
+                                {
+                                    <div class="padding-03 col-12 text-right">
+                                        @subItem.YouG.AddCommas()
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                @foreach (var subItem in item.DetailItems)
+                                {
+                                    <div class="padding-03 col-12 text-right">
+                                        @subItem.YouFutG.AddCommas()
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.JisSyaRyoSum.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">@item.GaiSyaRyoSum.AddCommas()</div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.EtcSyaRyoSum.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.CanSum.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-12 text-right">
+                                    @item.UntSoneki.AddCommas()
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+
+                            @if (item.DetailItems.Any())
+                            {
+                                <div class="row m-0">
+                                    @foreach (var subItem in item.DetailItems)
+                                    {
+                                        <div class="padding-03 col-4 cell-border-right text-right">
+                                            @subItem.YouSyaRyoUnc.AddCommas()
+                                        </div>
+                                        <div class="padding-03 col-4 text-right">
+                                            <div>@($"{subItem.YouZeiritsu}%")</div>
+                                            <div>@subItem.YouSyaRyoSyo.AddCommas()</div>
+                                        </div>
+                                        <div class="padding-03 col-4 cell-border-left text-right">
+                                            <div>@($"{subItem.YouTesuRitu}%")</div>
+                                            <div>@subItem.YouSyaRyoTes.AddCommas()</div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row m-0">
+                                    <div class="padding-03 col-4 cell-border-right">
+                                    </div>
+                                    <div class="padding-03 col-4">
+                                    </div>
+                                    <div class="padding-03 col-4 cell-border-left">
+                                    </div>
+                                </div>
+                            }
+                        </td>
+                        <td class="p-0">
+
+                            @if (item.DetailItems.Any())
+                            {
+                                <div class="row m-0">
+                                    @foreach (var subItem in item.DetailItems)
+                                    {
+                                        <div class="padding-03 col-4 cell-border-right text-right">@subItem.YfuUriGakKin.AddCommas()</div>
+                                        <div class="padding-03 col-4 text-right">@subItem.YfuSyaRyoSyo.AddCommas()</div>
+                                        <div class="padding-03 col-4 cell-border-left text-right">@subItem.YfuSyaRyoTes.AddCommas()</div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row m-0">
+                                    <div class="padding-03 col-4 cell-border-right"></div>
+                                    <div class="padding-03 col-4"></div>
+                                    <div class="padding-03 col-4 cell-border-left"></div>
+                                </div>
+                            }
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-3 cell-border-right text-right">@item.JisSyaRyoUnc.AddCommas()</div>
+                                <div class="padding-03 col-3 cell-border-right text-right">@item.JisSyaSyuDai.AddCommas()</div>
+                                <div class="padding-03 col-3 text-right">
+                                    <div>@($"{item.JisSyaRyoSyoRit}%")</div>
+                                    <div>@item.JisSyaRyoSyo.AddCommas()</div>
+                                </div>
+                                <div class="padding-03 col-3 cell-border-left text-right">
+                                    <div>@($"{item.JisSyaRyoTesRit}%")</div>
+                                    <div>@item.JisSyaRyoTes.AddCommas()</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-4 cell-border-right text-right">@item.GaiUriGakKin.AddCommas()</div>
+                                <div class="padding-03 col-4 text-right">@item.GaiSyaRyoSyo.AddCommas()</div>
+                                <div class="padding-03 col-4 cell-border-left text-right">@item.GaiSyaRyoTes.AddCommas()</div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-4 cell-border-right text-right">@item.EtcUriGakKin.AddCommas()</div>
+                                <div class="padding-03 col-4 text-right">@item.EtcSyaRyoSyo.AddCommas()</div>
+                                <div class="padding-03 col-4 cell-border-left text-right">@item.EtcSyaRyoTes.AddCommas()</div>
+                            </div>
+                        </td>
+                        <td class="p-0">
+                            <div class="row m-0">
+                                <div class="padding-03 col-6 cell-border-right text-right">@item.CanUnc.AddCommas()</div>
+                                <div class="padding-03 col-6 text-right">
+                                    <div>@($"{item.CanSyoR}%")</div>
+                                    <div>@item.CanSyoG.AddCommas()</div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <div class="mt-2 mb-2">
+        <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage" 
+                                                                 TotalCount="dailyRevenueItems.Count" @ref="paging">
+        </HassyaAllrightCloud.Pages.Components.Pagination>
+    </div>
+    <div class="transport-daily-common-data">
+        <TransportationReportCommonData SummaryResult="summaryResult" GridSize="GridSize" IsDailyReport="true"></TransportationReportCommonData>
+    </div>
+</div>

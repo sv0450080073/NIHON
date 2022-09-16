@@ -1,0 +1,159 @@
+﻿@inject ICustomerListService CustomerListService;
+@inject IServiceOfficeService ServiceOfficeService;
+@inject IStaffListService StaffListService;
+@inject ITPM_YoyKbnDataListService TPM_YoyKbnDataService
+@inject CustomNavigation NavManager
+@inject IBusCoordinationReportService CoordinationReportService
+@if (!string.IsNullOrEmpty(reportUrl) && !string.IsNullOrWhiteSpace(reportUrl))
+{
+    <DxDocumentViewer ReportUrl="@reportUrl" Height="1000px" Width="100%">
+        <DxDocumentViewerTabPanelSettings Width="180" />
+    </DxDocumentViewer>
+}
+
+@code {
+    [Parameter] public string SearchString { get; set; }
+    [Parameter] public string IsLoadDefault { get; set; }
+    [Parameter]
+    public string Option { get; set; }
+    [Parameter]
+    public string UnkobiDate { get; set; }
+    [Parameter]
+    public string Ukeno { get; set; }
+    [Parameter]
+    public string UnkRen { get; set; }
+    [Parameter]
+    public string UkenoList { get; set; } 
+    [Parameter]
+    public string FormOutput { get; set; } 
+    public string reportUrl { get; set; }
+    int datetype { get; set; }
+    BusCoordinationSearchParam report = new BusCoordinationSearchParam();
+    List<ReservationData> reservationlst = new List<ReservationData>();
+    IEnumerable<ReservationData> SelectedReservations = new List<ReservationData>();
+    List<LoadCustomerList> customerlst = new List<LoadCustomerList>();
+    List<SupplierData> supplierlst = new List<SupplierData>();
+    List<LoadServiceOffice> salebranchlst = new List<LoadServiceOffice>();
+    List<LoadStaffList> stafflst = new List<LoadStaffList>();
+    ReservationData allreservation = new ReservationData();
+    LoadCustomerList allCustomer = new LoadCustomerList();
+    LoadServiceOffice allBranch = new LoadServiceOffice();
+    LoadStaffList allStaff = new LoadStaffList();
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsLoadDefault == "1")
+        {
+            datetype = (int)DateTypeContract.Dispatch;
+            report.DateType = datetype;
+            reservationlst = await TPM_YoyKbnDataService.GetYoyKbnbySiyoKbn();
+            if (reservationlst == null)
+            {
+                reservationlst = new List<ReservationData>();
+            }
+            else
+            {
+                reservationlst.Insert(0, allreservation);
+            }
+            customerlst = CustomerListService.GetCustomerByDateReport(new ClaimModel().TenantID, report.StartDate.ToString("yyyyMMdd"));
+            if (customerlst == null)
+            {
+                customerlst = new List<LoadCustomerList>();
+            }
+            else
+            {
+                customerlst.Insert(0, allCustomer);
+            }
+            salebranchlst = await ServiceOfficeService.GetBranchReport(new ClaimModel().TenantID);
+            if (salebranchlst == null)
+            {
+                salebranchlst = new List<LoadServiceOffice>();
+            }
+            else
+            {
+                salebranchlst.Insert(0, allBranch);
+            }
+            stafflst = await StaffListService.GetStaffReport(new ClaimModel().TenantID, report.StartDate.ToString("yyyyMMdd"));
+            if (stafflst == null)
+            {
+                stafflst = new List<LoadStaffList>();
+            }
+            else
+            {
+                stafflst.Insert(0, allStaff);
+            }
+            if (!string.IsNullOrEmpty(Option) && !string.IsNullOrEmpty(Ukeno)
+            && (Option == OptionReport.Preview.ToString() || Option == OptionReport.Download.ToString()) && !string.IsNullOrEmpty(UnkRen))
+            {
+                DateTime dateTimeConvert;
+                try
+                {
+
+                    if (string.IsNullOrEmpty(UnkobiDate))
+                    {
+                        dateTimeConvert = await CoordinationReportService.GetUnkobiDate(Ukeno, UnkRen);
+                        report.StartDate = dateTimeConvert;
+                        report.EndDate = dateTimeConvert;
+                    }
+                    else
+                    {
+                        dateTimeConvert = DateTime.ParseExact(UnkobiDate, "yyyyMMdd", new CultureInfo("ja-JP"));
+                        report.StartDate = dateTimeConvert;
+                        report.EndDate = dateTimeConvert;
+                    }
+
+                    report.BookingFrom = Ukeno;
+                    report.BookingTo = Ukeno;
+                    report.UnkRen = short.Parse(UnkRen);
+                }
+                catch(Exception ex)
+                {
+
+                }
+
+                Load();
+                var searchStringDefault = EncryptHelper.EncryptToUrl(report);
+                reportUrl = $"{nameof(IBusCoordinationReportService)}?{searchStringDefault}";
+            }
+            if(!string.IsNullOrEmpty(UkenoList))
+            {
+                DatetimeData datetimeData = new DatetimeData();
+                datetimeData = await CoordinationReportService.GetUnkobiDatebyUkenoList(UkenoList);
+                report.StartDate = datetimeData.DateStart;
+                report.EndDate = datetimeData.DateEnd;
+                report.UkenoList = UkenoList;
+                Load();
+                var searchStringDefault = EncryptHelper.EncryptToUrl(report);
+                reportUrl = $"{nameof(IBusCoordinationReportService)}?{searchStringDefault}";
+            }
+        }
+        else if (!string.IsNullOrEmpty(SearchString))
+        {
+            reportUrl = $"{nameof(IBusCoordinationReportService)}?{SearchString}";
+        }
+        NavManager.NavigateTo("/BusCoordinationReportPreview", false);
+    }
+    void Load()
+    {
+        if (reservationlst.Count >= 1)
+        {
+            SelectedReservations = reservationlst;
+            report.ReservationList = SelectedReservations.Select(t=>t.YoyaKbnSeq).ToList();
+        }
+        if (customerlst.Count >= 1)
+        {
+            report.CustomerStart = customerlst.First();
+            report.CustomerEnd = customerlst.First();
+            report.CustomerStart01 = customerlst.First();
+            report.CustomerEnd01 = customerlst.First();
+        }
+        if (salebranchlst.Count >= 1)
+        {
+            report.SaleBranch = salebranchlst.First();
+        }
+        if (stafflst.Count >= 1)
+        {
+            report.Staff = stafflst.First();
+            report.PersonInput = stafflst.First();
+        }
+    }
+}

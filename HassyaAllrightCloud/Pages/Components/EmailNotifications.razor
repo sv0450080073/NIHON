@@ -1,0 +1,317 @@
+﻿@inject IStringLocalizer<EmailNotifications> Lang
+@inject IJSRuntime JSRuntime
+@inject ICarCooperationListService CarCooperationService
+@inject NavigationManager NavigationManager
+
+<div class="notifications-content slide-in">
+    <div class="notifications-content-wrap ">
+        <div class="slide-in__header">
+            <h5 class="mb-0">@Lang["Notice"]</h5>
+            <div class="d-flex justify-content-end align-items-center">
+                <div class="dropdown dropdown-listbox mr-3">
+                    <div class="input-group input-group-sm dx-listbox width--160 multi-combobox dropdown-toggle" id="lstemail" data-toggle="dropdown">
+                        <p class="form-control form-control-sm text-overflow">@showSelectedOptionFilter</p>
+                        <div class="form-control form-control-sm input-group-append dxbs-input-group-append dxbs-focus-hidden">
+                            <button class="btn btn-sm dx-btn  btn-secondary dxbs-edit-btn dropdown-toggle dxbs-dropdown-toggle" type="button">
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu dropdownlist" role="menu" aria-labelledby="lstemail">
+                        <DxListBox Data="@ListOptionFilter"
+                                   ShowCheckboxes="true"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   SelectedItems="@SelectedOptionFilterItems"
+                                   SelectedItemsChanged="@SelectedOptionFilterItemsChanged"
+                                   CssClass="width--160">
+                        </DxListBox>
+                    </div>
+                </div>                
+                <DxCheckBox Checked="@Value" CheckedChanged="@((bool value) => CheckedChanged(value))"  CssClass="custom-checkbox">@Lang["UnreadOnly"]</DxCheckBox>
+                <a href="javascript:void(0)" class="notifications-icon ml-4">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+        <div class="slide-in__content">
+            <ul class="notification-list">
+                @foreach(var item in youshaNoticeDataLstviewpage)
+                {
+                    string RyakuNm = item.TOKISK_RyakuNm + "　" + item.TOKIST_RyakuNm;
+                     DateTime.TryParseExact(item.HaiSYmd+item.HaiSTime,
+                              "yyyyMMddHHmm",
+                              CultureInfo.CurrentCulture,
+                              DateTimeStyles.None,
+                              out minDate);
+                     DateTime.TryParseExact(item.TouYmd+item.TouChTime,
+                                  "yyyyMMddHHmm",
+                                  CultureInfo.CurrentCulture,
+                                  DateTimeStyles.None,
+                                  out maxDate);
+                     DateTime.TryParseExact(item.UpdYmd,
+                                  "yyyyMMdd",
+                                  CultureInfo.CurrentCulture,
+                                  DateTimeStyles.None,
+                                  out dateInsert);
+                    date=minDate.ToString("yyyy年MM月dd日 (ddd) HH:mm") +" ～ "+ maxDate
+                    .ToString("yyyy年MM月dd日 (ddd) HH:mm");
+                    TimeSpan difference = DateTime.Today - dateInsert;
+                    int days = (int) difference.TotalDays;
+                     var local_index = index++;
+                    <li   class="notification-list__item @(item.UnReadKbn==1?"unread":"")" @onclick="(x)=> ItemClicked(item)">
+                    <div class="notification-list__item--info">
+                        <div class="d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-2">@Lang["CarOrigin"]:</label>
+                            <p class="mb-0">@RyakuNm</p>
+                        </div>
+                        <div class="d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-2">@Lang["GroupName"]:</label>
+                            <p class="mb-0">@item.DanTaNm</p>
+                        </div>
+                        <div class="d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-2">@Lang["OperatingDay"]:</label>
+                            <p class="mb-0">@date</p>
+                        </div>                        
+                        <div class="d-flex flex-nowrap align-items-center">
+                            <label class="col-form-label-sm mr-2">@Lang["NumberOfCar"]:</label>
+                            <div class="d-flex flex-nowrap flex-grow-1 align-items-center list-number-car">
+                                <div>@(item.BigtypeNum >0  ? "大型:　"+item.BigtypeNum+"台" : null)</div>
+                                <div>@(item.MediumtypeNum >0  ? "大型:　"+item.MediumtypeNum+"台" : null)</div>
+                                <div>@(item.SmalltypeNum >0  ? "大型:　"+item.SmalltypeNum+"台" : null)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-list__item--meta ml-2">
+                        <span>@days 日前</span>
+                        <a href="/" class="btn btn-sm @(item.RegiterKbn==1?"btn-info":"btn-primary")" @onclick="(x)=> ItemDetailClicked(item)">@(item.RegiterKbn==1?Lang["BtnDetail"]:Lang["BtnReserved"])</a>
+                    </div>
+                </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+@code {
+    public static List<string> ListOptionFilter { get; set; }
+    IEnumerable<string> SelectedOptionFilterItems { get; set; } = new List<string>();
+    string showSelectedOptionFilter = "";
+    bool checkAll { get; set; }
+    bool Value { get; set; }
+    DateTime minDate = new DateTime();
+    DateTime maxDate = new DateTime();
+    DateTime dateInsert = new DateTime();
+    [Parameter] public EventCallback<string> OnUpdateCountNoti { get; set; }
+    string date = "";
+    int index=0;
+    int page{ get; set; }=1;
+    int iteminpage = 7;
+    private List<YoushaNoticeData> youshaNoticeDataLst = new List<YoushaNoticeData>();
+    private List<YoushaNoticeData> youshaNoticeDataLstview = new List<YoushaNoticeData>();
+    private List<YoushaNoticeData> youshaNoticeDataLstviewpage = new List<YoushaNoticeData>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            ListOptionFilter = new List<string>() {
+            "すべて",
+            "傭車連携",
+            "確認事項",
+                 };
+            youshaNoticeDataLst = new List<YoushaNoticeData>();
+            youshaNoticeDataLstview = new List<YoushaNoticeData>();
+            youshaNoticeDataLstviewpage = new List<YoushaNoticeData>();
+            SelectedOptionFilterItems = ListOptionFilter.Take(1).ToList();
+            SelectedOptionFilterItemsChanged(SelectedOptionFilterItems);
+            _action = Scroll;
+            Loadpage();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            //TODO use logger to log down exception ex.message
+        }
+
+    }
+    private static Action _action;
+    [JSInvokable]
+    public static void ScrollEvt()
+    {
+        try
+        {
+           _action.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            //TODO use logger to log down exception ex.message
+        }
+    }
+    private async void Scroll()
+    {
+        page++;
+        try
+        {
+            await Task.Run(async () =>
+            {
+                await Loadpage();
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            //TODO use logger to log down exception ex.message
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public async Task Loadpage()
+    {
+        if(new ClaimModel().TenantID!=0)
+        {
+            try
+            {
+                youshaNoticeDataLst = await CarCooperationService.GetYoushaNoticeData(new ClaimModel().TenantID);
+                if((SelectedOptionFilterItems.Count()!=0)&&(!SelectedOptionFilterItems.Contains("すべて")&&!SelectedOptionFilterItems.Contains("傭車連携")))
+                {
+                    youshaNoticeDataLstview = youshaNoticeDataLst.Where(t=>t.TypeNoti!=1).ToList();
+                }
+                else
+                {
+                    youshaNoticeDataLstview = youshaNoticeDataLst;
+                }
+                if(Value==true)
+                {
+                    youshaNoticeDataLstview = youshaNoticeDataLstview.Where(t=>t.UnReadKbn==1).ToList();
+                }
+                else
+                {
+                    youshaNoticeDataLstview = youshaNoticeDataLstview;
+                }
+                if(iteminpage*page>youshaNoticeDataLstview.Count)
+                {
+                    youshaNoticeDataLstviewpage = youshaNoticeDataLstview;
+                }
+                else
+                {
+                    youshaNoticeDataLstviewpage = youshaNoticeDataLstview.Take(iteminpage*page).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                //TODO use logger to log down exception ex.message
+            }
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("scrollCallBackEvent");
+            await JSRuntime.InvokeVoidAsync("closeNofitications");
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public async Task ItemClicked(YoushaNoticeData item)
+    {
+        CarCooperationService.UpdateUnReadKbnYoushaNotice(item.MotoTenantCdSeq, item.MotoUkeNo, item.MotoUnKRen, item.MotoYouTblSeq);
+        await Task.Run(() =>
+        {
+            Loadpage().Wait();
+        });
+        await OnUpdateCountNoti.InvokeAsync("Update Count");
+        await InvokeAsync(StateHasChanged);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public async Task ItemDetailClicked(YoushaNoticeData item)
+    {
+        if(item.RegiterKbn==1)
+        {
+            NavigationManager.NavigateTo(string.Format("bookinginput?motoTenantCdSeq={0}&motoUkeNo={1}&motoUnkRen={2}&motoYouTblSeq={3}",item.MotoTenantCdSeq,item.MotoUkeNo,item.MotoUnKRen,item.MotoYouTblSeq));
+        }
+        StateHasChanged();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task CheckedChanged(bool value) {
+        Value = value;
+        await Task.Run(() =>
+        {
+            Loadpage().Wait();
+        });
+        StateHasChanged();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="selectedItems"></param>
+    public async void SelectedOptionFilterItemsChanged(IEnumerable<string> selectedItems)
+    {
+        SelectedOptionFilterItems = selectedItems;
+
+        if (SelectedOptionFilterItems.Count() == 0)
+        {
+            showSelectedOptionFilter = "選択項目：0";
+        }
+        else if (SelectedOptionFilterItems.Count() == 1)
+        {
+            foreach (var item in SelectedOptionFilterItems)
+            {
+                showSelectedOptionFilter = item.ToString();
+            }
+        }
+        else if (SelectedOptionFilterItems.Count() > 1 && SelectedOptionFilterItems.Count() < ListOptionFilter.Count())
+        {
+            showSelectedOptionFilter = "選択項目：" + SelectedOptionFilterItems.Count().ToString();
+        }
+        else if (SelectedOptionFilterItems.Count() == ListOptionFilter.Count())
+        {
+            showSelectedOptionFilter = "すべて";
+        }
+
+        if (checkAll == true && !SelectedOptionFilterItems.Contains("すべて"))
+        {
+            SelectedOptionFilterItems = SelectedOptionFilterItems.Take(0);
+            checkAll = false;
+        }
+        if (checkAll == false && (SelectedOptionFilterItems.Contains("すべて") || (!SelectedOptionFilterItems.Contains("すべて")
+            && SelectedOptionFilterItems.Count() == ListOptionFilter.Count() - 1)))
+        {
+            SelectedOptionFilterItems = ListOptionFilter;
+            checkAll = true;
+        }
+        if (checkAll == true && SelectedOptionFilterItems.Contains("すべて") && SelectedOptionFilterItems.Count() < ListOptionFilter.Count())
+        {
+            SelectedOptionFilterItems = SelectedOptionFilterItems.Where(t => t.ToString() != "すべて");
+            checkAll = false;
+        }
+        await Task.Run(() =>
+        {
+            Loadpage().Wait();
+        });
+        StateHasChanged();
+    }
+}

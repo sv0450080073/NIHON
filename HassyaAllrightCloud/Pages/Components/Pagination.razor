@@ -1,0 +1,72 @@
+﻿@inherits PaginationBase
+
+<div class="page-wrapper">
+    <div>
+        <ul class="page-container">
+            @if (totalPage > 5)
+            {
+                <li class="@(currentPage > 0 ? "page" : "disabled-page page")"
+                    @onclick="(() => OnPageClick(0))"><i class="fa fa-angle-double-left"></i></li>
+                <li class="@(currentPage > 0 ? "page" : "disabled-page page")"
+                    @onclick="(() => OnPageClick(currentPage - 1))"><i class="fa fa-angle-left"></i></li>
+            }
+
+            @if (currentPage >= totalPage - 1 && currentPage - 3 >= 1)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage - 4))">@(currentPage - 3)</li>
+            }
+            @if (currentPage >= totalPage - 2 && currentPage - 2 >= 1)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage - 3))">@(currentPage - 2)</li>
+            }
+
+            @if (currentPage > 1)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage - 2))">@(currentPage - 1)</li>
+            }
+            @if (currentPage > 0)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage - 1))">@(currentPage)</li>
+            }
+
+            <li class="page active-page">@(currentPage + 1)</li>
+
+            @if (currentPage < totalPage - 1)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage + 1))">@(currentPage + 2)</li>
+            }
+            @if (currentPage < totalPage - 2)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage + 2))">@(currentPage + 3)</li>
+            }
+
+            @if (currentPage <= 1 && currentPage + 4 <= totalPage)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage + 3))">@(currentPage + 4)</li>
+            }
+            @if (currentPage < 1 && currentPage + 5 <= totalPage)
+            {
+                <li class="page" @onclick="(() => OnPageClick(currentPage + 4))">@(currentPage + 5)</li>
+            }
+
+            @if (totalPage > 5)
+            {
+                <li class="@(currentPage < totalPage - 1 ? "page" : "disabled-page page")"
+                    @onclick="(() => OnPageClick(currentPage + 1))"><i class="fa fa-angle-right"></i></li>
+                <li class="@(currentPage < totalPage - 1 ? "page" : "disabled-page page")"
+                    @onclick="(() => OnPageClick(totalPage - 1))"><i class="fa fa-angle-double-right"></i></li>
+            }
+        </ul>
+    </div>
+    <div class="d-flex">
+        <label class="label-paging mr-2">@(string.Format(_lang["message"], TotalCount, TotalCount == 0 ? 0 : ItemPerPage * currentPage + 1, GetToValue()))</label>
+        <DxComboBox Data="listItemPerPage"
+                    FilteringMode="@DataGridFilteringMode.Contains"
+                    AllowUserInput="false"
+                    SelectedItem="ItemPerPage"
+                    SelectedItemExpression="@(() => ItemPerPage)"
+                    SelectedItemChanged="@(v => ChangeItemPerPage(v))"
+                    CssClass="paging-width"></DxComboBox>
+    </div>
+</div>
+

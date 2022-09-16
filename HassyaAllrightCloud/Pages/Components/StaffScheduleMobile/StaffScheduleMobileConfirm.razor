@@ -1,0 +1,104 @@
+﻿@inherits StaffScheduleMobileConfirmBase
+@layout LayoutTempleteMobile
+
+<div id="content-schedule-staff-confirm">
+    <div class="body-confirm-sfmb">
+        <div class="description-schedule-sfmbcf">
+            <label class="lbl-details-title-sfmb">@AppointmentDetailFB.Title</label>
+            <div class="d-flex d-inline-block type-lable-meeting-display-sfmb">
+                <lable class="lbl-mr-r lable-meeting row-sfmb-color-@(staffScheduleDataDisplay.DataType.ToString() + staffScheduleDataDisplay.Typelabel.LabelType.ToString())">@(staffScheduleDataDisplay.Typelabel.LabelText)</lable>
+                @if (staffScheduleDataDisplay.AttachedLable != null && staffScheduleDataDisplay.AttachedLable.Count > 0)
+                {
+                    foreach (LabelList label in staffScheduleDataDisplay.AttachedLable)
+                    {
+                        if (label.LabelType == 1)
+                        {
+                            <label class="lable-group-absolute" style="background-color: #d2302f">@Lang["Absolute"]</label>
+                        }
+                        else
+                        {
+                            <label class="lable-group-hope" style="background-color: #1a76d2">@Lang["Hope"]</label>
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="date-sfmbcf">
+            @if (staffScheduleDataDisplay.AllDayKbn == 1)
+            {
+                <label>@Lang["AllDay"]</label>
+            }
+            else
+            {
+                <label class="custom-size-sfmb">@staffScheduleDataDisplay.StartDateDisplay.ToString(formatDate)</label>
+                <label class="custom-size-sfmb">～</label>
+                <label class="custom-size-sfmb">@staffScheduleDataDisplay.EndDateDisplay.ToString(formatDate)</label>
+            }
+
+        </div>
+        @if (!string.IsNullOrEmpty(staffScheduleDataDisplay.RecurrenceRule))
+        {
+            <div class="repetition-sfmbcf">
+                <p>@displayRecurrenceRule</p>
+            </div>
+        }
+        <div class="creator-area-sfmbcf">
+            <div class="lbl-title-sfmbcf">
+                <label>@Lang["Creator"]</label>
+            </div>
+            <div class="value-creator-sfmbcf">
+                <label>@AppointmentDetailFB.Creator</label>
+            </div>
+        </div>
+        <div class="participants-area-sfmbcf">
+            <div class="lbl-title-sfmbcf">
+                <label>@Lang["Participants"]</label>
+            </div>
+            @foreach (var par in AppointmentDetailFB.ParticipantFbStatuses)
+            {
+                <div class="lbl-participants-sfmbcf">
+                    <label class="lbl-par-sfmbcf">@par.ParticipantName</label>
+                    @if (par.FeedbackStaus == 0)
+                    {
+                        <a class="fa fa-times st-N-color"></a>
+                    }
+                    else
+                    {
+                        if (par.FeedbackStaus == 1)
+                        {
+                            <a class="fa fa-check st-Y-color"></a>
+                        }
+                        else
+                        {
+                            if (par.FeedbackStaus == 2)
+                            {
+                                <a class="st-P-color">?</a>
+                            }
+                            else
+                            {
+                                <a></a>
+                            }
+                        }
+                    }
+                </div>
+            }
+        </div>
+        <div class="detail-schedule-sfmbcf">
+            <div class="lbl-title-sfmbcf">
+                <label>@Lang["Note"]</label>
+            </div>
+            <p class="note-sfmbcf">
+                @staffScheduleDataDisplay.YoteiInfo.ShoRejBiko
+            </p>
+        </div>
+    </div>
+    <div class="footer-confirm-sfmb">
+        <label class="lbl-title-sfmbcf lbl-footer-sfmbcf">@Lang["TakePartInQuestion"]</label>
+        <div class="decided-sfmbcf">
+            <button class="btn btn-sm btn-conf-Y" @onclick="() => SendDecide(1)">@Lang["Agree"]</button>
+            <button class="btn btn-sm btn-conf-N" @onclick="() => SendDecide(0)">@Lang["Defuse"]</button>
+            <button class="btn btn-sm btn-conf-P" @onclick="() => SendDecide(2)">@Lang["Pending"]</button>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,368 @@
+﻿@inject BusScheduleHelper BusScheduleHelper
+@inject IStringLocalizer<Pages.Staff> Lang
+
+<div class="busData view-@Container.Params.View mb-2">
+    <div class="busData-content busData-content--1">
+        <div class="busData-name">
+            <div class="topbar"></div>
+            <div>
+                @foreach (var staff in ListTmp)
+                {
+                    if (staff.WorkID != 0)
+                    {
+                        <div style="height: @(staff.Height)rem; color: @GetColor(staff); background-color: @OnGetBackgroundColor(staff)" class="busData-name__item isWork d-block" 
+                             ondragover="@(IsPreventDefault() ? "event.preventDefault();" : string.Empty)" @ondrop="@(() => HandleDropWork(staff))"
+                             @onmouseenter="@(() => ShowToolTip(staff))" @onmouseleave="@(() => HideToolTip(staff))">
+                            <p class="mb-0" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">@(staff.SyainCd + " " + staff.SyainNm + "／" + staff.SyokumuNm + GetName(staff, 0))</p>
+                            @if(Container.Params.ShowTimeGrid == (int)ShowTime.IsShowTime && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5))
+                            {
+                                <p class="mb-0 time-item" style="font-size: 7px">@($"{Lang["showtime_label"]}{Lang["onday"]}{GetTime(staff.Onday)}　{Lang["1weak"]}{GetTime(staff.WorkTime)}　{Lang["4weak"]}{GetTime(staff.WorkTime4Week)}、{Lang["rest_period"]}{GetTime(staff.DayBefore)}")</p>
+                            }
+                            @if (staff.isShowToolTip)
+                            {
+                                <StaffToolTip staff="staff" CssClass="tooltip-text"></StaffToolTip>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="height: @(staff.Height)rem; color: @GetColor(staff); background-color: @OnGetBackgroundColor(staff)" class="busData-name__item d-block mytooltip" 
+                             ondragover="@(IsPreventDefault() ? "event.preventDefault();" : string.Empty)" @ondrop="@(() => HandleDropWork(staff))"
+                             @onmouseenter="@(() => ShowToolTip(staff))" @onmouseleave="@(() => HideToolTip(staff))">
+                            <p class="mb-0" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">@(staff.SyainCd + " " + staff.SyainNm + "／" + staff.SyokumuNm + GetName(staff, 1))</p>
+                            @if(Container.Params.ShowTimeGrid == (int)ShowTime.IsShowTime && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5))
+                            {
+                                <p class="mb-0 time-item" style="font-size: 7px">@($"{Lang["showtime_label"]}{Lang["onday"]}{GetTime(staff.Onday)}　{Lang["1weak"]}{GetTime(staff.WorkTime)}　{Lang["4weak"]}{GetTime(staff.WorkTime4Week)}、{Lang["rest_period"]}{GetTime(staff.DayBefore)}")</p>
+                            }
+                            @if (staff.isShowToolTip)
+                            {
+                                <StaffToolTip staff="staff" CssClass="tooltip-text"></StaffToolTip>
+                            }
+                        </div>
+                    }
+                    
+                }
+            </div>
+        </div>
+        <div class="busData-timeline busData--@Container.Params.Time">
+            <div class="listColumn clearfix">
+                <div class="listColumn__item">
+                    <div class="day text-center @Container.Date.DayOfWeek.ToString("G").ToLower()">
+                        <strong>@Container.Date.ToString("MM月dd日 (ddd)", ci)</strong>
+                        <span class="fa fa-pencil-square-o ml-1" aria-hidden="true"></span>
+                    </div>
+                    <div class="description text-center">
+                        @Lang["Empty"]@(numberOfVehile - listVehicleAllocation.Count(_ => _.HaiSSryCdSeq > 0))台（@(listVehicleAllocation.Count(_ => _.HaiSSryCdSeq > 0))/@(numberOfVehile)）
+                        @Lang["EmptyDriver"]@(List.Count(_ => _.SyokumuKbn == 1 || _.SyokumuKbn == 2) - List.Count(_ => (_.SyokumuKbn == 1 || _.SyokumuKbn == 2) && _.Status == Flag.Todo))人（@(List.Count(_ => (_.SyokumuKbn == 1 || _.SyokumuKbn == 2) && _.Status == Flag.Todo))/@(List.Count(_ => _.SyokumuKbn == 1 || _.SyokumuKbn == 2))）
+                        @Lang["EmptyGuider"]@(List.Count(_ => _.SyokumuKbn == 3 || _.SyokumuKbn == 4) - List.Count(_ => (_.SyokumuKbn == 3 || _.SyokumuKbn == 4) && _.Status == Flag.Todo))人（@(List.Count(_ => (_.SyokumuKbn == 3 || _.SyokumuKbn == 4) && _.Status == Flag.Todo))/@(List.Count(_ => _.SyokumuKbn == 3 || _.SyokumuKbn == 4))）
+                    </div>
+                    <div class="hours d-flex">
+                        <!-- 1hour -->
+                        @if (Container.Params.Time == (int)TimeMode.OneHour)
+                        {
+                            for (var j = 0; j < 24; j++)
+                            {
+                                <span>@j</span>
+                            }
+                        }
+                        @if (Container.Params.Time == (int)TimeMode.ThreeHours)
+                        {
+                            for (var j = 0; j < 8; j++)
+                            {
+                                <span>@(j * 3)</span>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="listTimeline">
+                @if (ListTmp.Count() == 0)
+                {
+                    <div class="text-center"><small>@Lang["BI_T001"]</small></div>
+                }
+                else
+                {
+                    <div class="grid-calendar grid-calendar-view">
+                        <!-- 1hour -->
+                        @if (Container.Params.Time == (int)TimeMode.OneHour)
+                        {
+                            @for (var j = 0; j < 24; j++)
+                            {
+                                <div></div>
+                            }
+                        }
+                        <!-- 3hours -->
+                        @if (Container.Params.Time == (int)TimeMode.ThreeHours)
+                        {
+                            @for (var i = 0; i < 8; i++)
+                            {
+                                <div></div>
+                            }
+                        }
+                    </div>
+                }
+                @foreach (var staff in ListTmp)
+                {
+                    <JobGrid ID="@staff.JobID" ListJobs="ListJobs.Where(_ => _.SyainCdSeq == staff.SyainCdSeq).ToList()" height="listHeight[ListTmp.IndexOf(staff)]" dropWork="@(() => HandleDropWork(staff))"></JobGrid>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] StaffContainer Container { get; set; }
+    [Parameter] public List<StaffData> List { get; set; }
+    CultureInfo ci = new CultureInfo("ja-JP");
+    public List<StaffData> ListTmp { get; set; }
+    [Parameter] public int? numberOfVehile { get; set; }
+    [Parameter] public List<DrvJinItem> listDriver { get; set; }
+    [Parameter] public List<GuiJinItem> listGuider { get; set; }
+    [Parameter] public List<VehicleAllocationItem> listVehicleAllocation { get; set; }
+    [Parameter] public List<CrewDataAcquisitionItem> listCrewDataAcquisition { get; set; }
+    [Parameter] public Flag[] AllowedStatuses { get; set; }
+    List<JobItem> ListJobs = new List<JobItem>();
+    List<double> listHeight = new List<double>();
+    double height = 0;
+    double heightline = 2;
+    [Inject] protected IErrorHandlerService errorModalService { get; set; }
+    public List<StaffData> ListStaff { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            ListStaff = List.Where(_ => _.Status == Flag.Todo).ToList();
+            if (numberOfVehile == null)
+            {
+                numberOfVehile = 0;
+            }
+            ListJobs = new List<JobItem>();
+            ListTmp = new List<StaffData>();
+            listHeight = new List<double>();
+            foreach (var staff in ListStaff)
+            {
+                foreach (var job in Container.Jobs)
+                {
+                    if (staff.SyainCdSeq == job.SyainCdSeq)
+                    {
+                        staff.TimeStartString = job.TimeStartString;
+                        DateTime start, end;
+                        DateTime.TryParseExact(job.SyuKoYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture, DateTimeStyles.None, out start);
+                        DateTime.TryParseExact(job.KikYmd, CommonConstants.FormatYMD, CultureInfo.InvariantCulture, DateTimeStyles.None, out end);
+                        if (DateTime.Compare(start, Container.Date) <= 0 && DateTime.Compare(end, Container.Date) >= 0)
+                        {
+                            if (!ListTmp.Contains(staff))
+                                ListTmp.Add(staff);
+                        }
+                    }
+                }
+            }
+
+            if (Container.Params.Sort == (int)StaffSortOrder.Earlier)
+            {
+                ListTmp = ListTmp.OrderBy(x => x.TimeStartString).ToList();
+            }
+            else if (Container.Params.Sort == (int)StaffSortOrder.Rolling)
+            {
+                ListTmp = ListTmp.OrderBy(x => x.TenkoNo).ToList();
+            }
+            else if (Container.Params.Sort == (int)StaffSortOrder.Job)
+            {
+                ListTmp = ListTmp.OrderBy(_ => _.SyokumuKbn).ToList();
+            }
+
+            ReformatRenderItem();
+        }
+        catch (Exception ex)
+        {
+            errorModalService.HandleError(ex);
+        }
+    }
+
+    private void ReformatRenderItem()
+    {
+        foreach (var staff in ListTmp)
+        {
+            if (Container.Params.View == (int)ViewMode.Large)
+            {
+                heightline = 2; // 32px
+            }
+            if (Container.Params.View == (int)ViewMode.Medium)
+            {
+                heightline = 1.6; // 17px
+            }
+            if (Container.Params.View == (int)ViewMode.Small)
+            {
+                heightline = 1.3; // 14px
+            }
+
+            height = 0;
+            List<JobItem> tmp = new List<JobItem>();
+            tmp.AddRange(Container.Jobs.Where(x => staff.SyainCdSeq == x.SyainCdSeq));
+
+            if (tmp.Count > 0)
+            {
+
+                int countTemp = 0;
+                foreach (var job in tmp)
+                {
+                    job.Width = calWidth(job.SyuKoYmd, job.SyuKoTime, job.KikYmd, job.KikTime);
+                    job.Left = calLeft(job.SyuKoYmd, job.SyuKoTime);
+                    //job.Width = BusScheduleHelper.calwidth(Container.Width, job.SyuKoYmd, job.SyuKoTime, job.KikYmd, job.KikTime, 1);
+                    //job.Left = BusScheduleHelper.calleft(Container.Width, job.SyuKoYmd, job.SyuKoTime, 1, Container.Date);
+                    job.Height = heightline;
+                    if (countTemp == 0)
+                    {
+                        job.Top = 0.3125; //5px
+                    }
+                    else
+                    {
+                        job.Top = heightline * countTemp + 0.3125 + (countTemp) * 0.3125;
+                    }
+                    job.CCSStyle = StyleItemText(job);
+                    countTemp++;
+                }
+                ListJobs.AddRange(tmp);
+
+                if (tmp.Count() == 1)
+                {
+                    height = heightline + 0.625;
+                }
+                else
+                {
+                    height = heightline * (tmp.Count()) + (tmp.Count() - 1) * 0.3125 + 0.625;
+                }
+                listHeight.Add(height);
+
+                for (var i = 0; i < Container.Staffs.Count(); i++)
+                {
+                    if (staff.SyainCdSeq == Container.Staffs[i].SyainCdSeq)
+                    {
+                        Container.Staffs[i].Height = height;
+                    }
+                }
+            }
+        }
+
+        if(Container.Params.Sort == (int)StaffSortOrder.Work)
+        {
+            listHeight.Clear();
+            var temp = ListJobs.OrderBy(_ => _.UkeNo).ThenBy(_ => _.UnkRen).ThenBy(_ => _.TeiDanNo).ThenBy(_ => _.BunkRen).ThenBy(_ => _.HaiInRen).Select(_ => _.SyainCdSeq).Distinct().ToList();
+            for(int i = 0; i < temp.Count; i++)
+            {
+                var staff = ListTmp.FirstOrDefault(_ => _.SyainCdSeq == temp[i]);
+                var index = ListTmp.IndexOf(staff);
+                var swap = ListTmp[i];
+                ListTmp[i] = staff;
+                ListTmp[index] = swap;
+                listHeight.Add(staff.Height);
+            }
+        }
+    }
+
+    private double calWidth(string SyuKoYmd, string SyuKoTime, string KikYmd, string KikTime)
+    {
+        const double hourWidth = 4.166666666666667;
+        if (SyuKoYmd == KikYmd)
+        {
+            var time = int.Parse(KikTime.Substring(0, 2)) - int.Parse(SyuKoTime.Substring(0, 2)) + Math.Abs(int.Parse(KikTime.Substring(2)) - int.Parse(SyuKoTime.Substring(2))) * 1.0 / 60;
+            return hourWidth * time;
+        }
+        else
+        {
+            var time = 23 - int.Parse(SyuKoTime.Substring(0, 2)) + (59 - int.Parse(SyuKoTime.Substring(2))) * 1.0 / 60;
+            return hourWidth * time;
+        }
+    }
+
+    private double calLeft(string SyuKoYmd, string SyuKoTime)
+    {
+        if(SyuKoYmd == Container.Date.ToString(CommonConstants.FormatYMD))
+        {
+            const double hourWidth = 4.166666666666667;
+            var time = int.Parse(SyuKoTime.Substring(0, 2)) + int.Parse(SyuKoTime.Substring(2)) * 1.0 / 60;
+            return hourWidth * time;
+        }
+        return 0;
+    }
+
+    private int arrangePositionTmp(JobItem tmp, List<List<JobItem>> itemList)
+    {
+        if (itemList.Count <= 0)
+        {
+            return 0;
+        }
+
+        for (var i = 0; i < itemList.Count; i++)
+        {
+            if (itemList[i].Count == 0)
+            {
+                return i;
+            }
+
+            if (itemList[i][itemList[i].Count - 1].TimeEndString <= tmp.TimeStartString)
+            {
+                return i;
+            }
+        }
+
+        return itemList.Count;
+    }
+
+    private string StyleItemText(JobItem item)
+    {
+        return "width:" + item.Width.ToString() + "%;top:" + item.Top.ToString() + "rem;left:" + item.Left.ToString() + "%;height:" + heightline + "rem";
+    }
+
+    protected async Task HandleDropWork(StaffData staff)
+    {
+        if (AllowedStatuses != null && !AllowedStatuses.Contains(Container.Payload.AllowStatus))
+        {
+            return;
+        }
+        Container.isAddMoreWork = true;
+        await Container.UpdateJobAsync(staff);
+    }
+
+    private string GetColor(StaffData item)
+    {
+        return !string.IsNullOrWhiteSpace(item.ColKinKyu) ? item.ColKinKyu : "#000000";
+    }
+
+    private string GetName(StaffData item, byte type)
+    {
+        if (type == 0)
+            return !string.IsNullOrWhiteSpace(item.WorkNm) ? "（	" + item.WorkNm + "	)" : string.Empty;
+        return !string.IsNullOrWhiteSpace(item.HolidayNm) ? "（	" + item.HolidayNm + "	)" : string.Empty;
+    }
+
+    protected bool IsPreventDefault()
+    {
+        if (Container.isJob)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private string GetTime(float time)
+    {
+        return string.Format("{0}:{1}", (int)(time / 60), (int)(time % 60));
+    }
+
+    private void ShowToolTip(StaffData staff)
+    {
+        if (!Container.isAssignJob && !Container.isAssignHoliday && !Container.isAHoliday && (staff.SyokumuKbn == 1 || staff.SyokumuKbn == 2 || staff.SyokumuKbn == 5)) staff.isShowToolTip = true;
+    }
+
+    private void HideToolTip(StaffData staff)
+    {
+        staff.isShowToolTip = false;
+    }
+
+    private string OnGetBackgroundColor(StaffData staff)
+    {
+        return Container.listSyain.Contains(staff.SyainCdSeq) ? "pink" : "#ffffff";
+    }
+}

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="UnkoushijishoSubReport" Margins="25, 25, 0, 0" PaperKind="A4" PageWidth="827" PageHeight="1169" Version="20.1" DataMember="RP_UnkoushijishoSubReportNew" DataSource="#Ref-0">
+  <Parameters>
+    <Item1 Ref="3" Description="Ukeno" ValueInfo="000010000008117" Name="Ukeno" />
+    <Item2 Ref="4" Description="SyuKoYmd" ValueInfo="2020/09/14" Name="SyuKoYmd" />
+    <Item3 Ref="6" Description="TeiDanNo" ValueInfo="1" Name="TeiDanNo" Type="#Ref-5" />
+    <Item4 Ref="7" Description="BunkRen" ValueInfo="1" Name="BunkRen" Type="#Ref-5" />
+    <Item5 Ref="8" Description="UnkRen" ValueInfo="1" Name="UnkRen" Type="#Ref-5" />
+    <Item6 Ref="9" Description="KikYmd" ValueInfo="2020/09/17" Name="KikYmd" />
+  </Parameters>
+  <Bands>
+    <Item1 Ref="10" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="0" />
+    <Item2 Ref="11" ControlType="DetailBand" Name="detailBand1" HeightF="0" />
+    <Item3 Ref="12" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="0" />
+    <Item4 Ref="13" ControlType="GroupHeaderBand" Name="GroupHeader1" HeightF="18.5">
+      <GroupFields>
+        <Item1 Ref="14" FieldName="dateKotei" />
+      </GroupFields>
+      <Controls>
+        <Item1 Ref="15" ControlType="XRSubreport" Name="subreport2" SizeF="246.12,18.5" LocationFloat="530.88,0">
+          <ParameterBindings>
+            <Item1 Ref="17" ParameterName="Ukeno" Parameter="#Ref-3" />
+            <Item2 Ref="18" ParameterName="SyuKoYmd" Parameter="#Ref-4" />
+            <Item3 Ref="19" ParameterName="KikYmd" Parameter="#Ref-9" />
+            <Item4 Ref="20" ParameterName="TeiDanNo" Parameter="#Ref-6" />
+            <Item5 Ref="21" ParameterName="UnkRen" Parameter="#Ref-8" />
+            <Item6 Ref="22" ParameterName="BunkRen" Parameter="#Ref-7" />
+            <Item7 Ref="23" ParameterName="Dateparam" DataMember="RP_UnkoushijishoSubReportNew.dateKotei" />
+          </ParameterBindings>
+        </Item1>
+        <Item2 Ref="24" ControlType="XRSubreport" Name="subreport1" CanShrink="true" SizeF="530.88,18.5" LocationFloat="0,0">
+          <ParameterBindings>
+            <Item1 Ref="25" ParameterName="Ukeno" Parameter="#Ref-3" />
+            <Item2 Ref="26" ParameterName="SyuKoYmd" Parameter="#Ref-4" />
+            <Item3 Ref="27" ParameterName="KikYmd" Parameter="#Ref-9" />
+            <Item4 Ref="28" ParameterName="TeiDanNo" Parameter="#Ref-6" />
+            <Item5 Ref="29" ParameterName="UnkRen" Parameter="#Ref-8" />
+            <Item6 Ref="30" ParameterName="BunkRen" Parameter="#Ref-7" />
+            <Item7 Ref="31" ParameterName="Dateparam" DataMember="RP_UnkoushijishoSubReportNew.dateKotei" />
+          </ParameterBindings>
+        </Item2>
+      </Controls>
+    </Item4>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.Sql.SqlDataSource,DevExpress.DataAccess.v20.1" Name="sqlDataSource1" Base64="PFNxbERhdGFTb3VyY2UgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxDb25uZWN0aW9uIE5hbWU9IlNxbERiQ29udGV4dCIgRnJvbUFwcENvbmZpZz0idHJ1ZSIgLz48UXVlcnkgVHlwZT0iU3RvcmVkUHJvY1F1ZXJ5IiBOYW1lPSJSUF9VbmtvdXNoaWppc2hvU3ViUmVwb3J0TmV3Ij48UGFyYW1ldGVyIE5hbWU9IkBVa2VubyIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/VWtlbm8pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAU3l1S29ZbWQiIFR5cGU9IkRldkV4cHJlc3MuRGF0YUFjY2Vzcy5FeHByZXNzaW9uIj4oU3lzdGVtLlN0cmluZykoP1N5dUtvWW1kKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQEtpa1ltZCIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uU3RyaW5nKSg/S2lrWW1kKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFRlaURhbk5vIiBUeXBlPSJEZXZFeHByZXNzLkRhdGFBY2Nlc3MuRXhwcmVzc2lvbiI+KFN5c3RlbS5JbnQxNikoP1RlaURhbk5vKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQFVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9VbmtSZW4pPC9QYXJhbWV0ZXI+PFBhcmFtZXRlciBOYW1lPSJAQnVua1JlbiIgVHlwZT0iRGV2RXhwcmVzcy5EYXRhQWNjZXNzLkV4cHJlc3Npb24iPihTeXN0ZW0uSW50MTYpKD9CdW5rUmVuKTwvUGFyYW1ldGVyPjxQYXJhbWV0ZXIgTmFtZT0iQERhdGVwYXJhbSIgVHlwZT0iU3lzdGVtLlN0cmluZyIgSXNOdWxsPSJ0cnVlIiAvPjxQcm9jTmFtZT5SUF9VbmtvdXNoaWppc2hvU3ViUmVwb3J0TmV3PC9Qcm9jTmFtZT48L1F1ZXJ5PjxSZXN1bHRTY2hlbWE+PERhdGFTZXQgTmFtZT0ic3FsRGF0YVNvdXJjZTEiPjxWaWV3IE5hbWU9IlJQX1Vua291c2hpamlzaG9TdWJSZXBvcnROZXciPjxGaWVsZCBOYW1lPSJkYXRlS290ZWkiIFR5cGU9IkRhdGVUaW1lIiAvPjxGaWVsZCBOYW1lPSJLb3V0ZWkiIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iVGVoTm0iIFR5cGU9IlN0cmluZyIgLz48RmllbGQgTmFtZT0iVGVoVGVsIiBUeXBlPSJTdHJpbmciIC8+PC9WaWV3PjwvRGF0YVNldD48L1Jlc3VsdFNjaGVtYT48Q29ubmVjdGlvbk9wdGlvbnMgQ2xvc2VDb25uZWN0aW9uPSJ0cnVlIiAvPjwvU3FsRGF0YVNvdXJjZT4=" />
+  </ComponentStorage>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v20.1" Ref="5" Content="System.Int32" Type="System.Type" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

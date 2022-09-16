@@ -1,0 +1,66 @@
+﻿@inherits TransportationMonthlyReportBase
+<div class="tranportation-monthly-revenue d-flex flex-1" style="flex-direction: column">
+    <div class="row">
+        <div class="col-4 d-flex">
+            <div class="row">
+                <div class="col-4 text-right">
+                    @(Model.EigyoKbn == EigyoKbnEnum.ReceptionOffice ? _baseLang["ReceptionOfficeLabel"] : _baseLang["BillingOfficeLabel"])
+                </div>
+                <div class="col-8 d-flex">
+                    <DxComboBox Data="eigyoListItems"
+                                TextFieldName="@nameof(searchModel.Eigyo.DisplayName)"
+                                FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                SelectedItem="searchModel.Eigyo"
+                                SelectedItemChanged="async (v) => await EigyoListItemsChanged(v)"
+                                SelectedItemExpression="() => searchModel.Eigyo"
+                                NullText="@_baseLang["SalesOfficeNullText"]"></DxComboBox>
+                    <button class="btn btn-sm ml-3 mr-2 d-flex p-0" @onclick="async (e)=> await EigyoListItemsChanged(null, true)" disabled="@(!eigyoListItems.Any() || eigyoListItems.IndexOf(searchModel.Eigyo) == 0)">
+                        <i class="fa fa-chevron-circle-left m-auto next-pre-font-size"></i>
+                    </button>
+                    <button class="btn btn-sm d-flex p-0" @onclick="async (e)=> await EigyoListItemsChanged(null, false)" disabled="@(eigyoListItems.IndexOf(searchModel.Eigyo) == eigyoListItems.Count - 1)">
+                        <i class="fa fa-chevron-circle-right m-auto next-pre-font-size"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="row">
+                <div class="col-4 text-right">
+                    @_lang["SalesDateTitle"]
+                </div>
+                <div class="col-8 d-flex">
+                    <DxTextBox NullText="@_lang["SalesNullText"]" ReadOnly="true"
+                                @bind-Text="searchModel.UriYm"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="row">
+                <div class="col-5 text-right">
+                    @_baseLang["ClassificationTitle"]
+                </div>
+                <div class="col-7">
+                    <DxTextBox NullText="@_baseLang["ClassificationTitle"]" ReadOnly="true"
+                                @bind-Text="searchModel.TesukomiKbn"></DxTextBox>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-column flex-1">
+        <div class="mt-3 position-relative d-flex flex-1 overflow-auto w-100">
+            @if (Body != null && Header != null)
+            {
+                <KoboSimpleGrid Body="Body" Header="Header" DataItems="actualRevenueItems" CssClass="@(string.Format("grid-flex-1 kobo-grid-size-{0}", (int)GridSize))"></KoboSimpleGrid>
+            }
+        </div>
+        <div class="mt-2 mb-2">
+            <HassyaAllrightCloud.Pages.Components.Pagination OnChangePage="OnChangePage" ItemPerPage="itemPerPage" OnChangeItemPerPage="OnChangeItemPerPage"
+                                                                TotalCount="monthlyRevenueItems.Count" @ref="paging">
+            </HassyaAllrightCloud.Pages.Components.Pagination>
+        </div>
+        <div class="transport-monthly-common-data mb-2">
+            <TransportationReportCommonData SummaryResult="summaryResult" GridSize="GridSize" IsDailyReport="false"></TransportationReportCommonData>
+        </div>
+    </div>
+</div>
+

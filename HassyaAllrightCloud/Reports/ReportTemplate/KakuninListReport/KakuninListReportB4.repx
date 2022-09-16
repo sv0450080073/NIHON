@@ -1,0 +1,648 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.6.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="KakuninListReportB4" Landscape="true" Margins="25, 25, 15, 15" PaperKind="B4" PageWidth="1390" PageHeight="984" Version="20.1" DataSource="#Ref-0" Font="Arial, 9.75pt">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="TopMargin" HeightF="15" />
+    <Item2 Ref="3" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="15" />
+    <Item3 Ref="4" ControlType="DetailBand" Name="Detail" Expanded="false" />
+    <Item4 Ref="5" ControlType="PageHeaderBand" Name="PageHeader" HeightF="83">
+      <Controls>
+        <Item1 Ref="6" ControlType="XRLabel" Name="label2" CanGrow="false" Text="確  　認 　書" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="179.227859,35.4166641" LocationFloat="580.386047,1.58945713E-05" Font="MS PGothic, 24pt, style=Bold" Padding="2,2,0,0,100">
+          <StylePriority Ref="7" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="8" ControlType="XRLabel" Name="label3" Multiline="true" Text="日付:" TextAlignment="MiddleLeft" SizeF="37.00781,14.5833321" LocationFloat="1037.5,9.722238" Font="MS PGothic, 9pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="9" UseFont="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="10" ControlType="XRLabel" Name="label1" CanGrow="false" Text="8/3/2020  4:38:00 PM" LockedInUserDesigner="true" TextAlignment="MiddleCenter" WordWrap="false" SizeF="137.5,14.5833292" LocationFloat="1087.5,9.722249" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="11" EventName="BeforePrint" PropertyName="Text" Expression="[ReportDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="12" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="13" ControlType="XRPageInfo" Name="pageInfo1" TextFormatString="ページ {0}/{1}" LockedInUserDesigner="true" TextAlignment="MiddleRight" SizeF="108.23938,14.5833292" LocationFloat="1231.76062,9.722249" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <StylePriority Ref="14" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="15" ControlType="XRLabel" Name="label5" Multiline="true" CanGrow="false" Text="三共ツーリスト" SizeF="150.367615,14.5833321" LocationFloat="0,37.5" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="16" EventName="BeforePrint" PropertyName="Text" Expression="[TokuiRyakuNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="17" UseFont="false" UseForeColor="false" />
+        </Item5>
+        <Item6 Ref="18" ControlType="XRLabel" Name="label6" Multiline="true" CanGrow="false" Text="札幌支店" SizeF="150.513916,14.5833321" LocationFloat="162.346771,37.5" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="19" EventName="BeforePrint" PropertyName="Text" Expression="[SitenRyakuNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="20" UseFont="false" UseForeColor="false" />
+        </Item6>
+        <Item7 Ref="21" ControlType="XRLabel" Name="label7" Multiline="true" Text="様" SizeF="16.4999981,14.5833321" LocationFloat="325.571228,37.5" Font="MS PGothic, 9pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="22" UseFont="false" />
+        </Item7>
+        <Item8 Ref="23" ControlType="XRLabel" Name="label8" Multiline="true" CanGrow="false" Text="7/11/2020" SizeF="100.137138,14.5833206" LocationFloat="0,62.5" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="24" EventName="BeforePrint" PropertyName="Text" Expression="[StartDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="25" UseFont="false" UseForeColor="false" />
+        </Item8>
+        <Item9 Ref="26" ControlType="XRLabel" Name="label9" Multiline="true" Text="～" TextAlignment="TopCenter" SizeF="16.4999981,14.5833321" LocationFloat="117.002357,62.5" Font="MS PGothic, 9pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="27" UseFont="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="28" ControlType="XRLabel" Name="label10" Multiline="true" CanGrow="false" Text="8/3/2020" SizeF="100.3542,14.5833206" LocationFloat="149.492645,62.5" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="29" EventName="BeforePrint" PropertyName="Text" Expression="[EndDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="30" UseFont="false" UseForeColor="false" />
+        </Item10>
+        <Item11 Ref="31" ControlType="XRLabel" Name="label11" Multiline="true" Text="Fax：" SizeF="28.8535137,14.5833321" LocationFloat="400,54" Font="MS PGothic, 9pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="32" UseFont="false" />
+        </Item11>
+        <Item12 Ref="33" ControlType="XRLabel" Name="label12" Multiline="true" CanGrow="false" Text="　048-433-2177" SizeF="97.31598,14.5833168" LocationFloat="437.5,54.00001" Font="MS PGothic, 9pt" ForeColor="Black" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="34" EventName="BeforePrint" PropertyName="Text" Expression="[TokuiFax]" />
+          </ExpressionBindings>
+          <StylePriority Ref="35" UseFont="false" UseForeColor="false" />
+        </Item12>
+      </Controls>
+    </Item4>
+    <Item5 Ref="36" ControlType="PageFooterBand" Name="PageFooter" HeightF="43">
+      <Controls>
+        <Item1 Ref="37" ControlType="XRLabel" Name="label21" CanGrow="false" Text="いつも大変お世話になっております。お手数かと存じますが確認欄へのご記入の上、FAXにて御返送下さい。" WordWrap="false" SizeF="629.1232,15.9722214" LocationFloat="0,5" Font="MS PGothic, 9pt" Borders="None">
+          <StylePriority Ref="38" UseFont="false" UseBorders="false" />
+        </Item1>
+        <Item2 Ref="39" ControlType="XRLabel" Name="label22" CanGrow="false" Text="工房バス株式会社" WordWrap="false" SizeF="200,15.9722214" LocationFloat="812.5,5" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="40" EventName="BeforePrint" PropertyName="Text" Expression="[CompanyName]" />
+          </ExpressionBindings>
+          <StylePriority Ref="41" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item2>
+        <Item3 Ref="42" ControlType="XRLabel" Name="label23" Multiline="true" Text="Tel:" SizeF="20.8875847,15.9722214" LocationFloat="812.5,25" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <StylePriority Ref="43" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item3>
+        <Item4 Ref="44" ControlType="XRLabel" Name="label25" CanGrow="false" Text="011-665-4717" WordWrap="false" SizeF="112.854187,15.9722214" LocationFloat="850,25" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="45" EventName="BeforePrint" PropertyName="Text" Expression="[TEL]" />
+          </ExpressionBindings>
+          <StylePriority Ref="46" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item4>
+        <Item5 Ref="47" ControlType="XRLabel" Name="label24" CanGrow="false" Text="本社" WordWrap="false" SizeF="201.155029,15.9722214" LocationFloat="1023.845,5" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="48" EventName="BeforePrint" PropertyName="Text" Expression="[EigyosRyakuNm]" />
+          </ExpressionBindings>
+          <StylePriority Ref="49" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item5>
+        <Item6 Ref="50" ControlType="XRLabel" Name="label27" Multiline="true" Text="Fax:" SizeF="23.49175,15.9722214" LocationFloat="1000,25" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <StylePriority Ref="51" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item6>
+        <Item7 Ref="52" ControlType="XRLabel" Name="label26" CanGrow="false" Text="011-665-4777" WordWrap="false" SizeF="112.854126,15.9722214" LocationFloat="1037.5,25" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="53" EventName="BeforePrint" PropertyName="Text" Expression="[FAX]" />
+          </ExpressionBindings>
+          <StylePriority Ref="54" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item7>
+        <Item8 Ref="55" ControlType="XRLabel" Name="label28" CanGrow="false" Text="工房太郎" WordWrap="false" SizeF="149.4862,15.9722214" LocationFloat="1187.5,25" Font="MS PGothic, 9pt" ForeColor="Black" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="56" EventName="BeforePrint" PropertyName="Text" Expression="[EigSyain]" />
+          </ExpressionBindings>
+          <StylePriority Ref="57" UseFont="false" UseForeColor="false" UseBorders="false" />
+        </Item8>
+      </Controls>
+    </Item5>
+    <Item6 Ref="58" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="PagedData" DataSource="#Ref-0" PageBreak="AfterBand">
+      <Bands>
+        <Item1 Ref="59" ControlType="DetailBand" Name="Detail1" HeightF="39">
+          <Controls>
+            <Item1 Ref="60" ControlType="XRTable" Name="table3" SizeF="1340,39" LocationFloat="0,0" Font="MS PGothic, 7pt" Borders="All">
+              <Rows>
+                <Item1 Ref="61" ControlType="XRTableRow" Name="tableRow33" Weight="0.13895824060767498">
+                  <Cells>
+                    <Item1 Ref="62" ControlType="XRTableCell" Name="tableCell556" Weight="7.6846976680962795" CanGrow="false" RowSpan="6" Multiline="true" Text="20/07/28(火)  06：00 &#xD;&#xA;～20/07/31(金) 19：00" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="63" EventName="BeforePrint" PropertyName="Text" Expression="[DateTimeInProcess]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="64" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="65" ControlType="XRTableCell" Name="tableCell557" Weight="2.9985480816809722" CanGrow="false" RowSpan="3" Multiline="true" Text="2泊" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="66" EventName="BeforePrint" PropertyName="Text" Expression="[Night]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="67" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="68" ControlType="XRTableCell" Name="tableCell558" Weight="9.3309922559655423" CanGrow="false" RowSpan="3" Multiline="true" Text="Phuongntt0722&#xD;&#xA;Phuongntt0722" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="69" EventName="BeforePrint" PropertyName="Text" Expression="[DanTaNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="70" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="71" ControlType="XRTableCell" Name="tableCell559" Weight="7.256549438554333" CanGrow="false" RowSpan="3" Multiline="true" Text="三共戸田" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="72" EventName="BeforePrint" PropertyName="Text" Expression="[TokuiRyakuNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="73" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="74" ControlType="XRTableCell" Name="tableCell560" Weight="7.25654300085223" CanGrow="false" RowSpan="3" Multiline="true" Text="成田空港" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="[HaiSNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="76" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="77" ControlType="XRTableCell" Name="tableCell561" Weight="7.2565475202267713" CanGrow="false" RowSpan="3" Multiline="true" Text="サッパーテッカー" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="78" EventName="BeforePrint" PropertyName="Text" Expression="[SyaSyuNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="79" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="80" ControlType="XRTableCell" Name="tableCell562" Weight="3.2292873556386361" CanGrow="false" RowSpan="2" Multiline="true" TextAlignment="MiddleCenter" Padding="5,5,0,0,100" Borders="Left">
+                      <StylePriority Ref="81" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="82" ControlType="XRTableCell" Name="tableCell563" Weight="4.8750629638317937" CanGrow="false" RowSpan="2" Multiline="true" Text="140,000 円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="83" EventName="BeforePrint" PropertyName="Text" Expression="[UntKinTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="84" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="85" ControlType="XRTableCell" Name="tableCell564" Weight="5.7364151276194084" CanGrow="false" RowSpan="2" Multiline="true" Text="140,000円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="86" EventName="BeforePrint" PropertyName="Text" Expression="[GuitKinTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="87" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="88" ControlType="XRTableCell" Name="tableCell565" Weight="5.0658394936586069" CanGrow="false" RowSpan="6" Multiline="true" Text="154,000 円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="[TotalAmount]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="90" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="91" ControlType="XRTableCell" Name="tableCell566" Weight="2.6678500976299819" CanGrow="false" RowSpan="6" Multiline="true" Text="50人&#xD;&#xA;+　2人" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="92" EventName="BeforePrint" PropertyName="Text" Expression="[PassengerInfo]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="93" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="94" ControlType="XRTableCell" Name="tableCell567" Weight="2.6678345721156926" CanGrow="false" RowSpan="6" Multiline="true" Text="有" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="[HadGuide]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="96" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="97" ControlType="XRTableCell" Name="tableCell568" Weight="5.1075305341516293" CanGrow="false" RowSpan="3" Multiline="true" Text="確定済" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="98" EventName="BeforePrint" PropertyName="Text" Expression="[ConfirmInfo]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="99" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="100" ControlType="XRTableCell" Name="tableCell569" Weight="1.2576444581606388" CanGrow="false" RowSpan="6" Multiline="true" Text="〇" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="101" EventName="BeforePrint" PropertyName="Text" Expression="[SaikFlgTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="102" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item14>
+                    <Item15 Ref="103" ControlType="XRTableCell" Name="tableCell570" Weight="1.2576439060718794" CanGrow="false" RowSpan="6" Multiline="true" Text="〇" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="104" EventName="BeforePrint" PropertyName="Text" Expression="[DaiSuFlgTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="105" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item15>
+                    <Item16 Ref="106" ControlType="XRTableCell" Name="tableCell571" Weight="1.2575174663695807" CanGrow="false" RowSpan="6" Multiline="true" Text="〇" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="107" EventName="BeforePrint" PropertyName="Text" Expression="[KingFlgTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="108" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="109" ControlType="XRTableCell" Name="tableCell572" Weight="1.2575039262925574" CanGrow="false" RowSpan="6" Multiline="true" Text="〇" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="110" EventName="BeforePrint" PropertyName="Text" Expression="[NitteiFlgTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="111" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item17>
+                    <Item18 Ref="112" ControlType="XRTableCell" Name="tableCell573" Weight="6.6928310958826964" CanGrow="false" RowSpan="6" Multiline="true" Text="NoteNoteNoteNoteNote" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Left, Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="113" EventName="BeforePrint" PropertyName="Text" Expression="[BikoNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="114" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item18>
+                  </Cells>
+                </Item1>
+                <Item2 Ref="115" ControlType="XRTableRow" Name="tableRow34" Weight="0.13895824060767512">
+                  <Cells>
+                    <Item1 Ref="116" ControlType="XRTableCell" Name="tableCell574" Weight="7.6846976680962795" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Right">
+                      <StylePriority Ref="117" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="118" ControlType="XRTableCell" Name="tableCell575" Weight="2.9985480816809722" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="119" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="120" ControlType="XRTableCell" Name="tableCell576" Weight="9.3309922559655423" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Right">
+                      <StylePriority Ref="121" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="122" ControlType="XRTableCell" Name="tableCell577" Weight="7.256549438554333" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Right">
+                      <StylePriority Ref="123" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="124" ControlType="XRTableCell" Name="tableCell578" Weight="7.25654300085223" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" Borders="Left, Right">
+                      <StylePriority Ref="125" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="126" ControlType="XRTableCell" Name="tableCell579" Weight="7.2565475202267713" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Right">
+                      <StylePriority Ref="127" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="128" ControlType="XRTableCell" Name="tableCell580" Weight="3.2292873556386361" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" ForeColor="Red" Borders="Left">
+                      <StylePriority Ref="129" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="130" ControlType="XRTableCell" Name="tableCell581" Weight="4.8750629638317937" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Right">
+                      <StylePriority Ref="131" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="132" ControlType="XRTableCell" Name="tableCell582" Weight="5.7364151276194084" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Left, Right">
+                      <StylePriority Ref="133" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="134" ControlType="XRTableCell" Name="tableCell583" Weight="5.0658394936586069" CanGrow="false" Multiline="true" />
+                    <Item11 Ref="135" ControlType="XRTableCell" Name="tableCell584" Weight="2.6678500976299819" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="136" ControlType="XRTableCell" Name="tableCell585" Weight="2.6678345721156926" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="137" ControlType="XRTableCell" Name="tableCell586" Weight="5.1075305341516293" CanGrow="false" Multiline="true" Text="&#xD;&#xA;20/08/05" Borders="Left, Right">
+                      <StylePriority Ref="138" UseBorders="false" />
+                    </Item13>
+                    <Item14 Ref="139" ControlType="XRTableCell" Name="tableCell587" Weight="1.2576444581606388" CanGrow="false" Multiline="true" />
+                    <Item15 Ref="140" ControlType="XRTableCell" Name="tableCell588" Weight="1.2576439060718794" CanGrow="false" Multiline="true" />
+                    <Item16 Ref="141" ControlType="XRTableCell" Name="tableCell589" Weight="1.2575174663695807" CanGrow="false" Multiline="true" />
+                    <Item17 Ref="142" ControlType="XRTableCell" Name="tableCell590" Weight="1.2575039262925574" CanGrow="false" Multiline="true" />
+                    <Item18 Ref="143" ControlType="XRTableCell" Name="tableCell591" Weight="6.6928310958826964" CanGrow="false" Multiline="true" />
+                  </Cells>
+                </Item2>
+                <Item3 Ref="144" ControlType="XRTableRow" Name="tableRow35" Weight="0.13895824060767278">
+                  <Cells>
+                    <Item1 Ref="145" ControlType="XRTableCell" Name="tableCell592" Weight="7.6846976680962795" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="146" ControlType="XRTableCell" Name="tableCell593" Weight="2.9985480816809722" CanGrow="false" Multiline="true" />
+                    <Item3 Ref="147" ControlType="XRTableCell" Name="tableCell594" Weight="9.3309922559655423" CanGrow="false" Multiline="true" />
+                    <Item4 Ref="148" ControlType="XRTableCell" Name="tableCell595" Weight="7.256549438554333" CanGrow="false" Multiline="true" />
+                    <Item5 Ref="149" ControlType="XRTableCell" Name="tableCell596" Weight="7.25654300085223" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="150" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="151" ControlType="XRTableCell" Name="tableCell597" Weight="7.2565475202267713" CanGrow="false" Multiline="true" />
+                    <Item7 Ref="152" ControlType="XRTableCell" Name="tableCell598" Weight="3.2292873556386361" CanGrow="false" RowSpan="2" Multiline="true" Text="10.0％" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="153" EventName="BeforePrint" PropertyName="Text" Expression="[Zeiritsu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="154" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="155" ControlType="XRTableCell" Name="tableCell599" Weight="4.8750629638317937" RowSpan="2" Multiline="true" Text="　　　14,000円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="156" EventName="BeforePrint" PropertyName="Text" Expression="[ZeiRuiTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="157" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="158" ControlType="XRTableCell" Name="tableCell600" Weight="5.7364151276194084" CanGrow="false" RowSpan="2" Multiline="true" Text="　　　14,000円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="159" EventName="BeforePrint" PropertyName="Text" Expression="[TaxGuiderTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="160" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="161" ControlType="XRTableCell" Name="tableCell601" Weight="5.0658394936586069" CanGrow="false" Multiline="true" />
+                    <Item11 Ref="162" ControlType="XRTableCell" Name="tableCell602" Weight="2.6678500976299819" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="163" ControlType="XRTableCell" Name="tableCell603" Weight="2.6678345721156926" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="164" ControlType="XRTableCell" Name="tableCell604" Weight="5.1075305341516293" CanGrow="false" Multiline="true" />
+                    <Item14 Ref="165" ControlType="XRTableCell" Name="tableCell605" Weight="1.2576444581606388" CanGrow="false" Multiline="true" />
+                    <Item15 Ref="166" ControlType="XRTableCell" Name="tableCell606" Weight="1.2576439060718794" CanGrow="false" Multiline="true" />
+                    <Item16 Ref="167" ControlType="XRTableCell" Name="tableCell607" Weight="1.2575174663695807" CanGrow="false" Multiline="true" />
+                    <Item17 Ref="168" ControlType="XRTableCell" Name="tableCell608" Weight="1.2575039262925574" CanGrow="false" Multiline="true" />
+                    <Item18 Ref="169" ControlType="XRTableCell" Name="tableCell609" Weight="6.6928310958826964" CanGrow="false" Multiline="true" />
+                  </Cells>
+                </Item3>
+                <Item4 Ref="170" ControlType="XRTableRow" Name="tableRow1" Weight="0.13895824361152276">
+                  <Cells>
+                    <Item1 Ref="171" ControlType="XRTableCell" Name="tableCell1" Weight="7.6846976680962795" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="172" ControlType="XRTableCell" Name="tableCell2" Weight="2.9985480816809722" CanGrow="false" RowSpan="3" Multiline="true" Text="3日" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="173" EventName="BeforePrint" PropertyName="Text" Expression="[Date]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="174" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="175" ControlType="XRTableCell" Name="tableCell3" Weight="9.3309922559655423" CanGrow="false" RowSpan="3" Multiline="true" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="176" EventName="BeforePrint" PropertyName="Text" Expression="[YoyakuNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="177" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="178" ControlType="XRTableCell" Name="tableCell4" Weight="7.256549438554333" CanGrow="false" RowSpan="3" Multiline="true" Text="御岳山" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="179" EventName="BeforePrint" PropertyName="Text" Expression="[IkNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="180" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="181" ControlType="XRTableCell" Name="tableCell5" Weight="7.25654300085223" CanGrow="false" RowSpan="3" Multiline="true" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="182" EventName="BeforePrint" PropertyName="Text" Expression="[TouNm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="183" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="184" ControlType="XRTableCell" Name="tableCell6" Weight="3.6282737601133856" CanGrow="false" RowSpan="3" Multiline="true" Text="大型" TextAlignment="MiddleLeft" ForeColor="Black" Padding="5,5,0,0,100" Borders="Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="185" EventName="BeforePrint" PropertyName="Text" Expression="[KataKbn]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="186" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="187" ControlType="XRTableCell" Name="tableCell55" Weight="3.6282737601133856" CanGrow="false" RowSpan="3" Multiline="true" Text="2台" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="188" EventName="BeforePrint" PropertyName="Text" Expression="[SyaSyuDai]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="189" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="190" ControlType="XRTableCell" Name="tableCell7" Weight="3.2292873556386361" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" ForeColor="Red" Borders="Bottom">
+                      <StylePriority Ref="191" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="192" ControlType="XRTableCell" Name="tableCell8" Weight="4.8750629638317937" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Right, Bottom">
+                      <StylePriority Ref="193" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="194" ControlType="XRTableCell" Name="tableCell9" Weight="5.7364151276194084" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Right, Bottom">
+                      <StylePriority Ref="195" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="196" ControlType="XRTableCell" Name="tableCell10" Weight="5.0658394936586069" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="197" ControlType="XRTableCell" Name="tableCell11" Weight="2.6678500976299819" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="198" ControlType="XRTableCell" Name="tableCell12" Weight="2.6678345721156926" CanGrow="false" Multiline="true" />
+                    <Item14 Ref="199" ControlType="XRTableCell" Name="tableCell13" Weight="5.1075305341516293" CanGrow="false" RowSpan="3" Multiline="true" Text="20/08/05" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100">
+                      <ExpressionBindings>
+                        <Item1 Ref="200" EventName="BeforePrint" PropertyName="Text" Expression="[ConfirmYmd]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="201" UseForeColor="false" UsePadding="false" UseTextAlignment="false" />
+                    </Item14>
+                    <Item15 Ref="202" ControlType="XRTableCell" Name="tableCell14" Weight="1.2576444581606388" CanGrow="false" Multiline="true" Text="tableCell14" />
+                    <Item16 Ref="203" ControlType="XRTableCell" Name="tableCell15" Weight="1.2576439060718794" CanGrow="false" Multiline="true" Text="tableCell15" />
+                    <Item17 Ref="204" ControlType="XRTableCell" Name="tableCell16" Weight="1.2575174663695807" CanGrow="false" Multiline="true" Text="tableCell16" />
+                    <Item18 Ref="205" ControlType="XRTableCell" Name="tableCell17" Weight="1.2575039262925574" CanGrow="false" Multiline="true" Text="tableCell17" />
+                    <Item19 Ref="206" ControlType="XRTableCell" Name="tableCell18" Weight="6.6928310958826964" CanGrow="false" Multiline="true" Text="tableCell18" />
+                  </Cells>
+                </Item4>
+                <Item5 Ref="207" ControlType="XRTableRow" Name="tableRow2" Weight="0.13895824390711425">
+                  <Cells>
+                    <Item1 Ref="208" ControlType="XRTableCell" Name="tableCell19" Weight="7.6846976680962795" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="209" ControlType="XRTableCell" Name="tableCell20" Weight="2.9985480816809722" CanGrow="false" Multiline="true" />
+                    <Item3 Ref="210" ControlType="XRTableCell" Name="tableCell21" Weight="9.3309922559655423" CanGrow="false" Multiline="true" />
+                    <Item4 Ref="211" ControlType="XRTableCell" Name="tableCell22" Weight="7.256549438554333" CanGrow="false" Multiline="true" />
+                    <Item5 Ref="212" ControlType="XRTableCell" Name="tableCell23" Weight="7.25654300085223" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="213" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="214" ControlType="XRTableCell" Name="tableCell24" Weight="3.6282737601133856" CanGrow="false" Multiline="true" />
+                    <Item7 Ref="215" ControlType="XRTableCell" Name="tableCell56" Weight="3.6282737601133856" CanGrow="false" Multiline="true" />
+                    <Item8 Ref="216" ControlType="XRTableCell" Name="tableCell25" Weight="3.2292873556386361" CanGrow="false" RowSpan="2" Multiline="true" Text="15.0％" TextAlignment="MiddleCenter" ForeColor="Black" Padding="5,5,0,0,100" Borders="Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="217" EventName="BeforePrint" PropertyName="Text" Expression="[TesuRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="218" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="219" ControlType="XRTableCell" Name="tableCell26" Weight="4.8750629638317937" RowSpan="2" Multiline="true" Text="23,100円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="220" EventName="BeforePrint" PropertyName="Text" Expression="[TesuRyoGTxt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="221" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="222" ControlType="XRTableCell" Name="tableCell27" Weight="5.7364151276194084" CanGrow="false" RowSpan="2" Multiline="true" Text="23,100円" TextAlignment="MiddleRight" ForeColor="Black" Padding="5,5,0,0,100" Borders="Right, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="223" EventName="BeforePrint" PropertyName="Text" Expression="[FeeGuider]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="224" UseForeColor="false" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="225" ControlType="XRTableCell" Name="tableCell28" Weight="5.0658394936586069" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="226" ControlType="XRTableCell" Name="tableCell29" Weight="2.6678500976299819" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="227" ControlType="XRTableCell" Name="tableCell30" Weight="2.6678345721156926" CanGrow="false" Multiline="true" />
+                    <Item14 Ref="228" ControlType="XRTableCell" Name="tableCell31" Weight="5.1075305341516293" CanGrow="false" Multiline="true" />
+                    <Item15 Ref="229" ControlType="XRTableCell" Name="tableCell32" Weight="1.2576444581606388" CanGrow="false" Multiline="true" Text="tableCell32" />
+                    <Item16 Ref="230" ControlType="XRTableCell" Name="tableCell33" Weight="1.2576439060718794" CanGrow="false" Multiline="true" Text="tableCell33" />
+                    <Item17 Ref="231" ControlType="XRTableCell" Name="tableCell34" Weight="1.2575174663695807" CanGrow="false" Multiline="true" Text="tableCell34" />
+                    <Item18 Ref="232" ControlType="XRTableCell" Name="tableCell35" Weight="1.2575039262925574" CanGrow="false" Multiline="true" Text="tableCell35" />
+                    <Item19 Ref="233" ControlType="XRTableCell" Name="tableCell36" Weight="6.6928310958826964" CanGrow="false" Multiline="true" Text="tableCell36" />
+                  </Cells>
+                </Item5>
+                <Item6 Ref="234" ControlType="XRTableRow" Name="tableRow3" Weight="0.13895824390711425">
+                  <Cells>
+                    <Item1 Ref="235" ControlType="XRTableCell" Name="tableCell37" Weight="7.6846976680962795" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="236" ControlType="XRTableCell" Name="tableCell38" Weight="2.9985480816809722" CanGrow="false" Multiline="true" />
+                    <Item3 Ref="237" ControlType="XRTableCell" Name="tableCell39" Weight="9.3309922559655423" CanGrow="false" Multiline="true" />
+                    <Item4 Ref="238" ControlType="XRTableCell" Name="tableCell40" Weight="7.256549438554333" CanGrow="false" Multiline="true" />
+                    <Item5 Ref="239" ControlType="XRTableCell" Name="tableCell41" Weight="7.25654300085223" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="240" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="241" ControlType="XRTableCell" Name="tableCell42" Weight="3.6282737601133856" CanGrow="false" Multiline="true" />
+                    <Item7 Ref="242" ControlType="XRTableCell" Name="tableCell57" Weight="3.6282737601133856" CanGrow="false" Multiline="true" />
+                    <Item8 Ref="243" ControlType="XRTableCell" Name="tableCell43" Weight="3.2292873556386361" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter" ForeColor="Red" Borders="Bottom">
+                      <StylePriority Ref="244" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="245" ControlType="XRTableCell" Name="tableCell44" Weight="4.8750629638317937" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Right, Bottom">
+                      <StylePriority Ref="246" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="247" ControlType="XRTableCell" Name="tableCell45" Weight="5.7364151276194084" CanGrow="false" Multiline="true" TextAlignment="MiddleRight" ForeColor="Red" Borders="Right, Bottom">
+                      <StylePriority Ref="248" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="249" ControlType="XRTableCell" Name="tableCell46" Weight="5.0658394936586069" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="250" ControlType="XRTableCell" Name="tableCell47" Weight="2.6678500976299819" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="251" ControlType="XRTableCell" Name="tableCell48" Weight="2.6678345721156926" CanGrow="false" Multiline="true" />
+                    <Item14 Ref="252" ControlType="XRTableCell" Name="tableCell49" Weight="5.1075305341516293" CanGrow="false" Multiline="true" />
+                    <Item15 Ref="253" ControlType="XRTableCell" Name="tableCell50" Weight="1.2576444581606388" CanGrow="false" Multiline="true" Text="tableCell50" />
+                    <Item16 Ref="254" ControlType="XRTableCell" Name="tableCell51" Weight="1.2576439060718794" CanGrow="false" Multiline="true" Text="tableCell51" />
+                    <Item17 Ref="255" ControlType="XRTableCell" Name="tableCell52" Weight="1.2575174663695807" CanGrow="false" Multiline="true" Text="tableCell52" />
+                    <Item18 Ref="256" ControlType="XRTableCell" Name="tableCell53" Weight="1.2575039262925574" CanGrow="false" Multiline="true" Text="tableCell53" />
+                    <Item19 Ref="257" ControlType="XRTableCell" Name="tableCell54" Weight="6.6928310958826964" CanGrow="false" Multiline="true" Text="tableCell54" />
+                  </Cells>
+                </Item6>
+              </Rows>
+              <StylePriority Ref="258" UseFont="false" UseBorders="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="259" ControlType="GroupHeaderBand" Name="GroupHeader1" HeightF="48">
+          <Controls>
+            <Item1 Ref="260" ControlType="XRTable" Name="table2" SizeF="1340,48" LocationFloat="0,0" Font="MS PGothic, 7pt" Borders="All">
+              <Rows>
+                <Item1 Ref="261" ControlType="XRTableRow" Name="tableRow27" Weight="0.19340896606095595">
+                  <Cells>
+                    <Item1 Ref="262" ControlType="XRTableCell" Name="tableCell462" Weight="9.2307275898962491" CanGrow="false" RowSpan="6" Multiline="true" Text="運行日付" TextAlignment="MiddleCenter" Borders="All">
+                      <StylePriority Ref="263" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="264" ControlType="XRTableCell" Name="tableCell463" Weight="3.6018058802298336" CanGrow="false" RowSpan="6" Multiline="true" Text="宿泊" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="265" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="266" ControlType="XRTableCell" Name="tableCell464" Weight="11.208231385757951" CanGrow="false" RowSpan="3" Multiline="true" Text="団体名" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="267" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="268" ControlType="XRTableCell" Name="tableCell465" Weight="8.7164417473453" CanGrow="false" RowSpan="3" Multiline="true" Text="得意先名" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="269" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="270" ControlType="XRTableCell" Name="tableCell466" Weight="8.7164363235964935" CanGrow="false" RowSpan="3" Multiline="true" Text="配車地" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="271" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="272" ControlType="XRTableCell" Name="tableCell467" Weight="8.6967664205759476" CanGrow="false" RowSpan="3" Multiline="true" Text="車種（型）" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="273" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="274" ControlType="XRTableCell" Name="tableCell468" Weight="9.7544876608910922" CanGrow="false" RowSpan="2" Multiline="true" Text="運賃" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="275" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="276" ControlType="XRTableCell" Name="tableCell469" Weight="6.8904768806778574" CanGrow="false" RowSpan="2" Multiline="true" Text="ガイド料" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="277" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="278" ControlType="XRTableCell" Name="tableCell470" Weight="6.0849960324248791" CanGrow="false" RowSpan="6" Multiline="true" Text="合計" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="279" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="280" ControlType="XRTableCell" Name="tableCell471" Weight="3.2045783188321462" CanGrow="false" RowSpan="6" Multiline="true" Text="人員" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="281" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="282" ControlType="XRTableCell" Name="tableCell472" Weight="3.2045676745459186" CanGrow="false" RowSpan="6" Multiline="true" Text="ガ&#xD;&#xA;イ&#xD;&#xA;ド" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="283" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="284" ControlType="XRTableCell" Name="tableCell473" Weight="12.177411424281539" CanGrow="false" RowSpan="3" Multiline="true" Text="確 認" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="285" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="286" ControlType="XRTableCell" Name="tableCell70" Weight="8.0392971862888132" CanGrow="false" RowSpan="6" Multiline="true" Text="備考" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="287" UseTextAlignment="false" />
+                    </Item13>
+                  </Cells>
+                </Item1>
+                <Item2 Ref="288" ControlType="XRTableRow" Name="tableRow28" Weight="0.19340895538681682">
+                  <Cells>
+                    <Item1 Ref="289" ControlType="XRTableCell" Name="tableCell475" Weight="9.230728672435486" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="290" ControlType="XRTableCell" Name="tableCell476" Weight="3.6018062562073569" CanGrow="false" Multiline="true" />
+                    <Item3 Ref="291" ControlType="XRTableCell" Name="tableCell477" Weight="11.208232962609014" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="292" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="293" ControlType="XRTableCell" Name="tableCell478" Weight="8.71644276224885" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="294" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="295" ControlType="XRTableCell" Name="tableCell479" Weight="8.7164370022028876" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="296" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="297" ControlType="XRTableCell" Name="tableCell480" Weight="8.6967691304933279" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="298" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="299" ControlType="XRTableCell" Name="tableCell481" Weight="9.7544881991021288" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="300" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="301" ControlType="XRTableCell" Name="tableCell482" Weight="6.8904776157746515" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="302" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="303" ControlType="XRTableCell" Name="tableCell483" Weight="6.0849969087610027" CanGrow="false" Multiline="true" />
+                    <Item10 Ref="304" ControlType="XRTableCell" Name="tableCell484" Weight="3.2045788163535676" CanGrow="false" Multiline="true" />
+                    <Item11 Ref="305" ControlType="XRTableCell" Name="tableCell485" Weight="3.2045679688545246" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="306" ControlType="XRTableCell" Name="tableCell486" Weight="12.177413072448362" CanGrow="false" Multiline="true" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="307" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="308" ControlType="XRTableCell" Name="tableCell71" Weight="8.0392982885075774" CanGrow="false" Multiline="true" Text="tableCell71" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="309" UseTextAlignment="false" />
+                    </Item13>
+                  </Cells>
+                </Item2>
+                <Item3 Ref="310" ControlType="XRTableRow" Name="tableRow29" Weight="0.19340896193909224">
+                  <Cells>
+                    <Item1 Ref="311" ControlType="XRTableCell" Name="tableCell492" Weight="9.23072867243549" CanGrow="false" Multiline="true" />
+                    <Item2 Ref="312" ControlType="XRTableCell" Name="tableCell493" Weight="3.6018062562073547" CanGrow="false" Multiline="true" />
+                    <Item3 Ref="313" ControlType="XRTableCell" Name="tableCell494" Weight="11.208232962609017" CanGrow="false" Multiline="true" />
+                    <Item4 Ref="314" ControlType="XRTableCell" Name="tableCell495" Weight="8.7164427622488514" CanGrow="false" Multiline="true" />
+                    <Item5 Ref="315" ControlType="XRTableCell" Name="tableCell496" Weight="8.7164370022028841" CanGrow="false" Multiline="true" />
+                    <Item6 Ref="316" ControlType="XRTableCell" Name="tableCell497" Weight="8.6967637067438091" CanGrow="false" Multiline="true" />
+                    <Item7 Ref="317" ControlType="XRTableCell" Name="tableCell498" Weight="9.754493622851653" CanGrow="false" RowSpan="2" Multiline="true" Text="消費税" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="318" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="319" ControlType="XRTableCell" Name="tableCell499" Weight="6.8904776157746532" CanGrow="false" RowSpan="2" Multiline="true" Text="ガイド料消費税" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="320" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="321" ControlType="XRTableCell" Name="tableCell500" Weight="6.0849969087610027" CanGrow="false" Multiline="true" />
+                    <Item10 Ref="322" ControlType="XRTableCell" Name="tableCell501" Weight="3.204578816353564" CanGrow="false" Multiline="true" />
+                    <Item11 Ref="323" ControlType="XRTableCell" Name="tableCell502" Weight="3.2045679688545263" CanGrow="false" Multiline="true" />
+                    <Item12 Ref="324" ControlType="XRTableCell" Name="tableCell503" Weight="12.177413072448371" CanGrow="false" Multiline="true" />
+                    <Item13 Ref="325" ControlType="XRTableCell" Name="tableCell72" Weight="8.0392982885075863" CanGrow="false" Multiline="true" Text="tableCell72" />
+                  </Cells>
+                </Item3>
+                <Item4 Ref="326" ControlType="XRTableRow" Name="tableRow4" Weight="0.19340895405664965">
+                  <Cells>
+                    <Item1 Ref="327" ControlType="XRTableCell" Name="tableCell58" Weight="9.23072867243549" CanGrow="false" Multiline="true" Text="tableCell58" />
+                    <Item2 Ref="328" ControlType="XRTableCell" Name="tableCell59" Weight="3.6018062562073547" CanGrow="false" Multiline="true" Text="tableCell59" />
+                    <Item3 Ref="329" ControlType="XRTableCell" Name="tableCell60" Weight="11.208235674483777" CanGrow="false" RowSpan="3" Multiline="true" Text="予約書名" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="330" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="331" ControlType="XRTableCell" Name="tableCell61" Weight="8.7164427622488514" CanGrow="false" RowSpan="3" Multiline="true" Text="行き先" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="332" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="333" ControlType="XRTableCell" Name="tableCell62" Weight="8.7164342903281238" RowSpan="3" Multiline="true" Text="到着地" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="334" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="335" ControlType="XRTableCell" Name="tableCell63" Weight="8.69676845252464" CanGrow="false" RowSpan="3" Multiline="true" Text="台数" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="336" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="337" ControlType="XRTableCell" Name="tableCell64" Weight="9.7544888770708251" CanGrow="false" Multiline="true" Text="tableCell64" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="338" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="339" ControlType="XRTableCell" Name="tableCell65" Weight="6.8904776157746515" CanGrow="false" Multiline="true" Text="tableCell65" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="340" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="341" ControlType="XRTableCell" Name="tableCell66" Weight="6.084996908761001" CanGrow="false" Multiline="true" Text="tableCell66" />
+                    <Item10 Ref="342" ControlType="XRTableCell" Name="tableCell67" Weight="3.204578816353564" CanGrow="false" Multiline="true" Text="tableCell67" />
+                    <Item11 Ref="343" ControlType="XRTableCell" Name="tableCell68" Weight="3.2045679688545281" CanGrow="false" Multiline="true" Text="tableCell68" />
+                    <Item12 Ref="344" ControlType="XRTableCell" Name="tableCell69" Weight="6.1350816285560938" CanGrow="false" RowSpan="3" Multiline="true" />
+                    <Item13 Ref="345" ControlType="XRTableCell" Name="tableCell88" Weight="1.5106660559810874" CanGrow="false" RowSpan="3" Multiline="true" Text="催行" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="346" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="347" ControlType="XRTableCell" Name="tableCell89" Weight="1.5106660816298205" CanGrow="false" RowSpan="3" Multiline="true" Text="台数" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="348" UseTextAlignment="false" />
+                    </Item14>
+                    <Item15 Ref="349" ControlType="XRTableCell" Name="tableCell90" Weight="1.5104996531406845" CanGrow="false" RowSpan="3" Multiline="true" Text="金額" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="350" UseTextAlignment="false" />
+                    </Item15>
+                    <Item16 Ref="351" ControlType="XRTableCell" Name="tableCell109" Weight="1.5104996531406845" CanGrow="false" RowSpan="3" Multiline="true" Text="日程" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="352" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="353" ControlType="XRTableCell" Name="tableCell73" Weight="8.0392982885075828" CanGrow="false" Multiline="true" Text="tableCell73" />
+                  </Cells>
+                </Item4>
+                <Item5 Ref="354" ControlType="XRTableRow" Name="tableRow5" Weight="0.19340895405664971">
+                  <Cells>
+                    <Item1 Ref="355" ControlType="XRTableCell" Name="tableCell75" Weight="9.2307284856617144" CanGrow="false" Multiline="true" Text="tableCell75" />
+                    <Item2 Ref="356" ControlType="XRTableCell" Name="tableCell76" Weight="3.6018066545840908" CanGrow="false" Multiline="true" Text="tableCell76" />
+                    <Item3 Ref="357" ControlType="XRTableCell" Name="tableCell77" Weight="11.208236537271798" CanGrow="false" Multiline="true" Text="tableCell77" />
+                    <Item4 Ref="358" ControlType="XRTableCell" Name="tableCell78" Weight="8.716443583948017" CanGrow="false" Multiline="true" Text="tableCell78" />
+                    <Item5 Ref="359" ControlType="XRTableCell" Name="tableCell79" Weight="8.7164357899955149" Multiline="true" Text="tableCell79" />
+                    <Item6 Ref="360" ControlType="XRTableCell" Name="tableCell80" Weight="8.6967672383962977" CanGrow="false" Multiline="true" Text="tableCell80" />
+                    <Item7 Ref="361" ControlType="XRTableCell" Name="tableCell81" Weight="9.7544788699839238" CanGrow="false" RowSpan="2" Multiline="true" Text="手数料" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="362" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="363" ControlType="XRTableCell" Name="tableCell82" Weight="6.8904784073641894" CanGrow="false" RowSpan="2" Multiline="true" Text="ガイド料手数料" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="364" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="365" ControlType="XRTableCell" Name="tableCell83" Weight="6.0849970090991885" CanGrow="false" Multiline="true" Text="tableCell83" />
+                    <Item10 Ref="366" ControlType="XRTableCell" Name="tableCell84" Weight="3.2045788691960357" CanGrow="false" Multiline="true" Text="tableCell84" />
+                    <Item11 Ref="367" ControlType="XRTableCell" Name="tableCell85" Weight="3.2045691487452626" CanGrow="false" Multiline="true" Text="tableCell85" />
+                    <Item12 Ref="368" ControlType="XRTableCell" Name="tableCell86" Weight="6.1350821995930653" CanGrow="false" Multiline="true" Text="tableCell86" />
+                    <Item13 Ref="369" ControlType="XRTableCell" Name="tableCell91" Weight="1.510666189443947" CanGrow="false" Multiline="true" Text="tableCell91" />
+                    <Item14 Ref="370" ControlType="XRTableCell" Name="tableCell104" Weight="1.5106662221325278" CanGrow="false" Multiline="true" Text="tableCell104" />
+                    <Item15 Ref="371" ControlType="XRTableCell" Name="tableCell105" Weight="1.5105052208971137" CanGrow="false" Multiline="true" Text="tableCell105" />
+                    <Item16 Ref="372" ControlType="XRTableCell" Name="tableCell110" Weight="1.5105052208971137" CanGrow="false" Multiline="true" Text="tableCell110" />
+                    <Item17 Ref="373" ControlType="XRTableCell" Name="tableCell74" Weight="8.0393017292397442" CanGrow="false" Multiline="true" Text="tableCell74" />
+                  </Cells>
+                </Item5>
+                <Item6 Ref="374" ControlType="XRTableRow" Name="tableRow6" Weight="0.19340896824504639">
+                  <Cells>
+                    <Item1 Ref="375" ControlType="XRTableCell" Name="tableCell92" Weight="9.2307284856617144" CanGrow="false" Multiline="true" Text="tableCell92" />
+                    <Item2 Ref="376" ControlType="XRTableCell" Name="tableCell93" Weight="3.6018066545840908" CanGrow="false" Multiline="true" Text="tableCell93" />
+                    <Item3 Ref="377" ControlType="XRTableCell" Name="tableCell94" Weight="11.208236537271798" CanGrow="false" Multiline="true" Text="tableCell94" />
+                    <Item4 Ref="378" ControlType="XRTableCell" Name="tableCell95" Weight="8.716443583948017" CanGrow="false" Multiline="true" Text="tableCell95" />
+                    <Item5 Ref="379" ControlType="XRTableCell" Name="tableCell96" Weight="8.7164357899955149" Multiline="true" Text="tableCell96" />
+                    <Item6 Ref="380" ControlType="XRTableCell" Name="tableCell97" Weight="8.6967672383962977" CanGrow="false" Multiline="true" Text="tableCell97" />
+                    <Item7 Ref="381" ControlType="XRTableCell" Name="tableCell98" Weight="9.7544788699839238" CanGrow="false" Multiline="true" Text="tableCell98" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="382" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="383" ControlType="XRTableCell" Name="tableCell99" Weight="6.8904784073641894" CanGrow="false" Multiline="true" Text="tableCell99" TextAlignment="MiddleCenter">
+                      <StylePriority Ref="384" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="385" ControlType="XRTableCell" Name="tableCell100" Weight="6.0849970090991885" CanGrow="false" Multiline="true" Text="tableCell100" />
+                    <Item10 Ref="386" ControlType="XRTableCell" Name="tableCell101" Weight="3.2045788691960357" CanGrow="false" Multiline="true" Text="tableCell101" />
+                    <Item11 Ref="387" ControlType="XRTableCell" Name="tableCell102" Weight="3.2045691487452626" CanGrow="false" Multiline="true" Text="tableCell102" />
+                    <Item12 Ref="388" ControlType="XRTableCell" Name="tableCell103" Weight="6.1350821995930653" CanGrow="false" Multiline="true" Text="tableCell103" />
+                    <Item13 Ref="389" ControlType="XRTableCell" Name="tableCell106" Weight="1.510666189443947" CanGrow="false" Multiline="true" Text="tableCell106" />
+                    <Item14 Ref="390" ControlType="XRTableCell" Name="tableCell107" Weight="1.5106662221325278" CanGrow="false" Multiline="true" Text="tableCell107" />
+                    <Item15 Ref="391" ControlType="XRTableCell" Name="tableCell108" Weight="1.5105052208971137" CanGrow="false" Multiline="true" Text="tableCell108" />
+                    <Item16 Ref="392" ControlType="XRTableCell" Name="tableCell111" Weight="1.5105052208971137" CanGrow="false" Multiline="true" Text="tableCell111" />
+                    <Item17 Ref="393" ControlType="XRTableCell" Name="tableCell87" Weight="8.0393017292397442" CanGrow="false" Multiline="true" Text="tableCell87" />
+                  </Cells>
+                </Item6>
+              </Rows>
+              <StylePriority Ref="394" UseFont="false" UseBorders="false" />
+            </Item1>
+          </Controls>
+        </Item2>
+      </Bands>
+    </Item6>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="395" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiIC8+" />
+    <Item2 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource2" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTIiIC8+" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

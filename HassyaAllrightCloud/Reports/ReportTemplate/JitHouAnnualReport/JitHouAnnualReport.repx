@@ -1,0 +1,2025 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="JitHouAnnualReport" HorizontalContentSplitting="Smart" Landscape="true" Margins="0, 0, 198, 267" PaperKind="A4" PageWidth="1169" PageHeight="827" Version="20.1" EventsInfo="|JitHouAnnualReport,AfterPrint,JitHouAnnualReport_AfterPrint" DataSource="#Ref-0" Font="MS Gothic, 9pt" Borders="Left, Top, Right">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="198.000046">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label21" Multiline="true" Text="番　　　号" TextAlignment="MiddleCenter" SizeF="86.52344,13.0000877" LocationFloat="869.322266,60.35761" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="4" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="5" ControlType="XRLabel" Name="label28" Multiline="true" Text="事　業　者&#xD;&#xA;" TextAlignment="MiddleCenter" SizeF="86.52344,21" LocationFloat="869.3222,42.3576126" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="6" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="7" ControlType="XRLabel" Name="label24" Multiline="true" Text="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDateEnd]&#xA;, 0, 4)" TextAlignment="BottomLeft" SizeF="30.611084,23" LocationFloat="758.181763,74.4408951" Padding="2,2,0,0,100" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="8" EventName="BeforePrint" PropertyName="Text" Expression="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDateEnd]&#xA;, 0, 4)" />
+          </ExpressionBindings>
+          <StylePriority Ref="9" UseBorders="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="10" ControlType="XRLabel" Name="label25" Multiline="true" Text="年" TextAlignment="BottomLeft" SizeF="23.611084,23" LocationFloat="788.7928,74.44093" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="11" UseBorders="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="12" ControlType="XRLabel" Name="label26" Multiline="true" Text="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDateEnd]&#xA;, 4, 2)" TextAlignment="BottomRight" SizeF="23.611084,23" LocationFloat="812.4039,74.44093" Padding="2,2,0,0,100" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="13" EventName="BeforePrint" PropertyName="Text" Expression="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDateEnd]&#xA;, 4, 2)" />
+          </ExpressionBindings>
+          <StylePriority Ref="14" UseBorders="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="15" ControlType="XRLabel" Name="label27" Multiline="true" Text="月" TextAlignment="BottomCenter" SizeF="20.833374,23" LocationFloat="836.015,74.44093" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="16" UseBorders="false" UseTextAlignment="false" />
+        </Item6>
+        <Item7 Ref="17" ControlType="XRLabel" Name="label23" Multiline="true" Text="～" TextAlignment="MiddleCenter" SizeF="28,13.9722443" LocationFloat="728.593933,84.0277557" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="18" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="19" ControlType="XRLabel" Name="label22" Multiline="true" TextAlignment="MiddleRight" SizeF="246.2811,24.9999981" LocationFloat="103.387787,24.4409351" Font="MS Gothic, 11pt" Padding="2,2,0,0,100" Borders="Left, Top, Right" BorderWidth="0.5">
+          <StylePriority Ref="20" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item8>
+        <Item9 Ref="21" ControlType="XRLabel" Name="label7" Multiline="true" Text="該当事項を&#xD;&#xA;○で囲むこと" TextAlignment="MiddleCenter" SizeF="87.49695,26.9999771" LocationFloat="103.38813,71.00004" Font="MS Gothic, 8pt" Padding="2,2,0,0,100" BorderColor="Transparent" Borders="Left, Top, Bottom" BorderWidth="0.5">
+          <StylePriority Ref="22" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="23" ControlType="XRLabel" Name="label20" Multiline="true" Text="年間輸送実績報告書" TextAlignment="MiddleCenter" SizeF="220.131927,22.9166718" LocationFloat="497.45517,49.4409332" Font="MS Gothic, 16pt" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="24" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="25" ControlType="XRLabel" Name="label98" Multiline="true" Text="印&#xD;&#xA;" TextAlignment="MiddleCenter" SizeF="32,32" LocationFloat="1106.50781,84.0277557" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="26" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="27" ControlType="XRShape" Name="shape1" SizeF="32,32" LocationFloat="1106.50781,85.02777" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="28" UseBorders="false" UseBorderWidth="false" />
+        </Item12>
+        <Item13 Ref="29" ControlType="XRLabel" Name="label97" Multiline="true" TextAlignment="BottomRight" SizeF="96.52777,20.8333282" LocationFloat="622.8638,96.44089" Padding="2,2,0,0,100" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="30" EventName="BeforePrint" PropertyName="Text" Expression="[jitHouReportPerPage].[JitHouReportItem1].[CompanyName]" />
+          </ExpressionBindings>
+          <StylePriority Ref="31" UseBorders="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="32" ControlType="XRLabel" Name="label96" Multiline="true" TextAlignment="MiddleCenter" SizeF="68.00781,48.0000229" LocationFloat="1070.5,26.8333225" Font="MS Gothic, 18pt" Padding="2,2,0,0,100" Borders="All" BorderWidth="0.5">
+          <ExpressionBindings>
+            <Item1 Ref="33" EventName="BeforePrint" PropertyName="Text" Expression="[jitHouReportPerPage].[JitHouReportItem1].[Shipping]" />
+          </ExpressionBindings>
+          <StylePriority Ref="34" UseFont="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="35" ControlType="XRLabel" Name="label95" Multiline="true" TextAlignment="MiddleCenter" SizeF="114.1543,32.47573" LocationFloat="955.8457,42.3576126" Padding="2,2,0,0,100" Borders="Left, Top, Bottom" BorderWidth="0.5">
+          <StylePriority Ref="36" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="37" ControlType="XRTable" Name="table1" TextAlignment="MiddleCenter" SizeF="1121.10791,78.8813553" LocationFloat="23.1108742,119.11869" Font="MS PGothic, 8pt" Padding="2,2,0,0,96" Borders="Left, Top, Right">
+          <Rows>
+            <Item1 Ref="38" ControlType="XRTableRow" Name="tableRow1" Weight="3.1027770996093751">
+              <Cells>
+                <Item1 Ref="39" ControlType="XRTableCell" Name="tableCell1" Weight="1.559156962581298" RowSpan="3" Multiline="true" Text="営業所別" BorderWidth="0.5">
+                  <StylePriority Ref="40" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="41" ControlType="XRTableCell" Name="tableCell2" Weight="0.73287895861689289" RowSpan="3" Multiline="true" Text="車種&#xD;&#xA;区分" BorderWidth="0.5">
+                  <StylePriority Ref="42" UseBorderWidth="false" />
+                </Item2>
+                <Item3 Ref="43" ControlType="XRTableCell" Name="tableCell10" Weight="6.6427032501136" Multiline="true" Text="事業用自動車" Borders="Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="44" UseBorders="false" UseBorderWidth="false" />
+                </Item3>
+                <Item4 Ref="45" ControlType="XRTableCell" Name="tableCell28" Weight="3.204655371246794" Multiline="true" Text="走行キロ" BorderWidth="0.5">
+                  <StylePriority Ref="46" UseBorderWidth="false" />
+                </Item4>
+                <Item5 Ref="47" ControlType="XRTableCell" Name="tableCell43" Weight="1.3488303248096156" RowSpan="3" Multiline="true" Text="輸送&#xD;&#xA;人員" BorderWidth="0.5">
+                  <StylePriority Ref="48" UseBorderWidth="false" />
+                </Item5>
+                <Item6 Ref="49" ControlType="XRTableCell" Name="tableCell52" Weight="2.36594631831206" Multiline="true" Text="運送回数" BorderWidth="0.5">
+                  <StylePriority Ref="50" UseBorderWidth="false" />
+                </Item6>
+                <Item7 Ref="51" ControlType="XRTableCell" Name="tableCell46" Weight="1.4364045298885027" RowSpan="3" Multiline="true" Text="運送収入" BorderWidth="0.5">
+                  <StylePriority Ref="52" UseBorderWidth="false" />
+                </Item7>
+                <Item8 Ref="53" ControlType="XRTableCell" Name="tableCell37" Weight="3.5278091056856269" Multiline="true" Text="実働車1日1車あたり" BorderWidth="0.5">
+                  <StylePriority Ref="54" UseBorderWidth="false" />
+                </Item8>
+                <Item9 Ref="55" ControlType="XRTableCell" Name="tableCell3" Weight="0.95594379202686319" RowSpan="3" Multiline="true" Text="運行&#xD;&#xA;1回あたり&#xD;&#xA;実車キロ&#xD;&#xA;（ｷﾛﾒｰﾄﾙ）" Borders="Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="56" UseBorders="false" UseBorderWidth="false" />
+                </Item9>
+              </Cells>
+            </Item1>
+            <Item2 Ref="57" ControlType="XRTableRow" Name="tableRow4" Weight="3.1027770996093751">
+              <Cells>
+                <Item1 Ref="58" ControlType="XRTableCell" Name="tableCell58" Weight="1.559156962581298" Multiline="true" Text="tableCell58" />
+                <Item2 Ref="59" ControlType="XRTableCell" Name="tableCell59" Weight="0.73287895861689289" Multiline="true" Text="tableCell59" />
+                <Item3 Ref="60" ControlType="XRTableCell" Name="tableCell60" Weight="3.4380569721528249" Multiline="true" Text="延実在車両数" Borders="Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="61" UseBorders="false" UseBorderWidth="false" />
+                </Item3>
+                <Item4 Ref="62" ControlType="XRTableCell" Name="tableCell63" Weight="1.0682100604466127" RowSpan="2" Multiline="true" Text="延実動&#xD;&#xA;車両数&#xD;&#xA;（日車）" Borders="Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="63" UseBorders="false" UseBorderWidth="false" />
+                </Item4>
+                <Item5 Ref="64" ControlType="XRTableCell" Name="tableCell64" Weight="1.0682219681879492" RowSpan="2" Multiline="true" Text="実働率&#xD;&#xA;（％）" BorderWidth="0.5">
+                  <StylePriority Ref="65" UseBorderWidth="false" />
+                </Item5>
+                <Item6 Ref="66" ControlType="XRTableCell" Name="tableCell65" Weight="1.0682143186634157" RowSpan="2" Multiline="true" Text="臨時増車比率&#xD;&#xA;（％）" BorderWidth="0.5">
+                  <StylePriority Ref="67" UseBorderWidth="false" />
+                </Item6>
+                <Item7 Ref="68" ControlType="XRTableCell" Name="tableCell66" Weight="1.0682231486000045" RowSpan="2" Multiline="true" Text="実車キロ&#xD;&#xA;（ｷﾛﾒｰﾄﾙ）" BorderWidth="0.5">
+                  <StylePriority Ref="69" UseBorderWidth="false" />
+                </Item7>
+                <Item8 Ref="70" ControlType="XRTableCell" Name="tableCell67" Weight="1.0682172087563506" RowSpan="2" Multiline="true" Text="回送キロ&#xD;&#xA;（ｷﾛﾒｰﾄﾙ）" BorderWidth="0.5">
+                  <StylePriority Ref="71" UseBorderWidth="false" />
+                </Item8>
+                <Item9 Ref="72" ControlType="XRTableCell" Name="tableCell68" Weight="1.0682196106158706" RowSpan="2" Multiline="true" Text="計&#xD;&#xA;（ｷﾛﾒｰﾄﾙ）" BorderWidth="0.5">
+                  <StylePriority Ref="73" UseBorderWidth="false" />
+                </Item9>
+                <Item10 Ref="74" ControlType="XRTableCell" Name="tableCell69" Weight="1.3488256587469805" Multiline="true" Text="tableCell69" />
+                <Item11 Ref="75" ControlType="XRTableCell" Name="tableCell70" Weight="1.1615339024773346" RowSpan="2" Multiline="true" Text="運行&#xD;&#xA;回数&#xD;&#xA;（回）" BorderWidth="0.5">
+                  <StylePriority Ref="76" UseBorderWidth="false" />
+                </Item11>
+                <Item12 Ref="77" ControlType="XRTableCell" Name="tableCell71" Weight="1.2044136484280319" RowSpan="2" Multiline="true" Text="うち旅行斡旋業者の扱&#xD;&#xA;（回）" BorderWidth="0.5">
+                  <StylePriority Ref="78" UseBorderWidth="false" />
+                </Item12>
+                <Item13 Ref="79" ControlType="XRTableCell" Name="tableCell72" Weight="1.4364044573830141" Multiline="true" Text="tableCell72" />
+                <Item14 Ref="80" ControlType="XRTableCell" Name="tableCell73" Weight="0.91283638259161759" RowSpan="2" Multiline="true" Text="走行キロ&#xD;&#xA;（ｷﾛﾒｰﾄﾙ）" BorderWidth="0.5">
+                  <StylePriority Ref="81" UseBorderWidth="false" />
+                </Item14>
+                <Item15 Ref="82" ControlType="XRTableCell" Name="tableCell74" Weight="0.89873801331603409" RowSpan="12" Multiline="true" Text="運送人員&#xD;&#xA;（人）" BorderWidth="0.5">
+                  <StylePriority Ref="83" UseBorderWidth="false" />
+                </Item15>
+                <Item16 Ref="84" ControlType="XRTableCell" Name="tableCell75" Weight="1.7162335496901584" RowSpan="12" Multiline="true" Text="運送収入&#xD;&#xA;（円）" Borders="Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="85" UseBorders="false" UseBorderWidth="false" />
+                </Item16>
+                <Item17 Ref="86" ControlType="XRTableCell" Name="tableCell76" Weight="0.95594379202686319" Multiline="true" Text="tableCell76" />
+              </Cells>
+            </Item2>
+            <Item3 Ref="87" ControlType="XRTableRow" Name="tableRow2" Weight="3.1027770996093751">
+              <Cells>
+                <Item1 Ref="88" ControlType="XRTableCell" Name="tableCell4" Weight="1.559156962581298" Multiline="true" Text="tableCell4" />
+                <Item2 Ref="89" ControlType="XRTableCell" Name="tableCell5" Weight="0.73287895861689289" Multiline="true" Text="tableCell5" />
+                <Item3 Ref="90" ControlType="XRTableCell" Name="tableCell11" Weight="1.1460159333910216" Multiline="true" Text="常用車&#xD;&#xA;（日車）" BorderWidth="0.5">
+                  <StylePriority Ref="91" UseBorderWidth="false" />
+                </Item3>
+                <Item4 Ref="92" ControlType="XRTableCell" Name="tableCell14" Weight="1.1328194088210157" Multiline="true" Text="臨時増車&#xD;&#xA;（日車）" BorderWidth="0.5">
+                  <StylePriority Ref="93" UseBorderWidth="false" />
+                </Item4>
+                <Item5 Ref="94" ControlType="XRTableCell" Name="tableCell17" Weight="1.1592216299407876" Multiline="true" Text="計&#xD;&#xA;（日車）" BorderWidth="0.5">
+                  <StylePriority Ref="95" UseBorderWidth="false" />
+                </Item5>
+                <Item6 Ref="96" ControlType="XRTableCell" Name="tableCell20" Weight="1.0682100604466129" Multiline="true" Text="tableCell20" />
+                <Item7 Ref="97" ControlType="XRTableCell" Name="tableCell23" Weight="1.0682219681879492" Multiline="true" Text="tableCell23" />
+                <Item8 Ref="98" ControlType="XRTableCell" Name="tableCell26" Weight="1.0682143186634157" Multiline="true" Text="tableCell26" />
+                <Item9 Ref="99" ControlType="XRTableCell" Name="tableCell29" Weight="1.0682231486000045" Multiline="true" Text="tableCell29" />
+                <Item10 Ref="100" ControlType="XRTableCell" Name="tableCell32" Weight="1.0682172087563504" Multiline="true" Text="tableCell32" />
+                <Item11 Ref="101" ControlType="XRTableCell" Name="tableCell35" Weight="1.0682196106158706" Multiline="true" Text="tableCell35" />
+                <Item12 Ref="102" ControlType="XRTableCell" Name="tableCell44" Weight="1.3488256587469805" Multiline="true" Text="tableCell44" />
+                <Item13 Ref="103" ControlType="XRTableCell" Name="tableCell53" Weight="1.1615339024773346" Multiline="true" Text="tableCell53" />
+                <Item14 Ref="104" ControlType="XRTableCell" Name="tableCell56" Weight="1.2044136484280319" Multiline="true" Text="tableCell56" />
+                <Item15 Ref="105" ControlType="XRTableCell" Name="tableCell47" Weight="1.4364044573830141" Multiline="true" Text="tableCell47" />
+                <Item16 Ref="106" ControlType="XRTableCell" Name="tableCell38" Weight="0.91283638259161759" Multiline="true" Text="tableCell38" />
+                <Item17 Ref="107" ControlType="XRTableCell" Name="tableCell50" Weight="0.89873801331603387" Multiline="true" Text="tableCell50" />
+                <Item18 Ref="108" ControlType="XRTableCell" Name="tableCell41" Weight="1.7162335496901584" Multiline="true" Text="tableCell41" />
+                <Item19 Ref="109" ControlType="XRTableCell" Name="tableCell6" Weight="0.95594379202686308" Multiline="true" Text="tableCell6" />
+              </Cells>
+            </Item3>
+          </Rows>
+          <StylePriority Ref="110" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="111" ControlType="XRLabel" Name="label18" Multiline="true" TextAlignment="TopCenter" SizeF="86.52344,32.47573" LocationFloat="869.322266,42.3576126" Padding="2,2,0,0,100" Borders="Left, Top, Bottom" BorderWidth="0.5">
+          <StylePriority Ref="112" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="113" ControlType="XRLabel" Name="label17" Multiline="true" Text="事業者名" TextAlignment="BottomCenter" SizeF="96.52777,20.8333282" LocationFloat="573.5082,96.2853546" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="114" UseBorders="false" UseTextAlignment="false" />
+        </Item18>
+        <Item19 Ref="115" ControlType="XRLabel" Name="label12" Multiline="true" Text="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDate]&#xA;, 0, 4)" TextAlignment="BottomLeft" SizeF="30.611084,23" LocationFloat="629.9273,74.9999847" Padding="2,2,0,0,100" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="116" EventName="BeforePrint" PropertyName="Text" Expression="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDate]&#xA;, 0, 4)" />
+          </ExpressionBindings>
+          <StylePriority Ref="117" UseBorders="false" UseTextAlignment="false" />
+        </Item19>
+        <Item20 Ref="118" ControlType="XRLabel" Name="label13" Multiline="true" Text="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDate]&#xA;, 4, 2)" TextAlignment="BottomRight" SizeF="23.611084,23" LocationFloat="684.149536,75.0000458" Padding="2,2,0,0,100" Borders="None">
+          <ExpressionBindings>
+            <Item1 Ref="119" EventName="BeforePrint" PropertyName="Text" Expression="Substring([jitHouReportPerPage].[JitHouReportItem1].[ProcessingDate]&#xA;, 4, 2)" />
+          </ExpressionBindings>
+          <StylePriority Ref="120" UseBorders="false" UseTextAlignment="false" />
+        </Item20>
+        <Item21 Ref="121" ControlType="XRLabel" Name="label11" Multiline="true" Text="月" TextAlignment="BottomCenter" SizeF="20.833374,23" LocationFloat="707.760559,75.0000153" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="122" UseBorders="false" UseTextAlignment="false" />
+        </Item21>
+        <Item22 Ref="123" ControlType="XRLabel" Name="label10" Multiline="true" Text="年" TextAlignment="BottomLeft" SizeF="23.611084,23" LocationFloat="660.5383,75.0000153" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="124" UseBorders="false" UseTextAlignment="false" />
+        </Item22>
+        <Item23 Ref="125" ControlType="XRLabel" Name="label9" Multiline="true" Text=")" TextAlignment="MiddleCenter" SizeF="12.5,23" LocationFloat="857.593933,75.0000153" Font="Times New Roman, 15pt" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="126" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+        </Item23>
+        <Item24 Ref="127" ControlType="XRLabel" Name="label8" Multiline="true" Text="(" TextAlignment="MiddleCenter" SizeF="12.5,23.0000153" LocationFloat="617.4273,74.9999847" Font="Times New Roman, 15pt" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="128" UseFont="false" UseBorders="false" UseTextAlignment="false" />
+        </Item24>
+        <Item25 Ref="129" ControlType="XRLabel" Name="label5" Multiline="true" Text="そ　の　他　他　区" TextAlignment="MiddleCenter" SizeF="158.784485,26" LocationFloat="190.8844,74.99998" Font="MS Gothic, 11pt" Padding="2,2,0,0,100" Borders="All" BorderWidth="0.5">
+          <StylePriority Ref="130" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item25>
+        <Item26 Ref="131" ControlType="XRLabel" Name="label3" Multiline="true" Text="特　　　別　　　区" TextAlignment="MiddleCenter" SizeF="158.784149,25.39241" LocationFloat="190.884735,49.4409332" Font="MS Gothic, 11pt" Padding="2,2,0,0,100" Borders="Left, Top, Right" BorderWidth="0.5">
+          <StylePriority Ref="132" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item26>
+        <Item27 Ref="133" ControlType="XRLabel" Name="label6" Multiline="true" Text="(" SizeF="18.0555573,30" LocationFloat="103.38813,68.00003" Font="Times New Roman, 19pt" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="134" UseFont="false" UseBorders="false" />
+        </Item27>
+        <Item28 Ref="135" ControlType="XRLabel" Name="label4" Multiline="true" Text=")" SizeF="15.277771,29" LocationFloat="175.6073,69.00003" Font="Times New Roman, 19pt" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="136" UseFont="false" UseBorders="false" />
+        </Item28>
+        <Item29 Ref="137" ControlType="XRLabel" Name="label1" Multiline="true" Text="県　　" TextAlignment="MiddleRight" SizeF="235.169983,25.0000019" LocationFloat="106.387787,24.8333187" Font="MS Gothic, 11pt" Padding="2,2,0,0,100" Borders="None" BorderWidth="0.5">
+          <StylePriority Ref="138" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item29>
+        <Item30 Ref="139" ControlType="XRLabel" Name="label2" Multiline="true" Text="東　京　都&#xD;&#xA;" TextAlignment="TopCenter" SizeF="87.49661,51.1666374" LocationFloat="103.387787,49.4409332" Font="MS Gothic, 11pt" Padding="2,2,4,0,100" Borders="Left, Top, Bottom" BorderWidth="0.5">
+          <StylePriority Ref="140" UseFont="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item30>
+      </Controls>
+    </Item1>
+    <Item2 Ref="141" ControlType="DetailBand" Name="detailBand1" HeightF="0.2916336" Borders="All">
+      <StylePriority Ref="142" UseBorders="false" />
+    </Item2>
+    <Item3 Ref="143" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="267">
+      <Controls>
+        <Item1 Ref="144" ControlType="XRLabel" Name="label19" Multiline="true" Text="た車両とする。" SizeF="497.10556,34.16681" LocationFloat="36.02329,170.625214" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="145" UseBorders="false" />
+        </Item1>
+        <Item2 Ref="146" ControlType="XRLabel" Name="label16" Multiline="true" Text="とすること。" SizeF="565.9465,23.166748" LocationFloat="37.0018845,101.291992" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="147" UseBorders="false" />
+        </Item2>
+        <Item3 Ref="148" ControlType="XRLabel" Name="label15" Multiline="true" Text="ること。この場合において、東京都にあたっては、特別区の区域及び特別区以外の区域ごとに別葉" SizeF="565.9465,23.16674" LocationFloat="37.0018845,78.12525" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="149" UseBorders="false" />
+        </Item3>
+        <Item4 Ref="150" ControlType="XRLabel" Name="label14" Multiline="true" Text="道府県の区域内におけるすべての営業所に配置されている事業用自動車の輸送実績について記載す" SizeF="565.9466,23.16674" LocationFloat="37.0018845,54.95851" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="151" UseBorders="false" />
+        </Item4>
+        <Item5 Ref="152" ControlType="XRLabel" Name="label103" Multiline="true" Text="2." TextAlignment="TopRight" SizeF="26.0232925,24.041687" LocationFloat="9.999997,146.5835" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="153" UseBorders="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="154" ControlType="XRLabel" Name="label101" Multiline="true" Text="延実在車両数の欄の臨時増車は、臨時に一般貸切旅客自動車運送事業用の自動車とし" SizeF="497.10556,24.041748" LocationFloat="36.02329,146.583466" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="155" UseBorders="false" />
+        </Item6>
+        <Item7 Ref="156" ControlType="XRLine" Name="line2" SizeF="156.185242,3.04164886" LocationFloat="781.9717,105.791893" Borders="None">
+          <StylePriority Ref="157" UseBorders="false" />
+        </Item7>
+        <Item8 Ref="158" ControlType="XRLine" Name="line1" SizeF="158.051575,2" LocationFloat="737.1494,66.04182" Borders="None">
+          <StylePriority Ref="159" UseBorders="false" />
+        </Item8>
+        <Item9 Ref="160" ControlType="XRLabel" Name="label108" Multiline="true" Text="ｘ 100" TextAlignment="MiddleLeft" SizeF="91.84302,39.75007" LocationFloat="901.201,46.1667366" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="161" UseBorders="false" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="162" ControlType="XRLabel" Name="label106" Multiline="true" Text="(1) 実働率 =" TextAlignment="MiddleLeft" SizeF="87.07666,39.750042" LocationFloat="650.072754,46.1667366" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="163" UseBorders="false" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="164" ControlType="XRLabel" Name="label115" Multiline="true" Text="大･中･小型の車種区分は貸切バス運賃料金区分による。" SizeF="385.508057,24.041687" LocationFloat="650.072754,139.708572" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="165" UseBorders="false" />
+        </Item11>
+        <Item12 Ref="166" ControlType="XRLabel" Name="label119" Multiline="true" Text="営業所の欄に該当営業所の所在地を( )書きで最少行政区(市区町村)まで記載すること。" SizeF="499.1463,32.5974731" LocationFloat="650.0727,226.375153" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="167" UseBorders="false" />
+        </Item12>
+        <Item13 Ref="168" ControlType="XRLabel" Name="label104" Multiline="true" Text="3." TextAlignment="TopRight" SizeF="26.0232925,24.041687" LocationFloat="624.049438,23.0000229" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="169" UseBorders="false" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="170" ControlType="XRLabel" Name="label113" Multiline="true" Text="延実在車両数計" TextAlignment="MiddleCenter" SizeF="158.051514,19.8750153" LocationFloat="782.4736,108.833534" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="171" UseBorders="false" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="172" ControlType="XRLabel" Name="label102" Multiline="true" Text="1." TextAlignment="TopRight" SizeF="27.0019531,24.0416832" LocationFloat="9.999792,30.9168739" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="173" UseBorders="false" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="174" ControlType="XRLabel" Name="label111" Multiline="true" Text="延実働車両数" TextAlignment="MiddleCenter" SizeF="158.683228,19.8750153" LocationFloat="782.4737,85.91686" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="175" UseBorders="false" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="176" ControlType="XRLabel" Name="label114" Multiline="true" Text="4." TextAlignment="TopRight" SizeF="26.0232925,24.041687" LocationFloat="624.0495,139.708588" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="177" UseBorders="false" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="178" ControlType="XRLabel" Name="label100" Multiline="true" Text="この報告書は、都道府県の区域(北海道にあたっては、陸運事業所の管轄区域)ごとに、当該都&#xD;&#xA;" SizeF="565.946655,23.16674" LocationFloat="37.0017166,31.79177" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="179" UseBorders="false" />
+        </Item18>
+        <Item19 Ref="180" ControlType="XRLabel" Name="label116" Multiline="true" Text="5." TextAlignment="TopRight" SizeF="26.0232544,24.041687" LocationFloat="623.3972,180.75029" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="181" UseBorders="false" UseTextAlignment="false" />
+        </Item19>
+        <Item20 Ref="182" ControlType="XRLabel" Name="label118" Multiline="true" Text="6." TextAlignment="TopRight" SizeF="26.0232925,24.041687" LocationFloat="624.049561,226.375137" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="183" UseBorders="false" UseTextAlignment="false" />
+        </Item20>
+        <Item21 Ref="184" ControlType="XRLabel" Name="label99" Multiline="true" Text="記載事項" TextAlignment="MiddleLeft" SizeF="75.5943,23" LocationFloat="37.00196,0" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="185" UseBorders="false" UseTextAlignment="false" />
+        </Item21>
+        <Item22 Ref="186" ControlType="XRLabel" Name="label107" Multiline="true" Text="延実働車両数" TextAlignment="MiddleCenter" SizeF="154.208984,19.8750267" LocationFloat="737.1494,46.1667366" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="187" UseBorders="false" UseTextAlignment="false" />
+        </Item22>
+        <Item23 Ref="188" ControlType="XRLabel" Name="label109" Multiline="true" Text="延実在車両数計" TextAlignment="MiddleCenter" SizeF="154.209045,17.8750381" LocationFloat="737.149353,68.0418243" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="189" UseBorders="false" UseTextAlignment="false" />
+        </Item23>
+        <Item24 Ref="190" ControlType="XRLabel" Name="label117" Multiline="true" Text="臨時増車とは、乗合予備車を貸切事業に流用することをいう。" SizeF="386.160278,24.041687" LocationFloat="649.4205,180.75029" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="191" UseBorders="false" />
+        </Item24>
+        <Item25 Ref="192" ControlType="XRLabel" Name="label112" Multiline="true" Text="ｘ 100" TextAlignment="MiddleLeft" SizeF="91.84302,42.79171" LocationFloat="946.157,85.91686" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="193" UseBorders="false" UseTextAlignment="false" />
+        </Item25>
+        <Item26 Ref="194" ControlType="XRLabel" Name="label105" Multiline="true" Text="実働率及び臨時増車比率は、次の算式により算出すること。" SizeF="387.927368,24.041666" LocationFloat="650.072632,22.1251278" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="195" UseBorders="false" />
+        </Item26>
+        <Item27 Ref="196" ControlType="XRLabel" Name="label110" Multiline="true" Text="(2) 臨時増車比率 =" TextAlignment="MiddleLeft" SizeF="131.52124,42.791687" LocationFloat="650.0727,85.9169" Padding="2,2,0,0,100" Borders="None">
+          <StylePriority Ref="197" UseBorders="false" UseTextAlignment="false" />
+        </Item27>
+      </Controls>
+    </Item3>
+    <Item4 Ref="198" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="jitHouReportPerPage" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="199" ControlType="DetailBand" Name="Detail" HeightF="365.280975">
+          <Controls>
+            <Item1 Ref="200" ControlType="XRTable" Name="table5" TextAlignment="BottomRight" SizeF="1121.108,89.69437" LocationFloat="23.1107922,265.5866" Padding="2,2,0,0,96" Borders="All">
+              <Rows>
+                <Item1 Ref="201" ControlType="XRTableRow" Name="tableRow16" Weight="1.0010789594977563" Borders="Left, Top, Right" BorderWidth="0.5">
+                  <Cells>
+                    <Item1 Ref="202" ControlType="XRTableCell" Name="tableCell274" Weight="1.3604988713902175" RowSpan="4" Multiline="true" TextAlignment="MiddleCenter" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="203" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[EigyoName]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="204" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="205" ControlType="XRTableCell" Name="tableCell275" Weight="0.63950112860978248" Multiline="true" Text="大型" TextAlignment="MiddleCenter" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <StylePriority Ref="206" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="207" ControlType="XRTableCell" Name="tableCell276" Weight="1" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="208" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="209" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="210" ControlType="XRTableCell" Name="tableCell277" Weight="0.98848363229447345" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="211" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="212" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="213" ControlType="XRTableCell" Name="tableCell278" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="214" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="215" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="216" ControlType="XRTableCell" Name="tableCell279" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="217" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="218" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="219" ControlType="XRTableCell" Name="tableCell280" Weight="0.93211363991413554" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="220" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="221" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="222" ControlType="XRTableCell" Name="tableCell281" Weight="0.932113660529335" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="223" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="224" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="225" ControlType="XRTableCell" Name="tableCell282" Weight="0.93211368805946482" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="226" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="227" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="228" ControlType="XRTableCell" Name="tableCell283" Weight="0.93211365488419973" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="229" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="230" UseBorderWidth="false" />
+                    </Item10>
+                    <Item11 Ref="231" ControlType="XRTableCell" Name="tableCell284" Weight="0.93211364077630765" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="232" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="233" UseBorderWidth="false" />
+                    </Item11>
+                    <Item12 Ref="234" ControlType="XRTableCell" Name="tableCell285" Weight="1.1769710334575299" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="235" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="236" UseBorderWidth="false" />
+                    </Item12>
+                    <Item13 Ref="237" ControlType="XRTableCell" Name="tableCell286" Weight="1.0135380129211393" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="238" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="239" UseBorderWidth="false" />
+                    </Item13>
+                    <Item14 Ref="240" ControlType="XRTableCell" Name="tableCell287" Weight="1.0509559112012903" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="241" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="242" UseBorderWidth="false" />
+                    </Item14>
+                    <Item15 Ref="243" ControlType="XRTableCell" Name="tableCell288" Weight="1.2533881169619818" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="244" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="245" UseBorderWidth="false" />
+                    </Item15>
+                    <Item16 Ref="246" ControlType="XRTableCell" Name="tableCell289" Weight="0.79653036560863777" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="247" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="248" UseBorderWidth="false" />
+                    </Item16>
+                    <Item17 Ref="249" ControlType="XRTableCell" Name="tableCell290" Weight="0.78423024604581182" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="250" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="251" UseBorderWidth="false" />
+                    </Item17>
+                    <Item18 Ref="252" ControlType="XRTableCell" Name="tableCell291" Weight="1.4975478670188827" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="253" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="254" UseBorders="false" UseBorderWidth="false" />
+                    </Item18>
+                    <Item19 Ref="255" ControlType="XRTableCell" Name="tableCell292" Weight="0.83415857929088988" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="256" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Large_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="257" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="258" UseBorders="false" UseBorderWidth="false" />
+                </Item1>
+                <Item2 Ref="259" ControlType="XRTableRow" Name="tableRow17" Weight="1.0010789594977563">
+                  <Cells>
+                    <Item1 Ref="260" ControlType="XRTableCell" Name="tableCell293" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="261" ControlType="XRTableCell" Name="tableCell294" Weight="0.63950112860978248" Multiline="true" Text="中型" TextAlignment="MiddleCenter" Borders="All" BorderWidth="0.5">
+                      <StylePriority Ref="262" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="263" ControlType="XRTableCell" Name="tableCell295" Weight="1" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="264" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="265" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="266" ControlType="XRTableCell" Name="tableCell296" Weight="0.98848363229447345" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="267" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="268" UseBorders="false" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="269" ControlType="XRTableCell" Name="tableCell297" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Bottom" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="270" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="271" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="272" ControlType="XRTableCell" Name="tableCell298" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="273" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="274" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="275" ControlType="XRTableCell" Name="tableCell299" Weight="0.93211363991413554" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="276" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="277" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="278" ControlType="XRTableCell" Name="tableCell300" Weight="0.932113660529335" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="279" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="280" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="281" ControlType="XRTableCell" Name="tableCell301" Weight="0.93211368805946482" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="282" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="283" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="284" ControlType="XRTableCell" Name="tableCell302" Weight="0.93211365488419973" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="285" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="286" UseBorderWidth="false" />
+                    </Item10>
+                    <Item11 Ref="287" ControlType="XRTableCell" Name="tableCell303" Weight="0.93211364077630765" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="288" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="289" UseBorderWidth="false" />
+                    </Item11>
+                    <Item12 Ref="290" ControlType="XRTableCell" Name="tableCell304" Weight="1.1769710334575299" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="291" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="292" UseBorderWidth="false" />
+                    </Item12>
+                    <Item13 Ref="293" ControlType="XRTableCell" Name="tableCell305" Weight="1.0135380129211393" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="294" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="295" UseBorderWidth="false" />
+                    </Item13>
+                    <Item14 Ref="296" ControlType="XRTableCell" Name="tableCell306" Weight="1.0509559112012903" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="297" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="298" UseBorderWidth="false" />
+                    </Item14>
+                    <Item15 Ref="299" ControlType="XRTableCell" Name="tableCell307" Weight="1.2533881169619818" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="300" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="301" UseBorderWidth="false" />
+                    </Item15>
+                    <Item16 Ref="302" ControlType="XRTableCell" Name="tableCell308" Weight="0.79653036560863777" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="303" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="304" UseBorderWidth="false" />
+                    </Item16>
+                    <Item17 Ref="305" ControlType="XRTableCell" Name="tableCell309" Weight="0.78423024604581182" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="306" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="307" UseBorderWidth="false" />
+                    </Item17>
+                    <Item18 Ref="308" ControlType="XRTableCell" Name="tableCell310" Weight="1.4975478670188827" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="309" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="310" UseBorders="false" UseBorderWidth="false" />
+                    </Item18>
+                    <Item19 Ref="311" ControlType="XRTableCell" Name="tableCell311" Weight="0.83415857929088988" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="312" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Medium_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="313" UseBorders="false" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                </Item2>
+                <Item3 Ref="314" ControlType="XRTableRow" Name="tableRow18" Weight="1.0010789594977563" Borders="Left, Top, Right" BorderWidth="0.5">
+                  <Cells>
+                    <Item1 Ref="315" ControlType="XRTableCell" Name="tableCell312" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="316" ControlType="XRTableCell" Name="tableCell313" Weight="0.63950112860978248" Multiline="true" Text="小型" TextAlignment="MiddleCenter" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <StylePriority Ref="317" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="318" ControlType="XRTableCell" Name="tableCell314" Weight="1" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="319" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="320" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="321" ControlType="XRTableCell" Name="tableCell315" Weight="0.98848363229447345" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="322" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="323" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="324" ControlType="XRTableCell" Name="tableCell316" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="325" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="326" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="327" ControlType="XRTableCell" Name="tableCell317" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="328" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="329" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="330" ControlType="XRTableCell" Name="tableCell318" Weight="0.93211363991413554" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="331" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="332" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="333" ControlType="XRTableCell" Name="tableCell319" Weight="0.932113660529335" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="334" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="335" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="336" ControlType="XRTableCell" Name="tableCell320" Weight="0.93211368805946482" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="337" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="338" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="339" ControlType="XRTableCell" Name="tableCell321" Weight="0.93211365488419973" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="340" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="341" UseBorderWidth="false" />
+                    </Item10>
+                    <Item11 Ref="342" ControlType="XRTableCell" Name="tableCell322" Weight="0.93211364077630765" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="343" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="344" UseBorderWidth="false" />
+                    </Item11>
+                    <Item12 Ref="345" ControlType="XRTableCell" Name="tableCell323" Weight="1.1769710334575299" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="346" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="347" UseBorderWidth="false" />
+                    </Item12>
+                    <Item13 Ref="348" ControlType="XRTableCell" Name="tableCell324" Weight="1.0135380129211393" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="349" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="350" UseBorderWidth="false" />
+                    </Item13>
+                    <Item14 Ref="351" ControlType="XRTableCell" Name="tableCell325" Weight="1.0509559112012903" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="352" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="353" UseBorderWidth="false" />
+                    </Item14>
+                    <Item15 Ref="354" ControlType="XRTableCell" Name="tableCell326" Weight="1.2533881169619818" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="355" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="356" UseBorderWidth="false" />
+                    </Item15>
+                    <Item16 Ref="357" ControlType="XRTableCell" Name="tableCell327" Weight="0.79653036560863777" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="358" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="359" UseBorderWidth="false" />
+                    </Item16>
+                    <Item17 Ref="360" ControlType="XRTableCell" Name="tableCell328" Weight="0.78423024604581182" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="361" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="362" UseBorderWidth="false" />
+                    </Item17>
+                    <Item18 Ref="363" ControlType="XRTableCell" Name="tableCell329" Weight="1.4975478670188827" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="364" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="365" UseBorders="false" UseBorderWidth="false" />
+                    </Item18>
+                    <Item19 Ref="366" ControlType="XRTableCell" Name="tableCell330" Weight="0.83415857929088988" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="367" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Small_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="368" UseBorders="false" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="369" UseBorders="false" UseBorderWidth="false" />
+                </Item3>
+                <Item4 Ref="370" ControlType="XRTableRow" Name="tableRow19" Weight="1.0010790446630806">
+                  <Cells>
+                    <Item1 Ref="371" ControlType="XRTableCell" Name="tableCell331" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="372" ControlType="XRTableCell" Name="tableCell332" Weight="0.63950112860978248" Multiline="true" Text="計" TextAlignment="MiddleCenter" Borders="All" BorderWidth="0.5">
+                      <StylePriority Ref="373" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="374" ControlType="XRTableCell" Name="tableCell333" Weight="1" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="375" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="376" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="377" ControlType="XRTableCell" Name="tableCell334" Weight="0.98848363229447345" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="378" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="379" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="380" ControlType="XRTableCell" Name="tableCell335" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Bottom" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="381" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="382" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="383" ControlType="XRTableCell" Name="tableCell336" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="384" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="385" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="386" ControlType="XRTableCell" Name="tableCell337" Weight="0.93211363991413554" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="387" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="388" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="389" ControlType="XRTableCell" Name="tableCell338" Weight="0.932113660529335" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="390" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="391" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="392" ControlType="XRTableCell" Name="tableCell339" Weight="0.93211368805946482" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="393" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="394" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="395" ControlType="XRTableCell" Name="tableCell340" Weight="0.93211365488419973" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="396" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="397" UseBorderWidth="false" />
+                    </Item10>
+                    <Item11 Ref="398" ControlType="XRTableCell" Name="tableCell341" Weight="0.93211364077630765" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="399" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="400" UseBorderWidth="false" />
+                    </Item11>
+                    <Item12 Ref="401" ControlType="XRTableCell" Name="tableCell342" Weight="1.1769710334575299" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="402" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="403" UseBorderWidth="false" />
+                    </Item12>
+                    <Item13 Ref="404" ControlType="XRTableCell" Name="tableCell343" Weight="1.0135380129211393" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="405" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="406" UseBorderWidth="false" />
+                    </Item13>
+                    <Item14 Ref="407" ControlType="XRTableCell" Name="tableCell344" Weight="1.0509559112012903" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="408" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="409" UseBorderWidth="false" />
+                    </Item14>
+                    <Item15 Ref="410" ControlType="XRTableCell" Name="tableCell345" Weight="1.2533881169619818" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="411" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="412" UseBorderWidth="false" />
+                    </Item15>
+                    <Item16 Ref="413" ControlType="XRTableCell" Name="tableCell346" Weight="0.79653036560863777" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="414" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="415" UseBorderWidth="false" />
+                    </Item16>
+                    <Item17 Ref="416" ControlType="XRTableCell" Name="tableCell347" Weight="0.78423024604581182" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="417" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="418" UseBorderWidth="false" />
+                    </Item17>
+                    <Item18 Ref="419" ControlType="XRTableCell" Name="tableCell348" Weight="1.4975478670188827" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="420" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="421" UseBorders="false" UseBorderWidth="false" />
+                    </Item18>
+                    <Item19 Ref="422" ControlType="XRTableCell" Name="tableCell349" Weight="0.83415857929088988" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="423" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem4].[Total_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="424" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                </Item4>
+              </Rows>
+              <StylePriority Ref="425" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="426" ControlType="XRTable" Name="table4" TextAlignment="BottomRight" SizeF="1121.10791,86.20776" LocationFloat="23.1109619,179.378845" Padding="2,2,0,0,96" Borders="All" BorderWidth="0.5">
+              <Rows>
+                <Item1 Ref="427" ControlType="XRTableRow" Name="tableRow12" Weight="1.0010789594977563" Borders="All">
+                  <Cells>
+                    <Item1 Ref="428" ControlType="XRTableCell" Name="tableCell198" Weight="1.3604941896055909" RowSpan="4" Multiline="true" TextAlignment="MiddleLeft" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="429" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[EigyoName]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="430" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="431" ControlType="XRTableCell" Name="tableCell199" Weight="0.639505810394409" Multiline="true" Text="大型" TextAlignment="MiddleCenter" Borders="All">
+                      <StylePriority Ref="432" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="433" ControlType="XRTableCell" Name="tableCell200" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="434" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="435" ControlType="XRTableCell" Name="tableCell201" Weight="0.98848084853064155" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="436" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="437" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="438" ControlType="XRTableCell" Name="tableCell202" Weight="1.0115191514693585" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="439" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="440" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="441" ControlType="XRTableCell" Name="tableCell203" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="442" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="443" ControlType="XRTableCell" Name="tableCell204" Weight="0.93211363225744892" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="444" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="445" ControlType="XRTableCell" Name="tableCell205" Weight="0.93211366988688915" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="446" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="447" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="448" ControlType="XRTableCell" Name="tableCell206" Weight="0.93211368805946471" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="449" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="450" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="451" ControlType="XRTableCell" Name="tableCell207" Weight="0.93211363276735659" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="452" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="453" ControlType="XRTableCell" Name="tableCell208" Weight="0.93211359824348816" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="454" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="455" ControlType="XRTableCell" Name="tableCell209" Weight="1.1769670472952967" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="456" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="457" ControlType="XRTableCell" Name="tableCell210" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="458" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="459" ControlType="XRTableCell" Name="tableCell211" Weight="1.0509548989235331" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="460" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="461" ControlType="XRTableCell" Name="tableCell212" Weight="1.253390141517496" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="462" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="463" ControlType="XRTableCell" Name="tableCell213" Weight="0.796532453112947" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="464" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="465" ControlType="XRTableCell" Name="tableCell214" Weight="0.78422815854150274" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="466" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="467" ControlType="XRTableCell" Name="tableCell215" Weight="1.497550903852154" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="468" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="469" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="470" ControlType="XRTableCell" Name="tableCell216" Weight="0.83415853505720328" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="471" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Large_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="472" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="473" UseBorders="false" />
+                </Item1>
+                <Item2 Ref="474" ControlType="XRTableRow" Name="tableRow13" Weight="1.0010789594977563" Borders="Left, Right">
+                  <Cells>
+                    <Item1 Ref="475" ControlType="XRTableCell" Name="tableCell217" Weight="1.3604941896055909" Multiline="true" />
+                    <Item2 Ref="476" ControlType="XRTableCell" Name="tableCell218" Weight="0.639505810394409" Multiline="true" Text="中型" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="477" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="478" ControlType="XRTableCell" Name="tableCell219" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="479" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="480" ControlType="XRTableCell" Name="tableCell220" Weight="0.98848084853064155" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="481" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="482" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="483" ControlType="XRTableCell" Name="tableCell221" Weight="1.0115191514693585" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="484" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="485" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="486" ControlType="XRTableCell" Name="tableCell222" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="487" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="488" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="489" ControlType="XRTableCell" Name="tableCell223" Weight="0.93211363225744892" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="490" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="491" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="492" ControlType="XRTableCell" Name="tableCell224" Weight="0.93211366988688915" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="493" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="494" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="495" ControlType="XRTableCell" Name="tableCell225" Weight="0.93211368805946471" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="496" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="497" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="498" ControlType="XRTableCell" Name="tableCell226" Weight="0.93211363276735659" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="499" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="500" ControlType="XRTableCell" Name="tableCell227" Weight="0.93211359824348816" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="501" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="502" ControlType="XRTableCell" Name="tableCell228" Weight="1.1769670472952967" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="503" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="504" ControlType="XRTableCell" Name="tableCell229" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="505" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="506" ControlType="XRTableCell" Name="tableCell230" Weight="1.0509548989235331" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="507" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="508" ControlType="XRTableCell" Name="tableCell231" Weight="1.253390141517496" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="509" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="510" ControlType="XRTableCell" Name="tableCell232" Weight="0.796532453112947" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="511" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="512" ControlType="XRTableCell" Name="tableCell233" Weight="0.78422815854150274" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="513" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="514" ControlType="XRTableCell" Name="tableCell234" Weight="1.497550903852154" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="515" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="516" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="517" ControlType="XRTableCell" Name="tableCell235" Weight="0.83415853505720328" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="518" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Medium_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="519" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="520" UseBorders="false" />
+                </Item2>
+                <Item3 Ref="521" ControlType="XRTableRow" Name="tableRow14" Weight="1.0010789594977563" Borders="All">
+                  <Cells>
+                    <Item1 Ref="522" ControlType="XRTableCell" Name="tableCell236" Weight="1.3604941896055909" Multiline="true" />
+                    <Item2 Ref="523" ControlType="XRTableCell" Name="tableCell237" Weight="0.639505810394409" Multiline="true" Text="小型" TextAlignment="MiddleCenter" Borders="All" BorderWidth="0.5">
+                      <StylePriority Ref="524" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="525" ControlType="XRTableCell" Name="tableCell238" Weight="1" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="526" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="527" UseBorders="false" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="528" ControlType="XRTableCell" Name="tableCell239" Weight="0.98848084853064155" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="529" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="530" UseBorders="false" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="531" ControlType="XRTableCell" Name="tableCell240" Weight="1.0115191514693585" Multiline="true" Borders="All" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="532" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="533" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="534" ControlType="XRTableCell" Name="tableCell241" Weight="0.93211365211959429" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="535" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="536" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="537" ControlType="XRTableCell" Name="tableCell242" Weight="0.93211363225744892" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="538" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="539" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="540" ControlType="XRTableCell" Name="tableCell243" Weight="0.93211366988688915" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="541" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="542" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="543" ControlType="XRTableCell" Name="tableCell244" Weight="0.93211368805946471" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="544" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="545" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="546" ControlType="XRTableCell" Name="tableCell245" Weight="0.93211363276735659" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="547" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="548" ControlType="XRTableCell" Name="tableCell246" Weight="0.93211359824348816" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="549" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="550" ControlType="XRTableCell" Name="tableCell247" Weight="1.1769670472952967" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="551" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="552" ControlType="XRTableCell" Name="tableCell248" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="553" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="554" ControlType="XRTableCell" Name="tableCell249" Weight="1.0509548989235331" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="555" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="556" ControlType="XRTableCell" Name="tableCell250" Weight="1.253390141517496" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="557" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="558" ControlType="XRTableCell" Name="tableCell251" Weight="0.796532453112947" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="559" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="560" ControlType="XRTableCell" Name="tableCell252" Weight="0.78422815854150274" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="561" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="562" ControlType="XRTableCell" Name="tableCell253" Weight="1.497550903852154" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="563" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="564" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="565" ControlType="XRTableCell" Name="tableCell254" Weight="0.83415853505720328" Multiline="true" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="566" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Small_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="567" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="568" UseBorders="false" />
+                </Item3>
+                <Item4 Ref="569" ControlType="XRTableRow" Name="tableRow15" Weight="1.0010790446630808" Borders="Left, Right">
+                  <Cells>
+                    <Item1 Ref="570" ControlType="XRTableCell" Name="tableCell255" Weight="1.3604941896055909" Multiline="true" />
+                    <Item2 Ref="571" ControlType="XRTableCell" Name="tableCell256" Weight="0.639505810394409" Multiline="true" Text="計" TextAlignment="MiddleCenter" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <StylePriority Ref="572" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="573" ControlType="XRTableCell" Name="tableCell257" Weight="1" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="574" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="575" UseBorders="false" UseBorderWidth="false" />
+                    </Item3>
+                    <Item4 Ref="576" ControlType="XRTableCell" Name="tableCell258" Weight="0.98848084853064155" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="577" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="578" UseBorders="false" UseBorderWidth="false" />
+                    </Item4>
+                    <Item5 Ref="579" ControlType="XRTableCell" Name="tableCell259" Weight="1.0115191514693585" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="580" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="581" UseBorders="false" UseBorderWidth="false" />
+                    </Item5>
+                    <Item6 Ref="582" ControlType="XRTableCell" Name="tableCell260" Weight="0.93211365211959429" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="583" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="584" UseBorders="false" UseBorderWidth="false" />
+                    </Item6>
+                    <Item7 Ref="585" ControlType="XRTableCell" Name="tableCell261" Weight="0.93211363225744892" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="586" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="587" UseBorders="false" UseBorderWidth="false" />
+                    </Item7>
+                    <Item8 Ref="588" ControlType="XRTableCell" Name="tableCell262" Weight="0.93211366988688915" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="589" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="590" UseBorders="false" UseBorderWidth="false" />
+                    </Item8>
+                    <Item9 Ref="591" ControlType="XRTableCell" Name="tableCell263" Weight="0.93211368805946471" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="592" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="593" UseBorders="false" UseBorderWidth="false" />
+                    </Item9>
+                    <Item10 Ref="594" ControlType="XRTableCell" Name="tableCell264" Weight="0.93211363276735659" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="595" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="596" UseBorders="false" UseBorderWidth="false" />
+                    </Item10>
+                    <Item11 Ref="597" ControlType="XRTableCell" Name="tableCell265" Weight="0.93211359824348816" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="598" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="599" UseBorders="false" UseBorderWidth="false" />
+                    </Item11>
+                    <Item12 Ref="600" ControlType="XRTableCell" Name="tableCell266" Weight="1.1769670472952967" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="601" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="602" UseBorders="false" UseBorderWidth="false" />
+                    </Item12>
+                    <Item13 Ref="603" ControlType="XRTableCell" Name="tableCell267" Weight="1.0135359883656254" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="604" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="605" UseBorders="false" UseBorderWidth="false" />
+                    </Item13>
+                    <Item14 Ref="606" ControlType="XRTableCell" Name="tableCell268" Weight="1.0509548989235331" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="607" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="608" UseBorders="false" UseBorderWidth="false" />
+                    </Item14>
+                    <Item15 Ref="609" ControlType="XRTableCell" Name="tableCell269" Weight="1.253390141517496" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="610" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="611" UseBorders="false" UseBorderWidth="false" />
+                    </Item15>
+                    <Item16 Ref="612" ControlType="XRTableCell" Name="tableCell270" Weight="0.796532453112947" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="613" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="614" UseBorders="false" UseBorderWidth="false" />
+                    </Item16>
+                    <Item17 Ref="615" ControlType="XRTableCell" Name="tableCell271" Weight="0.78422815854150274" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="616" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="617" UseBorders="false" UseBorderWidth="false" />
+                    </Item17>
+                    <Item18 Ref="618" ControlType="XRTableCell" Name="tableCell272" Weight="1.497550903852154" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="619" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="620" UseBorders="false" UseBorderWidth="false" />
+                    </Item18>
+                    <Item19 Ref="621" ControlType="XRTableCell" Name="tableCell273" Weight="0.83415853505720328" Multiline="true" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="622" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem3].[Total_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="623" UseBorders="false" UseBorderWidth="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="624" UseBorders="false" />
+                </Item4>
+              </Rows>
+              <StylePriority Ref="625" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+            <Item3 Ref="626" ControlType="XRTable" Name="table3" TextAlignment="BottomRight" SizeF="1121.10791,93.16168" LocationFloat="23.1107922,86.21716" Padding="2,2,0,0,96" Borders="All" BorderWidth="0.5">
+              <Rows>
+                <Item1 Ref="627" ControlType="XRTableRow" Name="tableRow8" Weight="1.0227006729992212" Borders="Left, Top, Right">
+                  <Cells>
+                    <Item1 Ref="628" ControlType="XRTableCell" Name="tableCell122" Weight="1.3604988713902175" RowSpan="4" Multiline="true" TextAlignment="MiddleLeft" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="629" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[EigyoName]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="630" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="631" ControlType="XRTableCell" Name="tableCell123" Weight="0.63950112860978248" Multiline="true" Text="大型" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="632" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="633" ControlType="XRTableCell" Name="tableCell124" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="634" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="635" ControlType="XRTableCell" Name="tableCell125" Weight="0.98848363229447345" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="636" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="637" ControlType="XRTableCell" Name="tableCell126" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="638" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="639" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="640" ControlType="XRTableCell" Name="tableCell127" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="641" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="642" ControlType="XRTableCell" Name="tableCell128" Weight="0.93211363055658136" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="643" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="644" ControlType="XRTableCell" Name="tableCell129" Weight="0.93211366988688915" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="645" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="646" ControlType="XRTableCell" Name="tableCell130" Weight="0.93211368805946448">
+                      <ExpressionBindings>
+                        <Item1 Ref="647" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="648" ControlType="XRTableCell" Name="tableCell131" Weight="0.93211367530017575" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="649" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="650" ControlType="XRTableCell" Name="tableCell132" Weight="0.93211368500999425" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="651" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="652" ControlType="XRTableCell" Name="tableCell133" Weight="1.1769699565301106" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="653" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="654" ControlType="XRTableCell" Name="tableCell134" Weight="1.0135390251988965" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="655" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="656" ControlType="XRTableCell" Name="tableCell135" Weight="1.0509548989235333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="657" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="658" ControlType="XRTableCell" Name="tableCell136" Weight="1.2533891292397388" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="659" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="660" ControlType="XRTableCell" Name="tableCell137" Weight="0.79653140000323819" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="661" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="662" ControlType="XRTableCell" Name="tableCell138" Weight="0.78422921165121151" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="663" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="664" ControlType="XRTableCell" Name="tableCell139" Weight="1.4975539406854248" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="665" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="666" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="667" ControlType="XRTableCell" Name="tableCell140" Weight="0.83415043683514656" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="668" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Large_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="669" UseBorders="false" />
+                </Item1>
+                <Item2 Ref="670" ControlType="XRTableRow" Name="tableRow9" Weight="1.0227006729992212">
+                  <Cells>
+                    <Item1 Ref="671" ControlType="XRTableCell" Name="tableCell141" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="672" ControlType="XRTableCell" Name="tableCell142" Weight="0.63950112860978248" Multiline="true" Text="中型" TextAlignment="MiddleCenter" Borders="All">
+                      <StylePriority Ref="673" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="674" ControlType="XRTableCell" Name="tableCell143" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="675" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="676" ControlType="XRTableCell" Name="tableCell144" Weight="0.98848363229447345" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="677" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="678" ControlType="XRTableCell" Name="tableCell145" Weight="1.0115163677055266" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="679" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="680" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="681" ControlType="XRTableCell" Name="tableCell146" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="682" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="683" ControlType="XRTableCell" Name="tableCell147" Weight="0.93211363055658136" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="684" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="685" ControlType="XRTableCell" Name="tableCell148" Weight="0.93211366988688915" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="686" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="687" ControlType="XRTableCell" Name="tableCell149" Weight="0.93211368805946448">
+                      <ExpressionBindings>
+                        <Item1 Ref="688" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="689" ControlType="XRTableCell" Name="tableCell150" Weight="0.93211367530017575" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="690" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="691" ControlType="XRTableCell" Name="tableCell151" Weight="0.93211368500999425" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="692" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="693" ControlType="XRTableCell" Name="tableCell152" Weight="1.1769699565301106" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="694" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="695" ControlType="XRTableCell" Name="tableCell153" Weight="1.0135390251988965" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="696" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="697" ControlType="XRTableCell" Name="tableCell154" Weight="1.0509548989235333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="698" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="699" ControlType="XRTableCell" Name="tableCell155" Weight="1.2533891292397388" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="700" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="701" ControlType="XRTableCell" Name="tableCell156" Weight="0.79653140000323819" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="702" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="703" ControlType="XRTableCell" Name="tableCell157" Weight="0.78422921165121151" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="704" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="705" ControlType="XRTableCell" Name="tableCell158" Weight="1.4975539406854248" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="706" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="707" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="708" ControlType="XRTableCell" Name="tableCell159" Weight="0.83415043683514656" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="709" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Medium_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                </Item2>
+                <Item3 Ref="710" ControlType="XRTableRow" Name="tableRow10" Weight="1.0227006729992212">
+                  <Cells>
+                    <Item1 Ref="711" ControlType="XRTableCell" Name="tableCell160" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="712" ControlType="XRTableCell" Name="tableCell161" Weight="0.63950112860978248" Multiline="true" Text="小型" TextAlignment="MiddleCenter" Borders="All">
+                      <StylePriority Ref="713" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="714" ControlType="XRTableCell" Name="tableCell162" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="715" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="716" ControlType="XRTableCell" Name="tableCell163" Weight="0.98848363229447345" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="717" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="718" ControlType="XRTableCell" Name="tableCell164" Weight="1.0115163677055266" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="719" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="720" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="721" ControlType="XRTableCell" Name="tableCell165" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="722" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="723" ControlType="XRTableCell" Name="tableCell166" Weight="0.93211363055658136" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="724" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="725" ControlType="XRTableCell" Name="tableCell167" Weight="0.93211366988688915" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="726" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="727" ControlType="XRTableCell" Name="tableCell168" Weight="0.93211368805946448">
+                      <ExpressionBindings>
+                        <Item1 Ref="728" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="729" ControlType="XRTableCell" Name="tableCell169" Weight="0.93211367530017575" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="730" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="731" ControlType="XRTableCell" Name="tableCell170" Weight="0.93211368500999425" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="732" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="733" ControlType="XRTableCell" Name="tableCell171" Weight="1.1769699565301106" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="734" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="735" ControlType="XRTableCell" Name="tableCell172" Weight="1.0135390251988965" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="736" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="737" ControlType="XRTableCell" Name="tableCell173" Weight="1.0509548989235333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="738" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="739" ControlType="XRTableCell" Name="tableCell174" Weight="1.2533891292397388" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="740" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="741" ControlType="XRTableCell" Name="tableCell175" Weight="0.79653140000323819" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="742" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="743" ControlType="XRTableCell" Name="tableCell176" Weight="0.78422921165121151" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="744" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="745" ControlType="XRTableCell" Name="tableCell177" Weight="1.4975539406854248" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="746" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="747" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="748" ControlType="XRTableCell" Name="tableCell178" Weight="0.83415043683514656" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="749" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Small_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                </Item3>
+                <Item4 Ref="750" ControlType="XRTableRow" Name="tableRow11" Weight="1.0227003803839765">
+                  <Cells>
+                    <Item1 Ref="751" ControlType="XRTableCell" Name="tableCell179" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="752" ControlType="XRTableCell" Name="tableCell180" Weight="0.63950112860978248" Multiline="true" Text="計" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="753" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="754" ControlType="XRTableCell" Name="tableCell181" Weight="1" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="755" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="756" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="757" ControlType="XRTableCell" Name="tableCell182" Weight="0.98848363229447345" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="758" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="759" UseBorders="false" />
+                    </Item4>
+                    <Item5 Ref="760" ControlType="XRTableCell" Name="tableCell183" Weight="1.0115163677055266" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="761" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="762" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="763" ControlType="XRTableCell" Name="tableCell184" Weight="0.93211365211959429" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="764" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="765" UseBorders="false" />
+                    </Item6>
+                    <Item7 Ref="766" ControlType="XRTableCell" Name="tableCell185" Weight="0.93211363055658136" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="767" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="768" UseBorders="false" />
+                    </Item7>
+                    <Item8 Ref="769" ControlType="XRTableCell" Name="tableCell186" Weight="0.93211366988688915" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="770" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="771" UseBorders="false" />
+                    </Item8>
+                    <Item9 Ref="772" ControlType="XRTableCell" Name="tableCell187" Weight="0.93211368805946448" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="773" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="774" UseBorders="false" />
+                    </Item9>
+                    <Item10 Ref="775" ControlType="XRTableCell" Name="tableCell188" Weight="0.93211367530017575" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="776" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="777" UseBorders="false" />
+                    </Item10>
+                    <Item11 Ref="778" ControlType="XRTableCell" Name="tableCell189" Weight="0.93211368500999425" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="779" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="780" UseBorders="false" />
+                    </Item11>
+                    <Item12 Ref="781" ControlType="XRTableCell" Name="tableCell190" Weight="1.1769699565301106" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="782" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="783" UseBorders="false" />
+                    </Item12>
+                    <Item13 Ref="784" ControlType="XRTableCell" Name="tableCell191" Weight="1.0135390251988965" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="785" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="786" UseBorders="false" />
+                    </Item13>
+                    <Item14 Ref="787" ControlType="XRTableCell" Name="tableCell192" Weight="1.0509548989235333" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="788" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="789" UseBorders="false" />
+                    </Item14>
+                    <Item15 Ref="790" ControlType="XRTableCell" Name="tableCell193" Weight="1.2533891292397388" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="791" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="792" UseBorders="false" />
+                    </Item15>
+                    <Item16 Ref="793" ControlType="XRTableCell" Name="tableCell194" Weight="0.79653140000323819" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="794" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="795" UseBorders="false" />
+                    </Item16>
+                    <Item17 Ref="796" ControlType="XRTableCell" Name="tableCell195" Weight="0.78422921165121151" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="797" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="798" UseBorders="false" />
+                    </Item17>
+                    <Item18 Ref="799" ControlType="XRTableCell" Name="tableCell196" Weight="1.4975539406854248" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="800" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="801" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="802" ControlType="XRTableCell" Name="tableCell197" Weight="0.83415043683514656" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="803" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem2].[Total_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="804" UseBorders="false" />
+                    </Item19>
+                  </Cells>
+                </Item4>
+              </Rows>
+              <StylePriority Ref="805" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item3>
+            <Item4 Ref="806" ControlType="XRTable" Name="table2" TextAlignment="BottomRight" SizeF="1121.10791,86.21716" LocationFloat="23.1107922,0" Padding="2,2,0,0,96" Borders="All" BorderWidth="0.5">
+              <Rows>
+                <Item1 Ref="807" ControlType="XRTableRow" Name="tableRow3" Weight="1">
+                  <Cells>
+                    <Item1 Ref="808" ControlType="XRTableCell" Name="tableCell12" Weight="1.3604988713902175" RowSpan="4" Multiline="true" TextAlignment="MiddleLeft" Borders="Left, Top, Right" BorderWidth="0.5">
+                      <ExpressionBindings>
+                        <Item1 Ref="809" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[EigyoName]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="810" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="811" ControlType="XRTableCell" Name="tableCell7" Weight="0.63950112860978248" Multiline="true" Text="大型" TextAlignment="MiddleCenter" Borders="All">
+                      <StylePriority Ref="812" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="813" ControlType="XRTableCell" Name="tableCell8" Weight="1.000001075545117" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="814" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="815" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="816" ControlType="XRTableCell" Name="tableCell13" Weight="0.98848363229447334">
+                      <ExpressionBindings>
+                        <Item1 Ref="817" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="818" ControlType="XRTableCell" Name="tableCell15" Weight="1.0115152921604096" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="819" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="820" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="821" ControlType="XRTableCell" Name="tableCell18" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="822" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="823" ControlType="XRTableCell" Name="tableCell16" Weight="0.93211363225744892" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="824" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="825" ControlType="XRTableCell" Name="tableCell24" Weight="0.93211367924444333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="826" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="827" ControlType="XRTableCell" Name="tableCell22" Weight="0.9321136880594646">
+                      <ExpressionBindings>
+                        <Item1 Ref="828" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="829" ControlType="XRTableCell" Name="tableCell21" Weight="0.9321136548842" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="830" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="831" ControlType="XRTableCell" Name="tableCell19" Weight="0.93211364077630776" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="832" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="833" ControlType="XRTableCell" Name="tableCell25" Weight="1.1769700101213514" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="834" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="835" ControlType="XRTableCell" Name="tableCell34" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="836" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="837" ControlType="XRTableCell" Name="tableCell33" Weight="1.05095591120129" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="838" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="839" ControlType="XRTableCell" Name="tableCell31" Weight="1.253389129239739" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="840" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="841" ControlType="XRTableCell" Name="tableCell30" Weight="0.79653348336063945" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="842" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="843" ControlType="XRTableCell" Name="tableCell27" Weight="0.78422731809588986" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="844" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="845" ControlType="XRTableCell" Name="tableCell36" Weight="1.4975618491054019" Multiline="true" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="846" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="847" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="848" ControlType="XRTableCell" Name="tableCell9" Weight="0.83414436316860419" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="849" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Large_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                </Item1>
+                <Item2 Ref="850" ControlType="XRTableRow" Name="tableRow7" Weight="1" Borders="Left, Top, Right">
+                  <Cells>
+                    <Item1 Ref="851" ControlType="XRTableCell" Name="tableCell103" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="852" ControlType="XRTableCell" Name="tableCell104" Weight="0.63950112860978248" Multiline="true" Text="中型" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="853" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="854" ControlType="XRTableCell" Name="tableCell105" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="855" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="856" ControlType="XRTableCell" Name="tableCell106" Weight="0.98848262001671638">
+                      <ExpressionBindings>
+                        <Item1 Ref="857" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="858" ControlType="XRTableCell" Name="tableCell107" Weight="1.0115173799832835" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="859" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="860" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="861" ControlType="XRTableCell" Name="tableCell108" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="862" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="863" ControlType="XRTableCell" Name="tableCell109" Weight="0.93211363225744892" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="864" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="865" ControlType="XRTableCell" Name="tableCell110" Weight="0.93211367924444333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="866" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="867" ControlType="XRTableCell" Name="tableCell111" Weight="0.9321136880594646">
+                      <ExpressionBindings>
+                        <Item1 Ref="868" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="869" ControlType="XRTableCell" Name="tableCell112" Weight="0.9321136548842" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="870" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="871" ControlType="XRTableCell" Name="tableCell113" Weight="0.93211364077630776" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="872" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="873" ControlType="XRTableCell" Name="tableCell114" Weight="1.1769700101213514" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="874" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="875" ControlType="XRTableCell" Name="tableCell115" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="876" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="877" ControlType="XRTableCell" Name="tableCell116" Weight="1.05095591120129" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="878" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="879" ControlType="XRTableCell" Name="tableCell117" Weight="1.253389129239739" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="880" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="881" ControlType="XRTableCell" Name="tableCell118" Weight="0.796533489208415" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="882" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="883" ControlType="XRTableCell" Name="tableCell119" Weight="0.78422731639502208" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="884" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="885" ControlType="XRTableCell" Name="tableCell120" Weight="1.497561844958494" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="886" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="887" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="888" ControlType="XRTableCell" Name="tableCell121" Weight="0.83414436316860419" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="889" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Medium_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="890" UseBorders="false" />
+                </Item2>
+                <Item3 Ref="891" ControlType="XRTableRow" Name="tableRow5" Weight="1" Borders="Left, Top, Right">
+                  <Cells>
+                    <Item1 Ref="892" ControlType="XRTableCell" Name="tableCell39" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="893" ControlType="XRTableCell" Name="tableCell40" Weight="0.63950112860978248" Multiline="true" Text="小型" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="894" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="895" ControlType="XRTableCell" Name="tableCell42" Weight="1" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="896" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                    </Item3>
+                    <Item4 Ref="897" ControlType="XRTableCell" Name="tableCell45" Weight="0.98848262001671638">
+                      <ExpressionBindings>
+                        <Item1 Ref="898" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_NobeRinCnt]" />
+                      </ExpressionBindings>
+                    </Item4>
+                    <Item5 Ref="899" ControlType="XRTableCell" Name="tableCell48" Weight="1.0115173799832835" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="900" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="901" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="902" ControlType="XRTableCell" Name="tableCell49" Weight="0.93211365211959429" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="903" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_NobeJitCnt]" />
+                      </ExpressionBindings>
+                    </Item6>
+                    <Item7 Ref="904" ControlType="XRTableCell" Name="tableCell51" Weight="0.93211363225744892" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="905" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_JitudoRitu]" />
+                      </ExpressionBindings>
+                    </Item7>
+                    <Item8 Ref="906" ControlType="XRTableCell" Name="tableCell54" Weight="0.93211367924444333" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="907" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                    </Item8>
+                    <Item9 Ref="908" ControlType="XRTableCell" Name="tableCell55" Weight="0.93211368805946448">
+                      <ExpressionBindings>
+                        <Item1 Ref="909" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                    </Item9>
+                    <Item10 Ref="910" ControlType="XRTableCell" Name="tableCell57" Weight="0.93211365488419973" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="911" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                    </Item10>
+                    <Item11 Ref="912" ControlType="XRTableCell" Name="tableCell61" Weight="0.93211364077630776" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="913" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                    </Item11>
+                    <Item12 Ref="914" ControlType="XRTableCell" Name="tableCell62" Weight="1.1769700101213514" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="915" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_YusouJin]" />
+                      </ExpressionBindings>
+                    </Item12>
+                    <Item13 Ref="916" ControlType="XRTableCell" Name="tableCell77" Weight="1.0135359883656254" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="917" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_UnkoCnt]" />
+                      </ExpressionBindings>
+                    </Item13>
+                    <Item14 Ref="918" ControlType="XRTableCell" Name="tableCell78" Weight="1.05095591120129" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="919" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                    </Item14>
+                    <Item15 Ref="920" ControlType="XRTableCell" Name="tableCell79" Weight="1.253389129239739" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="921" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_UnsoSyu]" />
+                      </ExpressionBindings>
+                    </Item15>
+                    <Item16 Ref="922" ControlType="XRTableCell" Name="tableCell80" Weight="0.796533489208415" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="923" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_DaySoukoKm]" />
+                      </ExpressionBindings>
+                    </Item16>
+                    <Item17 Ref="924" ControlType="XRTableCell" Name="tableCell81" Weight="0.78422731639502208" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="925" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                    </Item17>
+                    <Item18 Ref="926" ControlType="XRTableCell" Name="tableCell82" Weight="1.4975557712919516" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="927" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="928" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="929" ControlType="XRTableCell" Name="tableCell83" Weight="0.83415043683514667" Multiline="true">
+                      <ExpressionBindings>
+                        <Item1 Ref="930" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Small_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="931" UseBorders="false" />
+                </Item3>
+                <Item4 Ref="932" ControlType="XRTableRow" Name="tableRow6" Weight="1" Borders="Left, Top, Right">
+                  <Cells>
+                    <Item1 Ref="933" ControlType="XRTableCell" Name="tableCell84" Weight="1.3604988713902175" Multiline="true" />
+                    <Item2 Ref="934" ControlType="XRTableCell" Name="tableCell85" Weight="0.63950112860978248" Multiline="true" Text="計" TextAlignment="MiddleCenter" Borders="Left, Top, Right">
+                      <StylePriority Ref="935" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="936" ControlType="XRTableCell" Name="tableCell86" Weight="1" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="937" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_NobeJyoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="938" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="939" ControlType="XRTableCell" Name="tableCell87" Weight="0.98848262001671638" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="940" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_NobeRinCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="941" UseBorders="false" />
+                    </Item4>
+                    <Item5 Ref="942" ControlType="XRTableCell" Name="tableCell88" Weight="1.0115173799832835" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="943" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_NobeSumCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="944" UseBorders="false" />
+                    </Item5>
+                    <Item6 Ref="945" ControlType="XRTableCell" Name="tableCell89" Weight="0.93211365211959429" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="946" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_NobeJitCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="947" UseBorders="false" />
+                    </Item6>
+                    <Item7 Ref="948" ControlType="XRTableCell" Name="tableCell90" Weight="0.93211363225744892" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="949" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_JitudoRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="950" UseBorders="false" />
+                    </Item7>
+                    <Item8 Ref="951" ControlType="XRTableCell" Name="tableCell91" Weight="0.93211367924444333" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="952" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_RinjiZouRitu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="953" UseBorders="false" />
+                    </Item8>
+                    <Item9 Ref="954" ControlType="XRTableCell" Name="tableCell92" Weight="0.93211368805946448" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="955" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_SoukoKm_Jisya]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="956" UseBorders="false" />
+                    </Item9>
+                    <Item10 Ref="957" ControlType="XRTableCell" Name="tableCell93" Weight="0.93211365488419973" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="958" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_SoukoKm_Kaiso]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="959" UseBorders="false" />
+                    </Item10>
+                    <Item11 Ref="960" ControlType="XRTableCell" Name="tableCell94" Weight="0.93211364077630776" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="961" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_SoukoKm_Sum]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="962" UseBorders="false" />
+                    </Item11>
+                    <Item12 Ref="963" ControlType="XRTableCell" Name="tableCell95" Weight="1.1769700101213514" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="964" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_YusouJin]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="965" UseBorders="false" />
+                    </Item12>
+                    <Item13 Ref="966" ControlType="XRTableCell" Name="tableCell96" Weight="1.0135359883656254" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="967" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_UnkoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="968" UseBorders="false" />
+                    </Item13>
+                    <Item14 Ref="969" ControlType="XRTableCell" Name="tableCell97" Weight="1.05095591120129" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="970" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_UnkoOthAllCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="971" UseBorders="false" />
+                    </Item14>
+                    <Item15 Ref="972" ControlType="XRTableCell" Name="tableCell98" Weight="1.253389129239739" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="973" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_UnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="974" UseBorders="false" />
+                    </Item15>
+                    <Item16 Ref="975" ControlType="XRTableCell" Name="tableCell99" Weight="0.796533489208415" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="976" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_DaySoukoKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="977" UseBorders="false" />
+                    </Item16>
+                    <Item17 Ref="978" ControlType="XRTableCell" Name="tableCell100" Weight="0.78422731639502208" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="979" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_DayUnsoCnt]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="980" UseBorders="false" />
+                    </Item17>
+                    <Item18 Ref="981" ControlType="XRTableCell" Name="tableCell101" Weight="1.4975557712919516" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="982" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_DayUnsoSyu]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="983" UseBorders="false" />
+                    </Item18>
+                    <Item19 Ref="984" ControlType="XRTableCell" Name="tableCell102" Weight="0.83415043683514667" Multiline="true" Borders="Left, Top, Right">
+                      <ExpressionBindings>
+                        <Item1 Ref="985" EventName="BeforePrint" PropertyName="Text" Expression="[JitHouReportItem1].[Total_UnkoJisyaKm]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="986" UseBorders="false" />
+                    </Item19>
+                  </Cells>
+                  <StylePriority Ref="987" UseBorders="false" />
+                </Item4>
+              </Rows>
+              <StylePriority Ref="988" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item4>
+          </Controls>
+        </Item1>
+      </Bands>
+    </Item4>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item2 Ref="989" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource2" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTIiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item3 Ref="990" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource3" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTMiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item4 Ref="991" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource4" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTQiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item5 Ref="992" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource5" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTUiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item6 Ref="993" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource6" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTYiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item7 Ref="994" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource7" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTciPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item8 Ref="995" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource8" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTgiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item9 Ref="996" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource9" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTkiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5KaXRIb3VSZXBvcnRzLCBIYXNzeWFBbGxyaWdodENsb3VkLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbCIgLz48L09iamVjdERhdGFTb3VyY2U+" />
+    <Item10 Ref="997" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource10" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEwIj48RGF0YVNvdXJjZSBUeXBlPSJIYXNzeWFBbGxyaWdodENsb3VkLkRvbWFpbi5EdG8uSml0SG91UmVwb3J0cywgSGFzc3lhQWxscmlnaHRDbG91ZCwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwiIC8+PC9PYmplY3REYXRhU291cmNlPg==" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

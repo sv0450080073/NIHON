@@ -1,0 +1,23 @@
+﻿@inject IStringLocalizer<ErrorModal> Lang
+
+<DxPopup CssClass="custom-popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @ErrorTitle
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <i class="fa fa-2x fa-info-circle" aria-hidden="true"></i>
+        @(string.IsNullOrEmpty(ErrorMessage) ? Lang["ErrorMessage"] : ErrorMessage)
+    </ChildContent>
+    <FooterTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" CssClass="popupsavedata" @onclick="@(() => { ModalInstance.CloseAsync(ModalResult.Cancel()); })" Text="@Lang["Ok"]" />
+    </FooterTemplate>
+</DxPopup>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [Parameter] public string ErrorTitle { get; set; }
+    [Parameter] public string ErrorMessage { get; set; }
+}

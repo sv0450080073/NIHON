@@ -1,0 +1,49 @@
+﻿
+@if (HasError)
+{
+    <div class="custom-error-message @Position">@DisplayText</div>
+}
+
+@code {
+    [CascadingParameter] EditContext CurrentEditContext { get; set; }
+    [Parameter] public System.Linq.Expressions.Expression<Func<object>> ValueExpressions { get; set; }
+    [Parameter] public Dictionary<string, string> Lang { get; set; }
+    [Parameter] public string Text { get; set; }
+    [Parameter] public PositionTooltip Position { get; set; } = PositionTooltip.right;
+    private bool HasError { get; set; } = false;
+    private string DisplayText { get; set; } = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        SetErrorMessage();
+        base.OnParametersSet();
+    }
+    protected override void OnInitialized()
+    {
+        SetErrorMessage();
+        base.OnInitialized();
+    }
+    private void SetErrorMessage()
+    {
+        if (string.IsNullOrEmpty(Text))
+        {
+            var errorCode = CurrentEditContext?.GetValidationMessages(ValueExpressions)?.FirstOrDefault();
+
+            if (errorCode != null && Lang.ContainsKey(errorCode))
+            {
+                DisplayText = Lang[errorCode];
+                HasError = true;
+            }
+            else
+            {
+                DisplayText = string.Empty;
+                HasError = false;
+            }
+        }
+        else
+        {
+            DisplayText = Text;
+            HasError = true;
+        }
+    }
+}

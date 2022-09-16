@@ -1,0 +1,388 @@
+﻿@inject IJSRuntime JSRuntime
+@inject BusScheduleHelper busScheduleHelper
+@inject ITKD_HaishaDataListService TKD_HaishaDataService
+@inject IBlazorContextMenuService blazorContextMenuService
+
+
+<div class="editable @(Item.Top < Item.Height ? "top": null)" style="@Item.CCSStyle">
+    <div class="time-output" style="@Item.CCSStyleDefault"></div>
+    <div class="@(Container.Param.Mode == (int)BusLineMode.Edit && Item.AllowEdit == true ? "time time-edit" : "time") @(Item.ColorLine)" style="@(Item.ColorLine!="color-dayoff"&&Item.ColorLine!=""?"background-color:"+Item.ColorLine:"")"  >
+        @if (Container.Param.Mode == (int)BusLineMode.View || Container.Param.Mode == (int)BusLineMode.Zoom)
+        {
+            if (Item.AllowDrop == false)
+            {
+                <div class="data-line text" style="text-align:center; padding-left:@(Item.Left < 0 ? Item.Left*(-1): 0)px" data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@Item.Tooltip" @onmousedown="@((e) => HandleMouseDown(e))" @onclick="@((e) => HandleClickMenu(e,Item))">@((MarkupString)Item.Name)</div>
+            }
+            else
+            {
+                <div class="data-line text draggable" style="padding-left:@(Item.Left < 0 ? Item.Left*(-1): 0)px" data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@Item.Tooltip" @onmousedown="@((e) => HandleMouseDown(e))" draggable="true" @ondragstart="@(() => HandleDragStart(Item))" @onclick="@((e) => HandleClickMenu(e,Item))">@((MarkupString)Item.Name)</div>
+            }
+        } 
+        else if (Container.Param.Mode == (int)BusLineMode.Edit)
+        {
+            if (Item.AllowEdit == true)
+            {
+                <div class="left-ico" @onmousedown="@(() => OnHandleMouseDownStart(Item, 1))"></div>
+                <div class="data-line text" style="padding-left:@(Item.Left < 0 ? Item.Left*(-1): 0)px">@((MarkupString)Item.Name)</div>
+                <div class="right-ico" @onmousedown="@(() => OnHandleMouseDownStart(Item, 2))"></div>
+            }
+            else
+            {
+                <div class="left-ico"></div>
+                <div class="data-line text" style="padding-left:@(Item.Left < 0 ? Item.Left*(-1): 0)px">@((MarkupString)Item.Name)</div>
+                <div class="right-ico"></div>
+            }
+        }
+        else if (Container.Param.Mode == (int)BusLineMode.Repair)
+        {
+            <div class="data-line text" style="padding-left:@(Item.Left < 0 ? Item.Left * (-1) : 0)px">
+                @((MarkupString)Item.Name)
+            </div>
+        }
+        else if (Container.Param.Mode == (int)BusLineMode.Cut)
+        {
+            if (Item.AllowDrop == false)
+            {
+                <div class="data-line text" style="text-align:center; padding-left:@(Item.Left < 0 ? Item.Left * (-1) : 0)px" data-toggle="tooltip" data-html="true" data-placement="right" data-original-title="@Item.Tooltip" @onmousedown="@((e) => HandleMouseDown(e))">@((MarkupString)Item.Name)</div>
+            }
+            else
+            {
+                <div class="data-line text" style="padding-left:@(Item.Left < 0 ? Item.Left * (-1) : 0)px" @onmouseover="@((e) => OnCuttingMouseOver(e))">@((MarkupString)Item.Name)</div>
+                @if (enableCuting)
+                {
+                    DateTime start, end;
+                    DateTime.TryParseExact(Item.StartDate + Item.TimeStart.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out start);
+                    DateTime.TryParseExact(Item.EndDate + Item.TimeEnd.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out end);
+                    double counterLine = (double)Math.Round(Item.Width / childWidth);
+                    <div class="line-inprogress">
+                        @for (double i = 0; i < counterLine; i++)
+                        {
+                            double breakDateTime = (double)Math.Round(i * time, 2);
+                            string target = start.AddMinutes(breakDateTime).ToString("yyyy/MM/dd HH:mm");
+                            var targetDate = start.AddMinutes(breakDateTime);
+                            string positionTooltip = (targetDate >= startView && targetDate < midView) ? "left" : "right";
+                            if (i == 0 || i == counterLine - 1)
+                            {
+                                <div class="line-child @positionTooltip no-cut" data-title="@target" style="width:@(childWidth)px;"></div>
+                            }
+                            else
+                            {
+                                <div class="line-child @positionTooltip" data-title="@target" style="width:@(childWidth)px;" @onclick="@((e) => OnHandleClickCut(e, Item, breakDateTime, time))"></div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        }
+    </div>    
+ </div>
+
+@if (Item.AllowEdit == true && startMove == 1)
+{
+    <div style="top: -800px; left: 0px; position: absolute; width: 100%; min-height: 1900px; z-index:100;"
+         @onmousemove="@((e) => ChildMouseMove(e, 1))" @onmouseup="@(() => ChildMouseUp(0))" @onmouseout="@(() => ChildMouseOver(3))">
+    </div>
+}
+
+
+@code {
+    [CascadingParameter] S_Container Container { get; set; }
+    [Parameter] public ItemStaff Item { get; set; }
+    private bool enableCuting = false;
+    double startMove = 0;
+    DateTime startView;
+    DateTime endView;
+    DateTime midView;
+    double childMouse;
+    double childWidth = 20;
+    int IsLeft { get; set; } = 0;
+    public double StartX { get; set; } = -1;
+    public double StartY { get; set; } = -1;
+    double time = 5;
+    bool IsShow = false;
+
+
+    private async Task HandleMouseDown(MouseEventArgs e)
+    {
+        await JSRuntime.InvokeVoidAsync("removeTooltip");
+    }
+
+    private async Task HandleDragStart(ItemStaff selectedJob)
+    {
+        if(Container.OnMouseDown == true && Container.Param.Mode != 1)
+        {
+            return;
+        }
+        Container.Payload = selectedJob;
+        Container.OnMouseDown = false;
+        await JSRuntime.InvokeVoidAsync("removeTooltip");
+        await blazorContextMenuService.HideMenu("MenuRepair");
+        await blazorContextMenuService.HideMenu("MenuSplit");
+        await blazorContextMenuService.HideMenu("MenuDate");
+    }
+     private async Task ChildMouseOver(double dataInt)
+    {
+        startMove = 0;
+        StartX = -1;
+        IsLeft = -1;
+    }
+    private async Task HandleClickMenu(MouseEventArgs e, ItemStaff item)
+    {
+        await JSRuntime.InvokeVoidAsync("removeTooltip");
+        await Container.UpdateMenuAsync(item);
+    }
+
+    private void OnHandleMouseDownStart(ItemStaff selectedItem, int isLeft)
+    {
+        startMove = 1;
+        IsLeft = isLeft;
+        StartX = -1;
+        JSRuntime.InvokeVoidAsync("loadPageScript", "busSchedulePage", "Setzindex",selectedItem.BusLine,3);
+        // ToDo
+    }
+    private void ChildMouseMove(MouseEventArgs e, double dataInt)
+    {
+        int d = Container.Param.Number_of_days;
+        childMouse = e.ClientX;
+        //JSRuntime.InvokeVoidAsync("console.log", "Data line mouse move => " + dataInt.ToString());
+        if (IsLeft == 2)
+        {
+            if (StartX == -1)
+            {
+                StartX = e.ClientX;
+            }
+            double iWidth = Item.Width;
+            iWidth += (e.ClientX - StartX);
+            //Item.Name = "Editing able";
+            Item.CCSStyle = "width:" + iWidth.ToString() + "px;height:" + Item.Height.ToString() + "rem;top:" + Item.Top.ToString() + "rem;left:" + Item.Left.ToString() + "px;";
+            Item.CCSStyleDefault = "width:" + Item.WidthDefault.ToString() + "px;height:" + Item.Height.ToString() + "rem;top:0;left:" + Item.LeftDefault.ToString() + "px;";
+            StartX = e.ClientX;
+            double compairwith = Item.WidthDefault / Item.Width;
+            if (iWidth > Item.MaxWidth && Item.MaxWidth != -1 && Item.MaxWidth>0)
+            {
+                Item.Width = Item.MaxWidth;
+                Item.WidthDefault = Item.Width * compairwith;
+                DateTime datestart = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left, d, Container.Date);
+                Item.StartDate = datestart.ToString("yyyyMMdd");
+                Item.TimeStart = int.Parse(datestart.ToString("HHmm"));
+                DateTime dateend = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left + Item.Width, d, Container.Date);
+                Item.EndDate = dateend.ToString("yyyyMMdd");
+                Item.TimeEnd = int.Parse(dateend.ToString("HHmm"));
+
+
+            }
+            else
+            {
+                DateTime datestart = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left, d, Container.Date);
+                DateTime dateminwidth = datestart.AddMinutes(15);
+                double minwidth=busScheduleHelper.calwidth(Container.Width,datestart.ToString("yyyyMMdd"),datestart.ToString("HHmm") , dateminwidth.ToString("yyyyMMdd"),dateminwidth.ToString("HHmm"), Container.Param.Number_of_days);
+                if(iWidth<=minwidth)
+                {
+                    iWidth = minwidth;
+                }
+                Item.Width = iWidth;
+                Item.WidthDefault = Item.Width * compairwith;
+                Item.StartDate = datestart.ToString("yyyyMMdd");
+                Item.TimeStart = int.Parse(datestart.ToString("HHmm"));
+                DateTime dateend = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left + Item.Width, d, Container.Date);
+                Item.EndDate = dateend.ToString("yyyyMMdd");
+                Item.TimeEnd = int.Parse(dateend.ToString("HHmm"));
+
+            }
+            if (Item.ColorLine == "color-11")
+            {
+                Item.ColorLine = "color-10";
+            }
+        }
+        else if (IsLeft == 1)
+        {
+            double compairwith = Item.WidthDefault / Item.Width;
+            if (StartX == -1)
+            {
+                StartX = e.ClientX;
+            }
+            double iWidth = Item.Width;
+            if (e.ClientX < StartX)
+            {
+                iWidth += (StartX - e.ClientX);
+                Item.Left -= (StartX - e.ClientX);
+                if (Item.Left < Item.MinLeft && Item.MinLeft != -1)
+                {
+                    Item.Left = Item.MinLeft;
+                    iWidth = Item.Width;
+                }
+                DateTime datestart = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left, d, Container.Date);
+                DateTime dateminwidth = datestart.AddMinutes(15);
+                double minwidth=busScheduleHelper.calwidth(Container.Width,datestart.ToString("yyyyMMdd"),datestart.ToString("HHmm") , dateminwidth.ToString("yyyyMMdd"),dateminwidth.ToString("HHmm"), Container.Param.Number_of_days);
+                if (iWidth < 20)
+                {
+                    Item.Width = 20;
+                    iWidth = 20;
+                }
+                Item.Width = iWidth;
+                Item.WidthDefault = Item.Width * compairwith;
+                Item.StartDate = datestart.ToString("yyyyMMdd");
+                Item.TimeStart = int.Parse(datestart.ToString("HHmm"));
+                DateTime dateend = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left + Item.Width, d, Container.Date);
+                Item.EndDate = dateend.ToString("yyyyMMdd");
+                Item.TimeEnd = int.Parse(dateend.ToString("HHmm"));
+            }
+            else if (e.ClientX > StartX)
+            {
+                iWidth += (StartX - e.ClientX);
+                DateTime datestart = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left, d, Container.Date);
+                DateTime dateminwidth = datestart.AddMinutes(15);
+                double minwidth=busScheduleHelper.calwidth(Container.Width,datestart.ToString("yyyyMMdd"),datestart.ToString("HHmm") , dateminwidth.ToString("yyyyMMdd"),dateminwidth.ToString("HHmm"), Container.Param.Number_of_days);
+                if (iWidth < 20)
+                {
+                    Item.Width = 20;
+                    iWidth = 20;
+                }
+                else
+                {
+                    Item.Left += (e.ClientX - StartX);
+                    Item.Width = iWidth;
+                    Item.WidthDefault = Item.Width * compairwith;
+                    Item.StartDate = datestart.ToString("yyyyMMdd");
+                    Item.TimeStart = int.Parse(datestart.ToString("HHmm"));
+                    DateTime dateend = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left + Item.Width, d, Container.Date);
+                    Item.EndDate = dateend.ToString("yyyyMMdd");
+                    Item.TimeEnd = int.Parse(dateend.ToString("HHmm"));
+                }
+            }
+            Item.CCSStyle = "width:" + iWidth.ToString() + "px;height:" + Item.Height.ToString() + "rem;top:" + Item.Top.ToString() + "rem;left:" + Item.Left.ToString() + "px;";
+            Item.CCSStyleDefault = "width:" + Item.WidthDefault.ToString() + "px;height:" + Item.Height.ToString() + "rem;top:0;left:" + Item.LeftDefault.ToString() + "px;";
+            StartX = e.ClientX;
+            if (Item.ColorLine == "color-11")
+            {
+                Item.ColorLine = "color-10";
+            }
+            
+        }
+         JSRuntime.InvokeVoidAsync("console.log", "Data line min left => " + Item.MinLeft);
+        JSRuntime.InvokeVoidAsync("console.log", "Data line max width => " + Item.MaxWidth);
+        return;
+    }
+     private async Task ChildMouseUp(double dataInt)
+    {
+        if (Container.Param.Mode == (int)BusLineMode.Edit)
+        {
+            int d = Container.Param.Number_of_days;
+            startMove = 0;
+            //await isClickedLine.InvokeAsync(dataInt);
+
+            DateTime datestart = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left, d, Container.Date);
+            DateTime dateend = busScheduleHelper.convertwidthtodate(Container.Width, Item.Left + Item.Width, d, Container.Date);
+            TKD_HaishaDataService.UpdateStafftimedata(Item, 1, datestart, dateend);
+            await JSRuntime.InvokeVoidAsync("console.log", "ChildMouseUp Clicked => " + Item.BusLine.ToString());
+            await JSRuntime.InvokeVoidAsync("loadPageScript", "busSchedulePage", "Setzindex",Item.BusLine,2);
+            await Container.UpdateLineCutAsync("reloadgrid");
+        }
+
+    }
+
+    private void OnCuttingMouseOver(MouseEventArgs e)
+    {
+        enableCuting = true;
+    }
+
+    private async Task OnHandleClickCut(MouseEventArgs e, ItemStaff selectedItem, double breakDateTime, double spaceTime)
+    {
+        await JSRuntime.InvokeVoidAsync("removeTooltip");
+        if (selectedItem.AllowCut ==true )
+        {
+            DateTime start, end, startdefault, enddefault;
+            DateTime.TryParseExact(selectedItem.StartDate + selectedItem.TimeStart.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out start);
+            DateTime.TryParseExact(selectedItem.EndDate + selectedItem.TimeEnd.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out end);
+            DateTime.TryParseExact(selectedItem.StartDateDefault + selectedItem.TimeStartDefault.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startdefault);
+            DateTime.TryParseExact(selectedItem.EndDateDefault + selectedItem.TimeEndDefault.ToString("D4"), "yyyyMMddHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out enddefault);
+            double spacestart = (start - startdefault).TotalMinutes;
+            double spaceend = (enddefault - end).TotalMinutes;
+
+            SplitBusData busdate1 = new SplitBusData();
+            busdate1.SyuKoYmd = selectedItem.StartDateDefault;
+            busdate1.SyuKoTime = selectedItem.TimeStartDefault.ToString("D4");
+            busdate1.HaiSYmd = selectedItem.StartDate;
+            busdate1.HaiSTime = selectedItem.TimeStart.ToString("D4");
+            busdate1.SyuPaTime = busdate1.HaiSTime;
+            busdate1.TouYmd = start.AddMinutes((double)(breakDateTime)).ToString("yyyyMMdd");
+            busdate1.TouChTime = start.AddMinutes((double)(breakDateTime)).ToString("HHmm");
+            busdate1.KikYmd = start.AddMinutes((double)(breakDateTime)).ToString("yyyyMMdd");
+            busdate1.KikTime = start.AddMinutes((double)(breakDateTime)).ToString("HHmm");
+
+            SplitBusData busdate2 = new SplitBusData();
+            busdate2.SyuKoYmd = start.AddMinutes((double)(breakDateTime + spaceTime)).ToString("yyyyMMdd");
+            busdate2.SyuKoTime = start.AddMinutes((double)(breakDateTime + spaceTime)).ToString("HHmm");
+            busdate2.HaiSYmd = start.AddMinutes((double)(breakDateTime + spaceTime)).ToString("yyyyMMdd");
+            busdate2.HaiSTime = start.AddMinutes((double)(breakDateTime + spaceTime)).ToString("HHmm");
+            busdate2.SyuPaTime = busdate2.HaiSTime;
+            busdate2.TouYmd = selectedItem.EndDate;
+            busdate2.TouChTime = selectedItem.TimeEnd.ToString("D4");
+            busdate2.KikYmd = selectedItem.EndDateDefault;
+            busdate2.KikTime = selectedItem.TimeEndDefault.ToString("D4");
+            TKD_HaishaDataService.SplitBusUpdate(selectedItem.BookingId, selectedItem.HaUnkRen, selectedItem.TeiDanNo, selectedItem.BunkRen, busdate1, busdate2, new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq,"KU1300");
+
+            await Container.UpdateLineCutAsync("reloadgrid");
+        }
+        // ToDo
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("loadComponentScript", "editItemComponent", "setHover");
+            if (Container.Param.Mode == (int)BusLineMode.View || Container.Param.Mode == (int)BusLineMode.Zoom || Container.Param.Mode == (int)BusLineMode.Cut)
+            {
+                await JSRuntime.InvokeVoidAsync("loadComponentScript", "editItemComponent", "setTooltip");
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("loadComponentScript", "editItemComponent");
+        // 1day-15minute
+        if (Container.Param.TimeRange == (int)TimeMode.Minute)
+        {
+            childWidth = 20;
+            time = 5;
+        }
+        // 1day-1hour, 1day-3hours, 1day-6hour, 3days-1hour, 1week-1hour, 1month-1hour
+        if (Container.Param.DisplayRange == (int)DayMode.OneDay && Container.Param.TimeRange == (int)TimeMode.OneHour ||
+            Container.Param.DisplayRange == (int)DayMode.OneDay && Container.Param.TimeRange == (int)TimeMode.ThreeHours ||
+            Container.Param.DisplayRange == (int)DayMode.OneDay && Container.Param.TimeRange == (int)TimeMode.SixHours ||
+            Container.Param.DisplayRange == (int)DayMode.ThreeDays && Container.Param.TimeRange == (int)TimeMode.OneHour ||
+            Container.Param.DisplayRange == (int)DayMode.Week && Container.Param.TimeRange == (int)TimeMode.OneHour ||
+            Container.Param.DisplayRange == (int)DayMode.Month && Container.Param.TimeRange == (int)TimeMode.OneHour)
+        {
+            childWidth = Container.Width / (Container.Param.Number_of_days * 96);
+            time = 15;
+        }
+        // 3days-3hours, 3days-6hours, 1week-3hours, 1week-6hours
+        if (Container.Param.DisplayRange == (int)DayMode.ThreeDays && Container.Param.TimeRange == (int)TimeMode.ThreeHours ||
+            Container.Param.DisplayRange == (int)DayMode.ThreeDays && Container.Param.TimeRange == (int)TimeMode.SixHours ||
+            Container.Param.DisplayRange == (int)DayMode.Week && Container.Param.TimeRange == (int)TimeMode.ThreeHours ||
+            Container.Param.DisplayRange == (int)DayMode.Week && Container.Param.TimeRange == (int)TimeMode.SixHours)
+        {
+            childWidth = Container.Width / (Container.Param.Number_of_days * 48);
+            time = 30;
+        }
+        // 1week-1day, 1month-3hours, 1month-1day, 1month-6hours -->
+        if (Container.Param.DisplayRange == (int)DayMode.Week && Container.Param.TimeRange == (int)TimeMode.Day ||
+            Container.Param.DisplayRange == (int)DayMode.Month && Container.Param.TimeRange == (int)TimeMode.ThreeHours ||
+            Container.Param.DisplayRange == (int)DayMode.Month && Container.Param.TimeRange == (int)TimeMode.SixHours ||
+            Container.Param.DisplayRange == (int)DayMode.Month && Container.Param.TimeRange == (int)TimeMode.Day)
+        {
+            childWidth = Container.Width / (Container.Param.Number_of_days * 24);
+            time = 60;
+        }
+
+        startView = new DateTime(Container.Date.Year, Container.Date.Month, Container.Date.Day, 0, 0, 0);
+        var endDate = Container.Date.AddDays(Container.Param.Number_of_days);
+        endView = new DateTime(endDate.Year, endDate.Month, endDate.Day, 0, 0, 0);
+        var midDate = Container.Date.AddDays((int)(Container.Param.Number_of_days / 2));
+        midView = new DateTime(midDate.Year, midDate.Month, midDate.Day, 12, 0, 0);
+        IsShow = Item.IsShow;
+    }
+}

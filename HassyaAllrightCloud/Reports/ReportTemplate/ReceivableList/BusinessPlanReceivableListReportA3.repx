@@ -1,0 +1,727 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="20.1.4.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v20.1, Version=20.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="BusinessPlanReceivableListReportA3" Landscape="true" Margins="49, 53, 162, 32" PaperKind="A3" PageWidth="1654" PageHeight="1169" Version="20.1" DataSource="#Ref-0" Font="MS PGothic, 7pt, charSet=0">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="162">
+      <Controls>
+        <Item1 Ref="3" ControlType="XRLabel" Name="label15" Multiline="true" Text="営業コード：" TextAlignment="MiddleCenter" SizeF="87.49994,23" LocationFloat="865.065857,98.75" Padding="2,2,0,0,100">
+          <StylePriority Ref="4" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="5" ControlType="XRLabel" Name="label7" Multiline="true" Text="label15" TextAlignment="MiddleLeft" SizeF="193.455444,23.0000076" LocationFloat="1320.83081,99.00002" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="6" EventName="BeforePrint" PropertyName="Text" Expression="[SpecifyPayment]" />
+          </ExpressionBindings>
+          <StylePriority Ref="7" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="8" ControlType="XRLabel" Name="label61" Multiline="true" Text="未収指定：" TextAlignment="MiddleCenter" SizeF="52.2825928,23.0000038" LocationFloat="1268.54834,62.91668" Padding="2,2,0,0,100">
+          <StylePriority Ref="9" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="10" ControlType="XRTable" Name="table1" SizeF="1550.04138,39.9999847" LocationFloat="0,122.000015" Padding="2,2,0,0,96">
+          <Rows>
+            <Item1 Ref="11" ControlType="XRTableRow" Name="tableRow1" Weight="1.6" TextAlignment="MiddleCenter">
+              <Cells>
+                <Item1 Ref="12" ControlType="XRTableCell" Name="tableCell1" Weight="0.398981246359857" Multiline="true" Text="№" TextAlignment="MiddleCenter" Borders="Left, Top" BorderWidth="0.5">
+                  <StylePriority Ref="13" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="14" ControlType="XRTableCell" Name="tableCell2" Weight="1.601018753640143" Multiline="true" Text="請求先" TextAlignment="MiddleCenter" Borders="Left, Top" BorderWidth="0.5">
+                  <StylePriority Ref="15" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="16" ControlType="XRTableCell" Name="tableCell15" Weight="3.8868906798816454" Multiline="true" Borders="Left, Top" BorderWidth="0.5">
+                  <Controls>
+                    <Item1 Ref="17" ControlType="XRLabel" Name="label23" Multiline="true" Text="未収残" SizeF="83.75,20" LocationFloat="251.827026,20.0000153" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="18" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="19" ControlType="XRLabel" Name="label22" Multiline="true" Text="入金累計" SizeF="83.75,20" LocationFloat="167.9328,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="20" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="21" ControlType="XRLabel" Name="label21" Multiline="true" Text="手数料" SizeF="83.75,20" LocationFloat="84.0386353,19.9999847" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="22" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="23" ControlType="XRLabel" Name="label20" Multiline="true" Text="金額／税" SizeF="83.75,20" LocationFloat="0,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="24" UseBorders="false" />
+                    </Item4>
+                    <Item5 Ref="25" ControlType="XRLabel" Name="label16" Multiline="true" Text="運賃" SizeF="335.577026,20" LocationFloat="1.52587891E-05,3.05175781E-05" Padding="2,2,0,0,100" Borders="Bottom">
+                      <StylePriority Ref="26" UseBorders="false" />
+                    </Item5>
+                  </Controls>
+                  <StylePriority Ref="27" UseBorders="false" UseBorderWidth="false" />
+                </Item3>
+                <Item4 Ref="28" ControlType="XRTableCell" Name="tableCell14" Weight="3.8868906798816463" Multiline="true" Borders="Left, Top" BorderWidth="0.5">
+                  <Controls>
+                    <Item1 Ref="29" ControlType="XRLabel" Name="label24" Multiline="true" Text="売上／税" SizeF="83.75,20" LocationFloat="0,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="30" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="31" ControlType="XRLabel" Name="label25" Multiline="true" Text="手数料" SizeF="83.75,20" LocationFloat="84.0392761,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="32" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="33" ControlType="XRLabel" Name="label26" Multiline="true" Text="入金累計" SizeF="83.75,20" LocationFloat="167.933441,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="34" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="35" ControlType="XRLabel" Name="label27" Multiline="true" Text="未収残" SizeF="83.75,20" LocationFloat="251.826141,20.0000153" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="36" UseBorders="false" />
+                    </Item4>
+                    <Item5 Ref="37" ControlType="XRLabel" Name="label17" Multiline="true" Text="ガイド料" SizeF="335.576141,20" LocationFloat="0,3.05175781E-05" Padding="2,2,0,0,100" Borders="Bottom">
+                      <StylePriority Ref="38" UseBorders="false" />
+                    </Item5>
+                  </Controls>
+                  <StylePriority Ref="39" UseBorders="false" UseBorderWidth="false" />
+                </Item4>
+                <Item5 Ref="40" ControlType="XRTableCell" Name="tableCell16" Weight="3.8868906798816454" Multiline="true" Borders="Left, Top" BorderWidth="0.5">
+                  <Controls>
+                    <Item1 Ref="41" ControlType="XRLabel" Name="label28" Multiline="true" Text="売上／税" SizeF="83.75,20" LocationFloat="0,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="42" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="43" ControlType="XRLabel" Name="label29" Multiline="true" Text="手数料" SizeF="83.75,20" LocationFloat="84.03784,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="44" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="45" ControlType="XRLabel" Name="label30" Multiline="true" Text="入金累計" SizeF="83.75,20" LocationFloat="167.9317,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="46" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="47" ControlType="XRLabel" Name="label31" Multiline="true" Text="未収残" SizeF="83.75,20" LocationFloat="251.828308,20.0000153" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="48" UseBorders="false" />
+                    </Item4>
+                    <Item5 Ref="49" ControlType="XRLabel" Name="label18" Multiline="true" Text="その他付帯" SizeF="335.576,19.9999847" LocationFloat="0,3.05175781E-05" Padding="2,2,0,0,100" Borders="Bottom">
+                      <StylePriority Ref="50" UseBorders="false" />
+                    </Item5>
+                  </Controls>
+                  <StylePriority Ref="51" UseBorders="false" UseBorderWidth="false" />
+                </Item5>
+                <Item6 Ref="52" ControlType="XRTableCell" Name="tableCell17" Weight="2.9151680099112331" Multiline="true" Borders="Left, Top" BorderWidth="0.5">
+                  <Controls>
+                    <Item1 Ref="53" ControlType="XRLabel" Name="label34" Multiline="true" Text="金額／税" SizeF="83.75,20" LocationFloat="0,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="54" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="55" ControlType="XRLabel" Name="label33" Multiline="true" Text="入金累計" SizeF="83.75,20" LocationFloat="84.04077,20" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="56" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="57" ControlType="XRLabel" Name="label32" Multiline="true" Text="未収残" SizeF="83.75,20" LocationFloat="167.932,20.0000153" Padding="2,2,0,0,100" Borders="Left">
+                      <StylePriority Ref="58" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="59" ControlType="XRLabel" Name="label19" Multiline="true" Text="キャンセル料" SizeF="251.681885,19.9999847" LocationFloat="0.000122070313,3.05175781E-05" Padding="2,2,0,0,100" Borders="Bottom">
+                      <StylePriority Ref="60" UseBorders="false" />
+                    </Item4>
+                  </Controls>
+                  <StylePriority Ref="61" UseBorders="false" UseBorderWidth="false" />
+                </Item6>
+                <Item7 Ref="62" ControlType="XRTableCell" Name="tableCell18" Weight="1.3778930908495255" Multiline="true" Text="未収残合計" Borders="Left, Top, Right" BorderWidth="0.5">
+                  <StylePriority Ref="63" UseBorders="false" UseBorderWidth="false" />
+                </Item7>
+              </Cells>
+              <StylePriority Ref="64" UseTextAlignment="false" />
+            </Item1>
+          </Rows>
+        </Item4>
+        <Item5 Ref="65" ControlType="XRPageInfo" Name="pageInfo1" TextFormatString="{0}/{1} ページ" TextAlignment="MiddleCenter" SizeF="94.23645,23" LocationFloat="1455.8053,0" Padding="2,2,0,0,100">
+          <StylePriority Ref="66" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="67" ControlType="XRLabel" Name="label1" Multiline="true" Text="未収明細一覧表（業者合計）" SizeF="260.416656,22.9999981" LocationFloat="716.812134,10.0000172" Font="MS UI Gothic, 15pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="68" UseFont="false" />
+        </Item6>
+        <Item7 Ref="69" ControlType="XRLabel" Name="label2" Multiline="true" Text="請求営業所 ：" TextAlignment="MiddleCenter" SizeF="63.88889,23" LocationFloat="0.0002755059,98.74997" Padding="2,2,0,0,100">
+          <StylePriority Ref="70" UseTextAlignment="false" />
+        </Item7>
+        <Item8 Ref="71" ControlType="XRLabel" Name="label3" Multiline="true" Text="請求対象期間：" TextAlignment="MiddleCenter" SizeF="100,23" LocationFloat="389.2778,62.9166527" Padding="2,2,0,0,100">
+          <StylePriority Ref="72" UseTextAlignment="false" />
+        </Item8>
+        <Item9 Ref="73" ControlType="XRLabel" Name="label4" Multiline="true" Text="請求先コード ：" TextAlignment="MiddleCenter" SizeF="100,23" LocationFloat="389.2778,98.75001" Padding="2,2,0,0,100">
+          <StylePriority Ref="74" UseTextAlignment="false" />
+        </Item9>
+        <Item10 Ref="75" ControlType="XRLabel" Name="label5" Multiline="true" Text="会社コード：" TextAlignment="MiddleCenter" SizeF="87.5,23" LocationFloat="865.065857,62.91668" Padding="2,2,0,0,100">
+          <StylePriority Ref="76" UseTextAlignment="false" />
+        </Item10>
+        <Item11 Ref="77" ControlType="XRLabel" Name="label8" Multiline="true" Text="入金指定：" TextAlignment="MiddleCenter" SizeF="52.28247,23.0000153" LocationFloat="1268.54834,99.00002" Padding="2,2,0,0,100">
+          <StylePriority Ref="78" UseTextAlignment="false" />
+        </Item11>
+        <Item12 Ref="79" ControlType="XRLabel" Name="label9" Multiline="true" Text="label9" TextAlignment="MiddleLeft" SizeF="176.5,23" LocationFloat="63.889164,99.00004" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="80" EventName="BeforePrint" PropertyName="Text" Expression="[BillingOffice]" />
+          </ExpressionBindings>
+          <StylePriority Ref="81" UseTextAlignment="false" />
+        </Item12>
+        <Item13 Ref="82" ControlType="XRLabel" Name="label10" Multiline="true" Text="label10" TextAlignment="MiddleLeft" SizeF="261.805573,23" LocationFloat="489.27774,62.9166527" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="83" EventName="BeforePrint" PropertyName="Text" Expression="[BillingPeriod]" />
+          </ExpressionBindings>
+          <StylePriority Ref="84" UseTextAlignment="false" />
+        </Item13>
+        <Item14 Ref="85" ControlType="XRLabel" Name="label11" Multiline="true" Text="label11" TextAlignment="MiddleLeft" SizeF="261.805573,23" LocationFloat="489.27774,98.75001" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="86" EventName="BeforePrint" PropertyName="Text" Expression="[BillingCode]" />
+          </ExpressionBindings>
+          <StylePriority Ref="87" UseTextAlignment="false" />
+        </Item14>
+        <Item15 Ref="88" ControlType="XRLabel" Name="label12" Multiline="true" Text="label12" TextAlignment="MiddleLeft" SizeF="212.77771,23" LocationFloat="952.565735,62.91668" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="[CompanyCode]" />
+          </ExpressionBindings>
+          <StylePriority Ref="90" UseTextAlignment="false" />
+        </Item15>
+        <Item16 Ref="91" ControlType="XRLabel" Name="label13" Multiline="true" Text="label13" TextAlignment="MiddleLeft" SizeF="212.77771,23" LocationFloat="952.565735,99.00002" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="92" EventName="BeforePrint" PropertyName="Text" Expression="[OfficeCode]" />
+          </ExpressionBindings>
+          <StylePriority Ref="93" UseTextAlignment="false" />
+        </Item16>
+        <Item17 Ref="94" ControlType="XRLabel" Name="label14" Multiline="true" Text="label14" TextAlignment="MiddleLeft" SizeF="193.455322,23.0000076" LocationFloat="1320.83081,62.91668" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="[UnpaidDesignation]" />
+          </ExpressionBindings>
+          <StylePriority Ref="96" UseTextAlignment="false" />
+        </Item17>
+        <Item18 Ref="97" ControlType="XRLabel" Name="label81" TextFormatString="{0:d}" Multiline="true" Text="label81" TextAlignment="MiddleCenter" SizeF="93.92383,23" LocationFloat="1345.118,0" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="98" EventName="BeforePrint" PropertyName="Text" Expression="[OutputDate]" />
+          </ExpressionBindings>
+          <StylePriority Ref="99" UseTextAlignment="false" />
+        </Item18>
+      </Controls>
+    </Item1>
+    <Item2 Ref="100" ControlType="DetailBand" Name="detailBand1" HeightF="0" />
+    <Item3 Ref="101" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="31.6114025">
+      <Controls>
+        <Item1 Ref="102" ControlType="XRLabel" Name="label88" Multiline="true" Text="label67" TextAlignment="MiddleCenter" SizeF="91.14148,23" LocationFloat="1347.33057,4.000115" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="103" EventName="BeforePrint" PropertyName="Text" Expression="[EmployeeCodeOfOutputPerson]" />
+          </ExpressionBindings>
+          <StylePriority Ref="104" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="105" ControlType="XRLabel" Name="label90" Multiline="true" Text="label68" TextAlignment="MiddleCenter" SizeF="94.2362061,23" LocationFloat="1455.8053,4.000115" Padding="2,2,0,0,100">
+          <ExpressionBindings>
+            <Item1 Ref="106" EventName="BeforePrint" PropertyName="Text" Expression="[OutputPersonEmployeeName]" />
+          </ExpressionBindings>
+          <StylePriority Ref="107" UseTextAlignment="false" />
+        </Item2>
+      </Controls>
+    </Item3>
+    <Item4 Ref="108" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="bussinesPlanReceivableGridDatas" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="109" ControlType="DetailBand" Name="Detail" HeightF="40">
+          <Controls>
+            <Item1 Ref="110" ControlType="XRTable" Name="table2" SizeF="1550.04138,40" LocationFloat="0,0" Padding="2,2,0,0,96">
+              <Rows>
+                <Item1 Ref="111" ControlType="XRTableRow" Name="tableRow2" Weight="1.7777779284818802" TextAlignment="MiddleCenter" BorderWidth="0.5">
+                  <Cells>
+                    <Item1 Ref="112" ControlType="XRTableCell" Name="tableCell3" Weight="1.1082801982287984" Multiline="true" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="113" EventName="BeforePrint" PropertyName="Text" Expression="[No]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="114" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="115" ControlType="XRTableCell" Name="tableCell4" Weight="4.4472729471267138" Multiline="true" Borders="Left, Top, Bottom">
+                      <Controls>
+                        <Item1 Ref="116" ControlType="XRLabel" Name="label59" Multiline="true" SizeF="147.049042,20" LocationFloat="1.14440918E-05,0" Padding="2,2,0,0,100" Borders="None" BorderWidth="1">
+                          <ExpressionBindings>
+                            <Item1 Ref="117" EventName="BeforePrint" PropertyName="Text" Expression="[SeikyuCd]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="118" UseBorders="false" UseBorderWidth="false" />
+                        </Item1>
+                        <Item2 Ref="119" ControlType="XRLabel" Name="label60" Multiline="true" SizeF="147.049042,20.0000019" LocationFloat="1.14440918E-05,19.9999752" Padding="2,2,0,0,100" Borders="None" BorderWidth="1">
+                          <ExpressionBindings>
+                            <Item1 Ref="120" EventName="BeforePrint" PropertyName="Text" Expression="[SeikyuNm]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="121" UseBorders="false" UseBorderWidth="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="122" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="123" ControlType="XRTableCell" Name="tableCell5" Weight="2.6945960223795127" Multiline="true" Borders="Left, Top, Bottom">
+                      <Controls>
+                        <Item1 Ref="124" ControlType="XRLabel" Name="label36" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89435,19.9999752" LocationFloat="9.15527344E-05,19.9999752" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="125" EventName="BeforePrint" PropertyName="Text" Expression="[UnSyaRyoSyo]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="126" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="127" ControlType="XRLabel" Name="label35" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89435,19.9999943" LocationFloat="9.15527344E-05,0" Padding="2,2,0,0,96" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="128" EventName="BeforePrint" PropertyName="Text" Expression="[UnUriGakKin]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="129" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="130" UseBorders="false" />
+                    </Item3>
+                    <Item4 Ref="131" ControlType="XRTableCell" Name="tableCell6" Weight="2.7038813665346888" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="132" EventName="BeforePrint" PropertyName="Text" Expression="[UnSyaRyoTes]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="133" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="134" ControlType="XRTableCell" Name="tableCell25" Weight="2.69923508533902" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="135" EventName="BeforePrint" PropertyName="Text" Expression="[UnNyukinG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="136" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="137" ControlType="XRTableCell" Name="tableCell24" Weight="2.6992250542584983" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="138" EventName="BeforePrint" PropertyName="Text" Expression="[UnMisyuG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="139" UseBorders="false" UseTextAlignment="false" />
+                    </Item6>
+                    <Item7 Ref="140" ControlType="XRTableCell" Name="tableCell23" Weight="2.7007168822143144" Multiline="true" Borders="Left, Top, Bottom">
+                      <Controls>
+                        <Item1 Ref="141" ControlType="XRLabel" Name="label37" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8941345,19.9999943" LocationFloat="6.10351563E-05,0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="142" EventName="BeforePrint" PropertyName="Text" Expression="[GaUriGakKin]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="143" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="144" ControlType="XRLabel" Name="label38" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8941345,19.999979" LocationFloat="6.10351563E-05,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="145" EventName="BeforePrint" PropertyName="Text" Expression="[GaSyaRyoSyo]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="146" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="147" UseBorders="false" />
+                    </Item7>
+                    <Item8 Ref="148" ControlType="XRTableCell" Name="tableCell22" Weight="2.6977518820415454" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="149" EventName="BeforePrint" PropertyName="Text" Expression="[GaSyaRyoTes]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="150" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="151" ControlType="XRTableCell" Name="tableCell21" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="152" EventName="BeforePrint" PropertyName="Text" Expression="[GaNyukinG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="153" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="154" ControlType="XRTableCell" Name="tableCell20" Weight="2.6991846962735528" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="155" EventName="BeforePrint" PropertyName="Text" Expression="[GaMisyuG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="156" UseBorders="false" UseTextAlignment="false" />
+                    </Item10>
+                    <Item11 Ref="157" ControlType="XRTableCell" Name="tableCell19" Weight="2.7038612582711594" Multiline="true" Borders="Left, Top, Bottom">
+                      <Controls>
+                        <Item1 Ref="158" ControlType="XRLabel" Name="label39" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.9999943" LocationFloat="0.000122070313,0" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="159" EventName="BeforePrint" PropertyName="Text" Expression="[SoUriGakKin]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="160" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="161" ControlType="XRLabel" Name="label40" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.999979" LocationFloat="0.000122070313,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="162" EventName="BeforePrint" PropertyName="Text" Expression="[SoSyaRyoSyo]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="163" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="164" UseBorders="false" />
+                    </Item11>
+                    <Item12 Ref="165" ControlType="XRTableCell" Name="tableCell13" Weight="2.6992240897253272" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="166" EventName="BeforePrint" PropertyName="Text" Expression="[SoSyaRyoTes]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="167" UseBorders="false" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="168" ControlType="XRTableCell" Name="tableCell12" Weight="2.6945896866539054" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="169" EventName="BeforePrint" PropertyName="Text" Expression="[SoNyukinG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="170" UseBorders="false" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="171" ControlType="XRTableCell" Name="tableCell11" Weight="2.6993121797157045" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="172" EventName="BeforePrint" PropertyName="Text" Expression="[SoMisyuG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="173" UseBorders="false" UseTextAlignment="false" />
+                    </Item14>
+                    <Item15 Ref="174" ControlType="XRTableCell" Name="tableCell10" Weight="2.6991382792253846" Multiline="true" Text="" Borders="Left, Top, Bottom">
+                      <Controls>
+                        <Item1 Ref="175" ControlType="XRLabel" Name="label43" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89111,19.9999943" LocationFloat="0,4.238552E-05" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="176" EventName="BeforePrint" PropertyName="Text" Expression="[CaUriGakKin]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="177" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="178" ControlType="XRLabel" Name="label44" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89111,19.999979" LocationFloat="0.05053711,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <ExpressionBindings>
+                            <Item1 Ref="179" EventName="BeforePrint" PropertyName="Text" Expression="[CaSyaRyoSyo]" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="180" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="181" UseBorders="false" />
+                    </Item15>
+                    <Item16 Ref="182" ControlType="XRTableCell" Name="tableCell9" Weight="2.6993400583701552" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="183" EventName="BeforePrint" PropertyName="Text" Expression="[CaNyukinG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="184" UseBorders="false" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="185" ControlType="XRTableCell" Name="tableCell8" Weight="2.6991149768996268" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Top, Bottom">
+                      <ExpressionBindings>
+                        <Item1 Ref="186" EventName="BeforePrint" PropertyName="Text" Expression="[CaMisyuG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="187" UseBorders="false" UseTextAlignment="false" />
+                    </Item17>
+                    <Item18 Ref="188" ControlType="XRTableCell" Name="tableCell7" Weight="3.8275007633234828" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="All">
+                      <ExpressionBindings>
+                        <Item1 Ref="189" EventName="BeforePrint" PropertyName="Text" Expression="[MisyuG]" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="190" UseBorders="false" UseTextAlignment="false" />
+                    </Item18>
+                  </Cells>
+                  <StylePriority Ref="191" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+              </Rows>
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="192" ControlType="GroupFooterBand" Name="GroupFooter2" RepeatEveryPage="true" HeightF="79.99996">
+          <Controls>
+            <Item1 Ref="193" ControlType="XRTable" Name="table4" SizeF="1550.04138,40" LocationFloat="0.000264909526,39.99996" Padding="2,2,0,0,96">
+              <Rows>
+                <Item1 Ref="194" ControlType="XRTableRow" Name="tableRow4" Weight="1.7777779284818802" TextAlignment="MiddleCenter" BorderWidth="0.5">
+                  <Cells>
+                    <Item1 Ref="195" ControlType="XRTableCell" Name="tableCell26" Weight="5.555552258424779" Multiline="true" Text="頁計" Borders="Left, Bottom">
+                      <StylePriority Ref="196" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="197" ControlType="XRTableCell" Name="tableCell44" Weight="2.6945856666500645" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="198" ControlType="XRLabel" Name="label41" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8943939,19.9999771" LocationFloat="6.10351563E-05,20.0000229" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="199" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="200" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="201" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="202" ControlType="XRLabel" Name="label42" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8943939,20" LocationFloat="6.10351563E-05,0" Padding="2,2,0,0,96" Borders="None">
+                          <Summary Ref="203" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="204" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="205" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="206" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="207" ControlType="XRTableCell" Name="tableCell45" Weight="2.7038830976057953" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="208" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="209" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="210" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="211" ControlType="XRTableCell" Name="tableCell46" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="212" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="213" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="214" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="215" ControlType="XRTableCell" Name="tableCell47" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="216" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="217" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="218" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="219" ControlType="XRTableCell" Name="tableCell48" Weight="2.69923438212793" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="220" ControlType="XRLabel" Name="label53" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.84494,19.9999962" LocationFloat="6.10351563E-05,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="221" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="222" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="223" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="224" ControlType="XRLabel" Name="label54" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.84494,19.9999733" LocationFloat="6.10351563E-05,20.0000267" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="225" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="226" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="227" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="228" UseBorders="false" />
+                    </Item6>
+                    <Item7 Ref="229" ControlType="XRTableCell" Name="tableCell49" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="230" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="231" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="232" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="233" ControlType="XRTableCell" Name="tableCell50" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="234" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="235" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="236" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="237" ControlType="XRTableCell" Name="tableCell51" Weight="2.6991846962735528" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="238" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="239" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="240" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="241" ControlType="XRTableCell" Name="tableCell52" Weight="2.6992284982767534" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="242" ControlType="XRLabel" Name="label55" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.9999962" LocationFloat="0.000122070313,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="243" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="244" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="245" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="246" ControlType="XRLabel" Name="label56" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.9999733" LocationFloat="0.000122070313,20.0000267" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="247" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="248" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="249" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="250" UseBorders="false" />
+                    </Item10>
+                    <Item11 Ref="251" ControlType="XRTableCell" Name="tableCell53" Weight="2.7038588133992323" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="252" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="253" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="254" UseBorders="false" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="255" ControlType="XRTableCell" Name="tableCell54" Weight="2.6945877229744064" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="256" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="257" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="258" UseBorders="false" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="259" ControlType="XRTableCell" Name="tableCell55" Weight="2.6993121797157045" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="260" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="261" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="262" UseBorders="false" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="263" ControlType="XRTableCell" Name="tableCell56" Weight="2.6991382792253846" Multiline="true" Text="" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="264" ControlType="XRLabel" Name="label57" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89099,19.9999962" LocationFloat="0.000122070313,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="265" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="266" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="267" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="268" ControlType="XRLabel" Name="label58" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89099,19.9999733" LocationFloat="0.000122070313,20.0000267" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="269" Running="Report" />
+                          <ExpressionBindings>
+                            <Item1 Ref="270" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="271" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="272" UseBorders="false" />
+                    </Item14>
+                    <Item15 Ref="273" ControlType="XRTableCell" Name="tableCell57" Weight="2.6993304850304751" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="274" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="275" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="276" UseBorders="false" UseTextAlignment="false" />
+                    </Item15>
+                    <Item16 Ref="277" ControlType="XRTableCell" Name="tableCell58" Weight="2.6991245502393069" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="278" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="279" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="280" UseBorders="false" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="281" ControlType="XRTableCell" Name="tableCell59" Weight="3.8275007633234828" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Right, Bottom">
+                      <Summary Ref="282" Running="Report" />
+                      <ExpressionBindings>
+                        <Item1 Ref="283" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[MisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="284" UseBorders="false" UseTextAlignment="false" />
+                    </Item17>
+                  </Cells>
+                  <StylePriority Ref="285" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+              </Rows>
+            </Item1>
+            <Item2 Ref="286" ControlType="XRTable" Name="table3" SizeF="1550.04138,40" LocationFloat="2.6490954E-05,0" Padding="2,2,0,0,96">
+              <Rows>
+                <Item1 Ref="287" ControlType="XRTableRow" Name="tableRow3" Weight="1.7777779284818802" TextAlignment="MiddleCenter" BorderWidth="0.5">
+                  <Cells>
+                    <Item1 Ref="288" ControlType="XRTableCell" Name="tableCell27" Weight="5.555552258424779" Multiline="true" Text="頁計" Borders="Left, Bottom">
+                      <StylePriority Ref="289" UseBorders="false" />
+                    </Item1>
+                    <Item2 Ref="290" ControlType="XRTableCell" Name="tableCell28" Weight="2.6945940126383552" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="291" ControlType="XRLabel" Name="label45" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8943939,19.999979" LocationFloat="4.57763672E-05,20.0000286" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="292" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="293" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="294" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="295" ControlType="XRLabel" Name="label46" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.8943939,19.9999943" LocationFloat="4.57763672E-05,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="296" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="297" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="298" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="299" UseBorders="false" />
+                    </Item2>
+                    <Item3 Ref="300" ControlType="XRTableCell" Name="tableCell29" Weight="2.7038747516175046" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="301" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="302" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="303" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="304" ControlType="XRTableCell" Name="tableCell30" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="305" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="306" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="307" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="308" ControlType="XRTableCell" Name="tableCell31" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="309" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="310" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[UnMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="311" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                    <Item6 Ref="312" ControlType="XRTableCell" Name="tableCell32" Weight="2.69923438212793" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="313" ControlType="XRLabel" Name="label47" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.84494,19.9999943" LocationFloat="6.10351563E-05,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="314" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="315" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="316" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="317" ControlType="XRLabel" Name="label48" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.84494,19.999979" LocationFloat="6.10351563E-05,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="318" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="319" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="320" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="321" UseBorders="false" />
+                    </Item6>
+                    <Item7 Ref="322" ControlType="XRTableCell" Name="tableCell33" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="323" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="324" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="325" UseBorders="false" UseTextAlignment="false" />
+                    </Item7>
+                    <Item8 Ref="326" ControlType="XRTableCell" Name="tableCell34" Weight="2.69923438212793" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="327" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="328" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="329" UseBorders="false" UseTextAlignment="false" />
+                    </Item8>
+                    <Item9 Ref="330" ControlType="XRTableCell" Name="tableCell35" Weight="2.6991846962735528" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="331" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="332" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[GaMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="333" UseBorders="false" UseTextAlignment="false" />
+                    </Item9>
+                    <Item10 Ref="334" ControlType="XRTableCell" Name="tableCell36" Weight="2.6992284982767534" Multiline="true" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="335" ControlType="XRLabel" Name="label49" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.9999943" LocationFloat="0,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="336" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="337" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="338" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="339" ControlType="XRLabel" Name="label50" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89386,19.999979" LocationFloat="0,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="340" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="341" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="342" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="343" UseBorders="false" />
+                    </Item10>
+                    <Item11 Ref="344" ControlType="XRTableCell" Name="tableCell37" Weight="2.7038607771611831" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="345" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="346" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoSyaRyoTes])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="347" UseBorders="false" UseTextAlignment="false" />
+                    </Item11>
+                    <Item12 Ref="348" ControlType="XRTableCell" Name="tableCell38" Weight="2.6945857592124556" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="349" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="350" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="351" UseBorders="false" UseTextAlignment="false" />
+                    </Item12>
+                    <Item13 Ref="352" ControlType="XRTableCell" Name="tableCell39" Weight="2.6993121797157045" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="353" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="354" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[SoMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="355" UseBorders="false" UseTextAlignment="false" />
+                    </Item13>
+                    <Item14 Ref="356" ControlType="XRTableCell" Name="tableCell40" Weight="2.6991382792253846" Multiline="true" Text="" Borders="Left, Bottom">
+                      <Controls>
+                        <Item1 Ref="357" ControlType="XRLabel" Name="label51" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89099,19.9999943" LocationFloat="0.000122070313,0" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="358" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="359" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaUriGakKin])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="360" UseBorders="false" UseTextAlignment="false" />
+                        </Item1>
+                        <Item2 Ref="361" ControlType="XRLabel" Name="label52" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" SizeF="83.89099,19.999979" LocationFloat="0.000122070313,20.0000324" Padding="2,2,0,0,100" Borders="None">
+                          <Summary Ref="362" Running="Page" />
+                          <ExpressionBindings>
+                            <Item1 Ref="363" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaSyaRyoSyo])" />
+                          </ExpressionBindings>
+                          <StylePriority Ref="364" UseBorders="false" UseTextAlignment="false" />
+                        </Item2>
+                      </Controls>
+                      <StylePriority Ref="365" UseBorders="false" />
+                    </Item14>
+                    <Item15 Ref="366" ControlType="XRTableCell" Name="tableCell41" Weight="2.6993304850304751" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="367" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="368" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaNyukinG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="369" UseBorders="false" UseTextAlignment="false" />
+                    </Item15>
+                    <Item16 Ref="370" ControlType="XRTableCell" Name="tableCell42" Weight="2.6991245502393069" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Bottom">
+                      <Summary Ref="371" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="372" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[CaMisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="373" UseBorders="false" UseTextAlignment="false" />
+                    </Item16>
+                    <Item17 Ref="374" ControlType="XRTableCell" Name="tableCell43" Weight="3.8275007633234828" TextFormatString="{0:#,##0}" Multiline="true" TextAlignment="MiddleRight" Borders="Left, Right, Bottom">
+                      <Summary Ref="375" Running="Page" />
+                      <ExpressionBindings>
+                        <Item1 Ref="376" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([bussinesPlanReceivableGridDatas].[MisyuG])" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="377" UseBorders="false" UseTextAlignment="false" />
+                    </Item17>
+                  </Cells>
+                  <StylePriority Ref="378" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+              </Rows>
+            </Item2>
+          </Controls>
+        </Item2>
+      </Bands>
+    </Item4>
+  </Bands>
+  <ComponentStorage>
+    <Item1 Ref="0" ObjectType="DevExpress.DataAccess.ObjectBinding.ObjectDataSource,DevExpress.DataAccess.v20.1" Name="objectDataSource1" Base64="PE9iamVjdERhdGFTb3VyY2UgTmFtZT0ib2JqZWN0RGF0YVNvdXJjZTEiPjxEYXRhU291cmNlIFR5cGU9Ikhhc3N5YUFsbHJpZ2h0Q2xvdWQuRG9tYWluLkR0by5CdXNpbmVzc1BsYW5SZWNlaXZhYmxlTGlzdFJlcG9ydERhdGFNb2RlbCwgSGFzc3lhQWxscmlnaHRDbG91ZCwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwiIC8+PC9PYmplY3REYXRhU291cmNlPg==" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

@@ -1,0 +1,185 @@
+﻿@inherits StaffScheduleMobileDetailOtherBase
+@layout LayoutTempleteMobile
+<div id="content-schedule-staff-details">
+    @if (scheduleStaffData != null)
+    {
+        @if (scheduleStaffData.DataType == 3)
+        {
+            <div class="staff-details">
+                <div class="description-schedule-sfmbcf">
+                    <label class="lbl-details-title-sfmb">@scheduleStaffData.Text</label>
+                    <div class="d-flex d-inline-block type-lable-meeting-display-sfmb">
+                        <lable class="lbl-mr-r lable-meeting row-sfmb-color-@(scheduleStaffData.DataType.ToString() + scheduleStaffData.Typelabel.LabelType.ToString())">@(scheduleStaffData.Typelabel.LabelText)</lable>
+                    </div>
+                </div>
+                <div class="date-sfmbcf">
+                    @if (scheduleStaffData.AllDayKbn == 1)
+                    {
+                        <label>@Lang["AllDay"]</label>
+                    }
+                    else
+                    {
+                        <label class="custom-size-sfmb">@scheduleStaffData.StartDateDisplay.ToString(formatDate)</label>
+                        <label class="custom-size-sfmb">～</label>
+                        <label class="custom-size-sfmb">@scheduleStaffData.EndDateDisplay.ToString(formatDate)</label>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(scheduleStaffData.RecurrenceRule))
+                {
+                    <div class="repetition-sfmbcf">
+                        <p>@displayRecurrenceRule</p>
+                    </div>
+                }
+                @if (scheduleStaffData.SyainCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq)
+                {
+                    <div class="creator-area-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkInstruction"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@($"{scheduleStaffData.HaiinInfo.UkeNo.Substring(5, 10):0000000000}" + "-" + $"{scheduleStaffData.HaiinInfo.UnkRen:0000}" + "-" + $"{scheduleStaffData.HaiinInfo.TeiDanNo:0000}" + "-" + $"{scheduleStaffData.HaiinInfo.BunkRen:0000}")</label>
+                        </div>
+                    </div>
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkBusNum"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@(scheduleStaffData.HaiinInfo.Gosya)</label>
+                        </div>
+                    </div>
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkHaiSInfo"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@(scheduleStaffData.HaiinInfo.HaiSInfo)</label>
+                        </div>
+                    </div>
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkTouInfo"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@(scheduleStaffData.HaiinInfo.TouInfo)</label>
+                        </div>
+                    </div>
+                }
+                <div class="detail-schedule-sfmbcf">
+                    <div class="lbl-title-sfmbcf">
+                        <label>@Lang["WorkDantaNm"]</label>
+                    </div>
+                    <div class="value-creator-sfmbcf">
+                        <label>@(scheduleStaffData.HaiinInfo.DantaNm)</label>
+                    </div>
+                </div>
+                <div class="detail-schedule-sfmbcf">
+                    <div class="lbl-title-sfmbcf">
+                        <label>@Lang["WorkIkiNm"]</label>
+                    </div>
+                    <div class="value-creator-sfmbcf">
+                        <label>@(scheduleStaffData.HaiinInfo.IkNm)</label>
+                    </div>
+                </div>
+                @if (scheduleStaffData.SyainCdSeq == new HassyaAllrightCloud.Domain.Dto.ClaimModel().SyainCdSeq)
+                {
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkTeiCnt"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@(scheduleStaffData.HaiinInfo.TeiCnt)</label>
+                        </div>
+                    </div>
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["WorkFile"]</label>
+                        </div>
+                        @if (scheduleStaffData.HaiinInfo.AttachFileArray != null && scheduleStaffData.HaiinInfo.AttachFileArray.Count > 0)
+                        {
+                            @foreach (AttachFile item in scheduleStaffData.HaiinInfo.AttachFileArray)
+                            {
+                                <a href="javascript:void(0);" @onclick="() => DownLoadFile(item)">@(item.FileName)</a>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+            if (isShowConfirm)
+            {
+                <div class="footer-confirm-sfmb">
+                    <label class="lbl-title-sfmbcf lbl-footer-sfmbcf">@Lang["SeenQuestion"]</label>
+                    <div class="decided-sfmbcf">
+                        <button class="btn btn-sm btn-conf-Y" @onclick="btnSeen_click">@Lang["Seen"]</button>
+                    </div>
+                </div>
+            }
+
+        }
+        else
+        {
+            <div class="staff-details">
+                <div class="description-schedule-sfmbcf">
+                    <label class="lbl-details-title-sfmb">@scheduleStaffData.Text</label>
+                    <div class="d-flex d-inline-block type-lable-meeting-display-sfmb">
+                        <lable class="lbl-mr-r lable-meeting row-sfmb-color-@(scheduleStaffData.DataType.ToString() + scheduleStaffData.Typelabel.LabelType.ToString())">@(scheduleStaffData.Typelabel.LabelText)</lable>
+                    </div>
+                </div>
+                <div class="date-sfmbcf">
+                    @if (scheduleStaffData.AllDayKbn == 1)
+                    {
+                        <label>@Lang["AllDay"]</label>
+                    }
+                    else
+                    {
+                        <label>@scheduleStaffData.StartDateDisplay.ToString(formatDate)</label>
+                        <label class="">～</label>
+                        <label>@scheduleStaffData.EndDateDisplay.ToString(formatDate)</label>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(scheduleStaffData.RecurrenceRule))
+                {
+                    <div class="repetition-sfmbcf">
+                        <p>@displayRecurrenceRule</p>
+                    </div>
+                }
+                <div class="creator-area-sfmbcf">
+                    <div class="lbl-title-sfmbcf">
+                        <label>@(scheduleStaffData.DataType == 2 ? Lang["StaffName"] : Lang["ScheduledType"])</label>
+                    </div>
+                    <div class="value-creator-sfmbcf">
+                        <label>@(scheduleStaffData.DataType == 2 ? scheduleStaffData.Syainnm : Lang["journeytext"])</label>
+                    </div>
+                </div>
+                <div class="detail-schedule-sfmbcf">
+                    <div class="lbl-title-sfmbcf">
+                        <label>@(scheduleStaffData.DataType == 2 ? Lang["HolidayTypeClassification"] : Lang["Destination"])</label>
+                    </div>
+                    <div class="value-creator-sfmbcf">
+                        <label>@(scheduleStaffData.Typelabel.LabelText)</label>
+                    </div>
+                </div>
+                @if (scheduleStaffData.DataType == 2)
+                {
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["HolidayTypeName"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@scheduleStaffData.Text</label>
+                        </div>
+                    </div>
+                    <div class="detail-schedule-sfmbcf">
+                        <div class="lbl-title-sfmbcf">
+                            <label>@Lang["Remarks"]</label>
+                        </div>
+                        <div class="value-creator-sfmbcf">
+                            <label>@scheduleStaffData.DetailAppoitment</label>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+

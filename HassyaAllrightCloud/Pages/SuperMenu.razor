@@ -1,0 +1,806 @@
+@page "/supermenu"
+@inherits SuperMenuBase
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/20.1.3/css/dx.common.css">
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/20.1.3/css/dx.light.css">
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+<DxPopup @bind-Visible="@ShowErrorPopup">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> @HyperLang["Error"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <p>@ErrorMessage</p>
+        <div class="text-center">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(() => ShowErrorPopup = false)">OK</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+<div class="d-flex justify-content-between align-items-center mb-2 super-menu">
+    <div class="d-flex align-items-center sup-fl-l">
+        @if (int.TryParse(type, out _) && int.Parse(type) == (int)SuperMenyTypeDisplay.Reservation)
+        {
+            <h5 class="mb-0">@Lang["TitleReservation"]</h5>
+        }
+        else
+        {
+            <h5 class="mb-0">@Lang["TitleVehicle"]</h5>
+        }
+    </div>
+    <div class="d-flex sup-fl-r">
+        <div class="d-flex flex-wrap align-items-center">
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Unprovisioned)">@Lang["Unprovisioned"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.TemporaryDistribution)">@Lang["TemporaryDistribution"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.TemporaryBus)">@Lang["TemporaryBus"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Confirmation)">@Lang["Confirmation"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Confirmed)">@Lang["Confirmed"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Allocation)">@Lang["Allocation"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Manning)">@Lang["Manning"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Dispatch)">@Lang["Dispatch"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Mercenary)">@Lang["Mercenary"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.DailyReport)">@Lang["DailyReport"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Enter)">@Lang["Enter"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Deposit)">@Lang["Deposit"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Support)">@Lang["Support"]</span>
+                <span class="mr-2 mb-1 mb-lg-0 text-white grid-color-@((int)SuperMenuColorPattern.Payment)">@Lang["Payment"]</span>
+            </div>
+        </div>
+        <div id="filter-container" class="wi-20"></div>
+        <DxButton CssClass="savegridlayout" Text="@Lang["SaveFilter"]" SizeMode="SizeMode.Small" @onclick="ShowSaveCustomFilerPopup" />
+        <button class="btn btn-sm btn-danger btnclear ml-1" @onclick="ResetHyperForm">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            @Lang["EraseAll"]
+        </button>
+    </div>
+
+</div>
+
+<div class="title-section mb-2 supermenu-title-section">
+    <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+</div>
+<div class="express-condition supermenu-condition mb-2" style="display: none">
+    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+        <DxTab Text="@(Lang["FilterCondition1"])"></DxTab>
+        <DxTab Text="@(Lang["FilterCondition2"])"></DxTab>
+        <DxTab Text="@Lang["DisplaySetting"]"></DxTab>
+        <DxTab Text="@Lang["TabReport"]"></DxTab>
+        <DxTab Text="@Lang["SaveLayout"]"></DxTab>
+    </DxTabs>
+    <div class="card dxbs-border-top-0 dxbs-border-radius-top-0 enterField">
+        <div class="card-body supermenu-hyper-form">
+            <EditForm Model="@hyperData" Context="formContext" id="hyper-form">
+                <DataAnnotationsValidator />
+                <FluentValidator TValidator="HyperFormValidator" />
+                @if (isInitComplete)
+                {
+                    <div class="form-row" style="@(ActiveTabIndex != 0 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["DispatchDate"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.HaishaBiFrom" DateExpression="@(() => hyperData.HaishaBiFrom)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HaishaBiFrom), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.HaishaBiFrom), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.HaishaBiTo" DateExpression="@(() => hyperData.HaishaBiTo)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HaishaBiTo), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.HaishaBiTo), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["ArrivalDate"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.TochakuBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.TochakuBiFrom" DateExpression="@(() => hyperData.TochakuBiFrom)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.TochakuBiFrom), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.TochakuBiFrom), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.TochakuBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.TochakuBiTo" DateExpression="@(() => hyperData.TochakuBiTo)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.TochakuBiTo), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.TochakuBiTo), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["ReserveDate"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.YoyakuBiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.YoyakuBiFrom" DateExpression="@(() => hyperData.YoyakuBiFrom)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.YoyakuBiFrom), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.YoyakuBiFrom), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.YoyakuBiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxDateEdit CssClass="filter-inline date-sm" Date="@hyperData.YoyakuBiTo" DateExpression="@(() => hyperData.YoyakuBiTo)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.YoyakuBiTo), newValue, formContext))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @oninput="async e => await OnDateInputChange(nameof(hyperData.YoyakuBiTo), (string)e.Value, formContext)"></DxDateEdit>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["DantaiNm"]</label>
+                                <div class="item-inline item-inline-full-width has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.DantaiNm)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline" Text="@hyperData.DantaiNm" TextExpression="@(() => hyperData.DantaiNm)" TextChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.DantaiNm), newValue, formContext))" maxlength="100"></DxTextBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["ReceiptNumber"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeBangoFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm code-number" maxlength="10" Text="@CommonUtil.FormatCodeNumber(hyperData.UketsukeBangoFrom)" TextExpression="@(() => hyperData.UketsukeBangoFrom)" TextChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeBangoFrom), newValue, formContext))"></DxTextBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeBangoTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm code-number" maxlength="10" Text="@CommonUtil.FormatCodeNumber(hyperData.UketsukeBangoTo)" TextExpression="@(() => hyperData.UketsukeBangoTo)" TextChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeBangoTo), newValue, formContext))"></DxTextBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["ReservationClassification"]</label>
+                                <div class="item-inline">
+                                    <ReservationClassComponent LangDic="@LangDic"
+                                                               isAddNullItem="true"
+                                                               DefaultValue="@(hyperData.YoyakuFrom != null ? hyperData.YoyakuFrom.YoyaKbnSeq : 0)"
+                                                               SelectedReservationClass="@hyperData.YoyakuFrom"
+                                                               ReservationClassExpression="@(() => hyperData.YoyakuFrom)"
+                                                               SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuFrom), newValue, formContext))">
+                                    </ReservationClassComponent>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline">
+                                    <ReservationClassComponent LangDic="@LangDic"
+                                                               isAddNullItem="true"
+                                                               DefaultValue="@(hyperData.YoyakuTo != null ? hyperData.YoyakuTo.YoyaKbnSeq : 0)"
+                                                               SelectedReservationClass="@hyperData.YoyakuTo"
+                                                               ReservationClassExpression="@(() => hyperData.YoyakuTo)"
+                                                               SelectedReservationClassChanged="@((newValue) => ChangeValueForm(nameof(hyperData.YoyakuTo), newValue, formContext))">
+                                    </ReservationClassComponent>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["RegistrationOffice"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeEigyoJoFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@SaleBranchList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["RegistrationOfficeNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.UketsukeEigyoJoFrom"
+                                                SelectedItemExpression="@(() => hyperData.UketsukeEigyoJoFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeEigyoJoFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeEigyoJoTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@SaleBranchList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["RegistrationOfficeNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.UketsukeEigyoJoTo"
+                                                SelectedItemExpression="@(() => hyperData.UketsukeEigyoJoTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeEigyoJoTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["Customer"]</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultGyosya="@(hyperData.GyosyaTokuiSakiFrom != null ? hyperData.GyosyaTokuiSakiFrom.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@hyperData.GyosyaTokuiSakiFrom"
+                                                       GyosyaExpression="@(() => hyperData.GyosyaTokuiSakiFrom)"
+                                                       SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaTokuiSakiFrom), newValue, formContext))"
+                                                       DefaultTokisk="@(hyperData.TokiskTokuiSakiFrom != null ? hyperData.TokiskTokuiSakiFrom.TokuiSeq : 0)"
+                                                       SelectedTokisk="@hyperData.TokiskTokuiSakiFrom"
+                                                       TokiskExpression="@(() => hyperData.TokiskTokuiSakiFrom)"
+                                                       SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskTokuiSakiFrom), newValue, formContext))"
+                                                       DefaultTokiSt="@(hyperData.TokiStTokuiSakiFrom != null ? hyperData.TokiStTokuiSakiFrom.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@hyperData.TokiStTokuiSakiFrom"
+                                                       TokiStExpression="@(() => hyperData.TokiStTokuiSakiFrom)"
+                                                       SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStTokuiSakiFrom), newValue, formContext))"
+                                                       FirstLoaded="async () => await FirstLoad(1)"></CustomerComponent>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label lbl-customer-hpf">～</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultGyosya="@(hyperData.GyosyaTokuiSakiTo != null ? hyperData.GyosyaTokuiSakiTo.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@hyperData.GyosyaTokuiSakiTo"
+                                                       GyosyaExpression="@(() => hyperData.GyosyaTokuiSakiTo)"
+                                                       SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaTokuiSakiTo), newValue, formContext))"
+                                                       DefaultTokisk="@(hyperData.TokiskTokuiSakiTo != null ? hyperData.TokiskTokuiSakiTo.TokuiSeq : 0)"
+                                                       SelectedTokisk="@hyperData.TokiskTokuiSakiTo"
+                                                       TokiskExpression="@(() => hyperData.TokiskTokuiSakiTo)"
+                                                       SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskTokuiSakiTo), newValue, formContext))"
+                                                       DefaultTokiSt="@(hyperData.TokiStTokuiSakiTo != null ? hyperData.TokiStTokuiSakiTo.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@hyperData.TokiStTokuiSakiTo"
+                                                       TokiStExpression="@(() => hyperData.TokiStTokuiSakiTo)"
+                                                       SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStTokuiSakiTo), newValue, formContext))"
+                                                       FirstLoaded="async () => await FirstLoad(2)"></CustomerComponent>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["Supplier"]</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                                       DefaultGyosya="@(hyperData.GyosyaShiireSakiFrom != null ? hyperData.GyosyaShiireSakiFrom.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@hyperData.GyosyaShiireSakiFrom"
+                                                       GyosyaExpression="@(() => hyperData.GyosyaShiireSakiFrom)"
+                                                       SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaShiireSakiFrom), newValue, formContext))"
+                                                       DefaultTokisk="@(hyperData.TokiskShiireSakiFrom != null ? hyperData.TokiskShiireSakiFrom.TokuiSeq : 0)"
+                                                       SelectedTokisk="@hyperData.TokiskShiireSakiFrom"
+                                                       TokiskExpression="@(() => hyperData.TokiskShiireSakiFrom)"
+                                                       SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskShiireSakiFrom), newValue, formContext))"
+                                                       DefaultTokiSt="@(hyperData.TokiStShiireSakiFrom != null ? hyperData.TokiStShiireSakiFrom.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@hyperData.TokiStShiireSakiFrom"
+                                                       TokiStExpression="@(() => hyperData.TokiStShiireSakiFrom)"
+                                                       SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStShiireSakiFrom), newValue, formContext))"
+                                                       FirstLoaded="async () => await FirstLoad(3)"></CustomerComponent>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label lbl-customer-hpf">～</label>
+                                <div class="item-inline custom-width-cmbtk">
+                                    <CustomerComponent LangDic="@LangDic"
+                                                       isGyosyaAddNull="true"
+                                                       isTokiskAddNull="true"
+                                                       isTokiStAddNull="true"
+                                                       DefaultTokiskNullText="@Lang["SupplierNullText"]"
+                                                       DefaultGyosya="@(hyperData.GyosyaShiireSakiTo != null ? hyperData.GyosyaShiireSakiTo.GyosyaCdSeq : 0)"
+                                                       SelectedGyosya="@hyperData.GyosyaShiireSakiTo"
+                                                       GyosyaExpression="@(() => hyperData.GyosyaShiireSakiTo)"
+                                                       SelectedGyosyaChanged="@((newValue) => ChangeValueForm(nameof(hyperData.GyosyaShiireSakiTo), newValue, formContext))"
+                                                       DefaultTokisk="@(hyperData.TokiskShiireSakiTo != null ? hyperData.TokiskShiireSakiTo.TokuiSeq : 0)"
+                                                       SelectedTokisk="@hyperData.TokiskShiireSakiTo"
+                                                       TokiskExpression="@(() => hyperData.TokiskShiireSakiTo)"
+                                                       SelectedTokiskChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiskShiireSakiTo), newValue, formContext))"
+                                                       DefaultTokiSt="@(hyperData.TokiStShiireSakiTo != null ? hyperData.TokiStShiireSakiTo.SitenCdSeq : 0)"
+                                                       SelectedTokiSt="@hyperData.TokiStShiireSakiTo"
+                                                       TokiStExpression="@(() => hyperData.TokiStShiireSakiTo)"
+                                                       SelectedTokiStChanged="@((newValue) => ChangeValueForm(nameof(hyperData.TokiStShiireSakiTo), newValue, formContext))"
+                                                       FirstLoaded="async () => await FirstLoad(4)"></CustomerComponent>
+                                </div>
+                            </div>
+                            @if (int.TryParse(type, out _) && int.Parse(type) == (int)SuperMenyTypeDisplay.Reservation)
+                            {
+                                <div class="form-group d-sm-flex flex-nowrap">
+                                    <label class="col-form-label condition-label">@Lang["MaxMinSetting"]</label>
+                                    <div class="item-inline has-tooltip-error item-inline-short">
+                                        <DxComboBox Data="@MaxMinSettingList" CssClass="filter-inline date-sm custom-combo-box"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="StringValue"
+                                                    SelectedItem="@hyperData.MaxMinSetting"
+                                                    SelectedItemExpression="@(() => hyperData.MaxMinSetting)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.MaxMinSetting), newValue, formContext))">
+                                        </DxComboBox>
+                                    </div>
+                                    <label class="col-form-label-sm mr-3 condition-label right-label long-right-label">@Lang["ReservationStatus"]</label>
+                                    <div class="item-inline has-tooltip-error item-inline-short">
+                                        <DxComboBox Data="@ReservationStatusList" CssClass="filter-inline date-sm custom-combo-box"
+                                                    FilteringMode="@DataGridFilteringMode.Contains"
+                                                    AllowUserInput="false"
+                                                    TextFieldName="StringValue"
+                                                    SelectedItem="@hyperData.ReservationStatus"
+                                                    SelectedItemExpression="@(() => hyperData.ReservationStatus)"
+                                                    SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.ReservationStatus), newValue, formContext))">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["SalesStaff"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.EigyoTantoShaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@StaffList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["SalesStaffNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.EigyoTantoShaFrom"
+                                                SelectedItemExpression="@(() => hyperData.EigyoTantoShaFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.EigyoTantoShaFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.EigyoTantoShaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@StaffList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["SalesStaffNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.EigyoTantoShaTo"
+                                                SelectedItemExpression="@(() => hyperData.EigyoTantoShaTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.EigyoTantoShaTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["GroupClassification"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.DantaiKbnFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@CodeKbList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["GroupClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.DantaiKbnFrom"
+                                                SelectedItemExpression="@(() => hyperData.DantaiKbnFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.DantaiKbnFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.DantaiKbnTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@CodeKbList" CssClass="filter-inline date-sm"
+                                                NullText="@Lang["GroupClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.DantaiKbnTo"
+                                                SelectedItemExpression="@(() => hyperData.DantaiKbnTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.DantaiKbnTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["Destination"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.YukiSakiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@DestinationList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["DestinationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.YukiSakiFrom"
+                                                SelectedItemExpression="@(() => hyperData.YukiSakiFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.YukiSakiFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.YukiSakiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@DestinationList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["DestinationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.YukiSakiTo"
+                                                SelectedItemExpression="@(() => hyperData.YukiSakiTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.YukiSakiTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["OccurrencePlace"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HasseiChiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@OriginList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["OccurrencePlaceNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.HasseiChiFrom"
+                                                SelectedItemExpression="@(() => hyperData.HasseiChiFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HasseiChiFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HasseiChiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@OriginList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["OccurrencePlaceNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.HasseiChiTo"
+                                                SelectedItemExpression="@(() => hyperData.HasseiChiTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HasseiChiTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["BusType"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.ShashuFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@BusTypeList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["BusTypeNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.ShashuFrom"
+                                                SelectedItemExpression="@(() => hyperData.ShashuFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.ShashuFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.ShashuTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@BusTypeList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["BusTypeNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.ShashuTo"
+                                                SelectedItemExpression="@(() => hyperData.ShashuTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.ShashuTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["ReceiptCondition"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeJokenFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@ConditionList" CssClass="filter-inline date-sm "
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="CodeKbnNm"
+                                                SelectedItem="@hyperData.UketsukeJokenFrom"
+                                                SelectedItemExpression="@(() => hyperData.UketsukeJokenFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeJokenFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.UketsukeJokenTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@ConditionList" CssClass="filter-inline date-sm "
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="CodeKbnNm"
+                                                SelectedItem="@hyperData.UketsukeJokenTo"
+                                                SelectedItemExpression="@(() => hyperData.UketsukeJokenTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.UketsukeJokenTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["InputStaff"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.NyuryokuTantoShaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@StaffList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["InputStaffNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.NyuryokuTantoShaFrom"
+                                                SelectedItemExpression="@(() => hyperData.NyuryokuTantoShaFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.NyuryokuTantoShaFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.NyuryokuTantoShaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@StaffList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["InputStaffNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.NyuryokuTantoShaTo"
+                                                SelectedItemExpression="@(() => hyperData.NyuryokuTantoShaTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.NyuryokuTantoShaTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["CustomerTypeClassification"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.KyakuDaneKbnFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@CustomerClassificationList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["CustomerTypeClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.KyakuDaneKbnFrom"
+                                                SelectedItemExpression="@(() => hyperData.KyakuDaneKbnFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.KyakuDaneKbnFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.KyakuDaneKbnTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@CustomerClassificationList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["CustomerTypeClassificationNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.KyakuDaneKbnTo"
+                                                SelectedItemExpression="@(() => hyperData.KyakuDaneKbnTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.KyakuDaneKbnTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["DispatchPlace"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaChiFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@DispatchList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["DispatchPlaceNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.HaishaChiFrom"
+                                                SelectedItemExpression="@(() => hyperData.HaishaChiFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HaishaChiFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.HaishaChiTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@DispatchList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["DispatchPlaceNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.HaishaChiTo"
+                                                SelectedItemExpression="@(() => hyperData.HaishaChiTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.HaishaChiTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["Area"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.AreaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@AreaList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["AreaNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.AreaFrom"
+                                                SelectedItemExpression="@(() => hyperData.AreaFrom)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.AreaFrom), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.AreaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxComboBox Data="@AreaList" CssClass="filter-inline date-sm "
+                                                NullText="@Lang["AreaNullText"]"
+                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                SelectedItem="@hyperData.AreaTo"
+                                                SelectedItemExpression="@(() => hyperData.AreaTo)"
+                                                SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.AreaTo), newValue, formContext))">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label condition-label">@Lang["BusTypePrice"]</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.ShashuTankaFrom)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm text-right number" maxlength="9" Text=@(hyperData.ShashuTankaFrom == null ? "" : CommonUtil.CurencyFormat(@hyperData.ShashuTankaFrom)) TextExpression="@(() => @hyperData.ShashuTankaFrom)" TextChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.ShashuTankaFrom), newValue, formContext))"></DxTextBox>
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="item-inline has-tooltip-error">
+                                    <Tooltip ValueExpressions="@(() => @hyperData.ShashuTankaTo)" Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                    <DxTextBox CssClass="filter-inline date-sm text-right number" maxlength="9" Text=@(hyperData.ShashuTankaTo == null ? "" : CommonUtil.CurencyFormat(@hyperData.ShashuTankaTo)) TextExpression="@(() => @hyperData.ShashuTankaTo)" TextChanged="@(async (newValue) => await ChangeValueForm(nameof(hyperData.ShashuTankaTo), newValue, formContext))"></DxTextBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="@(ActiveTabIndex != 2 ? "display: none;" : "")">
+                        <div class="col-sm-6">
+                            <div class="form-group d-sm-flex flex-nowrap">
+                                <label class="col-form-label width--100">@Lang["WidthChange"]</label>
+                                <nav class="nav nav-pills">
+                                    <a href="javascript:void(0)" class="nav-link @(hyperData.ActiveV == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(hyperData.ActiveV == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                    <a href="javascript:void(0)" class="nav-link @(hyperData.ActiveV == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="@(ActiveTabIndex != 3 ? "display: none;" : "")">
+                        <div class="report-check-list-tab col-11">
+                            <div class="row">
+                                <div class="col-1 ml-3">
+                                    @Lang["OutputInstuction"]
+                                </div>
+                                <div class="col-9">
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", hyperData.OutputType == OutputReportType.Preview ? "active" : string.Empty))"
+                                            @onclick="(e) => hyperData.OutputType = OutputReportType.Preview">
+                                        @Lang["Btn_preview"]
+                                    </button>
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mr-3 mw-7rem {0}", hyperData.OutputType == OutputReportType.ExportPdf ? "active" : string.Empty))"
+                                            @onclick="(e) => hyperData.OutputType = OutputReportType.ExportPdf">
+                                        @Lang["Btn_pdf"]
+                                    </button>
+                                    <button type="button" class="@(string.Format("nav-btn-clrp mw-7rem {0}", hyperData.OutputType == OutputReportType.CSV ? "active" : string.Empty))"
+                                            @onclick="(e) => hyperData.OutputType = OutputReportType.CSV">
+                                        @Lang["Btn_csv"]
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-1 ml-3 pt-3">
+                                    @Lang["TabReport"]
+                                </div>
+                                <div class="col-4">
+                                    <div class="csv-group-btns-clrp">
+                                        <div class="row">
+                                            <div class="col-12 d-flex">
+                                                <div class="mw-6rem">@Lang["PageSize"]</div>
+                                                <DxComboBox ReadOnly="hyperData.OutputType == OutputReportType.CSV"
+                                                            Data="@PagePrintData"
+                                                            TextFieldName="@nameof(hyperData.PageSize.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="hyperData.PageSize"
+                                                            SelectedItemChanged="v => hyperData.PageSize = v"
+                                                            SelectedItemExpression="() => hyperData.PageSize"
+                                                            CssClass="ml-3"></DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3 csv-group-clrp">
+                                <div class="col-1 pt-3">
+                                    @Lang["CSVGroupControlsTitle"]
+                                </div>
+                                <div class="col-11">
+                                    <div class="csv-group-btns-clrp ml-1">
+                                        <div class="row">
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-5rem">
+                                                    @Lang["ShowHeaderTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="@(hyperData.OutputType != OutputReportType.CSV)"
+                                                            Data="@ShowHeaderOptions.ShowHeaderOptionData"
+                                                            TextFieldName="@nameof(hyperData.ActiveHeaderOption.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="hyperData.ActiveHeaderOption"
+                                                            SelectedItemChanged="v => hyperData.ActiveHeaderOption = v"
+                                                            SelectedItemExpression="() => hyperData.ActiveHeaderOption"
+                                                            CssClass="cmb-first-clrp">
+                                                </DxComboBox>
+                                            </div>
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-5rem">
+                                                    @Lang["EncloseTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="hyperData.OutputType != OutputReportType.CSV"
+                                                            Data="@GroupTypes.GroupTypeData"
+                                                            TextFieldName="@nameof(hyperData.GroupType.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="hyperData.GroupType"
+                                                            SelectedItemChanged="v => hyperData.GroupType = v"
+                                                            SelectedItemExpression="() => hyperData.GroupType"
+                                                            CssClass="ml-3">
+                                                </DxComboBox>
+                                            </div>
+                                            <div class="col-4 d-flex">
+                                                <div class="mw-9rem">
+                                                    @Lang["SeparatorTitle"]
+                                                </div>
+                                                <DxComboBox ReadOnly="hyperData.OutputType != OutputReportType.CSV"
+                                                            Data="@DelimiterTypes.DelimiterTypeData"
+                                                            TextFieldName="@nameof(hyperData.DelimiterType.StringValue)"
+                                                            FilteringMode="@DataGridFilteringMode.Contains" AllowUserInput="false"
+                                                            SelectedItem="hyperData.DelimiterType"
+                                                            SelectedItemChanged="v => hyperData.DelimiterType = v"
+                                                            SelectedItemExpression="() => hyperData.DelimiterType"
+                                                            CssClass="ml-3">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3 text-center mb-3">
+                                <div class="col-12">
+                                    <DxButton CssClass="btn btn-primary width-7rem"
+                                              Text="@Lang["StartBtn"]"
+                                              Click="(e) => ExportBtnClicked()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (int.TryParse(type, out _) && int.Parse(type) == (int)SuperMenyTypeDisplay.Reservation)
+                    {
+                        <div class="form-row" style="@(ActiveTabIndex != 4 ? "display: none;" : "")">
+                            <div class="col-sm-6">
+                                <div class="d-flex">
+                                    <DxButton CssClass="savegridlayout" Text="@Lang["SaveGridLayout"]" @onclick="@childReservation.SaveGridLayout" SizeMode="SizeMode.Small" />
+                                    <DxButton CssClass="savegridlayout" Text="@Lang["InitGridLayout"]" @onclick="@childReservation.InitGridLayout" SizeMode="SizeMode.Small" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>
+@if (int.TryParse(type, out _) && int.Parse(type) == (int)SuperMenyTypeDisplay.Reservation)
+{
+    <HassyaAllrightCloud.Pages.Components.SuperMenuReservation @bind-isReloadTotal="@isReloadTotal" @bind-isChangeValue="@isChangeValue" @bind-loading="@isLoading" isFirstInit ="@isFirstInit" isInitComplete ="@isInitComplete" ValueCheckHaita="@ValueCheckHaita" @ref="childReservation" GridDatas="@SuperMenuReservationGridData" GridTotalDatas="@SuperMenuReservationTotalGridData" ActiveV="@hyperData.ActiveV" @bind-RecordsPerPage="@RecordsPerPage" hyperData="@hyperData" ChangeState="ChangeState" @bind-FirstPageSelect="FirstPageSelect"></HassyaAllrightCloud.Pages.Components.SuperMenuReservation>
+}
+else
+{
+    <HassyaAllrightCloud.Pages.Components.SuperMenuVehicle @bind-isReloadTotal="@isReloadTotal" @bind-isChangeValue="@isChangeValue" @bind-loading="@isLoading" isFirstInit ="@isFirstInit" isInitComplete ="@isInitComplete" ValueCheckHaita="@ValueCheckHaita" @ref="childVehicle" GridDatas="@SuperMenuVehicleGridData" GridTotalDatas="@SuperMenuVehicleTotalGridData" ActiveV="@hyperData.ActiveV" @bind-RecordsPerPage="@RecordsPerPage" hyperData="@hyperData" ChangeState="ChangeState" @bind-FirstPageSelect="FirstPageSelect"></HassyaAllrightCloud.Pages.Components.SuperMenuVehicle>
+}
+<DxPopup @bind-Visible="@ShowRenameFilter">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation" aria-hidden="true"></i> @Lang["RenameFilter"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="d-flex">
+            <p>@Lang["FilterNameLabel"]:</p>
+            <DxTextBox CssClass="filter-inline w-340 ml-1" Text="@CustomFilterModelChange.FilterName" maxlength="20" TextExpression="@(() => CustomFilterModelChange.FilterName)" TextChanged="@(async (newValue) => await ChangeFilterName(nameof(CustomFilterModelChange.FilterName),newValue))"></DxTextBox>
+        </div>
+        <div class="text-right mt-1">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(SaveFilterName)">@Lang["Save"]</a>
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--110 height--40" @onclick="@(() => ShowRenameFilter = false)">@Lang["Cancel"]</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+<DxPopup @bind-Visible="@ShowComfirmDeleteFilter">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i class="fa fa-exclamation" aria-hidden="true"></i> @Lang["ConfirmDeleteFilter"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div>
+            <p>@Lang["ConfirmDeleteFilterMessage"]</p>
+        </div>
+        <div class="text-right">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(DeleteCustomFilter)">@Lang["Delete"]</a>
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--110 height--40" @onclick="@(() => ShowComfirmDeleteFilter = false)">@Lang["Cancel"]</a>
+        </div>
+    </ChildContent>
+</DxPopup>
+<DxPopup @bind-Visible="@ShowAddNewCustomFilter">
+    <HeaderTemplate>
+        <div class="bg-dark text-white p-2">
+            <i aria-hidden="true"></i> @Lang["AddCustomFilterTitle"]
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="d-flex">
+            <p>@Lang["FilterNameLabel"]:</p>
+            <DxTextBox CssClass="filter-inline w-340 ml-1" Text="@AddCustomFilterModel.FilterName" maxlength="20" TextExpression="@(() => AddCustomFilterModel.FilterName)" TextChanged="@(async (newValue) => await SaveNewFilterName(nameof(AddCustomFilterModel.FilterName),newValue))"></DxTextBox>
+        </div>
+        <div class="text-right mt-1">
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--90" @onclick="@(SaveCustomFilter)">@Lang["SaveFilterNew"]</a>
+            <a href="javascript:void(0)" class="btn btn-outline-secondary width--110 height--40" @onclick="@(() => ShowAddNewCustomFilter = false)">@Lang["Cancel"]</a>
+        </div>
+    </ChildContent>
+</DxPopup>

@@ -1,0 +1,730 @@
+﻿@inherits DepositPaymentBase
+
+@if (isLoading)
+{
+    <div class="loader" style="z-index:99999;">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<DxPopup CssClass="modal-dialog modal-lg"
+            @bind-Visible="@isOpenDepositPaymentPopUp"
+            Scrollable="true">
+    <HeaderTemplate>
+        <div class="bg-primary text-white p-2 rounded-top">
+            <span>@Lang["PageTitle"]</span>
+            <a class="close-button text-black float-right mr-2" href="javascript:;" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(e => CloseModal())">✖</a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        @if(isOpenCouponPaymentUpDatePopUp)
+        {
+        <DxPopup CssClass="modal-dialog modal-dialog-centered"
+                    @bind-Visible="@isOpenCouponPaymentUpDatePopUp"
+                    Scrollable="true">
+            <HeaderTemplate>
+                <div class="bg-primary text-white p-2 rounded-top">
+                    <span>@Lang["PageTitle"]</span>
+                    <a class="close-button text-black float-right mr-2" href="javascript:;" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(e => { isOpenCouponPaymentUpDatePopUp = false;isDeletedPayment = false; })">✖</a>
+                </div>
+            </HeaderTemplate>
+            <Content>
+                <div>@Lang["ProcessingCoupon"]</div>
+                <div>
+                    <div class="custom-control custom-radio mt-2">
+                        <input type="radio" id="ordinary" name="depositType"
+                                class="custom-control-input" checked="@(depositCouponPayment.IsChangeOrDeleteCoupon)"
+                                @onclick='e =>  depositCouponPayment.IsChangeOrDeleteCoupon = !depositCouponPayment.IsChangeOrDeleteCoupon' value="@(depositCouponPayment.IsChangeOrDeleteCoupon)">
+                        <label class="custom-control-label" for="ordinary">@Lang["ChangeDeleteCouponFaceValue"]</label>
+                    </div>
+                    @if (!isDeletedPayment)
+                    {
+                        <div class="custom-control custom-radio mt-2">
+                            <input type="radio" id="current" name="depositType"
+                                    class="custom-control-input" checked="@(!depositCouponPayment.IsChangeOrDeleteCoupon)"
+                                    @onclick='e => depositCouponPayment.IsChangeOrDeleteCoupon = !depositCouponPayment.IsChangeOrDeleteCoupon' value="@(!depositCouponPayment.IsChangeOrDeleteCoupon)"
+                                    disabled="@(!(selectedDepositPaymentGrid.CouKesG < selectedDepositPaymentGrid.CouGkin)))">
+                            <label class="custom-control-label" for="current">@Lang["CouponBalance"]</label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="custom-control custom-radio mt-2">
+                            <input type="radio" id="current" name="depositType"
+                                    class="custom-control-input" checked="@(!depositCouponPayment.IsChangeOrDeleteCoupon)"
+                                    @onclick='e => depositCouponPayment.IsChangeOrDeleteCoupon = !depositCouponPayment.IsChangeOrDeleteCoupon' value="@(!depositCouponPayment.IsChangeOrDeleteCoupon)">
+                            <label class="custom-control-label" for="current">@Lang["CouponBalance"]</label>
+                        </div>
+                    }
+                </div>
+            </Content>
+            <FooterTemplate>
+                <div class="row w-100">
+                    <div class="col-md-2 mr-auto ml-auto">
+                        <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                                    Text="@Lang["OK"]" @onclick="@(e => SavePayment(isDeletedPayment))" />
+                    </div>
+                </div>
+            </FooterTemplate>
+
+        </DxPopup>
+        }
+            
+        <EditForm EditContext="editContext" Context="editContext" id="deposit-payment-form">
+            <DataAnnotationsValidator />
+            <FluentValidator TValidator="DepositPaymentValidator" />
+            <ul class="validation-errors">
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    @if (errorMessage == HassyaAllrightCloud.Commons.Constants.Constants.ErrorMessage.DCPBI_T010 ||
+                    errorMessage == "BI_T011")
+                    {
+                        <li class="validation-message">@Lang[errorMessage]</li>
+                    }
+                    else
+                    {
+                        <li class="validation-message">@CommonLang[errorMessage]</li>
+                    }
+                }
+            </ul>
+            <div class="row">
+                <div class="col-6 pr-2">
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-3 text-l">@Lang["GroupName"]</label>
+                                    <DxTextBox CssClass="w-100"
+                                                @bind-Text="depositCouponGrid.DanTaNm"
+                                                ReadOnly="true"></DxTextBox>
+                                </div>
+                                <div class="form-group d-sm-flex flex-nowrap" style="margin-bottom: 3px">
+                                    <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["OperateDate"]</label>
+                                    <DxTextBox @bind-Text="depositCouponGrid.HaiSYmdString"
+                                                ReadOnly="true"></DxTextBox>&nbsp;&nbsp;
+                                    <DxTextBox @bind-Text="depositCouponGrid.HaiSTimeString"
+                                                ReadOnly="true"></DxTextBox>
+                                    <label class="col-form-label from-to">～</label>
+                                    <DxTextBox @bind-Text="depositCouponGrid.TouYmdString"
+                                                ReadOnly="true"></DxTextBox>&nbsp;&nbsp;
+                                    <DxTextBox @bind-Text="depositCouponGrid.TouChTimeString"
+                                                ReadOnly="true"></DxTextBox>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["Destination"]</label>
+                                    <DxTextBox CssClass="w-100"
+                                                @bind-Text="depositCouponGrid.IkNm"
+                                                ReadOnly="true"></DxTextBox>
+                                </div>
+                                <div class="form-group d-flex flex-nowrap">
+                                    <div class="d-flex">
+                                        <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["BillAdress"]</label>
+                                        <DxTextBox @bind-Text="depositCouponGrid.SeiRyakuNm"
+                                                    ReadOnly="true"></DxTextBox>&nbsp;&nbsp;
+                                        <DxTextBox @bind-Text="depositCouponGrid.SeiSitRyakuNm"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="d-flex">
+                                        <label class="col-form-label-sm mr-3 ml-4 text-right">@Lang["Customer"]</label>
+                                        <DxTextBox @bind-Text="depositCouponGrid.TokRyakuNm"
+                                                    ReadOnly="true"></DxTextBox>&nbsp;&nbsp;
+                                        <DxTextBox @bind-Text="depositCouponGrid.SitRyakuNm"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 pl-0">
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body row">
+                                <div class="col-6">
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["BillAmount"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.BillAmount"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["CumulativeDeposit"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.CumulativeDeposit"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["CurrentDeposit"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.CurrentDeposit"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["UnpaidAmount"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.UnpaidAmount"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                </div>
+                                <div class="col-6 pl-0">
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130 mr-3 text-left">@Lang["NumberOfCoupons"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.NumberOfCoupons"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130 mr-3 text-left">@Lang["SumCouponsApplied"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.SumCouponsApplied"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130 mr-3 text-left">@Lang["CurrentApplied"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.CurrentApplied"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                    <div class="form-group d-flex flex-nowrap">
+                                        <label class="col-form-label-sm width--130 mr-3 text-left">@Lang["CumulativeCouponsApplied"]</label>
+                                        <DxTextBox CssClass="w-100 text-right"
+                                                    @bind-Text="depositCouponPayment.CumulativeCouponsApplied"
+                                                    ReadOnly="true"></DxTextBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body focus-form">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group d-flex flex-nowrap align-items-center">
+                                            <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["DepositMethod"]</label>
+                                            <div class="checkbox-container">
+                                                @if (depositMethods.Any())
+                                                {
+                                                    @foreach (var item in depositMethods)
+                                                    {
+                                                        <div class="custom-control custom-radio mr-4">
+                                                            <input type="radio" id="@item.CodeKbn" name="depositMethod"
+                                                                    class="custom-control-input" checked="@(item.CodeKbn == depositCouponPayment.DepositMethod)"
+                                                                    value="@item.CodeKbn" @onclick="e => LoadPaymentType(item.CodeKbn)"
+                                                                    disabled="@(DisableCheckbox(item.CodeKbn))">
+                                                            <label class="custom-control-label" for="@item.CodeKbn">@item.CodeKbnNm</label>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap" style="@(EnablePayment("01,02,03,04,05,06,91,92") ? "visibility: visible;" : "visibility: hidden;")">
+                                            <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["DepositDate"]</label>
+                                            <DxDateEdit CssClass="filter-inline date-sm width--250"
+                                                        Date="@depositCouponPayment.DepositDate"
+                                                        DateExpression="@(() => depositCouponPayment.DepositDate)"
+                                                        Format=@Commons.DateTimeFormat.yyyyMMddSlash
+                                                        DateChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DepositDate), newValue))"
+                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                        ReadOnly="isCreate">
+                                            </DxDateEdit>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap">
+                                            <label class="col-form-label-sm mr-3 width--90 text-left">@Lang["DepositOffice"]</label>
+                                            <div class="item-inline custom-bill-choose-box">
+                                                <DxComboBox Data="@depositOffices"
+                                                            CssClass="filter-inline date-sm custom-bill-combo-box width--250"
+                                                            NullText="@Lang["DepositOfficeNullText"]"
+                                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                                            AllowUserInput="false"
+                                                            TextFieldName="Text"
+                                                            SelectedItem="@depositCouponPayment.DepositOffice"
+                                                            SelectedItemExpression="@(() => depositCouponPayment.DepositOffice)"
+                                                            SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DepositOffice), newValue))"
+                                                            ReadOnly="isCreate">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex flex-nowrap" style="@(EnablePayment("01,02,03,04,05,06,91,92") ? "visibility: visible;" : "visibility: hidden;")">
+                                            <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["DepositAmount"]</label>
+                                            <div class="has-tooltip-error">
+                                                <Tooltip ValueExpressions="@(() => depositCouponPayment.DepositAmount)"
+                                                            Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                <DxSpinEdit DisplayFormat="N0" MinValue="-99999999" MaxValue="99999999" ShowSpinButtons="false"
+                                                            CssClass="width--250 number-spin"
+                                                            ValueExpression="() => depositCouponPayment.DepositAmount"
+                                                            Value="@depositCouponPayment.DepositAmount"
+                                                            ValueChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DepositAmount), newValue))"
+                                                            BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                            ReadOnly="isCreate"></DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-7 p-0 @(EnablePayment("07") ? "fix-deposit-payment-table" : "")">
+                                        @*for UI only*@
+                                        @if (EnablePayment("02,03,04,91,92"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap align-items-center invisible">
+                                                <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["DepositMethod"]</label>
+                                                <div class="checkbox-container">
+                                                    @if (depositMethods.Any())
+                                                    {
+                                                        @foreach (var item in depositMethods)
+                                                        {
+                                                            <div class="custom-control custom-radio mr-4">
+                                                                <input type="radio"
+                                                                        class="custom-control-input">
+                                                                <label class="custom-control-label" for="@item.CodeKbn">@item.CodeKbnNm</label>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (EnablePayment("07"))
+                                        {
+                                            <table class="table-bill-layout table-layout">
+                                                <thead>
+                                                    <tr class="header-row">
+                                                        <th>@Lang["GridNo"]</th>
+                                                        <th>@Lang["DateOfIssue"]</th>
+                                                        <th>@Lang["CouponNo"]</th>
+                                                        <th>@Lang["ApplicationAmount"]</th>
+                                                        <th>@Lang["FaceValue"]</th>
+                                                    </tr>
+                                                </thead>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>@Lang["Total"]</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th><div style="text-align: right; padding-right:12px">@string.Format("{0:#,0}", depositCouponPayment.TotalApplicationAmount)</div></th>
+                                                        <th><div style="text-align: right; padding-right:12px">@string.Format("{0:#,0}", depositCouponPayment.TotalFaceValue)</div></th>
+                                                    </tr>
+                                                </tfoot>
+                                                <tbody>
+                                                    @if (depositCouponPayment.OffsetPaymentTables != null)
+                                                    {
+                                                        @foreach (var data in depositCouponPayment.OffsetPaymentTables.Select((value, i) => new { i, value }))
+                                                        {
+                                                            <tr class="body-bill-row-1">
+                                                                <td>@(data.i + 1)</td>
+                                                                <td>
+                                                                    <DxDateEdit CssClass="filter-inline date-sm w-100"
+                                                                                Date="@(data.value.DateOfIssue)"
+                                                                                DateExpression="@(() => data.value.DateOfIssue)"
+                                                                                Format=@Commons.DateTimeFormat.yyyyMMddSlash
+                                                                                DateChanged="@(async (newValue) => await ChangeValueTable(data.value, nameof(data.value.DateOfIssue), newValue))"
+                                                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                ReadOnly="isCreate">
+                                                                    </DxDateEdit>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="has-tooltip-error">
+                                                                        <Tooltip ValueExpressions="@(() => data.value.CouponNo)"
+                                                                                    Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                                        <DxTextBox CssClass="w-100"
+                                                                                    TextExpression="() => data.value.CouponNo"
+                                                                                    Text="@data.value.CouponNo"
+                                                                                    TextChanged="@(async (newValue) => await ChangeValueTable(data.value, nameof(data.value.CouponNo), newValue, 20))"
+                                                                                    BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                                    ReadOnly="isCreate"
+                                                                                    maxlength="20"></DxTextBox>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="has-tooltip-error">
+                                                                        <Tooltip ValueExpressions="@(() => data.value.ApplicationAmount)"
+                                                                                    Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                                        <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="99999999" ShowSpinButtons="false"
+                                                                                    CssClass="w-100 number-spin"
+                                                                                    ValueExpression="() => data.value.ApplicationAmount"
+                                                                                    Value="@data.value.ApplicationAmount"
+                                                                                    ValueChanged="@(async (newValue) => await ChangeValueTable(data.value, nameof(data.value.ApplicationAmount), newValue))"
+                                                                                    BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                                    ReadOnly="isCreate || !depositCouponPayment.IsEditOffsetTable"
+                                                                                    maxlength="8"></DxSpinEdit>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="has-tooltip-error">
+                                                                        <Tooltip ValueExpressions="@(() => data.value.FaceValue)"
+                                                                                    Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                                        <DxSpinEdit DisplayFormat="N0" MinValue="0" MaxValue="99999999" ShowSpinButtons="false"
+                                                                                    CssClass="w-100 number-spin"
+                                                                                    ValueExpression="() => data.value.FaceValue"
+                                                                                    Value="@data.value.FaceValue"
+                                                                                    ValueChanged="@(async (newValue) => await ChangeValueTable(data.value, nameof(data.value.FaceValue), newValue))"
+                                                                                    BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                                    @onkeyup="@(e => AddRowOffsetPaymentTable(e, data.i))"
+                                                                                    ReadOnly="isCreate || depositCouponPayment.IsEditOffsetTable"
+                                                                                    maxlength="8"></DxSpinEdit>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+
+                                        @if (EnablePayment("02"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm mr-3 width--90 text-left">@Lang["TransferBank"]</label>
+                                                <div class="item-inline custom-bill-choose-box">
+                                                    <DxComboBox Data="@depositTransferBanks"
+                                                                CssClass="filter-inline date-sm custom-bill-combo-box width--250"
+                                                                NullText="@Lang["TransferBankNullText"]"
+                                                                FilteringMode="@DataGridFilteringMode.Contains"
+                                                                AllowUserInput="false"
+                                                                TextFieldName="Text"
+                                                                SelectedItem="@depositCouponPayment.DepositTransferBank"
+                                                                SelectedItemExpression="@(() => depositCouponPayment.DepositTransferBank)"
+                                                                SelectedItemChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DepositTransferBank), newValue))"
+                                                                ReadOnly="isCreate">
+                                                    </DxComboBox>
+                                                </div>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap align-items-center">
+                                                <label class="col-form-label-sm mr-3 width--90 text-left">@Lang["DepositType"]</label>
+                                                <div class="custom-control custom-radio mr-4">
+                                                    <input type="radio" id="ordinary" name="depositType"
+                                                            class="custom-control-input" checked="@(depositCouponPayment.DepositType == 1)" @onclick='e => depositCouponPayment.DepositType = 1' value="1"
+                                                            disabled="@(isCreate)">
+                                                    <label class="custom-control-label" for="ordinary">@Lang["Ordinary"]</label>
+                                                </div>
+                                                <div class="custom-control custom-radio mr-4">
+                                                    <input type="radio" id="current" name="depositType"
+                                                            class="custom-control-input" checked="@(depositCouponPayment.DepositType == 2)" @onclick='e => depositCouponPayment.DepositType = 2' value="2"
+                                                            disabled="@(isCreate)">
+                                                    <label class="custom-control-label" for="current">@Lang["Current"]</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <div class="d-flex">
+                                                    <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["TransferFee"]</label>
+                                                    <DxSpinEdit DisplayFormat="N0" MinValue="-99999999" MaxValue="99999999" ShowSpinButtons="false"
+                                                                CssClass="width--250 number-spin"
+                                                                ValueExpression="() => depositCouponPayment.TransferFee"
+                                                                Value="@depositCouponPayment.TransferFee"
+                                                                ValueChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.TransferFee), newValue))"
+                                                                BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                ReadOnly="isCreate"></DxSpinEdit>
+
+                                                </div>
+                                                <div class="d-flex ml-2">
+                                                    <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["SponsorshipFund"]</label>
+                                                    <DxSpinEdit DisplayFormat="N0" MinValue="-99999999" MaxValue="99999999" ShowSpinButtons="false"
+                                                                CssClass="width--250 number-spin"
+                                                                ValueExpression="() => depositCouponPayment.SponsorshipFund"
+                                                                Value="@depositCouponPayment.SponsorshipFund"
+                                                                ValueChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.SponsorshipFund), newValue))"
+                                                                BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                ReadOnly="isCreate"></DxSpinEdit>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (EnablePayment("03"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--110 mr-3 text-right">@Lang["CardApprovalNumber"]</label>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => depositCouponPayment.CardApprovalNumber)"
+                                                                Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox CssClass="width--250"
+                                                                TextExpression="() => depositCouponPayment.CardApprovalNumber"
+                                                                Text="@depositCouponPayment.CardApprovalNumber"
+                                                                TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.CardApprovalNumber), newValue, 23))"
+                                                                BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                ReadOnly="isCreate" maxlength="23"></DxTextBox>
+                                                </div>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--110 mr-3 text-right">@Lang["CardSlipNumber"]</label>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => depositCouponPayment.CardSlipNumber)"
+                                                                Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox CssClass="width--250"
+                                                                TextExpression="() => depositCouponPayment.CardSlipNumber"
+                                                                Text="@depositCouponPayment.CardSlipNumber"
+                                                                TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.CardSlipNumber), newValue, 15))"
+                                                                BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                ReadOnly="isCreate" maxlength="15"></DxTextBox>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (EnablePayment("04"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["BillDate"]</label>
+                                                <DxDateEdit CssClass="filter-inline date-sm width--250"
+                                                            Date="@depositCouponPayment.BillDate"
+                                                            DateExpression="@(() => depositCouponPayment.BillDate)"
+                                                            Format=@Commons.DateTimeFormat.yyyyMMddSlash
+                                                            DateChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.BillDate), newValue))"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            ReadOnly="isCreate">
+                                                </DxDateEdit>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--90 mr-3 text-left">@Lang["BillNo"]</label>
+                                                <div class="has-tooltip-error">
+                                                    <Tooltip ValueExpressions="@(() => depositCouponPayment.BillNo)"
+                                                                Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                                    <DxTextBox CssClass="width--250"
+                                                                TextExpression="() => depositCouponPayment.BillNo"
+                                                                Text="@depositCouponPayment.BillNo"
+                                                                TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.BillNo), newValue, 23))"
+                                                                BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                                ReadOnly="isCreate" maxlength="23"></DxTextBox>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (EnablePayment("91"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--120 mr-3 text-right">@Lang["DetailedNameOfDepositMeans11"]</label>
+                                                <DxTextBox CssClass="width--250"
+                                                            TextExpression="() => depositCouponPayment.DetailedNameOfDepositMeans11"
+                                                            Text="@depositCouponPayment.DetailedNameOfDepositMeans11"
+                                                            TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DetailedNameOfDepositMeans11), newValue, 23))"
+                                                            BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                            ReadOnly="isCreate" maxlength="23"></DxTextBox>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--120 mr-3 text-right">@Lang["DetailedNameOfDepositMeans12"]</label>
+                                                <DxTextBox CssClass="width--250"
+                                                            TextExpression="() => depositCouponPayment.DetailedNameOfDepositMeans12"
+                                                            Text="@depositCouponPayment.DetailedNameOfDepositMeans12"
+                                                            TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DetailedNameOfDepositMeans12), newValue, 15))"
+                                                            BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                            ReadOnly="isCreate" maxlength="15"></DxTextBox>
+                                            </div>
+                                        }
+
+                                        @if (EnablePayment("92"))
+                                        {
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--120 mr-3 text-right">@Lang["DetailedNameOfDepositMeans21"]</label>
+                                                <DxTextBox CssClass="width--250"
+                                                            TextExpression="() => depositCouponPayment.DetailedNameOfDepositMeans21"
+                                                            Text="@depositCouponPayment.DetailedNameOfDepositMeans21"
+                                                            TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DetailedNameOfDepositMeans21), newValue, 23))"
+                                                            BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                            ReadOnly="isCreate" maxlength="23"></DxTextBox>
+                                            </div>
+                                            <div class="form-group d-flex flex-nowrap">
+                                                <label class="col-form-label-sm width--120 mr-3 text-right">@Lang["DetailedNameOfDepositMeans22"]</label>
+                                                <DxTextBox CssClass="width--250"
+                                                            TextExpression="() => depositCouponPayment.DetailedNameOfDepositMeans22"
+                                                            Text="@depositCouponPayment.DetailedNameOfDepositMeans22"
+                                                            TextChanged="@((newValue) => ChangeValueForm(nameof(depositCouponPayment.DetailedNameOfDepositMeans22), newValue, 15))"
+                                                            BindValueMode="BindValueMode.OnInput | BindValueMode.OnLostFocus"
+                                                            ReadOnly="isCreate" maxlength="15"></DxTextBox>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-1" style="position: relative">
+                                        @if (!isCreate)
+                                        {
+                                            <i class="fa fa-times-circle fa-2x bottom-right-icon icon-remove-color ml-2" aria-hidden="true" @onclick="e => EnabledUpCreatePayment(true)"></i>
+                                            @if (selectedDepositPaymentGrid.NS_NyuSihSyu == 0 && selectedDepositPaymentGrid.CouTblSeq != 0)
+                                            {
+                                                <i class="fa fa-save fa-2x float-right icon-color" aria-hidden="true" @onclick="e => OpenCouponPaymentUpDatePopUp(false)"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-save fa-2x float-right icon-color" aria-hidden="true" @onclick="e => SavePayment(false)"></i>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-plus-circle fa-2x float-right icon-color" aria-hidden="true" @onclick="e => EnabledUpCreatePayment(false)"></i>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="express-condition mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-bill-wrapper" style="min-height: calc(50vh - 150px);max-height: calc(50vh - 150px);">
+                                    <table class="table-bill-layout table-layout">
+                                        <thead>
+                                            <tr class="header-row">
+                                                <th class="bill-office">@Lang["GridNo"]</th>
+                                                <th class="bill-office">@Lang["GridDepositDate"]</th>
+                                                <th class="bill-office">@Lang["GridDepositOffice"]</th>
+                                                <th class="bill-customer">@Lang["GridCash"]</th>
+                                                <th class="bill-receipt">@Lang["GridTransfer"]</th>
+                                                <th class="bill-receipt">@Lang["GridTransferFee"]</th>
+                                                <th class="sale-amount">@Lang["GridTransferSupport"]</th>
+                                                <th class="tax-amount">@Lang["GridCard"]</th>
+                                                <th class="tax-amount">@Lang["GridCommercialPaper"]</th>
+                                                <th class="tax-amount">@Lang["GridOffset"]</th>
+                                                <th class="tax-amount">@Lang["GridAdjustment"]</th>
+                                                <th class="tax-amount">@Lang["GridOther1"]</th>
+                                                <th class="tax-amount">@Lang["GridOther2"]</th>
+                                                <th class="tax-amount">@Lang["GridTotalDeposit"]</th>
+                                                <th class="tax-amount">@Lang["GridCouponAppliedAmount"]</th>
+                                                <th class="tax-amount">@Lang["GridPar"]</th>
+                                                <th class="tax-included">@Lang["GridCouponNo"]</th>
+                                                <th class="commission-amount">@Lang["GridBank"]</th>
+                                                <th class="bill-amount">@Lang["GridDepositType"]</th>
+                                                <th class="deposit-date">@Lang["GridCardRecognition"]</th>
+                                                <th class="deposit-amount">@Lang["GridCardSlipNo"]</th>
+                                                <th class="unpaid-amount">@Lang["GridCommercialPaperNo"]</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (depositPaymentGrids.Any())
+                                            {
+                                                @foreach (var data in depositPaymentGrids.Select((value, i) => new { i, value }))
+                                                {
+                                                    <tr class="body-bill-row-1 @((currentNo == CurrentPage * Common.LimitPage + data.i + 1) ? "selected-row " : " ")"
+                                                        @onclick="@(async(e) => await HandleMouseDown(e, data.i, CurrentPage * Common.LimitPage + data.i + 1))"
+                                                        @ondblclick="@(e => DbClick(data.i, CurrentPage * Common.LimitPage + data.i + 1))">
+                                                        <td class="row-2 bill-no">@(CurrentPage * Common.LimitPage + data.i + 1)</td>
+                                                        <td class="row-2 bill-office">@string.Format("{0:yyyy/MM/dd}", string.IsNullOrWhiteSpace(data.value.NyuSihHakoYmd) ? DateTime.Now : DateTime.ParseExact(data.value.NyuSihHakoYmd, "yyyyMMdd", CultureInfo.CurrentCulture))</td>
+                                                        <td class="row-2 bill-office">@(data.value.NyuSihEigNm)</td>
+                                                        <td class="row-2 sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 1 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 2 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.FurKesG)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.KyoKesG)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 3 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 4 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 5 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 6 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 91 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.NS_NyuSihSyu == 92 ? data.value.KesG : 0)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.KesG + data.value.FurKesG + data.value.KyoKesG)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.CouKesG)</td>
+                                                        <td class="sale-amount">@string.Format("{0:#,0}", data.value.CouGkin)</td>
+                                                        <td class="bill-office">@data.value.CouNo</td>
+                                                        <td class="row-2 bill-incident">@(data.value.BankNm + " " + data.value.BankStNm)</td>
+                                                        <td class="row-2 incident-load">@(data.value.YokinSyuNm)</td>
+                                                        <td class="row-2 incident-load">@(data.value.NS_CardSyo)</td>
+                                                        <td class="row-2 incident-load">@(data.value.NS_CardDen)</td>
+                                                        <td class="row-2 incident-load">@(data.value.NS_TegataNo)</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @if (depositPaymentGrids.Any())
+                                {
+                                    <div id="pagination-area" class="d-sm-flex justify-content-between align-items-center pb-2">
+                                        <div class="grid-pagination">
+                                            @if (NumberOfPage <= MaxPageCount)
+                                            {
+
+                                                <a @onclick="@(() => SelectPage(CurrentPage - 1))" class="@((CurrentPage > 0 && isCreate) ? null : "pagination-disabled")">&lsaquo;</a>
+                                                foreach (var i in GetPagination())
+                                                {
+                                                    <a @onclick="@(() => SelectPage(i))" class="@(i == CurrentPage ? "current-page" : "") @(isCreate ? null : "pagination-disabled")">@(i + 1)</a>
+                                                }
+                                                <a @onclick="@(() => SelectPage(CurrentPage + 1))" class="@((CurrentPage < NumberOfPage - 1 && isCreate) ? null : "pagination-disabled")">&rsaquo;</a>
+                                            }
+                                            else
+                                            {
+
+                                                <a @onclick="@(() => SelectPage(0))" class="@((CurrentPage > 0 && isCreate) ? null : "pagination-disabled")">&laquo;</a>
+                                                <a @onclick="@(() => SelectPage(CurrentPage - 1))" class="@((CurrentPage > 0 && isCreate) ? null : "pagination-disabled")">&lsaquo;</a>
+                                                foreach (var i in GetPagination())
+                                                {
+                                                    <a @onclick="@(() => SelectPage(i))" class="@(i == CurrentPage ? "current-page" : "") @(isCreate ? null : "pagination-disabled")">@(i + 1)</a>
+                                                }
+                                                <a @onclick="@(() => SelectPage(CurrentPage + 1))" class="@((CurrentPage < NumberOfPage - 1 && isCreate) ? null : "pagination-disabled")">&rsaquo;</a>
+                                                <a @onclick="@(() => SelectPage(NumberOfPage - 1))" class="@((CurrentPage < NumberOfPage - 1 && isCreate) ? null : "pagination-disabled")">&raquo;</a>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+
+                                <div id="total-bill-area" class="total-bill-table">
+                                    <table class="table-bill-layout table-layout">
+                                        <tr>
+                                            <th></th>
+                                            <th class="sale-amount">@Lang["GridCash"]</th>
+                                            <th class="tax-amount">@Lang["GridTransfer"]</th>
+                                            <th class="tax-included">@Lang["GridTransferFee"]</th>
+                                            <th class="commission-amount">@Lang["GridTransferSupport"]</th>
+                                            <th class="bill-amount">@Lang["GridCard"]</th>
+                                            <th class="commission-amount">@Lang["GridCommercialPaper"]</th>
+                                            <th class="unpaid-amount">@Lang["GridOffset"]</th>
+                                            <th class="tax-amount">@Lang["GridAdjustment"]</th>
+                                            <th class="tax-included">@Lang["GridOther1"]</th>
+                                            <th class="commission-amount">@Lang["GridOther2"]</th>
+                                            <th class="bill-amount">@Lang["GridTotalDeposit"]</th>
+                                            <th class="deposit-date">@Lang["GridCouponAppliedAmount"]</th>
+                                        </tr>
+                                        <tr class="tr-child">
+                                            <td class="blank"><div>@Lang["PageCount"]</div></td>
+                                            <td class="sale-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageCash))</div></td>
+                                            <td class="tax-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageTransfer))</div></td>
+                                            <td class="tax-included"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageTransferFee))</div></td>
+                                            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageTransferSupport))</div></td>
+                                            <td class="bill-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageCard))</div></td>
+                                            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageCommercialPaper))</div></td>
+                                            <td class="unpaid-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageOffset))</div></td>
+                                            <td class="tax-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageAdjustment))</td>
+                                            <td class="tax-included">@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageOther1))</td>
+                                            <td class="commission-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageOther2))</td>
+                                            <td class="bill-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageTotalDeposit))</td>
+                                            <td class="deposit-date">@(string.Format("{0:#,0}", depositPaymentTotal.TotalPageCouponAppliedAmount))</td>
+                                        </tr>
+                                        <tr class="tr-child">
+                                            <td class="blank"><div>@Lang["GrandTotal"]</div></td>
+                                            <td class="sale-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllCash))</div></td>
+                                            <td class="tax-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllTransfer))</div></td>
+                                            <td class="tax-included"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllTransferFee))</div></td>
+                                            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllTransferSupport))</div></td>
+                                            <td class="bill-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllCard))</div></td>
+                                            <td class="commission-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllCommercialPaper))</div></td>
+                                            <td class="unpaid-amount"><div>@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllOffset))</div></td>
+                                            <td class="tax-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllAdjustment))</td>
+                                            <td class="tax-included">@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllOther1))</td>
+                                            <td class="commission-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllOther2))</td>
+                                            <td class="bill-amount">@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllTotalDeposit))</td>
+                                            <td class="deposit-date">@(string.Format("{0:#,0}", depositPaymentTotal.TotalAllCouponAppliedAmount))</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+    <FooterTemplate>
+        <DxButton SizeMode="SizeMode.Medium" CssClass="custom-btn mx-2" RenderStyle="@ButtonRenderStyle.Dark" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                    Text="@Lang["Close"]" @onclick="@(e => CloseModal())" />
+    </FooterTemplate>
+</DxPopup>
+<ContextMenu Id="gridRowClickMenu" CssClass="zindex99999">
+    <Item OnClick="@(e => DbClick())"><i class="fa fa-edit" aria-hidden="true"></i> @Lang["Edit"]</Item>
+    @if (selectedDepositPaymentGrid != null && selectedDepositPaymentGrid.NS_NyuSihSyu == 0 && selectedDepositPaymentGrid.CouTblSeq != 0)
+    {
+        <Item OnClick="@(e => OpenCouponPaymentUpDatePopUp(true))"><i class="fa fa-trash" aria-hidden="true"></i> @Lang["Delete"]</Item>
+    }
+    else
+    {
+        <Item OnClick="@(e => SavePayment(true))"><i class="fa fa-trash" aria-hidden="true"></i> @Lang["Delete"]</Item>
+    }
+</ContextMenu>

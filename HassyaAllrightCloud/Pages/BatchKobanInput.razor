@@ -1,0 +1,729 @@
+﻿@inherits BatchKobanInputBase
+
+@if (isLoading)
+{
+    <div class="loader">
+        <div class="loader-icon"></div>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <div class="d-flex align-items-center">
+        <h5 class="mb-0">@Lang["Title"]</h5>
+    </div>
+    <button class="btn btn-sm btn-danger btnclear" @onclick="ResetForm">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+        @Lang["EraseAll"]
+    </button>
+</div>
+<div class="title-section mb-1 supermenu-title-section">
+    <i class="fa fa-angle-down" aria-hidden="true"></i> @Lang["FilterCondition"]
+</div>
+<div class="express-condition mb-2" style="display: none;min-height:200px">
+    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+        <DxTab Text="@Lang["FilterCondition"]"></DxTab>
+        <DxTab Text="@Lang["DisplayCondition"]"></DxTab>
+    </DxTabs>
+    <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
+        <div class="card-body supermenu-hyper-form">
+            <EditForm Model="@BatchKobanInputFilterModel" Context="formContext">
+                <ul class="validation-errors">
+                    @foreach (var message in Errors.Distinct())
+                    {
+                        <li class="validation-message">@Lang[message]</li>
+                    }
+                </ul>
+                <DataAnnotationsValidator />
+                <FluentValidator TValidator="BatchPoliceInputValidator" />
+
+                <div class="form-row" style="margin-bottom: -10px; @(ActiveTabIndex != 0 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label ml-2" style="min-width:78px">@Lang["KimmuYmd"]</label>
+                            <div class="item-inline" style="width: 150px">
+                                <DxDateEdit CssClass="filter-inline date-sm number" Date="@BatchKobanInputFilterModel.KinmuYmd" DateExpression="@(() => BatchKobanInputFilterModel.KinmuYmd)" Format=@dateFormat DateChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.KinmuYmd), newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxDateEdit>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-koban ml-2" style="min-width:78px">@Lang["Company"]</label>
+                            <div class="item-inline ml-4" style="padding-right: 5px">
+                                <DxComboBox Data="@CompanyDatas" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            ReadOnly="true"
+                                            NullText=@Lang["CompanyNullText"]
+                                            SelectedItem="@BatchKobanInputFilterModel.Company"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.Company)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.Company), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label condition-label-koban ml-2" style="min-width:78px">@Lang["SaleBranchType"]</label>
+                            <div class="item-inline ml-4 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.EigyoStart)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@SaleBranchs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText=@Lang["EigyoNullText"]
+                                            SelectedItem="@BatchKobanInputFilterModel.EigyoStart"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.EigyoStart)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.EigyoStart), newValue))">
+                                </DxComboBox>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.EigyoEnd)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@SaleBranchs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText=@Lang["EigyoNullText"]
+                                            SelectedItem="@BatchKobanInputFilterModel.EigyoEnd"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.EigyoEnd)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.EigyoEnd), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap custom-td">
+                            <label class="col-form-label condition-label-koban w--100">@Lang["Staff"]</label>
+                            <div class="item-inline ml-2 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.SyainStart)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@Staffs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText=@Lang["SyainNullText"]
+                                            SelectedItem="@BatchKobanInputFilterModel.SyainStart"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.SyainStart)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.SyainStart), newValue))">
+                                </DxComboBox>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.SyainEnd)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@Staffs" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText=@Lang["SyainNullText"]
+                                            SelectedItem="@BatchKobanInputFilterModel.SyainEnd"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.SyainEnd)"
+                                            SelectedItemChanged="@(async (newValue) => await ChangeValueForm(nameof(BatchKobanInputFilterModel.SyainEnd), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap custom-td">
+                            <label class="col-form-label condition-label-koban">@Lang["Task"]</label>
+                            <div class="item-inline ml-2 has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.SyokumuStart)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@Tasks" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText="@Lang["SyokumuNullText"]"
+                                            SelectedItem="@BatchKobanInputFilterModel.SyokumuStart"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.SyokumuStart)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(BatchKobanInputFilterModel.SyokumuStart), newValue))">
+                                </DxComboBox>
+                            </div>
+                            <label class="col-form-label from-to">～</label>
+                            <div class="item-inline has-tooltip-error">
+                                <Tooltip ValueExpressions="@(() => BatchKobanInputFilterModel.SyokumuEnd)"
+                                         Lang="@LangDic" Text="" Position="PositionTooltip.top"></Tooltip>
+                                <DxComboBox Data="@Tasks" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="Text"
+                                            NullText="@Lang["SyokumuNullText"]"
+                                            SelectedItem="@BatchKobanInputFilterModel.SyokumuEnd"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.SyokumuEnd)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(BatchKobanInputFilterModel.SyokumuEnd), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap custom-td">
+                            <label class="col-form-label condition-label-koban">@Lang["OutputOrder"]</label>
+                            <div class="item-inline ml-2">
+                                <DxComboBox Data="@OutputOrders" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="StringValue"
+                                            SelectedItem="@BatchKobanInputFilterModel.SyuJun"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.SyuJun)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(BatchKobanInputFilterModel.SyuJun), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap custom-td">
+                            <label class="col-form-label condition-label-koban">@Lang["DisplayType"]</label>
+                            <div class="item-inline ml-2">
+                                <DxComboBox Data="@DisplayTypes" CssClass="filter-inline date-sm custom-combo-box"
+                                            FilteringMode="@DataGridFilteringMode.Contains"
+                                            AllowUserInput="false"
+                                            TextFieldName="StringValue"
+                                            SelectedItem="@BatchKobanInputFilterModel.DisplayKbn"
+                                            SelectedItemExpression="@(() => BatchKobanInputFilterModel.DisplayKbn)"
+                                            SelectedItemChanged="@(async (newValue) =>await ChangeValueForm(nameof(BatchKobanInputFilterModel.DisplayKbn), newValue))">
+                                </DxComboBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="@(ActiveTabIndex != 1 ? "display: none;" : "")">
+                    <div class="col-sm-6">
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["WidthChange"]</label>
+                            <nav class="nav nav-pills ml-4">
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Large ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Large))">@Lang["WidthLarge"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Medium ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Medium))">@Lang["WidthMedium"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(ActiveV == (int)ViewMode.Small ? "active" : null)" @onclick="@(e => clickV(e, (int)ViewMode.Small))">@Lang["WidthSmall"]</a>
+                            </nav>
+                        </div>
+                        <div class="form-group d-sm-flex flex-nowrap">
+                            <label class="col-form-label width--100">@Lang["SyainFieldDisplay"]</label>
+                            <nav class="nav nav-pills ml-4">
+                                <a href="javascript:void(0)" class="nav-link @(EmployeeDisplayOption == 1 ? "active" : null)" @onclick="@(e => ChangeEmpolyeeDisplayOption(e, 1))">@Lang["Name"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(EmployeeDisplayOption == 2 ? "active" : null)" @onclick="@(e => ChangeEmpolyeeDisplayOption(e, 2))">@Lang["Belong"]</a>
+                                <a href="javascript:void(0)" class="nav-link @(EmployeeDisplayOption == 3 ? "active" : null)" @onclick="@(e => ChangeEmpolyeeDisplayOption(e, 3))">@Lang["EmployeeId"]</a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="koban-container">
+    <div class="dxbs-border-top-0 dxbs-border-radius-top-0">
+        <div class="mt-2 supermenu-hyper-form">
+            <div class="d-sm-flex flex-nowrap" style="justify-content:space-between">
+                <div class="col-6">
+                    <div class="d-sm-flex flex-nowrap">
+                        <label class="col-form-label" style="min-width:92px">@Lang["WorkHolidayType"]</label>
+                        <div class="item-inline ml-2" style="min-width: calc(50% - 58px)">
+                            <DxComboBox Data="@WorkHolidayTypes" CssClass="filter-inline date-sm custom-combo-box"
+                                        FilteringMode="@DataGridFilteringMode.Contains"
+                                        AllowUserInput="false"
+                                        TextFieldName="Text"
+                                        SelectedItem="@SelectedWorkHolidayType"
+                                        NullText="@Lang["WorkTypeNullText"]"
+                                        SelectedItemExpression="@(() => SelectedWorkHolidayType)"
+                                        SelectedItemChanged="@(async (newValue) =>await SelectWorkHolidayType(newValue))">
+                            </DxComboBox>
+                        </div>
+                        
+                        <div class="d-sm-flex ml-4">
+                            <label class="col-form-label">@Lang["KobanTime"]</label>
+                            <div class="item-inline ml-2 d-flex">
+                                <div class="dxbs-textbox">
+                                    <InputTime Time="BatchKobanInputFilterModel.TimeStart"
+                                               TimeChanged="ChangeStartTime"
+                                               CssClass="customTime length4 width--100 text-center" />
+                                </div>
+                                <label class="col-form-label from-to">～</label>
+                                <div class="dxbs-textbox">
+                                    <InputTime Time="BatchKobanInputFilterModel.TimeEnd"
+                                               TimeChanged="ChangeEndTime"
+                                               CssClass="customTime length4 width--100 text-center" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="text-right mr-2">
+                    <button class="btn btn-sm btn-danger btnclear" @onclick="DeleteKobanData">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                        @Lang["DeleteKobanData"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (BatchKobanInputFilterModel.DisplayKbn.IdValue != 1)
+    {
+        <div class="border-b grid-@ActiveV bi-table-wrapper" id="koban-table-wrapper" style="height:720px">
+            @if (BatchKobanInputFilterModel.DisplayKbn.IdValue == 2)
+            {
+                <table class="table-koban table-layout" id="koban-table-0">
+                    <thead>
+                        <tr class="header-row">
+                            <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                            <th class="bi-column">
+                                <div>@Dates[0]</div>
+                                <div>@DayOfWeeks[0]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[0].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(1, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[1]</div>
+                                <div>@DayOfWeeks[1]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[1].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(2, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[2]</div>
+                                <div>@DayOfWeeks[2]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[2].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(3, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[3]</div>
+                                <div>@DayOfWeeks[3]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[3].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(4, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[4]</div>
+                                <div>@DayOfWeeks[4]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[4].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(5, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[5]</div>
+                                <div>@DayOfWeeks[5]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[5].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(6, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[6]</div>
+                                <div>@DayOfWeeks[6]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[6].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(7, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[7]</div>
+                                <div>@DayOfWeeks[7]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[7].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(8, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[8]</div>
+                                <div>@DayOfWeeks[8]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[8].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(9, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[9]</div>
+                                <div>@DayOfWeeks[9]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[9].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(10, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[10]</div>
+                                <div>@DayOfWeeks[10]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[10].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(11, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[11]</div>
+                                <div>@DayOfWeeks[11]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[11].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(12, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[12]</div>
+                                <div>@DayOfWeeks[12]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[12].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(14, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[13]</div>
+                                <div>@DayOfWeeks[13]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[13].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(14, value))"></DxCheckBox>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                        {
+                            <tr class=".body-row-1">
+                                <td style="        min-width: 70px !important;
+        background-color: white;
+        white-space: nowrap
+" class="td-sticky text-left">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day01KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day01SelectKbn, data.value.Day01KinKyuCd) == true ? "selectedkbn1" : "") @(GetCellBackGround(data.i, 1) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 1, data.value.SyainCdSeq))">@data.value.Day01KinKyuNm</td>
+                                <td title="@data.value.Day02KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day02SelectKbn, data.value.Day02KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 2) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 2, data.value.SyainCdSeq))">@data.value.Day02KinKyuNm</td>
+                                <td title="@data.value.Day03KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 3, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day03SelectKbn, data.value.Day03KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 3) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 3, data.value.SyainCdSeq))">@data.value.Day03KinKyuNm</td>
+                                <td title="@data.value.Day04KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 4, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day04SelectKbn, data.value.Day04KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 4) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 4, data.value.SyainCdSeq))">@data.value.Day04KinKyuNm</td>
+                                <td title="@data.value.Day05KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 5, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day05SelectKbn, data.value.Day05KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 5) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 5, data.value.SyainCdSeq))">@data.value.Day05KinKyuNm</td>
+                                <td title="@data.value.Day06KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 6, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day06SelectKbn, data.value.Day06KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 6) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 6, data.value.SyainCdSeq))">@data.value.Day06KinKyuNm</td>
+                                <td title="@data.value.Day07KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 7, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day07SelectKbn, data.value.Day07KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 7) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 7, data.value.SyainCdSeq))">@data.value.Day07KinKyuNm</td>
+                                <td title="@data.value.Day08KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 8, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day08SelectKbn, data.value.Day08KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 8) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 8, data.value.SyainCdSeq))">@data.value.Day08KinKyuNm</td>
+                                <td title="@data.value.Day09KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 9, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day09SelectKbn, data.value.Day09KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 9) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 9, data.value.SyainCdSeq))">@data.value.Day09KinKyuNm</td>
+                                <td title="@data.value.Day10KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 10, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day10SelectKbn, data.value.Day10KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 10) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 10, data.value.SyainCdSeq))">@data.value.Day10KinKyuNm</td>
+                                <td title="@data.value.Day11KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 11, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day11SelectKbn, data.value.Day11KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 11) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 11, data.value.SyainCdSeq))">@data.value.Day11KinKyuNm</td>
+                                <td title="@data.value.Day12KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 12, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day12SelectKbn, data.value.Day12KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 12) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 12, data.value.SyainCdSeq))">@data.value.Day12KinKyuNm</td>
+                                <td title="@data.value.Day13KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 13, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day13SelectKbn, data.value.Day13KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 13) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 13, data.value.SyainCdSeq))">@data.value.Day13KinKyuNm</td>
+                                <td title="@data.value.Day14KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 14, 0))" class="@(GetCellSelectionBackGround(data.i, data.value.Day14SelectKbn, data.value.Day14KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 14) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 14, data.value.SyainCdSeq))">@data.value.Day14KinKyuNm</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                @if (BatchKobanInputFilterModel.DisplayKbn.IdValue == 3)
+                {
+                    <table class="table-koban table-layout" id="koban-table-0">
+                        <thead>
+                            <tr class="header-row">
+                                <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                                <th class="bi-column">
+                                    <div>@Dates[0]</div>
+                                    <div>@DayOfWeeks[0]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[0].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(1, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[1]</div>
+                                    <div>@DayOfWeeks[1]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[1].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(2, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[2]</div>
+                                    <div>@DayOfWeeks[2]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[2].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(3, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[3]</div>
+                                    <div>@DayOfWeeks[3]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[3].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(4, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[4]</div>
+                                    <div>@DayOfWeeks[4]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[4].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(5, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[5]</div>
+                                    <div>@DayOfWeeks[5]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[5].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(6, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[6]</div>
+                                    <div>@DayOfWeeks[6]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[6].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(7, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[7]</div>
+                                    <div>@DayOfWeeks[7]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[7].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(8, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[8]</div>
+                                    <div>@DayOfWeeks[8]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[8].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(9, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[9]</div>
+                                    <div>@DayOfWeeks[9]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[9].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(10, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[10]</div>
+                                    <div>@DayOfWeeks[10]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[10].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(11, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[11]</div>
+                                    <div>@DayOfWeeks[11]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[11].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(12, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[12]</div>
+                                    <div>@DayOfWeeks[12]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[12].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(13, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[13]</div>
+                                    <div>@DayOfWeeks[13]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[13].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(14, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[14]</div>
+                                    <div>@DayOfWeeks[14]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[14].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(15, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[15]</div>
+                                    <div>@DayOfWeeks[15]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[15].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(16, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[16]</div>
+                                    <div>@DayOfWeeks[16]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[16].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(17, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[17]</div>
+                                    <div>@DayOfWeeks[17]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[17].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(18, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[18]</div>
+                                    <div>@DayOfWeeks[18]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[18].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(19, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[19]</div>
+                                    <div>@DayOfWeeks[19]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[19].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(20, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[20]</div>
+                                    <div>@DayOfWeeks[20]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[20].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(21, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[21]</div>
+                                    <div>@DayOfWeeks[21]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[21].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(22, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[22]</div>
+                                    <div>@DayOfWeeks[22]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[22].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(23, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[23]</div>
+                                    <div>@DayOfWeeks[23]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[23].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(24, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[24]</div>
+                                    <div>@DayOfWeeks[24]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[24].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(25, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[25]</div>
+                                    <div>@DayOfWeeks[25]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[25].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(26, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[26]</div>
+                                    <div>@DayOfWeeks[26]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[26].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(27, value))"></DxCheckBox>
+                                </th>
+                                <th class="bi-column">
+                                    <div>@Dates[27]</div>
+                                    <div>@DayOfWeeks[27]</div>
+                                    <DxCheckBox Checked="@CheckedAllDay[27].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(28, value))"></DxCheckBox>
+                                </th>
+                                @if (ToDate >= 29)
+                                {
+                                    <th class="bi-column">
+                                        <div>@Dates[28]</div>
+                                        <div>@DayOfWeeks[28]</div>
+                                        <DxCheckBox Checked="@CheckedAllDay[28].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(29, value))"></DxCheckBox>
+                                    </th>
+                                }
+                                @if (ToDate >= 30)
+                                {
+                                    <th class="bi-column">
+                                        <div>@Dates[29]</div>
+                                        <div>@DayOfWeeks[29]</div>
+                                        <DxCheckBox Checked="@CheckedAllDay[29].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(30, value))"></DxCheckBox>
+                                    </th>
+                                }
+                                @if (ToDate >= 31)
+                                {
+                                    <th class="bi-column">
+                                        <div>@Dates[30]</div>
+                                        <div>@DayOfWeeks[30]</div>
+                                        <DxCheckBox Checked="@CheckedAllDay[30].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(31, value))"></DxCheckBox>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                            {
+                            <tr class=".body-row-1">
+                                <td style="min-width:70px !important; background-color:white; white-space:nowrap" class="td-sticky text-left">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day01KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day01SelectKbn, data.value.Day01KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 1) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 1, data.value.SyainCdSeq))">@data.value.Day01KinKyuNm</td>
+                                <td title="@data.value.Day02KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day02SelectKbn, data.value.Day02KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 2) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 2, data.value.SyainCdSeq))">@data.value.Day02KinKyuNm</td>
+                                <td title="@data.value.Day03KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 3, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day03SelectKbn, data.value.Day03KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 3) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 3, data.value.SyainCdSeq))">@data.value.Day03KinKyuNm</td>
+                                <td title="@data.value.Day04KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 4, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day04SelectKbn, data.value.Day04KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 4) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 4, data.value.SyainCdSeq))">@data.value.Day04KinKyuNm</td>
+                                <td title="@data.value.Day05KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 5, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day05SelectKbn, data.value.Day05KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 5) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 5, data.value.SyainCdSeq))">@data.value.Day05KinKyuNm</td>
+                                <td title="@data.value.Day06KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 6, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day06SelectKbn, data.value.Day06KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 6) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 6, data.value.SyainCdSeq))">@data.value.Day06KinKyuNm</td>
+                                <td title="@data.value.Day07KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 7, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day07SelectKbn, data.value.Day07KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 7) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 7, data.value.SyainCdSeq))">@data.value.Day07KinKyuNm</td>
+                                <td title="@data.value.Day08KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 8, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day08SelectKbn, data.value.Day08KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 8) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 8, data.value.SyainCdSeq))">@data.value.Day08KinKyuNm</td>
+                                <td title="@data.value.Day01KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 9, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day09SelectKbn, data.value.Day09KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 9) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 9, data.value.SyainCdSeq))">@data.value.Day09KinKyuNm</td>
+                                <td title="@data.value.Day10KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 10, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day10SelectKbn, data.value.Day10KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 10) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 10, data.value.SyainCdSeq))">@data.value.Day10KinKyuNm</td>
+                                <td title="@data.value.Day11KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 11, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day11SelectKbn, data.value.Day11KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 11) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 11, data.value.SyainCdSeq))">@data.value.Day11KinKyuNm</td>
+                                <td title="@data.value.Day12KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 12, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day12SelectKbn, data.value.Day12KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 12) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 12, data.value.SyainCdSeq))">@data.value.Day12KinKyuNm</td>
+                                <td title="@data.value.Day13KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 13, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day13SelectKbn, data.value.Day13KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 13) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 13, data.value.SyainCdSeq))">@data.value.Day13KinKyuNm</td>
+                                <td title="@data.value.Day14KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 14, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day14SelectKbn, data.value.Day14KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 14) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 14, data.value.SyainCdSeq))">@data.value.Day14KinKyuNm</td>
+                                <td title="@data.value.Day15KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 15, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day15SelectKbn, data.value.Day15KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 15) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 15, data.value.SyainCdSeq))">@data.value.Day15KinKyuNm</td>
+                                <td title="@data.value.Day16KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 16, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day16SelectKbn, data.value.Day16KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 16) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 16, data.value.SyainCdSeq))">@data.value.Day16KinKyuNm</td>
+                                <td title="@data.value.Day17KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 17, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day17SelectKbn, data.value.Day17KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 17) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 17, data.value.SyainCdSeq))">@data.value.Day17KinKyuNm</td>
+                                <td title="@data.value.Day18KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 18, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day18SelectKbn, data.value.Day18KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 18) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 18, data.value.SyainCdSeq))">@data.value.Day18KinKyuNm</td>
+                                <td title="@data.value.Day19KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 19, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day19SelectKbn, data.value.Day19KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 19) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 19, data.value.SyainCdSeq))">@data.value.Day19KinKyuNm</td>
+                                <td title="@data.value.Day20KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 20, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day20SelectKbn, data.value.Day20KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 20) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 20, data.value.SyainCdSeq))">@data.value.Day20KinKyuNm</td>
+                                <td title="@data.value.Day21KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 21, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day21SelectKbn, data.value.Day21KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 21) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 21, data.value.SyainCdSeq))">@data.value.Day21KinKyuNm</td>
+                                <td title="@data.value.Day22KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 22, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day22SelectKbn, data.value.Day22KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 22) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 22, data.value.SyainCdSeq))">@data.value.Day22KinKyuNm</td>
+                                <td title="@data.value.Day23KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 23, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day23SelectKbn, data.value.Day23KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 23) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 23, data.value.SyainCdSeq))">@data.value.Day23KinKyuNm</td>
+                                <td title="@data.value.Day24KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 24, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day24SelectKbn, data.value.Day24KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 24) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 24, data.value.SyainCdSeq))">@data.value.Day24KinKyuNm</td>
+                                <td title="@data.value.Day25KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 25, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day25SelectKbn, data.value.Day25KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 25) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 25, data.value.SyainCdSeq))">@data.value.Day25KinKyuNm</td>
+                                <td title="@data.value.Day26KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 26, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day26SelectKbn, data.value.Day26KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 26) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 26, data.value.SyainCdSeq))">@data.value.Day26KinKyuNm</td>
+                                <td title="@data.value.Day27KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 27, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day27SelectKbn, data.value.Day27KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 27) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 27, data.value.SyainCdSeq))">@data.value.Day27KinKyuNm</td>
+                                <td title="@data.value.Day28KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 28, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day28SelectKbn, data.value.Day28KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 28) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 28, data.value.SyainCdSeq))">@data.value.Day28KinKyuNm</td>
+                                @if (ToDate >= 29)
+                                {
+                                    <td title="@data.value.Day29KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 29, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day29SelectKbn, data.value.Day29KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 29) == true ? "selected-cell" : "")" @onclick="@((e) => OnCellClick(e, data.i, 29, data.value.SyainCdSeq))">@data.value.Day29KinKyuNm</td>
+                                }
+                                @if (ToDate >= 30)
+                                {
+                                    <td title="@data.value.Day29KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 30, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day30SelectKbn, data.value.Day30KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 30) == true ? "selected-cell" : "")" @onclick="@((e) => OnCellClick(e, data.i, 30, data.value.SyainCdSeq))">@data.value.Day30KinKyuNm</td>
+                                }
+                                @if (ToDate >= 31)
+                                {
+                                    <td title="@data.value.Day29KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 31, 0))" class="min-td @(GetCellSelectionBackGround(data.i, data.value.Day31SelectKbn, data.value.Day31KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 31) == true ? "selected-cell" : "")" @onclick="@((e) => OnCellClick(e, data.i, 31, data.value.SyainCdSeq))">@data.value.Day31KinKyuNm</td>
+                                }
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            }
+        </div>
+    }
+
+    @if (BatchKobanInputFilterModel.DisplayKbn.IdValue == 1)
+    {
+        <div class="d-flex border-b" id="koban-table-wrapper" style="height:720px">
+            <div class="grid-@ActiveV bi-table-wrapper"  style="width: 100%;">
+                <table class="table-koban table-layout" id="koban-table-1" style="border-left: 1px solid #e6e6e6;">
+                    <thead>
+                        <tr class="header-row">
+                            <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                            <th class="bi-column">
+                                <div>@Dates[0]</div>
+                                <div>@DayOfWeeks[0]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[0].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(1, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[1]</div>
+                                <div>@DayOfWeeks[1]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[1].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(2, value))"></DxCheckBox>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                        {
+                            <tr class=".body-row-1">
+                                <td class="text-left tb-td" style="white-space: nowrap">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day01KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 1))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day01SelectKbn, data.value.Day01KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 1) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 1, data.value.SyainCdSeq))">@data.value.Day01KinKyuNm</td>
+                                <td title="@data.value.Day02KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 1))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day02SelectKbn, data.value.Day02KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 2) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 2, data.value.SyainCdSeq))">@data.value.Day02KinKyuNm</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div div class="bi-table-wrapper grid-@ActiveV" style="width: 100%; padding-left: 10px">
+                <table class="table-koban table-layout" id="koban-table-2" style="border-left: 1px solid #e6e6e6;">
+                    <thead>
+                        <tr class="header-row">
+                            <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                            <th class="bi-column">
+                                <div>@Dates[2]</div>
+                                <div>@DayOfWeeks[2]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[2].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(3, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[3]</div>
+                                <div>@DayOfWeeks[3]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[3].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(4, value))"></DxCheckBox>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                        {
+                            <tr class=".body-row-1">
+                                <td class="text-left tb-td" style="white-space: nowrap">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day03KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 2))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day03SelectKbn, data.value.Day03KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 3) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 3, data.value.SyainCdSeq))">@data.value.Day03KinKyuNm</td>
+                                <td title="@data.value.Day04KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 2))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day04SelectKbn, data.value.Day04KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 4) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 4, data.value.SyainCdSeq))">@data.value.Day04KinKyuNm</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div div class="bi-table-wrapper grid-@ActiveV" style="width: 100%; padding-left: 10px">
+                <table class="table-koban table-layout" id="koban-table-4" style="border-left: 1px solid #e6e6e6;">
+                    <thead>
+                        <tr class="header-row">
+                            <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                            <th class="bi-column">
+                                <div>@Dates[5]</div>
+                                <div>@DayOfWeeks[5]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[5].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(6, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[6]</div>
+                                <div>@DayOfWeeks[6]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[6].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(7, value))"></DxCheckBox>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                        {
+                            <tr class=".body-row-1">
+                                <td class="text-left tb-td" style="white-space: nowrap">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day05KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 4))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day05SelectKbn, data.value.Day05KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 5) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 5, data.value.SyainCdSeq))">@data.value.Day05KinKyuNm</td>
+                                <td title="@data.value.Day06KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 4))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day06SelectKbn, data.value.Day06KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 6) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 6, data.value.SyainCdSeq))">@data.value.Day06KinKyuNm</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div div class="bi-table-wrapper grid-@ActiveV" style="width: 100%; padding-left: 10px">
+                <table class="table-koban table-layout" id="koban-table-6" style="border-left: 1px solid #e6e6e6;">
+                    <thead>
+                        <tr class="header-row">
+                            <th class="order-no sticky" style="color:white; z-index:999">@DisPlayHeader</th>
+
+                            <th class="bi-column">
+                                <div>@Dates[7]</div>
+                                <div>@DayOfWeeks[7]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[7].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(8, value))"></DxCheckBox>
+                            </th>
+                            <th class="bi-column">
+                                <div>@Dates[8]</div>
+                                <div>@DayOfWeeks[8]</div>
+                                <DxCheckBox Checked="@CheckedAllDay[8].IsChecked" CheckedChanged="@(async (value)=> await CheckAllDay(9, value))"></DxCheckBox>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in KobanDataGrids.Select((value, i) => new { i, value }))
+                        {
+                            <tr class=".body-row-1">
+                                <td class="text-left tb-td" style="white-space: nowrap">@GetEmpolyeeFieldDisplay(data.value)</td>
+                                <td title="@data.value.Day07KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 1, 6))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day07SelectKbn, data.value.Day07KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 7) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 7, data.value.SyainCdSeq))">@data.value.Day07KinKyuNm</td>
+                                <td title="@data.value.Day08KinKyuNm" @onmousedown="@((e) => MouseDownGrid(data.i, 2, 6))" class="min-td-1 @(GetCellSelectionBackGround(data.i, data.value.Day08SelectKbn, data.value.Day08KinKyuCd) == true ? "selectedkbn1" :"") @(GetCellBackGround(data.i, 8) == true ? "selected-cell" : "") @("block-with-text-koban")" @onclick="@((e) => OnCellClick(e, data.i, 8, data.value.SyainCdSeq))">@data.value.Day08KinKyuNm</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+<div class="col-12 text-center mb-1 mt-1" id="save-koban">
+    <button class="@String.Format("btn btn-sm btn-primary {0}", Cansave ? "" : "disabled")" @onclick="SaveKoban">
+            <i class="fa fa-save" aria-hidden="true"></i>
+            @Lang["Save"]
+        </button>
+</div>
+</div>
