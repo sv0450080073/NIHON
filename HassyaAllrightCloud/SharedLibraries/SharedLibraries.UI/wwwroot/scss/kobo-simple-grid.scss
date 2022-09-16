@@ -1,0 +1,166 @@
+﻿table.kobo-simple-table {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    border-collapse: separate;
+    border-spacing: 0px;
+
+    & .selected-row {
+        td {
+            background-color: #e0faf2;
+        }
+    }
+
+    & > thead > tr {
+        &:first-child > th {
+            & [draggable] {
+                cursor: move;
+            }
+
+            position: sticky;
+        }
+
+        & > th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0px;
+            height: 2rem;
+
+            &.over {
+                background-color: gray;
+            }
+
+            & > div.cell-container {
+                height: 100%;
+                display: flex;
+
+                & .text-center-container {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+
+                    & > .text-center-div {
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-align: center;
+                        margin: auto;
+                    }
+                }
+            }
+        }
+    }
+
+    & > thead > tr > th, & > tbody > tr > td {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 1px;
+        white-space: nowrap;
+        padding: 0 5px;
+        border: 1px solid #e9ecef;
+    }
+
+    & > tbody > tr {
+        & > td {
+            border: 1px solid #e9ecef;
+            background-color: white;
+        }
+    }
+
+    & .resize-div {
+        width: 4px;
+        height: 100%;
+        cursor: col-resize;
+    }
+}
+
+[draggable] {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}
+
+
+.kobo-loading {
+    position: fixed;
+    z-index: 11003;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background: #ffffffc2;
+
+    & > .loader-icon {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+.kobo-grid-size-1 table {
+    font-size: 0.875rem;
+    line-height: 2rem;
+}
+
+.kobo-grid-size-2 table {
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+}
+
+.kobo-grid-size-3 table {
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+}
+
+.kobo-checkbox {
+}
+
+.simple-grid {
+    overflow: auto;
+    background-color: #00000008;
+    display: flex;
+    position: relative;
+}
+
+.grid-spliter {
+    display: none;
+    width: 0.1rem;
+    height: 100%;
+    position: absolute;
+    background-color: #f95959 !important;
+    z-index: 100;
+}
+
+.kobo-simple-grid {
+    display: flex;
+    position: relative;
+
+    .kobo-simple-grid-container {
+        position: relative;
+        overflow: auto;
+    }
+}
+.dot-if-over {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.white-space-pre-line {
+    white-space: pre-line!important;
+}
+
+.vertical-align-baseline {
+    vertical-align: baseline;
+}
+
+.text-preline {
+    white-space: pre-line !important;
+
+
+    &::first-line {
+        line-height: 0px;
+    }
+}

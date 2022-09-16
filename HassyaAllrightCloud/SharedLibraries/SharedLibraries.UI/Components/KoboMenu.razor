@@ -1,0 +1,38 @@
+﻿@inherits KoboMenuBase
+
+<div id="kobo-vertical-menu" class="kobo-vertical-menu">
+    <div class="kobo-logo-container">
+        <a href="@HomeUrl" class="kobo-logo">
+            @if (IsMinimize)
+            {
+                <span class="kobo-logo-sm">
+                    <img src="@LogoUrl" alt="" height="22">
+                </span>
+            }
+            else
+            {
+                <span class="kobo-logo-lg">
+                    <img src="@LogoUrl" alt="" height="20">
+                    <span class="kobo-logo-title">@LogoTitle</span>
+                </span>
+            }
+        </a>
+    </div>
+    <div class="slide-bar" onselectstart="return false">
+        @if (MenuItems != null && MenuItems.Any())
+        {
+            <div class="menu-contents">
+                @foreach (var item in MenuItems)
+                {
+                    <KoboMenuItem MenuItem="item" @ref="items[item.Id]" ServiceEndpoints="ServiceEndpoints"
+                                  IsMinimize="IsMinimize" Depth="1" OnExpand="OnChildrenExpand" 
+                                  OnActive="OnChildrenActive"></KoboMenuItem>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="access-denied">@_lang["AccessDenied"]</div>
+        }
+    </div>
+</div>

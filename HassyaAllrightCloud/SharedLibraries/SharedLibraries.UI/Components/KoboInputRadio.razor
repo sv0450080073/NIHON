@@ -1,0 +1,26 @@
+﻿@typeparam T
+<div class="form-check form-check-inline @CssClass">
+    <input type="radio" class="k-radio" name="@id" id="@id"
+           value="@Value"
+           checked="@Checked"
+           disabled="@ReadOnly"
+           @onchange="e => Changed(e)">
+    <label class="k-radio-label ml-2" for="@id">
+        @Label
+    </label>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; }
+    [Parameter] public T Value { get; set; }
+    [Parameter] public bool Checked { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public string CssClass { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnChanged { get; set; }
+    Guid id = Guid.NewGuid();
+
+    void Changed(ChangeEventArgs e)
+    {
+        OnChanged.InvokeAsync(e);
+    }
+}

@@ -1,0 +1,41 @@
+﻿@inherits KoboMenuItemBase
+
+@if (MenuItem != null)
+{
+    <div class="menu-item-container">
+        <div class="menu-item-btn @(MenuItem.IsActive ? "active" : string.Empty)" @onclick="async e => await ItemClicked(MenuItem, e)" @onclick:preventDefault="true"
+             @onclick:stopPropagation="true">
+            <div class="menu-text">
+                @if (!string.IsNullOrWhiteSpace(MenuItem.Icon))
+                {
+                    <i class="fa @MenuItem.Icon"></i>
+                }
+                <span title="@MenuItem.MenuNm">@MenuItem.MenuNm</span>
+            </div>
+
+            @if (MenuItem.Children != null && MenuItem.Children.Any())
+            {
+                @if (MenuItem.IsExpand)
+                {
+                    <i class="fa fa-angle-up"></i>
+                }
+                else
+                {
+                    <i class="fa fa-angle-down"></i>
+                }
+            }
+
+        </div>
+
+        @if (MenuItem.Children != null && MenuItem.Children.Any())
+        {
+            <div class="children @cssClass" id="@MenuItem.Id.ToString()">
+                @foreach (var item in MenuItem.Children)
+                {
+                    <KoboMenuItem MenuItem="item" @ref="items[item.Id]" OnExpand="async e => await OnChildrenExpand(e)" 
+                                  ServiceEndpoints="ServiceEndpoints" IsMinimize="IsMinimize" Depth="@((byte)(Depth + 1))" OnActive="OnActiveCallBack"></KoboMenuItem>
+                }
+            </div>
+        }
+    </div>
+}

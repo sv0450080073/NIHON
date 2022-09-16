@@ -1,0 +1,282 @@
+
+.kobo-vertical-menu {
+    background: #1ab394;
+    z-index: 999;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    width: 16.625rem;
+    min-width: 16.625rem;
+
+    .kobo-logo-container {
+        color: white;
+        background: #007D61;
+        padding: 0 1.5rem;
+        display: flex;
+        position: sticky;
+        top: 0;
+
+        .kobo-logo {
+            padding: 0.625rem;
+            display: flex;
+
+            .kobo-logo-lg {
+                margin: auto;
+
+                img {
+                    height: 2.0625rem;
+                }
+            }
+
+            .kobo-logo-sm {
+                display: unset;
+                margin: auto;
+
+                img {
+                    height: 2.0625rem;
+                }
+            }
+        }
+    }
+
+    .slide-bar {
+        overflow: auto;
+        flex: 1;
+
+
+        .access-denied {
+            color: white;
+            padding: .625rem 1.5rem;
+        }
+
+
+        &::-webkit-scrollbar {
+            width: 0;
+        }
+
+        & > .menu-contents > .menu-item-container {
+            .menu-item-btn {
+                display: flex;
+                justify-content: space-between;
+                text-align: left;
+                font-weight: 500;
+                white-space: nowrap;
+                padding: 0.625rem 0.5rem;
+                cursor: pointer;
+                color: #a7b1c2;
+                background-color: #2F4858;
+                height: 40px;
+
+                .menu-text {
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+
+                    & > span {
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                    }
+                }
+
+                i {
+                    margin-top: auto;
+                    margin-bottom: auto;
+                }
+
+                &.active, &:hover {
+                    background: #2f4050;
+                    color: #fff;
+                }
+            }
+
+            & > .menu-item-btn {
+                color: #fff;
+                background: #17987e;
+
+                &:hover {
+                    color: #fff;
+                    background: #17987e;
+                }
+            }
+
+            & > .children {
+                .menu-item-container {
+                    .menu-item-btn {
+                    }
+
+                    .children {
+                        .menu-item-btn {
+                            padding-left: 1.5rem;
+                        }
+
+                        .children {
+                            .menu-item-btn {
+                                padding-left: 2.5rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.kobo-display-none {
+    display: none;
+}
+
+.kobo-display-block {
+    display: block;
+}
+
+
+.kobo-vertical-menu.minimize {
+    width: 60px;
+    min-width: 60px;
+    overflow: visible;
+
+    .kobo-logo-container {
+        padding: 0;
+
+        .kobo-logo {
+            margin: auto;
+
+            .kobo-logo-title {
+                display: none;
+            }
+        }
+    }
+
+    .kobo-menu-header {
+        transition: all 0.5s;
+        display: flex;
+
+        i {
+            transition: all 0.5s;
+            font-size: 30px;
+            margin: auto;
+        }
+
+        a {
+            display: none;
+        }
+    }
+
+    .slide-bar {
+        overflow: visible;
+
+        .access-denied {
+            display: none;
+        }
+
+        & > .menu-contents {
+            & > .menu-item-container {
+                padding: 0;
+
+                & > .children {
+                    display: none !important;
+                    max-height: 45vh;
+                    overflow: auto;
+
+                    &::-webkit-scrollbar-thumb {
+                        background-color: #696969;
+                    }
+
+                    &::-webkit-scrollbar {
+                        width: 6px;
+                    }
+
+                    &::-webkit-scrollbar-track {
+                        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+                        background-color: #F5F5F5;
+                    }
+                }
+
+                &:hover {
+                    position: relative;
+
+                    & > .menu-item-btn {
+                        width: calc(240px + 70px);
+                        padding: unset !important;
+                        background: #17987e !important;
+
+                        & > .menu-text {
+                            margin: unset;
+                            width: 100%;
+                            display: flex;
+
+                            & > i {
+                                width: 60px;
+                                height: 100%;
+                                display: flex;
+
+                                &:before {
+                                    margin: auto;
+                                }
+                            }
+
+                            & > span {
+                                display: unset;
+                                width: 250px;
+                                padding: 0.625rem 1.5rem !important;
+                                margin: auto;
+                            }
+                        }
+                    }
+
+                    & > .children {
+                        position: absolute;
+                        display: block !important;
+                        transform: translate(60px, 0px);
+                        width: 250px;
+                        background-color: #252b3b;
+
+                        & .menu-item-btn {
+                            padding-left: 1.5rem !important;
+
+                            .menu-text {
+                                display: flex;
+
+                                i {
+                                    margin-right: 0.5rem;
+                                }
+
+                                span {
+                                    display: block;
+                                    margin-top: auto;
+                                    margin-bottom: auto;
+                                }
+                            }
+
+                            & > i {
+                                display: block;
+                            }
+                        }
+                    }
+                }
+
+                & > .menu-item-btn {
+
+                    & > .menu-text {
+                        margin: auto;
+
+                        i {
+                            font-size: 20px;
+                        }
+
+                        span {
+                            display: none;
+                        }
+                    }
+
+                    & > i {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}

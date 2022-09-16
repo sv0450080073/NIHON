@@ -1,0 +1,759 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="add_new_btn" xml:space="preserve">
+    <value>新規</value>
+  </data>
+  <data name="BI_T001" xml:space="preserve">
+    <value>会社の範囲指定に誤りがあります！</value>
+  </data>
+  <data name="BI_T002" xml:space="preserve">
+    <value>会社コードを入力してください！</value>
+  </data>
+  <data name="BI_T003" xml:space="preserve">
+    <value>既に登録済みの為、登録できません！</value>
+  </data>
+  <data name="BI_T004" xml:space="preserve">
+    <value>キャンセル率1開始日を入力してください!</value>
+  </data>
+  <data name="BI_T005" xml:space="preserve">
+    <value>キャンセル率1の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T006" xml:space="preserve">
+    <value>キャンセル率1終了日を入力してください!</value>
+  </data>
+  <data name="BI_T007" xml:space="preserve">
+    <value>キャンセル率1とキャンセル率2の期間が重複しています!</value>
+  </data>
+  <data name="BI_T008" xml:space="preserve">
+    <value>キャンセル率1を入力してください!</value>
+  </data>
+  <data name="BI_T009" xml:space="preserve">
+    <value>キャンセル率1は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T010" xml:space="preserve">
+    <value>キャンセル率2開始日を入力してください!</value>
+  </data>
+  <data name="BI_T011" xml:space="preserve">
+    <value>キャンセル率2の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T012" xml:space="preserve">
+    <value>キャンセル率2終了日を入力してください!</value>
+  </data>
+  <data name="BI_T013" xml:space="preserve">
+    <value>キャンセル率2とキャンセル率3の期間が重複しています!</value>
+  </data>
+  <data name="BI_T014" xml:space="preserve">
+    <value>キャンセル率2を入力してください!</value>
+  </data>
+  <data name="BI_T015" xml:space="preserve">
+    <value>キャンセル率2は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T016" xml:space="preserve">
+    <value>キャンセル率3開始日を入力してください!</value>
+  </data>
+  <data name="BI_T017" xml:space="preserve">
+    <value>キャンセル率3の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T018" xml:space="preserve">
+    <value>キャンセル率3終了日を入力してください!</value>
+  </data>
+  <data name="BI_T019" xml:space="preserve">
+    <value>キャンセル率3とキャンセル率4の期間が重複しています!</value>
+  </data>
+  <data name="BI_T020" xml:space="preserve">
+    <value>キャンセル率3を入力してください!</value>
+  </data>
+  <data name="BI_T021" xml:space="preserve">
+    <value>キャンセル率3は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T022" xml:space="preserve">
+    <value>キャンセル率4開始日を入力してください!</value>
+  </data>
+  <data name="BI_T023" xml:space="preserve">
+    <value>キャンセル率4の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T024" xml:space="preserve">
+    <value>キャンセル率4終了日を入力してください!</value>
+  </data>
+  <data name="BI_T025" xml:space="preserve">
+    <value>キャンセル率4とキャンセル率5の期間が重複しています!</value>
+  </data>
+  <data name="BI_T026" xml:space="preserve">
+    <value>キャンセル率4を入力してください!</value>
+  </data>
+  <data name="BI_T027" xml:space="preserve">
+    <value>キャンセル率4は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T028" xml:space="preserve">
+    <value>キャンセル率5開始日を入力してください!</value>
+  </data>
+  <data name="BI_T029" xml:space="preserve">
+    <value>キャンセル率5の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T030" xml:space="preserve">
+    <value>キャンセル率5終了日を入力してください!</value>
+  </data>
+  <data name="BI_T031" xml:space="preserve">
+    <value>キャンセル率5とキャンセル率6の期間が重複しています!</value>
+  </data>
+  <data name="BI_T032" xml:space="preserve">
+    <value>キャンセル率5を入力してください!</value>
+  </data>
+  <data name="BI_T033" xml:space="preserve">
+    <value>キャンセル率5は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T034" xml:space="preserve">
+    <value>キャンセル率6開始日を入力してください!</value>
+  </data>
+  <data name="BI_T035" xml:space="preserve">
+    <value>キャンセル率6の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T036" xml:space="preserve">
+    <value>キャンセル率6終了日を入力してください!</value>
+  </data>
+  <data name="BI_T037" xml:space="preserve">
+    <value>キャンセル率6を入力してください!</value>
+  </data>
+  <data name="BI_T038" xml:space="preserve">
+    <value>キャンセル率6は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="clear_btn" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="company_lbl" xml:space="preserve">
+    <value>会社</value>
+  </data>
+  <data name="company_nulltext" xml:space="preserve">
+    <value>会社コード：会社名</value>
+  </data>
+  <data name="condition_setting_title" xml:space="preserve">
+    <value>条件設定</value>
+  </data>
+  <data name="display_title" xml:space="preserve">
+    <value>表示設定</value>
+  </data>
+  <data name="EraseAll" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="fontsize_title" xml:space="preserve">
+    <value>幅切替</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName1" xml:space="preserve">
+    <value>実績集計勤務休日種別名１</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName10" xml:space="preserve">
+    <value>実績集計勤務休日種別名１０</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName2" xml:space="preserve">
+    <value>実績集計勤務休日種別名２</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName3" xml:space="preserve">
+    <value>実績集計勤務休日種別名３</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName4" xml:space="preserve">
+    <value>実績集計勤務休日種別名４</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName5" xml:space="preserve">
+    <value>実績集計勤務休日種別名５</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName6" xml:space="preserve">
+    <value>実績集計勤務休日種別名６</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName7" xml:space="preserve">
+    <value>実績集計勤務休日種別名７</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName8" xml:space="preserve">
+    <value>実績集計勤務休日種別名８</value>
+  </data>
+  <data name="GridAchievementTotalWorkHolidayTypeName9" xml:space="preserve">
+    <value>実績集計勤務休日種別名９</value>
+  </data>
+  <data name="GridAutoKoban" xml:space="preserve">
+    <value>自動交番</value>
+  </data>
+  <data name="GridAutoPriorty" xml:space="preserve">
+    <value>自動仮車優先順位</value>
+  </data>
+  <data name="GridAutoTemporaryBus" xml:space="preserve">
+    <value>自動仮車</value>
+  </data>
+  <data name="GridAutoTemporaryBusDivision" xml:space="preserve">
+    <value>自動仮車分割</value>
+  </data>
+  <data name="GridBillComent1" xml:space="preserve">
+    <value>請求書コメント1</value>
+  </data>
+  <data name="GridBillComent2" xml:space="preserve">
+    <value>請求書コメント2</value>
+  </data>
+  <data name="GridBillComent3" xml:space="preserve">
+    <value>請求書コメント3</value>
+  </data>
+  <data name="GridBillComent4" xml:space="preserve">
+    <value>請求書コメント4</value>
+  </data>
+  <data name="GridBillComent5" xml:space="preserve">
+    <value>請求書コメント5</value>
+  </data>
+  <data name="GridBillComent6" xml:space="preserve">
+    <value>請求書コメント6</value>
+  </data>
+  <data name="GridBillForward" xml:space="preserve">
+    <value>請求繰越</value>
+  </data>
+  <data name="GridCancelClassification" xml:space="preserve">
+    <value>キャンセル区分</value>
+  </data>
+  <data name="GridCancelRate1" xml:space="preserve">
+    <value>キャンセル率１</value>
+  </data>
+  <data name="GridCancelRate1EndTime" xml:space="preserve">
+    <value>キャンセル率１終了期間</value>
+  </data>
+  <data name="GridCancelRate1StartTime" xml:space="preserve">
+    <value>キャンセル率１開始期間</value>
+  </data>
+  <data name="GridCancelRate2" xml:space="preserve">
+    <value>キャンセル率２</value>
+  </data>
+  <data name="GridCancelRate2EndTime" xml:space="preserve">
+    <value>キャンセル率２終了期間</value>
+  </data>
+  <data name="GridCancelRate2StartTime" xml:space="preserve">
+    <value>キャンセル率２開始期間</value>
+  </data>
+  <data name="GridCancelRate3" xml:space="preserve">
+    <value>キャンセル率３</value>
+  </data>
+  <data name="GridCancelRate3EndTime" xml:space="preserve">
+    <value>キャンセル率３終了期間</value>
+  </data>
+  <data name="GridCancelRate3StartTime" xml:space="preserve">
+    <value>キャンセル率３開始期間</value>
+  </data>
+  <data name="GridCancelRate4" xml:space="preserve">
+    <value>キャンセル率４</value>
+  </data>
+  <data name="GridCancelRate4EndTime" xml:space="preserve">
+    <value>キャンセル率４終了期間</value>
+  </data>
+  <data name="GridCancelRate4StartTime" xml:space="preserve">
+    <value>キャンセル率４開始期間</value>
+  </data>
+  <data name="GridCancelRate5" xml:space="preserve">
+    <value>キャンセル率５</value>
+  </data>
+  <data name="GridCancelRate5EndTime" xml:space="preserve">
+    <value>キャンセル率５終了期間</value>
+  </data>
+  <data name="GridCancelRate5StartTime" xml:space="preserve">
+    <value>キャンセル率５開始期間</value>
+  </data>
+  <data name="GridCancelRate6" xml:space="preserve">
+    <value>キャンセル率６</value>
+  </data>
+  <data name="GridCancelRate6EndTime" xml:space="preserve">
+    <value>キャンセル率６終了期間</value>
+  </data>
+  <data name="GridCancelRate6StartTime" xml:space="preserve">
+    <value>キャンセル率６開始期間</value>
+  </data>
+  <data name="GridCharacter1DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(文字区分1)</value>
+  </data>
+  <data name="GridCharacter1DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(文字区分1)</value>
+  </data>
+  <data name="GridCharacter2DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(文字区分2)</value>
+  </data>
+  <data name="GridCharacter2DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(文字区分2)</value>
+  </data>
+  <data name="GridCharacter3DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(文字区分3)</value>
+  </data>
+  <data name="GridCharacter3DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(文字区分3)</value>
+  </data>
+  <data name="GridCharacter4DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(文字区分4)</value>
+  </data>
+  <data name="GridCharacter4DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(文字区分4)</value>
+  </data>
+  <data name="GridCharacter5DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(文字区分5)</value>
+  </data>
+  <data name="GridCharacter5DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(文字区分5)</value>
+  </data>
+  <data name="GridCharacterClassification10DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１０）</value>
+  </data>
+  <data name="GridCharacterClassification10DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１０）</value>
+  </data>
+  <data name="GridCharacterClassification11DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１１）</value>
+  </data>
+  <data name="GridCharacterClassification11DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１１）</value>
+  </data>
+  <data name="GridCharacterClassification12DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１２）</value>
+  </data>
+  <data name="GridCharacterClassification12DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１２）</value>
+  </data>
+  <data name="GridCharacterClassification13DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１３）</value>
+  </data>
+  <data name="GridCharacterClassification13DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１３）</value>
+  </data>
+  <data name="GridCharacterClassification14DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１４）</value>
+  </data>
+  <data name="GridCharacterClassification14DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１４）</value>
+  </data>
+  <data name="GridCharacterClassification15DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１５）</value>
+  </data>
+  <data name="GridCharacterClassification15DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１５）</value>
+  </data>
+  <data name="GridCharacterClassification1DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分１）</value>
+  </data>
+  <data name="GridCharacterClassification1DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分１）</value>
+  </data>
+  <data name="GridCharacterClassification2DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分２）</value>
+  </data>
+  <data name="GridCharacterClassification2DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分２）</value>
+  </data>
+  <data name="GridCharacterClassification3DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分３）</value>
+  </data>
+  <data name="GridCharacterClassification3DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分３）</value>
+  </data>
+  <data name="GridCharacterClassification4DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分４）</value>
+  </data>
+  <data name="GridCharacterClassification4DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分４）</value>
+  </data>
+  <data name="GridCharacterClassification5DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分５）</value>
+  </data>
+  <data name="GridCharacterClassification5DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分５）</value>
+  </data>
+  <data name="GridCharacterClassification6DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分６）</value>
+  </data>
+  <data name="GridCharacterClassification6DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分６）</value>
+  </data>
+  <data name="GridCharacterClassification7DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分７）</value>
+  </data>
+  <data name="GridCharacterClassification7DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分７）</value>
+  </data>
+  <data name="GridCharacterClassification8DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分８）</value>
+  </data>
+  <data name="GridCharacterClassification8DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分８）</value>
+  </data>
+  <data name="GridCharacterClassification9DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（文字区分９）</value>
+  </data>
+  <data name="GridCharacterClassification9DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（文字区分９）</value>
+  </data>
+  <data name="GridCheckZeroYen" xml:space="preserve">
+    <value>売上ゼロ円チェック</value>
+  </data>
+  <data name="GridColor1DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(色選択1)</value>
+  </data>
+  <data name="GridColor1DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(色選択1)</value>
+  </data>
+  <data name="GridColor2DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(色選択2)</value>
+  </data>
+  <data name="GridColor2DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(色選択2)</value>
+  </data>
+  <data name="GridColor3DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(色選択3)</value>
+  </data>
+  <data name="GridColor3DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(色選択3)</value>
+  </data>
+  <data name="GridColor4DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(色選択4)</value>
+  </data>
+  <data name="GridColor4DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(色選択4)</value>
+  </data>
+  <data name="GridColor5DisplayByBusType" xml:space="preserve">
+    <value>車種･車両別線引文字表示(色選択5)</value>
+  </data>
+  <data name="GridColor5DisplayByCrew" xml:space="preserve">
+    <value>乗務員別線引文字表示(色選択5)</value>
+  </data>
+  <data name="GridColorClassification10DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１０）</value>
+  </data>
+  <data name="GridColorClassification10DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１０）</value>
+  </data>
+  <data name="GridColorClassification11DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１１）</value>
+  </data>
+  <data name="GridColorClassification11DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１１）</value>
+  </data>
+  <data name="GridColorClassification12DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１２）</value>
+  </data>
+  <data name="GridColorClassification12DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１２）</value>
+  </data>
+  <data name="GridColorClassification13DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１３）</value>
+  </data>
+  <data name="GridColorClassification13DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１３）</value>
+  </data>
+  <data name="GridColorClassification14DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１４）</value>
+  </data>
+  <data name="GridColorClassification14DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１４）</value>
+  </data>
+  <data name="GridColorClassification15DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１５）</value>
+  </data>
+  <data name="GridColorClassification15DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１５）</value>
+  </data>
+  <data name="GridColorClassification1DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択１）</value>
+  </data>
+  <data name="GridColorClassification1DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択１）</value>
+  </data>
+  <data name="GridColorClassification2DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択２）</value>
+  </data>
+  <data name="GridColorClassification2DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択２）</value>
+  </data>
+  <data name="GridColorClassification3DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択３）</value>
+  </data>
+  <data name="GridColorClassification3DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択３）</value>
+  </data>
+  <data name="GridColorClassification4DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択４）</value>
+  </data>
+  <data name="GridColorClassification4DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択４）</value>
+  </data>
+  <data name="GridColorClassification5DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択５）</value>
+  </data>
+  <data name="GridColorClassification5DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択５）</value>
+  </data>
+  <data name="GridColorClassification6DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択６）</value>
+  </data>
+  <data name="GridColorClassification6DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択６）</value>
+  </data>
+  <data name="GridColorClassification7DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択７）</value>
+  </data>
+  <data name="GridColorClassification7DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択７）</value>
+  </data>
+  <data name="GridColorClassification8DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択８）</value>
+  </data>
+  <data name="GridColorClassification8DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択８）</value>
+  </data>
+  <data name="GridColorClassification9DisplayByBusType" xml:space="preserve">
+    <value>車種・車両別線引情報表示パターン（色選択９）</value>
+  </data>
+  <data name="GridColorClassification9DisplayByCrewType" xml:space="preserve">
+    <value>乗務員線引情報表示パターン（色選択９）</value>
+  </data>
+  <data name="GridCompanyCode" xml:space="preserve">
+    <value>会社コード</value>
+  </data>
+  <data name="GridCompanyName" xml:space="preserve">
+    <value>会社名</value>
+  </data>
+  <data name="GridCrewCompatibilityCheck" xml:space="preserve">
+    <value>乗務員相性チェック</value>
+  </data>
+  <data name="GridCurrentInvoice" xml:space="preserve">
+    <value>請求書現行</value>
+  </data>
+  <data name="GridDailyProcess" xml:space="preserve">
+    <value>日次処理</value>
+  </data>
+  <data name="GridDisplayDetailSelection" xml:space="preserve">
+    <value>明細選択表示</value>
+  </data>
+  <data name="GridExtendItem" xml:space="preserve">
+    <value>拡張項目</value>
+  </data>
+  <data name="GridFareByVehicle" xml:space="preserve">
+    <value>車両別運賃</value>
+  </data>
+  <data name="GridFareTaxDisplay" xml:space="preserve">
+    <value>運賃税表示</value>
+  </data>
+  <data name="GridFeeFraction" xml:space="preserve">
+    <value>手数料端数</value>
+  </data>
+  <data name="GridHiredBusDifferentClassification" xml:space="preserve">
+    <value>傭車差額区分</value>
+  </data>
+  <data name="GridHiredBusFee" xml:space="preserve">
+    <value>傭車手数料</value>
+  </data>
+  <data name="GridIncidentalType1Addition" xml:space="preserve">
+    <value>付帯種別１付加</value>
+  </data>
+  <data name="GridIncidentalType2Addition" xml:space="preserve">
+    <value>付帯種別２付加</value>
+  </data>
+  <data name="GridIncidentalType3Addition" xml:space="preserve">
+    <value>付帯種別３付加</value>
+  </data>
+  <data name="GridIncidentalType4Addition" xml:space="preserve">
+    <value>付帯種別４付加</value>
+  </data>
+  <data name="GridInitCopyArrangeData" xml:space="preserve">
+    <value>手配データ複写初期</value>
+  </data>
+  <data name="GridInitCopyBoardingPlaceData" xml:space="preserve">
+    <value>乗車地データ複写初期</value>
+  </data>
+  <data name="GridInitCopyIncidentalData" xml:space="preserve">
+    <value>付帯データ複写初期</value>
+  </data>
+  <data name="GridInitCopyLoadingGoodData" xml:space="preserve">
+    <value>積込品データ複写初期</value>
+  </data>
+  <data name="GridInitCopyOperationDateRemarkData" xml:space="preserve">
+    <value>運行日備考データ複写初期</value>
+  </data>
+  <data name="GridInitCopyProcessData" xml:space="preserve">
+    <value>行程データ複写初期</value>
+  </data>
+  <data name="GridInitCopyReservationRemarkData" xml:space="preserve">
+    <value>予約書備考データ複写初期</value>
+  </data>
+  <data name="GridInitTransferEstimateData" xml:space="preserve">
+    <value>見積書データ転送初期</value>
+  </data>
+  <data name="GridLastUpdateDate" xml:space="preserve">
+    <value>最終更新年月日</value>
+  </data>
+  <data name="GridLastUpdatePgId" xml:space="preserve">
+    <value>最終更新プログラムID</value>
+  </data>
+  <data name="GridLastUpdateStaffCode" xml:space="preserve">
+    <value>最終更新社員コード</value>
+  </data>
+  <data name="GridLastUpdateStaffName" xml:space="preserve">
+    <value>最終更新社員名</value>
+  </data>
+  <data name="GridLastUpdateTime" xml:space="preserve">
+    <value>最終更新時間</value>
+  </data>
+  <data name="GridLoadingGoodsTaxDisplay" xml:space="preserve">
+    <value>積込品税表示</value>
+  </data>
+  <data name="GridMonthlyProcess" xml:space="preserve">
+    <value>月次処理</value>
+  </data>
+  <data name="GridNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="GridReportClassification" xml:space="preserve">
+    <value>報告書区分</value>
+  </data>
+  <data name="GridReportOutput" xml:space="preserve">
+    <value>報告書出力</value>
+  </data>
+  <data name="GridReportSummary" xml:space="preserve">
+    <value>報告書集計</value>
+  </data>
+  <data name="GridSaleChange" xml:space="preserve">
+    <value>売上変更</value>
+  </data>
+  <data name="GridSaleClassification" xml:space="preserve">
+    <value>売上区分</value>
+  </data>
+  <data name="GridTaxFraction" xml:space="preserve">
+    <value>消費税端数</value>
+  </data>
+  <data name="GridTransportationMiscellaneousIncome" xml:space="preserve">
+    <value>運送雑収入</value>
+  </data>
+  <data name="GridTravelOrder" xml:space="preserve">
+    <value>走行順</value>
+  </data>
+  <data name="GridVehicleReplacement" xml:space="preserve">
+    <value>車両入替</value>
+  </data>
+  <data name="large" xml:space="preserve">
+    <value>大</value>
+  </data>
+  <data name="medium" xml:space="preserve">
+    <value>中</value>
+  </data>
+  <data name="page_title" xml:space="preserve">
+    <value>貸切設定情報マスタ</value>
+  </data>
+  <data name="search_condition_title" xml:space="preserve">
+    <value>条件設定</value>
+  </data>
+  <data name="small" xml:space="preserve">
+    <value>小</value>
+  </data>
+</root>

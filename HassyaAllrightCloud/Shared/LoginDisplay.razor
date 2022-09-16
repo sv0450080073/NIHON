@@ -1,0 +1,29 @@
+﻿@inject CustomNavigation NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Home> Lang
+@using HassyaAllrightCloud.Pages
+<AuthorizeView>
+    <Authorized>
+        @CompanyName・@context.User.Claims.FirstOrDefault(x => x.Type.ToLower() == "name")?.Value &nbsp;
+        <a id="logout" href="" @onclick="Logout" class="ml-1">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>@Lang["Logout"]
+        </a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="login?redirectUri=/">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    public string CompanyName { get; set; }
+    [Inject]
+    protected ITPM_TenantDataService tenantDataService { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        CompanyName = tenantDataService.GetVpmTenants().Result.Where(x => x.TenantCdSeq == new ClaimModel().TenantID).FirstOrDefault()?.TenantCompanyName;
+    }
+    public void Logout()
+    {
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + "Logout", true);
+    }
+}

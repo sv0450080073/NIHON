@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+<HassyaAllrightCloud.Pages.Components.Loading></HassyaAllrightCloud.Pages.Components.Loading>
+<div id="content" class="main">
+    <CascadingValue Value="@ClaimModel" Name="ClaimModel">
+        @Body
+    </CascadingValue>
+</div>
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authState { get; set; }
+
+    protected ClaimModel ClaimModel;
+
+    IDisposable thisReference;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authState != null)
+        {
+            var principal = (await authState).User;
+            ClaimModel = new ClaimModel();
+            if (principal != null)
+            {
+                var tenantId = principal.Claims.FirstOrDefault(x => x.Type.ToLower() == "tenantcdseq")?.Value;
+                if (tenantId != null) ClaimModel.TenantID = int.Parse(tenantId);
+                var SyainCdSeq = principal.Claims.FirstOrDefault(x => x.Type.ToLower() == "syaincdseq")?.Value;
+                if (SyainCdSeq != null) ClaimModel.SyainCdSeq = int.Parse(SyainCdSeq);
+                var CompanyId = principal.Claims.FirstOrDefault(x => x.Type.ToLower() == "companyid")?.Value;
+                if (CompanyId != null) ClaimModel.CompanyID = int.Parse(CompanyId);
+                var EigyoCdSeq = principal.Claims.FirstOrDefault(x => x.Type.ToLower() == "eigyocdseq")?.Value;
+                if (EigyoCdSeq != null) ClaimModel.EigyoCdSeq = int.Parse(EigyoCdSeq);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
+
+}

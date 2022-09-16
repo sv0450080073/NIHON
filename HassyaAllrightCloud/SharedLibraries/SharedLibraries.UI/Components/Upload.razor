@@ -1,0 +1,136 @@
+﻿@using System.Web;
+@inherits UploadBase
+@if (!showResult)
+{
+    <div class="upload-file-container">
+        <div class="upload-file-zone">
+            <KoboInputFile Id="input-upload-file" multiple OnChange="HandleSelection"></KoboInputFile>
+            <div class="w-100 text-center temp-1"><h4 class="mt-3">@_lang["drop-file-here"]</h4></div>
+            <div class="w-100 text-center temp-2">@_lang["or"]</div>
+            <div class="w-100 text-center">
+                <button class="btn btn-sm btn-primary my-3">
+                    @_lang["select-file-from-your-computer"]
+                </button>
+            </div>
+            <div class="w-100 text-center mb-3">
+                <small>@_lang["upload-note"]</small>
+            </div>
+        </div>
+        <div class="uploaded-file-zone">
+            @if (selectedFiles != null)
+            {
+                foreach (var file in selectedFiles)
+                {
+                    <div class="uploaded-file justify-content-between">
+                        <div class="file-name d-flex">
+                            <div>@file.Name</div>
+                            <div class="ml-3">
+                                <span>... @((file.Progress).ToString("0"))%</span>
+                            </div>
+                        </div>
+                        <div class="file-size d-flex">
+                            <span class="mr-2">@GetKBs(file.Size) KB</span>
+                            <i class="fa fa-close" @onclick="e => RemoveFile(file)"></i>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div class="upload-description text-right">
+            @(selectedFiles?.Count ?? 0) of @maxFiles files / @(selectedFiles?.Sum(e => _s3Service.ToKB(e.Size) / 1024).ToString("N2") ?? "0") MB of @maxSize MB limit
+        </div>
+        <div class="upload-errors">
+            @if (maxLengthError)
+            {
+                <p class="m-0">@_lang["max-length-error"]</p>
+            }
+            @if (maxFileSizeError)
+            {
+                <p class="m-0">@_lang["max-file-length-error"]</p>
+            }
+            @if (maxSizeError)
+            {
+                <p class="m-0">@_lang["max-size-error"]</p>
+            }
+        </div>
+        <hr />
+        <div class="w-100 password-setting-zone">
+            <div class="password-setting d-flex">
+                <div class="d-flex">
+                    <label for="password-id" class="mr-3 m-auto">@_lang["password-label"]</label>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked="@isOn" @onchange="e => OnChange()">
+                    <span class="slider round"></span>
+                </label>
+                <input id="password-id" class="mr-3 form-control" maxlength="30" disabled="@(!isOn)" value="@password" @onchange="e => PassChanged(e)" />
+                <div class="d-flex">
+                    <a href="javascript:void(0);" class="custom-a-tag m-auto text-decoration-none" @onclick="AutoGeneratePass">
+                        <i class="fa fa-refresh mr-2"></i>
+                        @_lang["auto-generate"]
+                    </a>
+                </div>
+            </div>
+            <div class="upload-errors mt-2">
+                @if (!string.IsNullOrEmpty(passError))
+                {
+                    <p>@passError</p>
+                }
+            </div>
+        </div>
+        <hr />
+        <div class="text-center">
+            <button class="btn btn-sm btn-primary mw-6rem" @onclick="UploadFiles">@_lang["upload-btn"]</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="upload-file-result-container">
+        <div class="status">
+            <p class="upload-result">@_lang["upload-success"]</p>
+        </div>
+        <div class="result-details">
+            <p>Please download files from the following URL:</p>
+            @foreach (var file in files)
+            {
+                var url = GetNavigationUrl(file.EncryptedId);
+                <p class="m-0">@($"・{file.Name} ({GetKBs(file.Size)} KB)")</p>
+                <p class="text-primary"><a href="javascript:void(0);" @onclick="e => OpenUrl(url)">@url</a></p>
+            }
+
+            <p class="m-0">Download Password: @password</p>
+        </div>
+        <hr />
+        <div class="text-center">
+            <button class="btn btn-sm btn-primary" @onclick="Done">@_lang["done_btn"]</button>
+        </div>
+    </div>
+}
+
+<div class="custom-popup-container">
+    <DxPopup @bind-Visible="@showInfo" CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm mw-25rem">
+        <HeaderTemplate>
+            <div class="custom-header bg-primary text-white w-100">
+                @_lang["error-header"]
+                <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="e => showInfo = false"></a>
+            </div>
+        </HeaderTemplate>
+        <Content>
+            <div class="d-flex align-items-center">
+                <i class="fa fa-2x fa fa-times-circle mr-3" style="color: red" aria-hidden="true"></i>
+                @if (errorList.FirstOrDefault() == ProcessFileEnum.DuplicateError)
+                {
+                    @_lang["duplicate_error"]
+                }
+                else
+                {
+                    @_lang["upload-error"]
+                }
+            </div>
+        </Content>
+        <FooterTemplate>
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" @onclick="e => HideInfo()" Text="Ok" />
+        </FooterTemplate>
+    </DxPopup>
+</div>

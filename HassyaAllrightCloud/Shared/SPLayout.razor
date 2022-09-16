@@ -1,0 +1,100 @@
+﻿@inherits LayoutComponentBase
+@inject CustomNavigation NavigationManager
+@inject IStringLocalizer<SPLayout> lang
+@if (!isNotAllowNavigate)
+{
+    <Loading></Loading>
+    <div class="sp-layout">
+        <div class="header d-flex justify-content-between mt-3">
+            <div class="left d-flex ml-3">
+                <div class="d-flex">
+                    <div class="logo-img mr-3">
+                        <img class="mr-3" src="images/logo_vector.svg" alt="@lang["logo-nulltext"]">
+                    </div>
+                    <div class="center mt-auto mb-auto">
+                        <b><p class="app-name">@lang["app-name"]</p></b>
+                        <b><p class="screen-name">@ScreenName</p></b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right d-flex mr-3">
+                <div class="text-center d-flex">
+                    <div class="m-auto">
+                        <p class="text-primary user-name">@(new HassyaAllrightCloud.Domain.Dto.ClaimModel().Name)</p>
+                        <button class="btn btn-sm btn-outline-dark custom-btn-radius">@lang["logout-btn"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            @Body
+        </div>
+        <div class="footer mt-3 position-fixed">
+            <div class="d-flex justify-content-around w-100">
+                <div class="custom-py @(CurrentUrl == string.Empty || CurrentUrl == "homemobile" ? "active" : string.Empty)" @onclick="@(e => Navigate("homemobile"))">
+                    <i class="fa fa-home"></i>
+                </div>
+                <div class="custom-py @(CurrentUrl == "staffschedulemobile" ? "active" : string.Empty)" @onclick="@(e => Navigate("staffschedulemobile"))">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <div class="custom-py @(CurrentUrl == "driver" ? "active" : string.Empty)" @onclick="@(e => Navigate("driver"))">
+                    <i class="fa fa-drivers-license"></i>
+                </div>
+                <div class="custom-py @(CurrentUrl == "availabilitycheck" ? "active" : string.Empty)" @onclick="@(e => Navigate("availabilitycheck"))">
+                    <i class="fa fa-bus"></i>
+                </div>
+                <div class="custom-py @(CurrentUrl == "chart" ? "active" : string.Empty)" @onclick="@(e => Navigate("chart"))">
+                    <i class="fa fa-bar-chart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+    private string CurrentUrl { get; set; }
+    private string ScreenName { get; set; }
+    private bool isNotAllowNavigate { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        JSRuntime.InvokeVoidAsync("loadPageScript", "spLayoutPage", "checkFromMB", DotNetObjectReference.Create(this));
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        var checkUrl = NavigationManager.Uri.Replace(NavigationManager.BaseUri, string.Empty).Split("?")[0].ToLower();
+        if (CurrentUrl != checkUrl)
+        {
+            CurrentUrl = checkUrl;
+            ScreenName = lang[$"screen-name.{CurrentUrl}"];
+            StateHasChanged();
+        }
+    }
+    private void Navigate(string url)
+    {
+        if (!isNotAllowNavigate)
+        {
+            NavigationManager.NavigateTo(url);
+            CurrentUrl = url;
+            ScreenName = lang[$"screen-name.{CurrentUrl}"];
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/notfound");
+        }
+    }
+    [JSInvokable]
+    public async void checkBrower(bool isNotAllow)
+    {
+        isNotAllowNavigate = isNotAllow;
+        if (isNotAllowNavigate)
+        {
+            NavigationManager.NavigateTo("/notfound");
+        }
+        StateHasChanged();
+    }
+}

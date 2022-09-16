@@ -1,0 +1,429 @@
+﻿@inherits FolderExplorerBase
+@using SharedLibraries.Utility.Models
+@using SharedLibraries.Utility.Helpers;
+@using SharedLibraries.Utility.Constant;
+<div class="file-management-container">
+    <div class="file-management-body">
+        <div class="left-body">
+            <div class="header p-2">
+                <div class="header-text">
+                    @_lang["tree-header"]
+                </div>
+            </div>
+            <div class="tree-folder pt-3 px-2">
+                @if (Tree.Nodes.Any())
+                {
+                    <DxTreeView @ref="tree" @key="treeKey"
+                                AllowSelectNodes="true"
+                                SelectionChanged="@(async e => await SelectionChanged(e))"
+                                Data="@Tree.Nodes"
+                                TextExpression="@(dataItem => ((TreeNode)dataItem).Name)"
+                                ChildrenExpression="@(dataItem => ((TreeNode)dataItem).Nodes)">
+                    </DxTreeView>
+                }
+            </div>
+        </div>
+        <div class="right-body">
+            <div class="header p-2 justify-content-between">
+                <div class="header-text d-flex">
+                    @if (selectedNode != null)
+                    {
+                        <p class="m-0" title="@string.Join(" / ", breadcrumbs)">
+                            @for (var i = 0; i < breadcrumbs.Count; i++)
+                            {
+                                var index = i;
+                                <span @onclick="e => ChangeSelectedNode(breadcrumbs, index)" class="folder-path @(selectedNode.Name == breadcrumbs[index] ? "folder-path-active" : string.Empty)">@breadcrumbs[index]</span>
+                                @if (i != breadcrumbs.Count - 1)
+                                {
+                                    <span class="mr-1 ml-1">/</span>
+                                }
+                            }
+                        </p>
+                    }
+                </div>
+                <div class="header-controls">
+                    <button class="btn btn-sm btn-primary" disabled="@(selectedNode == null)" @onclick="e => ShowNewFolderForm()">@_lang["create-folder-btn"]</button>
+                    <button class="btn btn-sm btn-primary" disabled="@(selectedNode == null)" @onclick="e => ShowUpload()">@_lang["upload-btn"]</button>
+                </div>
+            </div>
+            <div class="grid pt-3 px-2">
+                <table class="table table-sm custom-table">
+                    <thead style="background-color: var(--primary); color: white">
+                        <tr>
+                            <th></th>
+                            <th>
+                                <div @onclick="e => UpdateSortingList(nameof(TableRow.Name), r => r.Name)">
+                                    <span>@_lang["name_col"]</span>
+                                    <i class="@GetSortingClass(nameof(TableRow.Name))"></i>
+                                </div>
+                            </th>
+                            <th>
+                                <div @onclick="e => UpdateSortingList(nameof(TableRow.UpdName), r => r.UpdName)">
+                                    <span>@_lang["updated_user_col"]</span>
+                                    <i class="@GetSortingClass(nameof(TableRow.UpdName))"></i>
+                                </div>
+                            </th>
+                            <th>
+                                <div @onclick="e => UpdateSortingList(nameof(TableRow.UpdTime), r => r.UpdTime)">
+                                    <span>@_lang["updated_date_col"]</span>
+                                    <i class="@GetSortingClass(nameof(TableRow.UpdTime))"></i>
+                                </div>
+                            </th>
+                            <th>
+                                <div @onclick="e => UpdateSortingList(nameof(TableRow.DownloadCount), r => r.DownloadCount)">
+                                    <span>@_lang["download_count_col"]</span>
+                                    <i class="@GetSortingClass(nameof(TableRow.DownloadCount))"></i>
+                                </div>
+                            </th>
+                            <th>@_lang["status_col"]</th>
+                            <th>@_lang["actions_col"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Rows)
+                        {
+                            <tr @onclick="e => selectedRow = row" @ondblclick="e => OpenFolder(row)" class="@(selectedRow == row ? "row-selected" : string.Empty)">
+                                <td style="width: 30px;">
+                                    <div class="text-center" @onclick="e => GetFileDetails(row)">
+                                        @if (row.IsFile)
+                                        {
+                                            <i class="@(row.IsExpanded ? "fa fa-sort-down" : "fa fa-caret-right") curor-pointer"></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex">
+                                        <i class="@( row.IsFile ? GetFileIcon(row.File) : "fa fa-folder-o") mr-2 custom-fa-icon"></i>
+                                        <p class="m-0">@row.Name</p>
+                                    </div>
+                                </td>
+                                <td>@row.UpdName</td>
+                                <td>@row.UpdTime</td>
+                                <td>
+                                    @if (row.IsFile)
+                                    {
+                                        <a href="javascript:void(0);" @onclick="e => ShowDownloadHistory(row)">@row.File.TotalDownload.ToString()</a>
+                                    }
+                                    else
+                                    {
+                                        <p class="m-0">--</p>
+                                    }
+                                </td>
+                                <td>
+                                    @if (row.IsFile)
+                                    {
+                                        @if (row.File.SiyoKbn == CommonConst.ActiveSiyoKbn)
+                                        {
+                                            <i style="color: red; cursor: pointer;" @onclick="e => ChangeState(row)" class="fa fa-ban custom-fa-icon"></i>
+                                        }
+                                        else
+                                        {
+                                            <i style="color: gray; cursor: pointer;" @onclick="e => ChangeState(row)" class="fa fa-ban custom-fa-icon"></i>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="m-0">--</p>
+                                    }
+                                </td>
+                                <td>
+                                    @if ((row.IsFile && row.File.SiyoKbn == CommonConst.ActiveSiyoKbn) || (!row.IsFile && row.Folder.SiyoKbn == CommonConst.ActiveSiyoKbn))
+                                    {
+                                        <ContextMenuTrigger MouseButtonTrigger="MouseButtonTrigger.Left" MenuId="@GetMenuId(row)" Data="row">
+                                            <button class="btn btn-sm">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </button>
+                                        </ContextMenuTrigger>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm" disabled>
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                            if (row.IsFile && row.File != null)
+                            {
+                                var url = GetDownloadFileUrl(row.File.EncryptedId);
+                                <input type="text" id="copy-password-@row.File.Name" style="position: fixed; top: -1000px;" value="@Encryptor.Decrypt(row.File.Password)" />
+                                <input type="text" id="copy-url-@row.File.Name" style="position: fixed; top: -1000px;" value="@GetDownloadFileUrl(row.File.EncryptedId)" />
+                                <tr @key="row" style="@(string.Format("display: {0}", row.IsExpanded ? "table-row" : "none"))">
+                                    <td colspan="7" class="detail-info">
+                                        <div class="d-flex">
+                                            <div class="col-2 text-right">
+                                                URL	:
+                                            </div>
+                                            <div class="col-10">
+                                                <a href="javascript:void(0);" @onclick="e => DownloadFile(url, row)">
+                                                    @url
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div class="col-2 text-right">
+                                                Password	:
+                                            </div>
+                                            <div class="col-10 d-flex">
+                                                @if (!string.IsNullOrEmpty(row.File.Password))
+                                                {
+                                                    <p class="m-0">@Encryptor.Decrypt(row.File.Password)</p>
+
+                                                    <i class="fa fa-copy custom-icon" @onclick="e => Copy(row, true)"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div class="col-2 text-right">
+                                                Downloads	:
+                                            </div>
+                                            <div class="col-10">
+                                                <a href="javascript:void(0);" @onclick="e => ShowDownloadHistory(row)">@row.File.TotalDownload</a>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div class="col-2 text-right">
+                                                Uploaded at	:
+                                            </div>
+                                            <div class="col-10">
+                                                @row.UpdTime
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div class="col-2 text-right">
+                                                Files	:
+                                            </div>
+                                            <div class="col-10 d-flex">
+                                                <p class="m-0">@row.File.Name (@($"{_s3Service.ToKB(row.File.Size):N2}") KB)</p>
+                                                <i class="fa fa-download custom-icon" @onclick="e => DownloadFileWithouPass(row)"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ContextMenu Id="folder-menu">
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Rename))">@_lang["rename_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Move))">@_lang["move_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Remove))">@_lang["remove_contextmenu_item"]</Item>
+</ContextMenu>
+<ContextMenu Id="pdf-file-menu">
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.CopyURL))">@_lang["copy_url_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Download))">@_lang["download_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Rename))">@_lang["rename_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Move))">@_lang["move_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Remove))">@_lang["remove_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Preview))">@_lang["preview"]</Item>
+</ContextMenu>
+<ContextMenu Id="file-menu">
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.CopyURL))">@_lang["copy_url_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Download))">@_lang["download_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Rename))">@_lang["rename_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Move))">@_lang["move_contextmenu_item"]</Item>
+    <Item OnClick="@(e => OnContextMenu(e, ContextMenuCommand.Remove))">@_lang["remove_contextmenu_item"]</Item>
+</ContextMenu>
+
+<DxPopup @bind-Visible="showConfirm" CssClass="custom-popup modal-dialog modal-dialog-centered">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["warning_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@((e) => showConfirm = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-2x mr-3 fa-warning"></i>
+            @if (isRemove)
+            {
+                @_lang["remove_confirmation"]
+            }
+            else
+            {
+                @_lang["change-status-confirm"]
+            }
+        </div>
+    </ChildContent>
+    <FooterTemplate>
+        <div class="text-right">
+            <button class="btn btn-sm mx-2 width--100 btn-danger" @onclick="async e => await HandleConfirm()">@_lang["ok-btn"]</button>
+            <button class="btn btn-sm mx-2 width--100 btn-outline-dark" @onclick="e => showConfirm = false">@_lang["cancel_btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm download-history"
+         @bind-Visible="@showDownloadHistory">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["download_history_title"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => showDownloadHistory = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>@_lang["no_col"]</th>
+                    <th>@_lang["download_time_col"]</th>
+                    <th>@_lang["IP_col"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in DownloadHistory)
+                {
+                    <tr>
+                        <td>@item.No</td>
+                        <td>@item.DownloadedDate</td>
+                        <td>@item.DowloadedIP</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Content>
+    <FooterTemplate>
+        <div class="text-center" style="width: 100%;">
+            <button class="btn btn-sm btn-primary" @onclick="@(() => Execute())">@_lang["close_btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm upload-file-popup"
+         @bind-Visible="@showUpload">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["upload_title"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="CloseUpload"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <Upload OnError="OnErrorOccur" UpdPrgId="UpdPrgId" CustomFileName="@CustomFileName" FilePath="@selectedNode.FullPath" OnClose="e => CloseUpload()" Loading="ShowLoading" UpdSyainCd="UpdSyainCd" TenantCode="TenantCode"></Upload>
+    </Content>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm" @bind-Visible="@showMove">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["move_contextmenu_item"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => CloseMoveDialog())"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        @if (TreeMove.Nodes.Any())
+        {
+            <DxTreeView @ref="treeMove" @key="treeMoveKey" CssClass="custom-tree"
+                        AllowSelectNodes="true"
+                        SelectionChanged="@(e => TreeMoveSelectionChanged(e))"
+                        Data="@TreeMove.Nodes"
+                        TextExpression="@(dataItem => ((TreeNode)dataItem).Name)"
+                        ChildrenExpression="@(dataItem => ((TreeNode)dataItem).Nodes)"
+                        BeforeCollapse="@CancelDisabled"
+                        BeforeExpand="@CancelDisabled">
+                <NodeTextTemplate>
+                    @{
+                        var disabled = IsNodeDisable((TreeNode)context.DataItem);
+                    }
+                    @if (disabled)
+                    {
+                        <span class="tree-node-disabled" @onclick:preventDefault @onclick:stopPropagation>@context.Text</span>
+                    }
+                    else
+                    {
+                        <span>@context.Text</span>
+                    }
+
+                </NodeTextTemplate>
+            </DxTreeView>
+        }
+    </Content>
+    <FooterTemplate>
+        <div class="text-center" style="width: 100%;">
+            <button class="btn btn-sm btn-primary" @onclick="MoveFolder">@_lang["ok-btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm download-history"
+         @bind-Visible="@showRenamePopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["rename_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => showRenamePopup = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="form-group mr-3 mb-0">
+            <input class="form-control" id="rename-input" maxlength="50" @bind-value="@newName" />
+        </div>
+    </Content>
+    <FooterTemplate>
+        <div class="text-center" style="width: 100%;">
+            <button class="btn btn-sm btn-primary" @onclick="Rename">@_lang["ok-btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm download-history"
+         @bind-Visible="@showNewFolderPopup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["new_folder_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => showNewFolderPopup = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div>
+            @if (IsSelectedRootNode())
+            {
+                <div class="form-check-inline mr-0 w-100">
+                    <label for="tenant-input">@_lang["tenant_lbl"]</label>
+                    <DxComboBox Id="tenant-input" CssClass="ml-3 w-100"
+                                TextFieldName="@nameof(TenantItem.DisplayName)"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                Data="tenants" @bind-SelectedItem="selectedTenant"
+                                NullText="@_lang["tenant_nulltext"]"></DxComboBox>
+                </div>
+            }
+            <div class="form-check-inline mr-0 w-100 mt-3">
+                <label for="new-folder-input" style="min-width: 7rem">@_lang["new_folder_lbl"]</label>
+                <input class="form-control form-control-sm ml-3 w-100" id="new-folder-input" maxlength="50" @bind-value="@folderName" />
+            </div>
+        </div>
+
+    </Content>
+    <FooterTemplate>
+        <div class="text-center" style="width: 100%;">
+            <button class="btn btn-sm btn-primary" @onclick="CreateNewFolder">@_lang["ok-btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+
+
+<DxPopup CssClass="custom-popup modal-dialog modal-dialog-centered modal-sm download-history"
+         @bind-Visible="@showError">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            @_lang["error_header"]
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="@(() => showError = false)"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="form-group mr-3 mb-0">
+            @errorMsg
+        </div>
+    </Content>
+    <FooterTemplate>
+        <div class="text-center" style="width: 100%;">
+            <button class="btn btn-sm btn-primary" @onclick="e => showError = false">@_lang["ok-btn"]</button>
+        </div>
+    </FooterTemplate>
+</DxPopup>
+@if (Loading)
+{
+    <div class="kobo-loading left-0">
+        <div class="loader-icon"></div>
+    </div>
+}

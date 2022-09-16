@@ -1,0 +1,175 @@
+﻿@typeparam T
+@inherits KoboSimpleGridBase<T>
+@using Models
+
+@if (EnableSaveBtn)
+{
+    <div class="text-right mb-1">
+        <button class="btn btn-sm btn-primary" style="padding: 0.1rem 0.25rem;" @onclick="() => OnSave.Invoke(true)">
+            <i class="fa fa-save"></i>
+        </button>
+    </div>
+}
+
+@if (Header != null && Header.Rows != null && Body != null && Body.Rows != null)
+{
+    <div class="@CssClass kobo-simple-grid" data-id="@Id">
+        <div class="kobo-simple-grid-container">
+            <table class="kobo-simple-table" data-id="@Id">
+                <thead>
+                    @{ var hRowCount = 0;}
+                    @foreach (var row in Header.Rows)
+                    {
+
+                        var count = 0;
+                        <tr>
+                            @{ var hColCount = 0; }
+                            @if (ShowCheckbox != null && hRowCount == 0 && hColCount == 0)
+                            {
+                                count++;
+                                hColCount++;
+                                <th rowspan="@row.Columns.Max(x => x.RowSpan)" style="min-width: 50px">
+                                    <div class="cell-container">
+                                        <div class="text-center-container">
+                                            <div class="text-center-div">
+                                                <input class="k-checkbox header-checkbox" @onclick:stopPropagation="true"
+                                                       @onclick:preventDefault="true" type="checkbox" checked="@(DataItems.Any() && IsCheckedAll(ShowCheckbox.RowIdentifier))" @onclick="(e) => CheckAllChecked(ShowCheckbox.RowIdentifier)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            }
+
+                            @foreach (var col in row.Columns)
+                            {
+
+                                count += col.ColSpan == 0 ? 1 : col.ColSpan;
+                                <th colspan="@col.ColSpan" rowspan="@col.RowSpan" style="@($"min-width: {col.Width}px")">
+                                    <div class="cell-container">
+                                        @if (hRowCount == 0 && hColCount >= Header.StickyCount)
+                                        {
+                                            <div draggable class="dragdrop text-center-container">
+                                                <div class="text-center-div @(col.CssClass) @(col.TextDisplay == DisplayTextHeader.Vertical ? "table-text-vertical" : "")">@col.ColName</div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center-container">
+                                                <div class="text-center-div @(col.CssClass)">@col.ColName</div>
+                                            </div>
+                                        }
+
+                                        <div class="resize-div"></div>
+                                    </div>
+                                </th>
+                                hColCount++;
+                            }
+                        </tr>
+                        hRowCount++;
+                    }
+                </thead>
+                <tbody>
+                    @if (DataItems.Any())
+                    {
+                        @foreach (var item in DataItems)
+                        {
+                            var bRowCount = 0;
+                            @foreach (var row in Body.Rows)
+                            {
+                    <tr class="@($"{CustomCss(item)} {SelectedRow(item)}")" @ondblclick="(e) => RowDbClick(item)" @onclick="(e) => RowOnClick(item, e)">
+
+                        @{ var bColCount = 0; }
+                        @if (ShowCheckbox != null && bRowCount == 0 && bColCount == 0)
+                        {
+                            <td class="text-center @(GetBorderClass(row, bRowCount))" rowspan="@row.Columns.Max(e => e.RowSpan)">
+                                <div class="text-center">
+                                    <input class="k-checkbox" @onclick:stopPropagation="true"
+                                           @onclick:preventDefault="true" type="checkbox" disabled="@(ShowCheckbox.Disable == null ? false : ShowCheckbox.Disable(item))" checked="@IsChecked(item, ShowCheckbox.RowIdentifier)" @onclick="(e) => CheckedChange(item, ShowCheckbox.RowIdentifier)">
+                                </div>
+                            </td>
+                        }
+                        @foreach (var col in row.Columns)
+                        {
+                            @if (col.Control is MultiLineControl<T>)
+                            {
+                                <td class="@($"{GetTextAlignClass(col)}") @col.CustomCss" colspan="@col.ColSpan" rowspan="@col.RowSpan">
+                                    @foreach (var text in (col.Control as MultiLineControl<T>).MutilineText.Invoke(item))
+                                    {
+                                        <p class="m-0 dot-if-over">
+                                            @if (string.IsNullOrEmpty(text))
+                                            {
+                                                <br />
+                                            }
+                                            else
+                                            {
+                                                @(col.CustomTextFormatDelegate != null ? col.CustomTextFormatDelegate(text) : text)
+                                            }
+                                        </p>
+                                    }
+                                </td>
+                            }
+                            else if (col.Control is TableControl<T>)
+                            {
+                                <td class="@col.CustomCss" colspan="@col.ColSpan" rowspan="@col.RowSpan">
+                                    <table class="w-100 align-top">
+                                        <tbody>
+                                            @{ var tblValue = (col.Control as TableControl<T>).TableValue.Invoke(item); }
+                                            @foreach (var rowTbl in tblValue)
+                                            {
+                                                <tr>
+                                                    @foreach (var colTbl in rowTbl)
+                                                    {
+                                                        if (string.IsNullOrWhiteSpace(colTbl))
+                                                        {
+                                                            <td class="@($"{GetTextAlignClass(col)}")">
+                                                                <br />
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="@($"{GetTextAlignClass(col)}")">@colTbl</td>
+                                                        }
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </td>
+                            }
+                            else if (col.Control is IconControl<T>)
+                            {
+                                <td class="@($"{GetTextAlignClass(col)}") @col.CustomCss" colspan="@col.ColSpan" rowspan="@col.RowSpan">
+                                    <i class="@((col.Control as IconControl<T>).IconClass)" @onclick="@(e => (col.Control as IconControl<T>).CallBack.Invoke(item))"></i>
+                                </td>
+                            }
+                            else if (col.Control is CellColorControl<T>)
+                            {
+                                <td style="background-color: @((col.Control as CellColorControl<T>).ColorDelegate(item))" colspan="@col.ColSpan" rowspan="@col.RowSpan">
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="@($"{GetTextAlignClass(col)} {col?.CustomCss} {GetBorderClass(row, bRowCount)}")" colspan="@col.ColSpan" rowspan="@col.RowSpan">
+                                    @(col.CustomTextFormatDelegate != null ? col.CustomTextFormatDelegate(GetVal(col, item)) : GetVal(col, item))
+                                </td>
+                            }
+
+                            bColCount++;
+                        }
+                    </tr>
+                                bRowCount++;
+                            }
+                        }
+                    }
+                    else if (ShowEmptyRow)
+                    {
+                        <tr class="text-center">
+                            <td colspan="@((Body.Rows.FirstOrDefault()?.Columns.Sum(e => e.ColSpan) ?? 1) + (ShowCheckbox != null ? 1 : 0))">@_lang["Empty"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="grid-spliter"></div>
+    </div>
+}

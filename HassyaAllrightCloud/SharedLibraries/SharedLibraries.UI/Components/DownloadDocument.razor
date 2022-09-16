@@ -1,0 +1,80 @@
+﻿@inherits DownloadDocumentBase
+<DxPopup @bind-Visible="@showPopup" CssClass="custom-popup modal-dialog modal-dialog-centered download-document-popup">
+    <HeaderTemplate>
+        <div class="custom-header bg-primary text-white w-100">
+            <p class="d-flex m-0">
+                @_lang["download-header"]
+            </p>
+            <a class="close-button oi oi-x text-white" href="javascript:void(0);" aria-hidden="true" role="button" aria-label="Close popup" @onclick="e => showPopup = false"></a>
+        </div>
+    </HeaderTemplate>
+    <Content>
+        <div class="download-document-container p-1">
+            <div class="body">
+                @if (verifyState)
+                {
+                    <h4>@_lang["input-password-header"]</h4>
+                    <p>@_lang["instruction"]</p>
+                    <div class="py-3 px-1">
+                        <label class="col-form-label-sm mr-3 mw-4rem" for="password">@_lang["password-lbl"]</label>
+                        <div>
+                            <form class="d-flex" action="javascript:void(0);">
+                                <div class="form-group mr-3 mb-0 has-tooltip-error @(!string.IsNullOrEmpty(passwordError) ? "border-invalid" : "border-valid")">
+                                    <input id="password" type="password" maxlength="50" class="form-control" @bind-value="password" />
+                                    @if (!string.IsNullOrEmpty(passwordError))
+                                    {
+                                        <div class="custom-error-message top">@passwordError</div>
+                                    }
+                                </div>
+
+                                <button class="btn btn-sm btn-primary" type="button" @onclick="Verify">@_lang["verify-btn"]</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h4>@_lang["download-files-header"]</h4>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @_lang["file_name_col"]
+                                </th>
+                                <th>
+                                    @_lang["file_size_col"]
+                                </th>
+                                <th>
+                                    @_lang["status_col"]
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex">
+                                        <i class="@GetFileIcon(file) mr-2 mt-auto mb-auto"></i>
+                                        <p class="m-0">@file?.Name</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    @(_s3Service.ToKB(file.Size).ToString("N2")) KB
+                                </td>
+                                <td>
+                                    <div class="d-flex text-primary" style="cursor: pointer" @onclick="Download">
+
+                                        <p class="m-0">
+                                            <i class="fa fa-download mr-1 mt-auto mb-auto"></i>
+                                            @_lang["download"]
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </Content>
+</DxPopup>
+

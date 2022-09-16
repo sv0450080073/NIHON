@@ -1,0 +1,909 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="caculate_by_bus_type" xml:space="preserve">
+    <value>車種別運賃</value>
+  </data>
+  <data name="caculate_by_total" xml:space="preserve">
+    <value>総台数で按分</value>
+  </data>
+  <data name="cancellation_rate" xml:space="preserve">
+    <value>キャンセル率</value>
+  </data>
+  <data name="cancellation_rate1" xml:space="preserve">
+    <value>キャンセル率１</value>
+  </data>
+  <data name="cancellation_rate2" xml:space="preserve">
+    <value>キャンセル率2</value>
+  </data>
+  <data name="cancellation_rate3" xml:space="preserve">
+    <value>キャンセル率３</value>
+  </data>
+  <data name="cancellation_rate4" xml:space="preserve">
+    <value>キャンセル率４</value>
+  </data>
+  <data name="cancellation_rate5" xml:space="preserve">
+    <value>キャンセル率５</value>
+  </data>
+  <data name="cancellation_rate6" xml:space="preserve">
+    <value>キャンセル率６</value>
+  </data>
+  <data name="cancel_btn" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="cancel_type" xml:space="preserve">
+    <value>キャンセル区分</value>
+  </data>
+  <data name="cannot_cancel" xml:space="preserve">
+    <value>運行終了後、キャンセル不可</value>
+  </data>
+  <data name="cannot_change" xml:space="preserve">
+    <value>変更不可</value>
+  </data>
+  <data name="carry_forward" xml:space="preserve">
+    <value>請求繰越する</value>
+  </data>
+  <data name="clear_btn" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="company_lbl" xml:space="preserve">
+    <value>会社</value>
+  </data>
+  <data name="company_nulltext" xml:space="preserve">
+    <value>会社コード：会社名</value>
+  </data>
+  <data name="consumption_tax" xml:space="preserve">
+    <value>消費税端数</value>
+  </data>
+  <data name="CopyInitialFlag" xml:space="preserve">
+    <value>複写初期フラグ</value>
+  </data>
+  <data name="cut" xml:space="preserve">
+    <value>切上</value>
+  </data>
+  <data name="day" xml:space="preserve">
+    <value>日</value>
+  </data>
+  <data name="donot_carry_forward" xml:space="preserve">
+    <value>請求繰越しない</value>
+  </data>
+  <data name="donot_check" xml:space="preserve">
+    <value>チェックしない</value>
+  </data>
+  <data name="donot_process_daily" xml:space="preserve">
+    <value>日次処理しない</value>
+  </data>
+  <data name="donot_transfer_monthly" xml:space="preserve">
+    <value>月次繰越しない</value>
+  </data>
+  <data name="EditFormAutoKoban" xml:space="preserve">
+    <value>自動交番区分</value>
+  </data>
+  <data name="EditFormAutoKoban.AutomaticPoliceBox" xml:space="preserve">
+    <value>自動交番</value>
+  </data>
+  <data name="EditFormAutoKoban.No" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="EditFormAutoKoban.VehiclePersonAssignment" xml:space="preserve">
+    <value>車両担当者割り当て</value>
+  </data>
+  <data name="EditFormAutoTemporaryBus" xml:space="preserve">
+    <value>自動仮車</value>
+  </data>
+  <data name="EditFormAutoTemporaryBus.Do" xml:space="preserve">
+    <value>する</value>
+  </data>
+  <data name="EditFormAutoTemporaryBus.DoNot" xml:space="preserve">
+    <value>しない</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision" xml:space="preserve">
+    <value>日別分割</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.All" xml:space="preserve">
+    <value>全て</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.Daily" xml:space="preserve">
+    <value>日別分割</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.Standard" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.VehicleDriver" xml:space="preserve">
+    <value>車両＋運転手</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.VehicleGuider" xml:space="preserve">
+    <value>車両＋ガイド</value>
+  </data>
+  <data name="EditFormAutoTemporaryBusDivision.VehicleOnly" xml:space="preserve">
+    <value>車両のみ</value>
+  </data>
+  <data name="EditFormBillComent1" xml:space="preserve">
+    <value>請求書コメント１</value>
+  </data>
+  <data name="EditFormBillComent2" xml:space="preserve">
+    <value>請求書コメント２</value>
+  </data>
+  <data name="EditFormBillComent3" xml:space="preserve">
+    <value>請求書コメント３</value>
+  </data>
+  <data name="EditFormBillComent4" xml:space="preserve">
+    <value>請求書コメント４</value>
+  </data>
+  <data name="EditFormBillComent5" xml:space="preserve">
+    <value>請求書コメント５</value>
+  </data>
+  <data name="EditFormBillComent6" xml:space="preserve">
+    <value>請求書コメント６</value>
+  </data>
+  <data name="EditFormBillForward" xml:space="preserve">
+    <value>請求繰越区分</value>
+  </data>
+  <data name="EditFormCharacter1DisplayByBusType" xml:space="preserve">
+    <value>文字区分１</value>
+  </data>
+  <data name="EditFormCharacter1DisplayByCrew" xml:space="preserve">
+    <value>文字区分１</value>
+  </data>
+  <data name="EditFormCharacter2DisplayByBusType" xml:space="preserve">
+    <value>文字区分２</value>
+  </data>
+  <data name="EditFormCharacter2DisplayByCrew" xml:space="preserve">
+    <value>文字区分２</value>
+  </data>
+  <data name="EditFormCharacter3DisplayByBusType" xml:space="preserve">
+    <value>文字区分３</value>
+  </data>
+  <data name="EditFormCharacter3DisplayByCrew" xml:space="preserve">
+    <value>文字区分３</value>
+  </data>
+  <data name="EditFormCharacter4DisplayByBusType" xml:space="preserve">
+    <value>文字区分４</value>
+  </data>
+  <data name="EditFormCharacter4DisplayByCrew" xml:space="preserve">
+    <value>文字区分４</value>
+  </data>
+  <data name="EditFormCharacter5DisplayByBusType" xml:space="preserve">
+    <value>文字区分５</value>
+  </data>
+  <data name="EditFormCharacter5DisplayByCrew" xml:space="preserve">
+    <value>文字区分５</value>
+  </data>
+  <data name="EditFormCharacterClassification10DisplayByBusType" xml:space="preserve">
+    <value>文字区分１０</value>
+  </data>
+  <data name="EditFormCharacterClassification10DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１０</value>
+  </data>
+  <data name="EditFormCharacterClassification11DisplayByBusType" xml:space="preserve">
+    <value>文字区分１１</value>
+  </data>
+  <data name="EditFormCharacterClassification11DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１１</value>
+  </data>
+  <data name="EditFormCharacterClassification12DisplayByBusType" xml:space="preserve">
+    <value>文字区分１２</value>
+  </data>
+  <data name="EditFormCharacterClassification12DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１２</value>
+  </data>
+  <data name="EditFormCharacterClassification13DisplayByBusType" xml:space="preserve">
+    <value>文字区分１３</value>
+  </data>
+  <data name="EditFormCharacterClassification13DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１３</value>
+  </data>
+  <data name="EditFormCharacterClassification14DisplayByBusType" xml:space="preserve">
+    <value>文字区分１４</value>
+  </data>
+  <data name="EditFormCharacterClassification14DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１４</value>
+  </data>
+  <data name="EditFormCharacterClassification15DisplayByBusType" xml:space="preserve">
+    <value>文字区分１５</value>
+  </data>
+  <data name="EditFormCharacterClassification15DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１５</value>
+  </data>
+  <data name="EditFormCharacterClassification1DisplayByBusType" xml:space="preserve">
+    <value>文字区分１</value>
+  </data>
+  <data name="EditFormCharacterClassification1DisplayByCrewType" xml:space="preserve">
+    <value>文字区分１</value>
+  </data>
+  <data name="EditFormCharacterClassification2DisplayByBusType" xml:space="preserve">
+    <value>文字区分２</value>
+  </data>
+  <data name="EditFormCharacterClassification2DisplayByCrewType" xml:space="preserve">
+    <value>文字区分２</value>
+  </data>
+  <data name="EditFormCharacterClassification3DisplayByBusType" xml:space="preserve">
+    <value>文字区分３</value>
+  </data>
+  <data name="EditFormCharacterClassification3DisplayByCrewType" xml:space="preserve">
+    <value>文字区分３</value>
+  </data>
+  <data name="EditFormCharacterClassification4DisplayByBusType" xml:space="preserve">
+    <value>文字区分４</value>
+  </data>
+  <data name="EditFormCharacterClassification4DisplayByCrewType" xml:space="preserve">
+    <value>文字区分４</value>
+  </data>
+  <data name="EditFormCharacterClassification5DisplayByBusType" xml:space="preserve">
+    <value>文字区分５</value>
+  </data>
+  <data name="EditFormCharacterClassification5DisplayByCrewType" xml:space="preserve">
+    <value>文字区分５</value>
+  </data>
+  <data name="EditFormCharacterClassification6DisplayByBusType" xml:space="preserve">
+    <value>文字区分６</value>
+  </data>
+  <data name="EditFormCharacterClassification6DisplayByCrewType" xml:space="preserve">
+    <value>文字区分６</value>
+  </data>
+  <data name="EditFormCharacterClassification7DisplayByBusType" xml:space="preserve">
+    <value>文字区分７</value>
+  </data>
+  <data name="EditFormCharacterClassification7DisplayByCrewType" xml:space="preserve">
+    <value>文字区分７</value>
+  </data>
+  <data name="EditFormCharacterClassification8DisplayByBusType" xml:space="preserve">
+    <value>文字区分８</value>
+  </data>
+  <data name="EditFormCharacterClassification8DisplayByCrewType" xml:space="preserve">
+    <value>文字区分８</value>
+  </data>
+  <data name="EditFormCharacterClassification9DisplayByBusType" xml:space="preserve">
+    <value>文字区分９</value>
+  </data>
+  <data name="EditFormCharacterClassification9DisplayByCrewType" xml:space="preserve">
+    <value>文字区分９</value>
+  </data>
+  <data name="EditFormColor1DisplayByBusType" xml:space="preserve">
+    <value>色選択１</value>
+  </data>
+  <data name="EditFormColor1DisplayByCrew" xml:space="preserve">
+    <value>色選択１</value>
+  </data>
+  <data name="EditFormColor2DisplayByBusType" xml:space="preserve">
+    <value>色選択２</value>
+  </data>
+  <data name="EditFormColor2DisplayByCrew" xml:space="preserve">
+    <value>色選択２</value>
+  </data>
+  <data name="EditFormColor3DisplayByBusType" xml:space="preserve">
+    <value>色選択３</value>
+  </data>
+  <data name="EditFormColor3DisplayByCrew" xml:space="preserve">
+    <value>色選択３</value>
+  </data>
+  <data name="EditFormColor4DisplayByBusType" xml:space="preserve">
+    <value>色選択４</value>
+  </data>
+  <data name="EditFormColor4DisplayByCrew" xml:space="preserve">
+    <value>色選択４</value>
+  </data>
+  <data name="EditFormColor5DisplayByBusType" xml:space="preserve">
+    <value>色選択５</value>
+  </data>
+  <data name="EditFormColor5DisplayByCrew" xml:space="preserve">
+    <value>色選択５</value>
+  </data>
+  <data name="EditFormColorClassification10DisplayByBusType" xml:space="preserve">
+    <value>色選択１０</value>
+  </data>
+  <data name="EditFormColorClassification10DisplayByCrewType" xml:space="preserve">
+    <value>色選択１０</value>
+  </data>
+  <data name="EditFormColorClassification11DisplayByBusType" xml:space="preserve">
+    <value>色選択１１</value>
+  </data>
+  <data name="EditFormColorClassification11DisplayByCrewType" xml:space="preserve">
+    <value>色選択１１</value>
+  </data>
+  <data name="EditFormColorClassification12DisplayByBusType" xml:space="preserve">
+    <value>色選択１２</value>
+  </data>
+  <data name="EditFormColorClassification12DisplayByCrewType" xml:space="preserve">
+    <value>色選択１２</value>
+  </data>
+  <data name="EditFormColorClassification13DisplayByBusType" xml:space="preserve">
+    <value>色選択１３</value>
+  </data>
+  <data name="EditFormColorClassification13DisplayByCrewType" xml:space="preserve">
+    <value>色選択１３</value>
+  </data>
+  <data name="EditFormColorClassification14DisplayByBusType" xml:space="preserve">
+    <value>色選択１４</value>
+  </data>
+  <data name="EditFormColorClassification14DisplayByCrewType" xml:space="preserve">
+    <value>色選択１４</value>
+  </data>
+  <data name="EditFormColorClassification15DisplayByBusType" xml:space="preserve">
+    <value>色選択１５</value>
+  </data>
+  <data name="EditFormColorClassification15DisplayByCrewType" xml:space="preserve">
+    <value>色選択１５</value>
+  </data>
+  <data name="EditFormColorClassification1DisplayByBusType" xml:space="preserve">
+    <value>色選択１</value>
+  </data>
+  <data name="EditFormColorClassification1DisplayByCrewType" xml:space="preserve">
+    <value>色選択１</value>
+  </data>
+  <data name="EditFormColorClassification2DisplayByBusType" xml:space="preserve">
+    <value>色選択２</value>
+  </data>
+  <data name="EditFormColorClassification2DisplayByCrewType" xml:space="preserve">
+    <value>色選択２</value>
+  </data>
+  <data name="EditFormColorClassification3DisplayByBusType" xml:space="preserve">
+    <value>色選択３</value>
+  </data>
+  <data name="EditFormColorClassification3DisplayByCrewType" xml:space="preserve">
+    <value>色選択３</value>
+  </data>
+  <data name="EditFormColorClassification4DisplayByBusType" xml:space="preserve">
+    <value>色選択４</value>
+  </data>
+  <data name="EditFormColorClassification4DisplayByCrewType" xml:space="preserve">
+    <value>色選択４</value>
+  </data>
+  <data name="EditFormColorClassification5DisplayByBusType" xml:space="preserve">
+    <value>色選択５</value>
+  </data>
+  <data name="EditFormColorClassification5DisplayByCrewType" xml:space="preserve">
+    <value>色選択５</value>
+  </data>
+  <data name="EditFormColorClassification6DisplayByBusType" xml:space="preserve">
+    <value>色選択６</value>
+  </data>
+  <data name="EditFormColorClassification6DisplayByCrewType" xml:space="preserve">
+    <value>色選択６</value>
+  </data>
+  <data name="EditFormColorClassification7DisplayByBusType" xml:space="preserve">
+    <value>色選択７</value>
+  </data>
+  <data name="EditFormColorClassification7DisplayByCrewType" xml:space="preserve">
+    <value>色選択７</value>
+  </data>
+  <data name="EditFormColorClassification8DisplayByBusType" xml:space="preserve">
+    <value>色選択８</value>
+  </data>
+  <data name="EditFormColorClassification8DisplayByCrewType" xml:space="preserve">
+    <value>色選択８</value>
+  </data>
+  <data name="EditFormColorClassification9DisplayByBusType" xml:space="preserve">
+    <value>色選択９</value>
+  </data>
+  <data name="EditFormColorClassification9DisplayByCrewType" xml:space="preserve">
+    <value>色選択９</value>
+  </data>
+  <data name="EditFormCrewCompatibilityCheck" xml:space="preserve">
+    <value>乗務員相性チェック区分</value>
+  </data>
+  <data name="EditFormCrewCompatibilityCheck.Check" xml:space="preserve">
+    <value>チェックする</value>
+  </data>
+  <data name="EditFormCrewCompatibilityCheck.DonotCheck" xml:space="preserve">
+    <value>チェックしない</value>
+  </data>
+  <data name="EditFormCurrentInvoice" xml:space="preserve">
+    <value>請求書現行フラグ</value>
+  </data>
+  <data name="EditFormCurrentInvoice.Manage" xml:space="preserve">
+    <value>管理する</value>
+  </data>
+  <data name="EditFormCurrentInvoice.NoManagement" xml:space="preserve">
+    <value>管理なし</value>
+  </data>
+  <data name="EditFormDailyProcess" xml:space="preserve">
+    <value>日次処理区分</value>
+  </data>
+  <data name="EditFormDisplayDetailSelection" xml:space="preserve">
+    <value>明細選択表示区分</value>
+  </data>
+  <data name="EditFormDisplayDetailSelection.Frame" xml:space="preserve">
+    <value>枠囲み</value>
+  </data>
+  <data name="EditFormDisplayDetailSelection.Invert" xml:space="preserve">
+    <value>反転</value>
+  </data>
+  <data name="EditFormHiredBusDifferentClassification" xml:space="preserve">
+    <value>傭車差額区分</value>
+  </data>
+  <data name="EditFormHiredBusDifferentClassification.AddToYourCompany" xml:space="preserve">
+    <value>自社に加算する</value>
+  </data>
+  <data name="EditFormHiredBusDifferentClassification.DonotAdd" xml:space="preserve">
+    <value>自社に加算しない</value>
+  </data>
+  <data name="EditFormHiredBusFee" xml:space="preserve">
+    <value>傭車手数料</value>
+  </data>
+  <data name="EditFormHiredBusFee.CarDestination" xml:space="preserve">
+    <value>傭車先</value>
+  </data>
+  <data name="EditFormHiredBusFee.Reservation" xml:space="preserve">
+    <value>予約書</value>
+  </data>
+  <data name="EditFormIncidentalType1Addition" xml:space="preserve">
+    <value>付帯種別１付加フラグ</value>
+  </data>
+  <data name="EditFormIncidentalType2Addition" xml:space="preserve">
+    <value>付帯種別２付加フラグ</value>
+  </data>
+  <data name="EditFormIncidentalType3Addition" xml:space="preserve">
+    <value>付帯種別３付加フラグ</value>
+  </data>
+  <data name="EditFormIncidentalType4Addition" xml:space="preserve">
+    <value>付帯種別４付加フラグ</value>
+  </data>
+  <data name="EditFormInitCopyArrangeData" xml:space="preserve">
+    <value>手配データ</value>
+  </data>
+  <data name="EditFormInitCopyBoardingPlaceData" xml:space="preserve">
+    <value>乗車地データ</value>
+  </data>
+  <data name="EditFormInitCopyIncidentalData" xml:space="preserve">
+    <value>付帯データ</value>
+  </data>
+  <data name="EditFormInitCopyLoadingGoodData" xml:space="preserve">
+    <value>積込品データ</value>
+  </data>
+  <data name="EditFormInitCopyOperationDateRemarkData" xml:space="preserve">
+    <value>運行日備考データ</value>
+  </data>
+  <data name="EditFormInitCopyProcessData" xml:space="preserve">
+    <value>行程データ</value>
+  </data>
+  <data name="EditFormInitCopyReservationRemarkData" xml:space="preserve">
+    <value>予約書備考データ</value>
+  </data>
+  <data name="EditFormInitTransferEstimateData" xml:space="preserve">
+    <value>見積書データ</value>
+  </data>
+  <data name="EditFormLastUpdateDate" xml:space="preserve">
+    <value>更新年月日</value>
+  </data>
+  <data name="EditFormLastUpdateStaff" xml:space="preserve">
+    <value>更新社員</value>
+  </data>
+  <data name="EditFormLastUpdateTime" xml:space="preserve">
+    <value>更新時間</value>
+  </data>
+  <data name="EditFormMonthlyProcess" xml:space="preserve">
+    <value>月次処理区分</value>
+  </data>
+  <data name="EditFormPriority" xml:space="preserve">
+    <value>優先順位</value>
+  </data>
+  <data name="EditFormPriority.SaleOfficeOrder" xml:space="preserve">
+    <value>営業所順</value>
+  </data>
+  <data name="EditFormPriority.VehicleTypeOrder" xml:space="preserve">
+    <value>車種順</value>
+  </data>
+  <data name="EditFormReportClassification" xml:space="preserve">
+    <value>報告書区分</value>
+  </data>
+  <data name="EditFormReportClassification.Departure" xml:space="preserve">
+    <value>出庫</value>
+  </data>
+  <data name="EditFormReportClassification.Return" xml:space="preserve">
+    <value>帰庫</value>
+  </data>
+  <data name="EditFormReportOutput" xml:space="preserve">
+    <value>報告書集計出力区分</value>
+  </data>
+  <data name="EditFormReportOutput.Kanto" xml:space="preserve">
+    <value>関東</value>
+  </data>
+  <data name="EditFormReportOutput.Koshinetsu" xml:space="preserve">
+    <value>甲信越</value>
+  </data>
+  <data name="EditFormReportOutput.Other" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="EditFormReportOutput.Tohoku" xml:space="preserve">
+    <value>東北</value>
+  </data>
+  <data name="EditFormReportSummary" xml:space="preserve">
+    <value>報告書集計区分</value>
+  </data>
+  <data name="EditFormReportSummary.Delivery" xml:space="preserve">
+    <value>税込</value>
+  </data>
+  <data name="EditFormReportSummary.TaxExcluded" xml:space="preserve">
+    <value>税抜</value>
+  </data>
+  <data name="EditFormSaleClassification" xml:space="preserve">
+    <value>売上区分</value>
+  </data>
+  <data name="EditFormSaleClassification.End" xml:space="preserve">
+    <value>着日売上</value>
+  </data>
+  <data name="EditFormSaleClassification.Start" xml:space="preserve">
+    <value>発日売上</value>
+  </data>
+  <data name="EditFormTransportationMiscellaneousIncome" xml:space="preserve">
+    <value>運送雑収入区分</value>
+  </data>
+  <data name="EditFormTransportationMiscellaneousIncome.No" xml:space="preserve">
+    <value>しない</value>
+  </data>
+  <data name="EditFormTransportationMiscellaneousIncome.Yes" xml:space="preserve">
+    <value>する</value>
+  </data>
+  <data name="EditFormVehicleReplacement" xml:space="preserve">
+    <value>車両入替</value>
+  </data>
+  <data name="EditFormVehicleReplacement.VehicleOnly" xml:space="preserve">
+    <value>車両のみ</value>
+  </data>
+  <data name="EditFormVehicleReplacement.VehicleDriver" xml:space="preserve">
+    <value>車両＋運転手</value>
+  </data>
+  <data name="EditFormVehicleReplacement.VehicleGuider" xml:space="preserve">
+    <value>車両＋ガイド</value>
+  </data>
+  <data name="EditFormVehicleReplacement.All" xml:space="preserve">
+    <value>全て</value>
+  </data>
+  <data name="end" xml:space="preserve">
+    <value>着日売上</value>
+  </data>
+  <data name="fee_fraction" xml:space="preserve">
+    <value>手数料端数</value>
+  </data>
+  <data name="form_title_create" xml:space="preserve">
+    <value>貸切設定情報登録</value>
+  </data>
+  <data name="form_title_update" xml:space="preserve">
+    <value>貸切設定情報編集</value>
+  </data>
+  <data name="free_tax" xml:space="preserve">
+    <value>外税</value>
+  </data>
+  <data name="included_tax" xml:space="preserve">
+    <value>内税</value>
+  </data>
+  <data name="month" xml:space="preserve">
+    <value>月</value>
+  </data>
+  <data name="msg_only" xml:space="preserve">
+    <value>メッセージ表示のみ</value>
+  </data>
+  <data name="other_tax" xml:space="preserve">
+    <value>非課税</value>
+  </data>
+  <data name="percent" xml:space="preserve">
+    <value>％</value>
+  </data>
+  <data name="process_daily" xml:space="preserve">
+    <value>日次処理する</value>
+  </data>
+  <data name="round" xml:space="preserve">
+    <value>四捨五入</value>
+  </data>
+  <data name="sale_0_yen_check" xml:space="preserve">
+    <value>売上０円チェック</value>
+  </data>
+  <data name="sale_change" xml:space="preserve">
+    <value>売上変更</value>
+  </data>
+  <data name="save_btn" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="show_tax_loaded_goods" xml:space="preserve">
+    <value>積込品税表示</value>
+  </data>
+  <data name="show_tax_ticket_price" xml:space="preserve">
+    <value>運賃税表示</value>
+  </data>
+  <data name="start" xml:space="preserve">
+    <value>発日売上</value>
+  </data>
+  <data name="sunday" xml:space="preserve">
+    <value>日～</value>
+  </data>
+  <data name="tab5_header_1" xml:space="preserve">
+    <value>車種・車両別線引文字表示パータン</value>
+  </data>
+  <data name="tab5_header_2" xml:space="preserve">
+    <value>乗務員線引文字表示パータン</value>
+  </data>
+  <data name="tab6_header_1" xml:space="preserve">
+    <value>車種・車両別線引情報パータン</value>
+  </data>
+  <data name="tab6_header_2" xml:space="preserve">
+    <value>乗務員別線引情報パータン</value>
+  </data>
+  <data name="tab_1" xml:space="preserve">
+    <value>システム設定</value>
+  </data>
+  <data name="tab_2" xml:space="preserve">
+    <value>売上設定</value>
+  </data>
+  <data name="tab_3" xml:space="preserve">
+    <value>傭車設定</value>
+  </data>
+  <data name="tab_4" xml:space="preserve">
+    <value>線引設定</value>
+  </data>
+  <data name="tab_5" xml:space="preserve">
+    <value>線引設定２</value>
+  </data>
+  <data name="tab_6" xml:space="preserve">
+    <value>線引設定３</value>
+  </data>
+  <data name="tab_7" xml:space="preserve">
+    <value>請求設定</value>
+  </data>
+  <data name="tab_8" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="tab_9" xml:space="preserve">
+    <value>実績集計</value>
+  </data>
+  <data name="ticket_price_by_vehicle" xml:space="preserve">
+    <value>車両別運賃</value>
+  </data>
+  <data name="ticket_price_static" xml:space="preserve">
+    <value>運行終了後、運賃変更不可</value>
+  </data>
+  <data name="transfer_monthly" xml:space="preserve">
+    <value>月次繰越する</value>
+  </data>
+  <data name="truncate" xml:space="preserve">
+    <value>切捨</value>
+  </data>
+  <data name="YesNoRadio.None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="YesNoRadio.Yes" xml:space="preserve">
+    <value>あり</value>
+  </data>
+  <data name="header1" xml:space="preserve">
+    <value>種別コード</value>
+  </data>
+  <data name="header2" xml:space="preserve">
+    <value>種別名</value>
+  </data>
+  <data name="header3" xml:space="preserve">
+    <value>種別区分名</value>
+  </data>
+  <data name="Jinkyu" xml:space="preserve">
+    <value>勤務休日種別名</value>
+  </data>
+  <data name="BI_T001" xml:space="preserve">
+    <value>会社の範囲指定に誤りがあります！</value>
+  </data>
+  <data name="BI_T002" xml:space="preserve">
+    <value>会社コードを入力してください！</value>
+  </data>
+  <data name="BI_T003" xml:space="preserve">
+    <value>既に登録済みの為、登録できません！</value>
+  </data>
+  <data name="BI_T004" xml:space="preserve">
+    <value>キャンセル率1開始日を入力してください!</value>
+  </data>
+  <data name="BI_T005" xml:space="preserve">
+    <value>キャンセル率1の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T006" xml:space="preserve">
+    <value>キャンセル率1終了日を入力してください!</value>
+  </data>
+  <data name="BI_T007" xml:space="preserve">
+    <value>キャンセル率1とキャンセル率2の期間が重複しています!</value>
+  </data>
+  <data name="BI_T008" xml:space="preserve">
+    <value>キャンセル率1を入力してください!</value>
+  </data>
+  <data name="BI_T009" xml:space="preserve">
+    <value>キャンセル率1は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T010" xml:space="preserve">
+    <value>キャンセル率2開始日を入力してください!</value>
+  </data>
+  <data name="BI_T011" xml:space="preserve">
+    <value>キャンセル率2の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T012" xml:space="preserve">
+    <value>キャンセル率2終了日を入力してください!</value>
+  </data>
+  <data name="BI_T013" xml:space="preserve">
+    <value>キャンセル率2とキャンセル率3の期間が重複しています!</value>
+  </data>
+  <data name="BI_T014" xml:space="preserve">
+    <value>キャンセル率2を入力してください!</value>
+  </data>
+  <data name="BI_T015" xml:space="preserve">
+    <value>キャンセル率2は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T016" xml:space="preserve">
+    <value>キャンセル率3開始日を入力してください!</value>
+  </data>
+  <data name="BI_T017" xml:space="preserve">
+    <value>キャンセル率3の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T018" xml:space="preserve">
+    <value>キャンセル率3終了日を入力してください!</value>
+  </data>
+  <data name="BI_T019" xml:space="preserve">
+    <value>キャンセル率3とキャンセル率4の期間が重複しています!</value>
+  </data>
+  <data name="BI_T020" xml:space="preserve">
+    <value>キャンセル率3を入力してください!</value>
+  </data>
+  <data name="BI_T021" xml:space="preserve">
+    <value>キャンセル率3は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T022" xml:space="preserve">
+    <value>キャンセル率4開始日を入力してください!</value>
+  </data>
+  <data name="BI_T023" xml:space="preserve">
+    <value>キャンセル率4の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T024" xml:space="preserve">
+    <value>キャンセル率4終了日を入力してください!</value>
+  </data>
+  <data name="BI_T025" xml:space="preserve">
+    <value>キャンセル率4とキャンセル率5の期間が重複しています!</value>
+  </data>
+  <data name="BI_T026" xml:space="preserve">
+    <value>キャンセル率4を入力してください!</value>
+  </data>
+  <data name="BI_T027" xml:space="preserve">
+    <value>キャンセル率4は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T028" xml:space="preserve">
+    <value>キャンセル率5開始日を入力してください!</value>
+  </data>
+  <data name="BI_T029" xml:space="preserve">
+    <value>キャンセル率5の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T030" xml:space="preserve">
+    <value>キャンセル率5終了日を入力してください!</value>
+  </data>
+  <data name="BI_T031" xml:space="preserve">
+    <value>キャンセル率5とキャンセル率6の期間が重複しています!</value>
+  </data>
+  <data name="BI_T032" xml:space="preserve">
+    <value>キャンセル率5を入力してください!</value>
+  </data>
+  <data name="BI_T033" xml:space="preserve">
+    <value>キャンセル率5は100.0より大きい値は入力できません!</value>
+  </data>
+  <data name="BI_T034" xml:space="preserve">
+    <value>キャンセル率6開始日を入力してください!</value>
+  </data>
+  <data name="BI_T035" xml:space="preserve">
+    <value>キャンセル率6の開始日と終了日が正しくありません!</value>
+  </data>
+  <data name="BI_T036" xml:space="preserve">
+    <value>キャンセル率6終了日を入力してください!</value>
+  </data>
+  <data name="BI_T037" xml:space="preserve">
+    <value>キャンセル率6を入力してください!</value>
+  </data>
+  <data name="BI_T038" xml:space="preserve">
+    <value>キャンセル率6は100.0より大きい値は入力できません!</value>
+  </data>
+</root>
