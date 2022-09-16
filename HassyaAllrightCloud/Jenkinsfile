@@ -1,0 +1,64 @@
+pipeline {
+    environment {
+        WWWROOT_PATH = "wwwroot"
+    }
+    agent any
+    options { 
+        disableConcurrentBuilds() 
+    }
+    stages {
+        stage('Backlog') {
+            steps {
+                script {
+                    properties([[
+                        $class : 'BacklogProjectProperty',
+                        url    : 'https://mgt-khobho.backlog.com/projects/SINSINHO_WEBSYSTEM',
+                        apiKey : 'YwkjCXrrVhtAXHkqsjQgONL0JHsPgpiMHWjxpeImCc8EttvWz4uCym5YikLngj14',
+                    ]])
+                }
+ 
+                echo 'Add BacklogProjectProperty'
+            }
+        }
+
+        stage('Compile SCSS'){
+            steps {
+                dir (WWWROOT_PATH) {
+                    sh "sass sass/style.scss css/style.css"
+                }
+            }
+        }
+        
+        // stage('Build'){
+        //     steps{
+        //         dotnetBuild configuration: 'Release'
+        //     }
+        // }
+
+        stage('Build + SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('SonarqubeTest') {
+                    sh "dotnet sonarscanner begin /k:'HassyaAllrightCloud' /d:sonar.host.url='http://ec2-52-198-53-52.ap-northeast-1.compute.amazonaws.com:9000'  /d:sonar.login='d3f3565d7cd0826e1d39ea0175319a748c2f85c0'"
+                    sh "dotnet build"
+                    sh "dotnet sonarscanner end /d:sonar.login='d3f3565d7cd0826e1d39ea0175319a748c2f85c0'"
+                }
+            }            
+        }
+    }
+    post {
+        always {
+            backlogPullRequest()
+        }
+        
+        failure {
+            script {
+                CHATWORKTOKEN = "c3b8445b9cb5920251a4869c1a93cfdb"
+                ROOMID = "231365336"
+                POSTMESSAGE = "[info][title]${JOB_NAME} ${BUILD_DISPLAY_NAME} (${GIT_BRANCH})[/title] builded ${currentBuild.currentResult} ${BUILD_URL}[/info]"
+                POSTURL = "https://api.chatwork.com/v2/rooms/${ROOMID}/messages"
+            }
+            echo 'Done'
+            sh "curl -X POST -H \"X-ChatWorkToken:${CHATWORKTOKEN}\" -d \"body=${POSTMESSAGE}\" \"${POSTURL}\""
+        }
+    }
+}

@@ -1,0 +1,1227 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject>HassyaAllrightCloud.Program</StartupObject>
+    <Win32Resource />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Reports\ReportTemplate\KakuninList\**" />
+    <Compile Remove="SharedLibraries\**" />
+    <Content Remove="Reports\ReportTemplate\KakuninList\**" />
+    <Content Remove="SharedLibraries\**" />
+    <EmbeddedResource Remove="Reports\ReportTemplate\KakuninList\**" />
+    <EmbeddedResource Remove="SharedLibraries\**" />
+    <None Remove="Reports\ReportTemplate\KakuninList\**" />
+    <None Remove="SharedLibraries\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\OldBusAllocation.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Reports\HikiukeshoReport.repx" />
+    <None Remove="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA3.repx" />
+    <None Remove="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA4.repx" />
+    <None Remove="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListB4.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A3.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A4.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport1B4.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A3.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\AttendanceReport\AttendanceReport2B4.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeList.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeListA3.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeListB4.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA3.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA4.repx" />
+    <None Remove="Reports\ReportTemplate\BusTypeList\BusTypeListGroupB4.repx" />
+    <None Remove="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo1A4.repx" />
+    <None Remove="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo2A4.repx" />    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.repx" />
+    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.repx" />
+    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListDetailReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\BillingListReport\BillingListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.repx" />
+    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.repx" />
+    <None Remove="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositOfficeListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositOfficeListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\DepositList\DepositOfficeListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A3.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo1B4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A3.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\Haisyahyo2B4.repx" />
+    <None Remove="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\JitHouReport\JitHouReport.repx" />
+    <None Remove="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboBaseReport.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A3.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1B4.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A3.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2B4.repx" />
+    <None Remove="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\JitHouAnnualReport\JitHouAnnualReport.repx" />
+    <None Remove="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport1A4.repx" />
+    <None Remove="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\Kyanseru\Kyanseru.repx" />
+    <None Remove="Reports\ReportTemplate\KakuninListReport\KakuninListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\KakuninListReport\KakuninListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\JitHouReport\JitHouReport.repx" />
+    <None Remove="Reports\ReportTemplate\Kyanseru\KyanseruA3.repx" />
+    <None Remove="Reports\ReportTemplate\Kyanseru\KyanseruB4.repx" />
+    <None Remove="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport1A4.repx" />
+    <None Remove="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyHorizontal.repx" />
+    <None Remove="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyVertical.repx" />
+    <None Remove="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport1A4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport1A4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport2A4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\ReceivableList\ReceivableListReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\ReceivableList\ReceivableListReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\SimpleQuotation\SimpleQuotation.repx" />
+    <None Remove="Reports\ReportTemplate\RepairList\RepairListA3.repx" />
+    <None Remove="Reports\ReportTemplate\RepairList\RepairListA4.repx" />
+    <None Remove="Reports\ReportTemplate\RepairList\RepairListB4.repx" />
+    <None Remove="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\SubContractor\SubContractorA3.repx" />
+    <None Remove="Reports\ReportTemplate\SubContractor\SubContractorA4.repx" />
+    <None Remove="Reports\ReportTemplate\SubContractor\SubContractorB4.repx" />
+    <None Remove="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\SubReportA3.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\SubReportA4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\SubReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A3.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A4.repx" />
+    <None Remove="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1B4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A3.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2B4.repx" />
+    <None Remove="Reports\ReportTemplate\Tenkokiroku\XtraReport1.repx" />
+    <None Remove="Reports\ReportTemplate\TransportActualResult\TransportActualResult.repx" />
+    <None Remove="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA3.repx" />
+	<None Remove="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA4.repx" />
+	<None Remove="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportB4.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\KoteiSubReport.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\PageSpace.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\TehaiSubReport.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReportNew.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReportNew.repx" />
+    <None Remove="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoSubReport.repx" />
+    <None Remove="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReport.repx" />
+    <None Remove="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueA3.repx" />
+    <None Remove="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueB4.repx" />
+    <None Remove="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue.repx" />
+    <None Remove="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueA3.repx" />
+    <None Remove="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A3.repx" />
+    <None Remove="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A4.repx" />
+    <None Remove="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate2A4.repx" />
+    <None Remove="Reports\ReportTemplate\YouShaIrai\YouShaIrai1A4.repx" />
+    <None Remove="Reports\ReportTemplate\YouShaIrai\YouShaIrai2A4.repx" />   
+	<None Remove="Reports\SubReport.repx" />
+    <None Remove="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueB4.repx" />
+    <None Remove="Reports\ReportTemplate\VehicleStatisticsSurvey\VehicleStatisticsSurvey.repx" />    <None Remove="Reports\SubReport.repx" />
+    <None Remove="Reports\TestTemplate.repx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport2B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport1B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeListGroupB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeList.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeListA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BusTypeList\BusTypeListB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositOfficeListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositOfficeListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\DepositList\DepositOfficeListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListDetailReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\BillingListReport\BillingListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo2B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Hikiukesho\SubReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Example\TestTemplate.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\JitHouAnnualReport\JitHouAnnualReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\FillRecordRemainSubReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\Haisyahyo1B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Haisyahyo\SubReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\JitHouReport\JitHouReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboBaseReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Kyanseru\Kyanseru.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\KakuninListReport\KakuninListReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\KakuninListReport\KakuninListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\KakuninListReport\KakuninListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Kyanseru\KyanseruA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Kyanseru\KyanseruB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyHorizontal.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyVertical.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceivableList\ReceivableListReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\ReceivableList\ReceivableListReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SimpleQuotation\SimpleQuotation.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\RepairList\RepairListA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\RepairList\RepairListA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\RepairList\RepairListB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SubContractor\SubContractorA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SubContractor\SubContractorA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SubContractor\SubContractorB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\SubReportA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\SubReportA4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\SubReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1B4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportActualResult\TransportActualResult.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA3.repx" />
+	<EmbeddedResource Include="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA4.repx" />
+	<EmbeddedResource Include="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\KoteiSubReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\PageSpace.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\TehaiSubReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReportNew.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReportNew.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoSubReport.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenue.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueB4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueA3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A3.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\YouShaIrai\YouShaIrai2A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\YouShaIrai\YouShaIrai1A4.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue.repx" />
+    <EmbeddedResource Include="Reports\ReportTemplate\VehicleStatisticsSurvey\VehicleStatisticsSurvey.repx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="efpt.config.json" />
+    <None Include="wwwroot\js\dx-blazor\dx-blazor.cjs.js" />
+    <None Include="wwwroot\js\dx-blazor\dx-blazor.esm.js" />
+    <None Include="wwwroot\js\dx-blazor\dx-blazor.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-calendar-979546d6.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-charts-4ce696f7.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-checkbox-3a64a69a.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-509db829.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-7aa0d757.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-85e9b555.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-9109506d.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-c43b3f7c.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-chunk-e26655d2.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-combobox-e39421aa.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-devexpress.viz-7df80a2d.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-dom-utils-6a09eac3.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-dropdowns-5546f970.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-dx-blazor-5efa9639.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-form-layout-7c90f5c8.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-grid-b52f8083.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-popup-utils-88c25c7c.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-roller-4f906feb.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\cjs-scheduler-329eb609.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-calendar-cc78ea4d.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-charts-a566e8f1.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-checkbox-0fee1774.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-2f760454.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-38c61c5f.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-6ca2c4f2.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-710198b6.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-95f069f9.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-chunk-f9104efc.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-combobox-3cfa75c1.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-devexpress.viz-5d8db4bd.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-dom-utils-d4fe413b.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-dropdowns-b8e38328.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-dx-blazor-f3439612.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-form-layout-62134e56.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-grid-91fdba30.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-popup-utils-2e6d89cb.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-roller-3d236e1d.js" />
+    <None Include="wwwroot\js\dx-blazor\modules\esm-scheduler-c9b996d6.js" />
+    <None Include="wwwroot\js\jquery.scrollbar.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.5.1.32" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.101" />
+    <PackageReference Include="AWSSDK.Route53" Version="3.5.0.32" />
+    <PackageReference Include="AWSSDK.S3" Version="3.5.3.10" />
+    <PackageReference Include="blazor-dragdrop" Version="1.1.8" />
+    <PackageReference Include="Blazor.ContextMenu" Version="1.6.0" />
+    <PackageReference Include="BlazorDownloadFile" Version="2.1.2" />
+    <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
+    <PackageReference Include="Blazored.Modal" Version="6.0.0" />
+    <PackageReference Include="DevExpress.Blazor.ja" Version="20.1.4" />
+    <PackageReference Include="DevExpress.Blazor.Reporting" Version="20.1.4" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="FluentValidation" Version="9.0.0-preview4" />
+    <PackageReference Include="Google.Cloud.Speech.V1" Version="2.0.0" />
+    <PackageReference Include="JsonWebTokens" Version="4.0.0" />
+    <PackageReference Include="LexLibrary.Line.NotifyBot" Version="1.0.5" />
+    <PackageReference Include="MediatR" Version="8.0.2" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.2.0-preview3.20168.3" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0-preview.3.20181.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="3.1.0" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="StoredProcedureEFCore" Version="1.0.4" />
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
+    <PackageReference Include="UTF.Unknown" Version="2.3.0" />
+	<PackageReference Include="Radzen.Blazor" Version="3.0.0" />
+
+  </ItemGroup>   
+
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Pages.BusSchedule.en-US.resx">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>   
+
+
+  <ItemGroup>
+    <Folder Include="Application\BillPrint\Commands\" />
+    <Folder Include="Application\Haiin\Commands\" />
+    <Folder Include="Application\Haiin\Queries\" />
+    <Folder Include="Application\Report\" />
+    <Folder Include="wwwroot\css\vendor\" />
+    <Folder Include="Application\Validation\" />
+    <Folder Include="wwwroot\css\" />
+    <Folder Include="wwwroot\csv\" />
+    <Folder Include="wwwroot\audio\" />
+  </ItemGroup>   
+  <ItemGroup>
+    <ProjectReference Include="SharedLibraries\SharedLibraries.UI\SharedLibraries.UI.csproj" />
+  </ItemGroup>   
+  <ItemGroup>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA3.cs">
+      <DependentUpon>AccessoryFeeListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA3.Designer.cs">
+      <DependentUpon>AccessoryFeeListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA4.cs">
+      <DependentUpon>AccessoryFeeListA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListA4.Designer.cs">
+      <DependentUpon>AccessoryFeeListA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListB4.cs">
+      <DependentUpon>AccessoryFeeListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AccessoryFeeList\AccessoryFeeListB4.Designer.cs">
+      <DependentUpon>AccessoryFeeListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A3.cs">
+      <DependentUpon>AttendanceReport2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A3.Designer.cs">
+      <DependentUpon>AttendanceReport2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A4.cs">
+      <DependentUpon>AttendanceReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2A4.Designer.cs">
+      <DependentUpon>AttendanceReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2B4.cs">
+      <DependentUpon>AttendanceReport2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport2B4.Designer.cs">
+      <DependentUpon>AttendanceReport2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeList.cs">
+      <DependentUpon>BusTypeList.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeList.Designer.cs">
+      <DependentUpon>BusTypeList.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListA3.cs">
+      <DependentUpon>BusTypeListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListA3.Designer.cs">
+      <DependentUpon>BusTypeListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListB4.cs">
+      <DependentUpon>BusTypeListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListB4.Designer.cs">
+      <DependentUpon>BusTypeListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA3.cs">
+      <DependentUpon>BusTypeListGroupA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA3.Designer.cs">
+      <DependentUpon>BusTypeListGroupA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA4.cs">
+      <DependentUpon>BusTypeListGroupA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupA4.Designer.cs">
+      <DependentUpon>BusTypeListGroupA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupB4.cs">
+      <DependentUpon>BusTypeListGroupB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BusTypeList\BusTypeListGroupB4.Designer.cs">
+      <DependentUpon>BusTypeListGroupB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo2A4.cs">
+      <DependentUpon>Busutehaisyo2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo2A4.Designer.cs">
+      <DependentUpon>Busutehaisyo2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA4.repx</DependentUpon>
+    </Compile>
+	<Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A3.cs">
+      <DependentUpon>AttendanceReport1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A3.Designer.cs">
+      <DependentUpon>AttendanceReport1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A4.cs">
+      <DependentUpon>AttendanceReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1A4.Designer.cs">
+      <DependentUpon>AttendanceReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1B4.cs">
+      <DependentUpon>AttendanceReport1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AttendanceReport\AttendanceReport1B4.Designer.cs">
+      <DependentUpon>AttendanceReport1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportA3.cs">
+      <DependentUpon>FillRecordRemainHaisyahyoSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportA3.Designer.cs">
+      <DependentUpon>FillRecordRemainHaisyahyoSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportB4.cs">
+      <DependentUpon>BillingListDetailReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportB4.Designer.cs">
+      <DependentUpon>BillingListDetailReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA3.cs">
+      <DependentUpon>BillingListDetailReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA3.Designer.cs">
+      <DependentUpon>BillingListDetailReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA4.cs">
+      <DependentUpon>BillingListDetailReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListDetailReportA4.Designer.cs">
+      <DependentUpon>BillingListDetailReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportA3.cs">
+      <DependentUpon>BillingListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportA3.Designer.cs">
+      <DependentUpon>BillingListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportA4.cs">
+      <DependentUpon>BillingListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportA4.Designer.cs">
+      <DependentUpon>BillingListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportB4.cs">
+      <DependentUpon>BillingListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillingListReport\BillingListReportB4.Designer.cs">
+      <DependentUpon>BillingListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportA3.cs">
+      <DependentUpon>DepositListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportA3.Designer.cs">
+      <DependentUpon>DepositListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportA4.cs">
+      <DependentUpon>DepositListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportA4.Designer.cs">
+      <DependentUpon>DepositListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportB4.cs">
+      <DependentUpon>DepositListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositListReportB4.Designer.cs">
+      <DependentUpon>DepositListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportA3.cs">
+      <DependentUpon>DepositOfficeListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportA3.Designer.cs">
+      <DependentUpon>DepositOfficeListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportA4.cs">
+      <DependentUpon>DepositOfficeListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportA4.Designer.cs">
+      <DependentUpon>DepositOfficeListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportB4.cs">
+      <DependentUpon>DepositOfficeListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\DepositList\DepositOfficeListReportB4.Designer.cs">
+      <DependentUpon>DepositOfficeListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsB4.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA3.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\FaresUpperAndLowerLimits\FaresUpperAndLowerLimitsA4.Designer.cs">
+      <DependentUpon>FaresUpperAndLowerLimitsA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportB4.cs">
+      <DependentUpon>FillRecordRemainHaisyahyoSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainHaisyahyoSubReportB4.Designer.cs">
+      <DependentUpon>FillRecordRemainHaisyahyoSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainSubReportA4.cs">
+      <DependentUpon>FillRecordRemainSubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\FillRecordRemainSubReportA4.Designer.cs">
+      <DependentUpon>FillRecordRemainSubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A3.cs">
+      <DependentUpon>Haisyahyo2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A3.Designer.cs">
+      <DependentUpon>Haisyahyo2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A4.cs">
+      <DependentUpon>Haisyahyo2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2A4.Designer.cs">
+      <DependentUpon>Haisyahyo2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A3.cs">
+      <DependentUpon>Haisyahyo1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A3.Designer.cs">
+      <DependentUpon>Haisyahyo1A3.repx</DependentUpon>
+	  </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A3.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A3.Designer.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1B4.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1B4.Designer.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A3.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A3.Designer.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2B4.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2B4.Designer.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA4.cs">
+      <DependentUpon>BillCheckListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA4.Designer.cs">
+      <DependentUpon>BillCheckListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA3.cs">
+      <DependentUpon>BillCheckListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportA3.Designer.cs">
+      <DependentUpon>BillCheckListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportB4.cs">
+      <DependentUpon>BillCheckListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\BillCheckListReport\BillCheckListReportB4.Designer.cs">
+      <DependentUpon>BillCheckListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo1A4.cs">
+      <DependentUpon>Busutehaisyo1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Busutehaisyo\Busutehaisyo1A4.Designer.cs">
+      <DependentUpon>Busutehaisyo1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A4.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate1A4.Designer.cs">
+      <DependentUpon>AdvancePaymentDetailsReportTemplate1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A4.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\AdvancePaymentDetails\AdvancePaymentDetailsReportTemplate2A4.Designer.cs">
+        <DependentUpon>AdvancePaymentDetailsReportTemplate2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A4.cs">
+      <DependentUpon>Haisyahyo1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1A4.Designer.cs">
+      <DependentUpon>Haisyahyo1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1B4.cs">
+      <DependentUpon>Haisyahyo1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo1B4.Designer.cs">
+      <DependentUpon>Haisyahyo1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2B4.cs">
+      <DependentUpon>Haisyahyo2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\Haisyahyo2B4.Designer.cs">
+      <DependentUpon>Haisyahyo2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportA3.cs">
+      <DependentUpon>HaisyahyoSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportA3.Designer.cs">
+      <DependentUpon>HaisyahyoSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportB4.cs">
+      <DependentUpon>HaisyahyoSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\HaisyahyoSubReportB4.Designer.cs">
+      <DependentUpon>HaisyahyoSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\SubReportA4.cs">
+      <DependentUpon>SubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Haisyahyo\SubReportA4.Designer.cs">
+      <DependentUpon>SubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport1A4.cs">
+      <DependentUpon>HikiukeshoReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport1A4.Designer.cs">
+      <DependentUpon>HikiukeshoReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport2A4.cs">
+      <DependentUpon>HikiukeshoReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\HikiukeshoReport2A4.Designer.cs">
+      <DependentUpon>HikiukeshoReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\SubReport.cs">
+      <DependentUpon>SubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Hikiukesho\SubReport.Designer.cs">
+      <DependentUpon>SubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Example\TestTemplate.cs">
+      <DependentUpon>TestTemplate.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Example\TestTemplate.Designer.cs">
+      <DependentUpon>TestTemplate.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JitHouAnnualReport\JitHouAnnualReport.cs">
+      <DependentUpon>JitHouAnnualReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JitHouAnnualReport\JitHouAnnualReport.Designer.cs">
+      <DependentUpon>JitHouAnnualReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport2A4.cs">
+      <DependentUpon>JomukirokuboReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport2A4.Designer.cs">
+      <DependentUpon>JomukirokuboReport2A4.repx</DependentUpon>
+    </Compile>
+
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReport.cs">
+      <DependentUpon>KakuninListReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReport.Designer.cs">
+      <DependentUpon>KakuninListReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReportA3.cs">
+      <DependentUpon>KakuninListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReportA3.Designer.cs">
+      <DependentUpon>KakuninListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReportB4.cs">
+      <DependentUpon>KakuninListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\KakuninListReport\KakuninListReportB4.Designer.cs">
+      <DependentUpon>KakuninListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\Kyanseru.cs">
+      <DependentUpon>Kyanseru.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\Kyanseru.Designer.cs">
+      <DependentUpon>Kyanseru.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\KyanseruA3.cs">
+      <DependentUpon>KyanseruA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\KyanseruA3.Designer.cs">
+      <DependentUpon>KyanseruA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\KyanseruB4.cs">
+      <DependentUpon>KyanseruB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Kyanseru\KyanseruB4.Designer.cs">
+      <DependentUpon>KyanseruB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport1A4.cs">
+      <DependentUpon>PaymentRequestPreviewReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport1A4.Designer.cs">
+      <DependentUpon>PaymentRequestPreviewReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport2A4.cs">
+      <DependentUpon>PaymentRequestPreviewReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\PaymentRequest\PaymentRequestPreviewReport2A4.Designer.cs">
+      <DependentUpon>PaymentRequestPreviewReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyHorizontal.cs">
+      <DependentUpon>QuotationWithJourneyHorizontal.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyHorizontal.Designer.cs">
+      <DependentUpon>QuotationWithJourneyHorizontal.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyVertical.cs">
+      <DependentUpon>QuotationWithJourneyVertical.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\QuotationWithJourney\QuotationWithJourneyVertical.Designer.cs">
+      <DependentUpon>QuotationWithJourneyVertical.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport2A4.cs">
+      <DependentUpon>NoReceiptOutputReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport2A4.Designer.cs">
+      <DependentUpon>NoReceiptOutputReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport2A4.cs">
+      <DependentUpon>ReceiptOutputReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport2A4.Designer.cs">
+      <DependentUpon>ReceiptOutputReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportB4.cs">
+      <DependentUpon>BusinessPlanReceivableListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\BusinessPlanReceivableListReportB4.Designer.cs">
+      <DependentUpon>BusinessPlanReceivableListReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\ReceivableListReportA3.cs">
+      <DependentUpon>ReceivableListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\ReceivableListReportA3.Designer.cs">
+      <DependentUpon>ReceivableListReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\ReceivableListReportA4.cs">
+      <DependentUpon>ReceivableListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceivableList\ReceivableListReportA4.Designer.cs">
+      <DependentUpon>ReceivableListReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SimpleQuotation\SimpleQuotation.cs">
+      <DependentUpon>SimpleQuotation.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SimpleQuotation\SimpleQuotation.Designer.cs">
+      <DependentUpon>SimpleQuotation.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListA3.cs">
+      <DependentUpon>RepairListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListA3.Designer.cs">
+      <DependentUpon>RepairListA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListA4.cs">
+      <DependentUpon>RepairListA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListA4.Designer.cs">
+      <DependentUpon>RepairListA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListB4.cs">
+      <DependentUpon>RepairListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\RepairList\RepairListB4.Designer.cs">
+      <DependentUpon>RepairListB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA3.cs">
+      <DependentUpon>SuperReservationReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA3.Designer.cs">
+      <DependentUpon>SuperReservationReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA4.cs">
+      <DependentUpon>SuperReservationReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportA4.Designer.cs">
+      <DependentUpon>SuperReservationReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportB4.cs">
+      <DependentUpon>SuperReservationReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperReservationReport\SuperReservationReportB4.Designer.cs">
+      <DependentUpon>SuperReservationReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA3.cs">
+      <DependentUpon>SuperVehicleReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA3.Designer.cs">
+      <DependentUpon>SuperVehicleReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA4.cs">
+      <DependentUpon>SuperVehicleReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportA4.Designer.cs">
+      <DependentUpon>SuperVehicleReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportB4.cs">
+      <DependentUpon>SuperVehicleReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\SuperVehicleReport\SuperVehicleReportB4.Designer.cs">
+      <DependentUpon>SuperVehicleReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.cs">
+      <DependentUpon>FillRecordRemainSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.Designer.cs">
+	    <DependentUpon>FillRecordRemainSubReportA3.repx</DependentUpon>
+	  </Compile>
+    <Compile Update="Reports\ReportTemplate\JitHouReport\JitHouReport.cs">
+      <DependentUpon>JitHouReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JitHouReport\JitHouReport.Designer.cs">
+      <DependentUpon>JitHouReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboBaseReport.cs">
+      <DependentUpon>JomukirokuboBaseReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboBaseReport.Designer.cs">
+      <DependentUpon>JomukirokuboBaseReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport1A4.cs">
+      <DependentUpon>JomukirokuboReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\JomukirokuboReport\JomukirokuboReport1A4.Designer.cs">
+      <DependentUpon>JomukirokuboReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.cs">
+      <DependentUpon>FillRecordRemainSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA3.Designer.cs">
+      <DependentUpon>FillRecordRemainSubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA4.cs">
+      <DependentUpon>FillRecordRemainSubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportA4.Designer.cs">
+      <DependentUpon>FillRecordRemainSubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportB4.cs">
+      <DependentUpon>FillRecordRemainSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport1A4.cs">
+      <DependentUpon>NoReceiptOutputReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\NoReceiptOutputReport1A4.Designer.cs">
+      <DependentUpon>NoReceiptOutputReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport - Copy.cs">
+      <SubType>Component</SubType>
+      <DependentUpon>ReceiptOutputReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport - Copy.Designer.cs">
+      <DependentUpon>ReceiptOutputReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport1A4.cs">
+      <DependentUpon>ReceiptOutputReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\ReceiptOutput\ReceiptOutputReport1A4.Designer.cs">
+      <DependentUpon>ReceiptOutputReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\FillRecordRemainSubReportB4.Designer.cs">
+      <DependentUpon>FillRecordRemainSubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportA3.cs">
+      <DependentUpon>SubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportA3.Designer.cs">
+      <DependentUpon>SubReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportA4.cs">
+      <DependentUpon>SubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportA4.Designer.cs">
+      <DependentUpon>SubReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportB4.cs">
+      <DependentUpon>SubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\SubReportB4.Designer.cs">
+      <DependentUpon>SubReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A3.cs">
+      <DependentUpon>Tenkokiroku1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A3.Designer.cs">
+      <DependentUpon>Tenkokiroku1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A4.cs">
+      <DependentUpon>Tenkokiroku1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1A4.Designer.cs">
+      <DependentUpon>Tenkokiroku1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1B4.cs">
+      <DependentUpon>Tenkokiroku1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku1B4.Designer.cs">
+      <DependentUpon>Tenkokiroku1B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A3.cs">
+      <DependentUpon>Tenkokiroku2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A3.Designer.cs">
+      <DependentUpon>Tenkokiroku2A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A4.cs">
+      <DependentUpon>Tenkokiroku2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2A4.Designer.cs">
+      <DependentUpon>Tenkokiroku2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2B4.cs">
+      <DependentUpon>Tenkokiroku2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\Tenkokiroku\Tenkokiroku2B4.Designer.cs">
+      <DependentUpon>Tenkokiroku2B4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportActualResult\TransportActualResult.cs">
+      <DependentUpon>TransportActualResult.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportActualResult\TransportActualResult.Designer.cs">
+      <DependentUpon>TransportActualResult.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA3.cs">
+      <DependentUpon>TransportDailyReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA3.Designer.cs">
+      <DependentUpon>TransportDailyReportA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA4.cs">
+      <DependentUpon>TransportDailyReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportA4.Designer.cs">
+      <DependentUpon>TransportDailyReportA4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportB4.cs">
+      <DependentUpon>TransportDailyReportB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportDailyReport\TransportDailyReportB4.Designer.cs">
+      <DependentUpon>TransportDailyReportB4.repx</DependentUpon>
+    </Compile>
+   <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\KoteiSubReport.cs">
+      <DependentUpon>KoteiSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\KoteiSubReport.Designer.cs">
+      <DependentUpon>KoteiSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\PageSpace.cs">
+      <DependentUpon>PageSpace.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\PageSpace.Designer.cs">
+      <DependentUpon>PageSpace.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\TehaiSubReport.cs">
+      <DependentUpon>TehaiSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\TehaiSubReport.Designer.cs">
+      <DependentUpon>TehaiSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport1A4.cs">
+      <DependentUpon>UnkoushijishoBaseReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport1A4.Designer.cs">
+      <DependentUpon>UnkoushijishoBaseReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReport2A4.cs">
+      <DependentUpon>UnkoushijishoBaseReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReportNew.cs">
+      <DependentUpon>UnkoushijishoBaseReportNew.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoBaseReportNew.Designer.cs">
+      <DependentUpon>UnkoushijishoBaseReportNew.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport.cs">
+      <DependentUpon>UnkoushijishoReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport1A4.cs">
+      <DependentUpon>UnkoushijishoReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport1A4.Designer.cs">
+      <DependentUpon>UnkoushijishoReport1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport2A4.cs">
+      <DependentUpon>UnkoushijishoReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReport2A4.Designer.cs">
+      <DependentUpon>UnkoushijishoReport2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReportNew.cs">
+      <DependentUpon>UnkoushijishoReportNew.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoReportNew.Designer.cs">
+      <DependentUpon>UnkoushijishoReportNew.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoSubReport.cs">
+      <DependentUpon>UnkoushijishoSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\UnkoushijishoReport\UnkoushijishoSubReport.Designer.cs">
+      <DependentUpon>UnkoushijishoSubReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReport.cs">
+      <DependentUpon>VehicleDailyReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReport.Designer.cs">
+      <DependentUpon>VehicleDailyReport.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueB4.cs">
+      <DependentUpon>DailyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueB4.Designer.cs">
+      <DependentUpon>DailyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueA3.cs">
+      <DependentUpon>DailyTransportationRevenueA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenueA3.Designer.cs">
+      <DependentUpon>DailyTransportationRevenueA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenue.cs">
+      <DependentUpon>DailyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\DailyTransportationRevenue.Designer.cs">
+      <DependentUpon>DailyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy %282%29.cs">
+      <SubType>Component</SubType>
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy %282%29.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy - Copy.cs">
+      <SubType>Component</SubType>
+      <DependentUpon>MonthlyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy - Copy.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy.cs">
+      <SubType>Component</SubType>
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue - Copy.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue.cs">
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenue.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenue.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueA3.cs">
+      <DependentUpon>MonthlyTransportationRevenueA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueA3.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenueA3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueB4.cs">
+      <DependentUpon>MonthlyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\TransportationRevenue\MonthlyTransportationRevenueB4.Designer.cs">
+      <DependentUpon>MonthlyTransportationRevenueB4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A3.cs">
+      <DependentUpon>VehicleDailyReportTemplate1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A3.Designer.cs">
+      <DependentUpon>VehicleDailyReportTemplate1A3.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A4.cs">
+      <DependentUpon>VehicleDailyReportTemplate1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate1A4.Designer.cs">
+      <DependentUpon>VehicleDailyReportTemplate1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate2A4.cs">
+      <DependentUpon>VehicleDailyReportTemplate2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleDailyReport\VehicleDailyReportTemplate2A4.Designer.cs">
+      <DependentUpon>VehicleDailyReportTemplate2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\YouShaIrai\YouShaIrai1A4.cs">
+      <DependentUpon>YouShaIrai1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\YouShaIrai\YouShaIrai1A4.Designer.cs">
+      <DependentUpon>YouShaIrai1A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleStatisticsSurvey\VehicleStatisticsSurvey.cs">
+      <DependentUpon>VehicleStatisticsSurvey.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\VehicleStatisticsSurvey\VehicleStatisticsSurvey.Designer.cs">
+      <DependentUpon>VehicleStatisticsSurvey.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\YouShaIrai\YouShaIrai2A4.cs">
+      <DependentUpon>YouShaIrai2A4.repx</DependentUpon>
+    </Compile>
+    <Compile Update="Reports\ReportTemplate\YouShaIrai\YouShaIrai2A4.Designer.cs">
+      <DependentUpon>YouShaIrai2A4.repx</DependentUpon>
+    </Compile>  
+	</ItemGroup>
+
+</Project>
