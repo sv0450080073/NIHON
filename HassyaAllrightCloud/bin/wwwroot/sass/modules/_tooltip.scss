@@ -1,0 +1,62 @@
+﻿@import '../global.scss';
+
+/* Tooltip */
+a[data-toggle="tooltip"] {
+    display: block;
+    position: relative;
+}
+
+.tooltip {
+    width: 25rem;
+    pointer-events: none;
+
+    .arrow::before {
+        display: none;
+    }
+
+    &.show {
+        opacity: 1;
+    }    
+}
+
+.tooltip-inner {
+    max-width: inherit;
+    text-align: left;
+    background: #fff;
+    color: #000;
+    -webkit-box-shadow: 0 0 0.125rem 0.25rem rgba(0,0,0,0.3);
+    -moz-box-shadow: 0 0 0.125rem 0.25rem rgba(0,0,0,0.3);
+    box-shadow: 0 0 0.125rem 0.25rem rgba(0,0,0,0.3);
+
+    span {
+        display: block;
+    }
+}
+
+.bs-tooltip {
+    &-auto[x-placement^=top], &-top {
+        .arrow::before {
+            border-top-color: #fff;
+        }
+    }
+
+    &-auto[x-placement^=bottom], &-bottom {
+        .arrow::before {
+            border-bottom-color: #fff;
+        }
+    }
+
+    &-auto[x-placement^=left], &-left {
+        .arrow::before {
+            border-left-color: #fff;
+        }
+    }
+
+    &-auto[x-placement^=right], &-right {
+        .arrow::before {
+            border-right-color: #fff;
+        }
+    }
+}
+
+

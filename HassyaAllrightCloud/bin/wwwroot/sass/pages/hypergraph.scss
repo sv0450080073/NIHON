@@ -1,0 +1,138 @@
+﻿@import '../global.scss';
+
+.chart {
+    &-display {
+        background-color: #FFF2CC;
+        width: 50vw;
+        height: 400px;
+        display: inline-block;
+    }
+
+    &-area {
+        width: 100%;
+    }
+}
+
+.grid {
+    &-display {
+        display: inline-block;
+        max-height: 400px;
+        overflow: auto;
+        margin-left: 10px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #000;
+        border-right: 1px solid #000;
+
+        tr {
+            &:not(:last-child) td {
+                border-bottom: 1px solid #000;
+            }
+
+            td:not(:last-child) {
+                border-right: 1px solid #000;
+                max-width: 200px;
+            }
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            background: white;
+
+            &:first-child {
+                border-left: 1px solid #000;
+            }
+
+            &:not(:last-child) {
+                border-right: 1px solid #000;
+            }
+        }
+
+        td {
+            &:first-child {
+                text-align: left;
+                padding: 5px;
+                border-left: 1px solid #000;
+            }
+
+            &:not(:first-child) {
+                text-align: right;
+                padding: 5px;
+            }
+        }
+    }
+
+    &-area {
+        display: inline-block;
+    }
+}
+
+#sale {
+    &-grid-area .grid-display td {
+        cursor: context-menu;
+
+        &::selection {
+            background-color: none;
+        }
+    }
+
+    &-chart-area {
+        width: 50vw;
+        height: 400px;
+        display: inline-block;
+    }
+}
+
+.show {
+    &-legend {
+        margin-bottom: 60px !important;
+    }
+
+    &-last-year-check {
+        margin-left: 10px;
+    }
+}
+
+#frame-select {
+    height: 0;
+    width: 0;
+    background-color: #EEA890;
+    position: absolute;
+    z-index: 9999;
+    border-style: solid;
+    border-color: $color--3;
+    visibility: hidden;
+    opacity: 0.5;
+}
+
+.selected-area td {
+    background-color: #FFF2CC;
+}
+
+.chart-tooltip {
+    background: white;
+
+    p {
+        cursor: pointer;
+        padding: 5px;
+
+        &:hover {
+            background-color: #676666
+        }
+    }
+}
+
+#sale-chart-area {
+    .dx-chart-legend-item {
+        &:first-child {
+            cursor: unset;
+            .dx-checkbox {
+                pointer-events: none;
+            }
+        }
+    }
+}

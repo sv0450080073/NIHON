@@ -1,0 +1,21 @@
+﻿@import '../global.scss';
+
+@each $color, $value in $bg-colors {
+    .bg-#{$color} {
+        background-color: $value;
+    }
+}
+
+@each $color, $value in $colors {
+    .color-#{$color} {
+        background-color: $value;
+    }
+}
+
+.over-vehicles {
+    background-color: rgba(255,250,205,.5) !important;
+}
+
+.border-black {
+    border: 0.0625rem solid black;
+}

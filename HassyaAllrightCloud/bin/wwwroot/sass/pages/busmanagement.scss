@@ -1,0 +1,104 @@
+﻿.table-grid-data {
+    font-size: 0.8125rem;
+
+    &--loadData {
+        &.dxbs-gridview > div > .dxbs-grid-vsd {
+            height: calc(100vh - 13.75rem);
+        }
+    }
+
+    table th {
+        background: rgba(233, 236, 239, 0.5);
+        text-align: center;
+    }
+
+    .table-sm th, .table-sm td {
+        padding: 0.0625rem;
+    }
+
+    .dxbs-pager {
+        padding: 0.0675rem 0.5rem;
+
+        .pagination {
+            justify-content: flex-end;
+
+            .page-link {
+                padding: .2195rem .5rem;
+                font-size: .8125rem;
+                line-height: 1.5;
+
+                &[data-args="PBP"]::before, &[data-args="PBN"]::before {
+                    content: "0";
+                    visibility: hidden;
+                }
+            }
+        }
+
+        &-navbutton-container {
+            display: flex;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center
+        }
+
+        &-prev, &-next {
+            height: .7em;
+            width: .7em;
+            border-top: 2px solid currentColor;
+            border-left: 2px solid currentColor
+        }
+
+        &-prev {
+            -ms-transform: translateX(.24749em) translateX(-.70711px) rotate(-45deg);
+            transform: translateX(calc((.7em - 2px) / 2.8284)) rotate(-45deg)
+        }
+
+        &-next {
+            -ms-transform: translateX(.70711px) translateX(-.24749em) rotate(135deg);
+            transform: translateX(calc((2px - .7em) / 2.8284)) rotate(135deg)
+        }
+
+        &-first {
+            height: calc(.7em * 1.4142);
+            width: 3px;
+            border-left: 2px solid currentColor
+        }
+
+        &-last {
+            height: calc(.7em * 1.4142);
+            width: 3px;
+            border-right: 2px solid currentColor
+        }
+    }
+}
+
+.collapse .table-grid-data {
+    .card > div, .card > div + div {
+        width: calc(100vw - 1.875rem) !important;
+    }
+}
+
+.small-size {
+    input.form-control {
+        height: calc(1.5em + .40625rem + 2px);
+        padding: .20313rem .5rem;
+        font-size: .8125rem;
+        line-height: 1.5;
+        border-radius: .15rem;
+    }
+
+    .input-group > .custom-select,
+    .input-group > .form-control,
+    .input-group > .input-group-append > .btn,
+    .input-group > .input-group-append > .input-group-text,
+    .input-group > .input-group-prepend > .btn,
+    .input-group > .input-group-prepend > .input-group-text {
+        padding: .20313rem .5rem;
+        font-size: .8125rem;
+        line-height: 1.5;
+    }
+}

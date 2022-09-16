@@ -1,0 +1,230 @@
+﻿@import '../global.scss';
+
+.container-grid-home {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    grid-row-gap: 0.13rem;
+    grid-column-gap: 1rem;
+    height: 100vh;
+    margin: 0;
+}
+
+
+.home {
+    .card {
+        color: black;
+        border: $bg_sidebar solid 1px;
+
+        &--1 {
+            grid-row: 1/3;
+
+            & > .card-body {
+                padding-right: 1.25rem;
+            }
+        }
+
+        &--2 {
+            grid-row: 1/4;
+            grid-column: 2/-1;
+        }
+
+        &--4 {
+            border-bottom-left-radius: 10px;
+        }
+
+        &--6 {
+            border-bottom-right-radius: 10px;
+        }
+    }
+
+    .card-header {
+        border-bottom: 2px $bg_sidebar solid;
+        background: $bg_sidebar;
+        color: white;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 100%;
+        height: 2.3rem;
+
+        &--icon {
+            i.fa {
+                padding: 0.3rem;
+                border-radius: 50%;
+                margin-left: 5px;
+                transition: .5s;
+                text-align: center;
+
+                &:hover {
+                    cursor: pointer;
+                    background: #fff;
+                    color: $bg_sidebar;
+                }
+            }
+        }
+    }
+
+    .card-timeline {
+        margin-top: 0.63rem;
+        position: relative;
+    }
+
+    .notify-item {
+        position: relative;
+        padding-left: 2.2rem;
+        padding-right: 1.25rem;
+        padding-bottom: 3.13rem;
+        margin-top: 0.63rem;
+        z-index: 1;
+
+        &:last-child {
+            padding-bottom: 0.31rem;
+        }
+
+        &:after {
+            content: attr(data-messager);
+            width: 0.63rem;
+            position: absolute;
+            top: 0.4rem;
+            left: 1rem;
+            width: 0.7rem;
+            height: 0.7rem;
+            line-height: 0.5;
+            border: 2px solid #fff;
+            font-size: 1rem;
+            text-indent: -2.5rem;
+            border-radius: 50%;
+            color: rgba(black, 0.7);
+            background: linear-gradient(to bottom, #1ab394 0%, #18a689 100%);
+        }
+
+        &-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.31rem;
+        }
+
+        &-desc {
+            font-size: 0.85rem;
+            color: #6f6f7b;
+            line-height: 1.5;
+        }
+    }
+
+    .notification--list {
+        list-style-type: none;
+    }
+
+    .scrollbar {
+        margin: 0.25rem, 0.25rem;
+        padding: 0.25rem;
+        width: inherit;
+        height: inherit;
+        overflow-x: hidden;
+        overflow-x: auto;
+        text-align: justify;
+    }
+
+    .scrollbar--1 {
+        margin: 0.25rem, 0.25rem;
+        padding: 0.25rem;
+        width: inherit;
+        height: 25vh;
+        overflow-x: hidden;
+        overflow-x: auto;
+        text-align: justify;
+    }
+
+    #style-1::-webkit-scrollbar {
+        width: 0.75rem;
+        background-color: #555;
+    }
+
+    #style-1::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        border-radius: 10px;
+        background-color: #555;
+    }
+
+    #style-1::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+        background-color: #F5F5F5;
+    }
+
+    .scheduler {
+        box-sizing: border-box;
+    }
+
+    .time, .message, .card-header, .alarm, .site, .menu {
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        align-items: center;
+    }
+
+    .time--date {
+        margin-right: 0.63rem;
+    }
+
+    .message {
+        &--person {
+            width: 10%;
+        }
+
+        &--content {
+            width: 90%;
+        }
+    }
+
+    .alarm {
+        &--date {
+            margin-right: 1rem;
+        }
+    }
+
+    .site, .menu {
+        border-bottom: .5px solid $bg_sidebar;
+        padding: 0 0.3rem 0 0.3rem;
+        margin: 0 1rem;
+
+        &--link {
+            margin: 0.63rem;
+            width: 75%;
+        }
+
+        &--button {
+            width: 25%;
+        }
+    }
+
+    .menu--link:hover, .site--link:hover {
+        color: $bg_sidebar_hover;
+    }
+
+    .memo--message {
+        box-sizing: border-box;
+        width: 100%;
+        height: 24vh;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        outline: none;
+        resize: none;
+    }
+
+    .alert {
+        top: 0;
+        width: 100%;
+        left: 0;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+}

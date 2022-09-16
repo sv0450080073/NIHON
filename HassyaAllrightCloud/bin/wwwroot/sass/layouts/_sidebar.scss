@@ -1,0 +1,101 @@
+﻿@import '../global.scss';
+
+/* Sidebar */
+#sidebar {
+    min-width: 15.625rem;
+    max-width: 15.625rem;
+    background: $bg_sidebar;
+    color: $white;
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    height: 100vh !important;
+    position: sticky;
+    top: 0;
+    margin-left: -15.625rem;
+
+    &.active {
+        margin-left: 0;
+    }
+
+    .sidebar {
+        &-header {
+            padding: 0.625rem;
+            background: $bg_sidebar_header;
+
+            img {
+                margin-right: 0.5rem;
+                height: 1.929rem;
+            }
+        }
+
+        &-content {
+            height: calc(100vh - 51px);
+        }
+    }
+
+    ul {
+        li a {
+            padding: 0.625rem;
+            font-weight: 500;
+            display: block;
+
+            &:hover, &.active, &[aria-expanded="true"] {
+                color: $white;
+                background: $bg_sidebar_ul_active;
+            }
+        }
+
+        ul {
+            li a {
+                background: $bg_sidebar_ul_ul;
+                color: #a7b1c2;
+
+                &:hover, &.active, &[aria-expanded="true"] {
+                    color: $white;
+                    background-color: $bg_sidebar_ul_ul_active;
+                }
+            }
+
+            ul li a {
+                background: $bg_sidebar_ul_ul_ul;
+                padding-left: 1.25rem;
+
+                &:hover, &.active {
+                    background: $bg_sidebar_ul_ul_ul;
+                }
+            }
+        }
+    }
+
+    #sidebarCollapse {
+        background-color: $bg_sidebar;
+        border-color: $bg_sidebar;
+        color: $white;
+
+        &:hover {
+            background-color: $bg_sidebar_hover;
+            border-color: $bg_sidebar_hover;
+            color: $white;
+        }
+
+        @media (max-width: 1280px) {
+            span {
+                display: none;
+            }
+        }
+    }
+
+    a[data-toggle="collapse"] {
+        position: relative;
+    }
+
+    .dropdown-toggle::after {
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 1.25rem;
+        transform: translateY(-50%);
+    }
+}
+

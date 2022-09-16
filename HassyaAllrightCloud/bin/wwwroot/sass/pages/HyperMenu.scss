@@ -1,0 +1,164 @@
+﻿@import '../global.scss';
+
+.type-date {
+    border: none;
+
+    &:not(.active) {
+        background: none;
+    }
+}
+
+.search-content .nav {
+    padding-left: 10px;
+}
+
+.contain-view {
+    display: flex;
+    height: 100vh;
+    min-height: 700px;
+    max-width: 100%;
+}
+
+.left-condition {        
+    width: calc(100% - 23rem);
+    margin-right: 5px;
+}
+
+.right {
+    &-display {
+        max-width: 23rem;
+        min-width: 23rem;        
+    }
+
+    &-search-condition {       
+        padding-top: 12px;
+    }
+}
+
+.left-condition, .right-display {
+    height: 100%;
+    display: inline-block;
+    float: left;
+    border-style: solid;
+    border-color: #5a5959;
+}
+
+.left, .right {
+    &-search-condition {
+        width: calc(50% - 2px);
+        display: inline-block;
+        min-width: 595px;
+    }
+}
+
+.search-date, .table-display, .major-graph-display {
+    width: 100%;
+    border-bottom-style: dashed;
+    border-bottom-color: #929090;
+}
+
+.search-date, .table-display {
+    height: 150px;
+}
+
+.major-graph-display {
+    height: 300px;
+}
+
+.minor-graph-display {
+    width: 100%;
+    height: calc(100% - 450px);
+    min-height: calc(100% - 450px);
+}
+
+.search{
+    &-condition {
+        width: 100%;
+        height: calc(100% - 150px);
+        max-height: calc(100% - 150px);
+        overflow: auto;
+    }
+
+    &-title {
+        padding: 0.5rem 0.9375rem;
+    }
+
+    &-content {
+        width: calc(100% - 0.9375rem);
+        height: auto;
+        padding: 0 0.9375rem;
+    }
+}
+
+.display-content {
+    width: 100%;
+    height: 62px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.condition-display-row {
+    padding-top: 12px;
+}
+
+.item-inline {
+    display: inline-block;
+    width: calc(50% - 61px);
+}
+
+.right-label {
+    padding-left: 7px;
+}
+
+.condition-label {
+    text-align: right;
+    width: 94px;
+    min-width: 94px;
+    margin-right: 0 !important;
+    white-space: normal;
+}
+
+.display-button {
+    width: calc(50% - 8px);
+    min-height: 50px;
+    max-height: 50px;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-radius: 10px;
+    background-color: $color--11;
+    color: #fff;
+    border-color: $color--11;
+    transition-duration: 0.4s;
+    float: left;
+    font-size: small;
+    overflow: hidden;
+
+    &:hover {
+        &:enabled {
+            background-color: #339A91;
+            border-color: #339A91;
+            color: #fff;
+        }
+
+        &:disabled {
+            color: #fff;
+        }
+    }
+
+    &:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        cursor: auto;
+    }
+}
+
+.custom-combo-box{
+    .dropdown-item {
+        white-space: normal;
+        font-size: 12px;
+        min-height: 32px;
+    }
+    .form-control {
+        white-space: normal;
+    }
+}

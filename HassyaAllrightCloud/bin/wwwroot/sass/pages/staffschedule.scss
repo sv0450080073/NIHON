@@ -1,0 +1,186 @@
+﻿@import '../global.scss';
+
+.schedule-label {
+    float: left;
+    width: 30%;
+    min-width: 40px;
+    flex: 0 1 auto;
+    padding-right: 5px;
+    div {
+        text-align: center;
+        border: 1px solid black;
+        margin-top: 1px;
+        white-space: normal;
+    }
+
+    .schedule-label-vacation-0 {
+        background-color: blue;
+    }
+
+    .schedule-label-vacation-1 {
+        background-color: green;
+    }
+
+    .schedule-label-vacation-2 {
+        background-color: red;
+    }
+
+    .schedule-label-vacation-3 {
+        background-color: purple;
+    }
+
+    .schedule-label-vacation-4 {
+        background-color: black;
+    }
+
+    .schedule-label-work {
+        background-color: olive;
+    }
+
+    .schedule-label-0 {
+        background-color: brown;
+    }
+
+    .schedule-label-1 {
+        background-color: blueviolet;
+    }
+}
+
+.schedule-content-inline {
+    flex: 1 0 auto;
+    white-space: normal;
+}
+
+.dx-scheduler-navigator-caption {
+    min-width: 200px !important;
+}
+
+.schedule-tab-index {
+    float: left;
+    max-width: 80%;
+}
+
+.schedule-display-button {
+    float: right;
+    margin-right: 2px;
+}
+
+#driver-schedule {
+    float: left;
+    height: 100%;
+    transition: width 0.25s;
+}
+
+.schedule-half-width {
+    width: 80%;
+}
+
+.schedule-full-width {
+    width: calc(100% - 2px);
+}
+
+.group-schedule {
+    min-height: 100%;
+    max-height: 100%;
+    float: right;
+    transition: all 0.25s;
+    transition-property: width, opacity;
+    border: 1px solid rgba(221,221,221,.6);
+    overflow: auto;
+}
+
+.group-schedule-show {
+    width: calc(20% - 5px);
+}
+
+.group-schedule-hide {
+    width: 0;
+    opacity: 0;
+}
+
+.group-schedule-title {
+    text-align: center;
+    height: 56px;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.group-schedule-title-section {
+    padding: .25rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #e9ecef;
+    border-radius: .25rem;
+    font-weight: 700;
+
+    button {
+        float: right;
+        border-style: none;
+        background-color: transparent;
+    }
+}
+
+.group-schedule-wrapper {
+    padding-left: 10px;
+
+    .dx-checkbox {
+        max-width: 70%;
+        min-width: 70%;
+        white-space: nowrap;
+    }
+
+    label {
+        display: initial !important;
+    }
+}
+
+.driver-schedule-wrapper {
+    float: left;
+    height: calc(100% - 31px);
+}
+
+.schedule-wrapper {
+    max-height: 90vh;
+    min-height: 90vh;
+}
+
+.schedule-label-wrapper {
+    position: absolute;
+    width: calc(100% - 4px);
+    height: 100%;
+    top: 0;
+    left: 4px;
+}
+
+.group-schedule-button {
+    display: inline-block;
+}
+
+.schedule-popup-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    border-bottom: 1px solid #dee2e6;
+
+    .schedule-popup-title {
+        padding-left: 10px;
+        width: calc(100% - 26px);
+        font-weight: bold;
+    }
+
+    .schedule-popup-close {
+    }
+}
+
+.schedule-popup-content {
+    label {
+        font-weight: 500 !important;
+    }
+
+    .dxbs-tagbox.invalid {
+        .form-control {
+            border-color: red !important;
+        }
+    }
+}

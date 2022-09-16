@@ -1,0 +1,305 @@
+﻿@import '../global.scss';
+
+.from-to {
+    margin-left: 0.3rem !important;
+    margin-right: 0.3rem !important;
+}
+
+@each $color, $value in $grid-colors {
+    span.grid-color-#{$color} {
+        background-color: $value;
+    }
+
+    tr.grid-color-#{$color} {
+        color: $value;
+    }
+}
+
+.current-page {
+    font-weight: bold;
+    background-color: #1ab394 !important;
+    color: $white !important;
+    pointer-events: none;
+}
+
+.grid-pagination {
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    max-width: 40%;
+
+    a {
+        cursor: pointer;
+        float: left;
+        padding: 6px 12px;
+        margin-left: -1px;
+        line-height: 1.42857143;
+        text-decoration: none;
+        background-color: $white;
+        border: 1px solid rgba(0,0,0,.125);
+        border-color: #28a745;
+        width: 45px;
+        text-align: center;
+    }
+
+    .pagination-disabled {
+        pointer-events: none;
+        color: #ccc !important;
+    }
+}
+
+.table-wrapper {
+    max-height: calc(100vh - 150px);
+    min-height: calc(100vh - 150px);
+    overflow: auto;
+    max-width: 100%;
+    background: #ececec;
+}
+
+.table-layout {
+    width: 100%;
+    text-align: center;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    td {
+        border-right: 1px solid $black;
+        padding: 5px;
+        word-break: break-word;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 11;
+        border-top: 1px solid $black;
+        border-right: 1px solid $black;
+        border-bottom: 1px solid $black;
+        padding: 0;
+
+        &:first-child {
+            border-left: 1px solid $black;
+        }
+
+        div:not(:last-child) {
+            border-bottom: 1px solid #d3d3d3;
+        }
+    }
+
+    .body-row-1 td:first-child {
+        border-left: 1px solid $black;
+    }
+
+    thead {
+        .order-no, .symbol {
+            max-width: 50px;
+            min-width: 50px;
+        }
+
+        .person, .bill-classification, .recept-office, .number-of-hired-bus {
+            max-width: 100px;
+            min-width: 100px;
+        }
+
+        .max-fee, .guide, .other, .hired-bus-fare, .hired-bus-guide, .hired-bus-other {
+            max-width: 120px;
+            min-width: 120px;
+        }
+
+        .customer, .fare, .bill-output-date, .reserve-classification {
+            max-width: 150px;
+            min-width: 150px;
+        }
+
+        .organization, .deliver-receipt-output-date, .bus-type {
+            max-width: 200px;
+            min-width: 200px;
+        }
+
+        .dispatch, .display {
+            max-width: 250px;
+            min-width: 250px;
+        }
+    }
+
+    tbody {
+        .customer, .organization, .dispatch, .bus-type, .recept-office, .reserve-classification, .branch, .secretary, .arrival, .sales-staff, .person-in-charge, .destination, .number-of-drivers, .bill-output-date, .deliver-receipt-output-date, .bill-date, .reception-date, .receipt-number, .input-staff {
+            vertical-align: baseline;
+            text-align: left;
+        }
+
+        .fare, .max-fee, .guide, .other, .number-of-hired-bus, .hired-bus-fare, .hired-bus-guide, .hired-bus-other, .person, .min-fee,
+        .fare-tax, .guide-tax, .other-tax, .hired-bus-fare-tax, .hired-bus-guide-tax, .hired-bus-other-tax, .person-plus,
+        .fare-fee, .guide-fee, .other-fee, .hired-bus-fare-fee, .hired-bus-guide-fee, .hired-bus-other-fee, .tax-rate, .fee-tax-rate {
+            vertical-align: baseline;
+            text-align: right;
+        }
+
+        .symbol, .bill-classification {
+            vertical-align: baseline;
+        }
+
+        .tax-rate, .fee-tax-rate {
+            width: 60px;
+            border-right: none !important;
+        }
+
+        tr {
+            background: white;
+        }
+    }
+}
+
+.total-table, .table-layout {
+    th {
+        text-align: center !important;
+        font-weight: normal !important;
+        background: #f5f5f5 !important;
+    }
+}
+
+.total-table, .total-table table {
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+.total-table {
+    th, td {
+        border-bottom: 1px solid $black;
+        border-right: 1px solid $black;
+    }
+
+    tr {
+        &:first-child th {
+            border-top: 1px solid $black;
+            cursor: pointer;
+        }
+
+        &:not(:first-child) th {
+            width: 10%;
+        }
+    }
+
+    th, td {
+        &:first-child {
+            border-left: 1px solid $black;
+        }
+    }
+
+    td {
+        text-align: right;
+        padding: 5px;
+    }
+}
+
+.body-row-1, .body-row-2 {
+    td {
+        border-bottom: 1px solid #d3d3d3;
+    }
+}
+
+.body-row-3 td, .body-row-1 .row-3 {
+    border-bottom: 1px solid $black;
+}
+
+.wrap-display {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.input-display {
+    height: calc(200% / 3 + 1px);
+    border-bottom: 1px solid $black !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contents-display {
+    div {
+        float: left;
+        width: 20%;
+        border-bottom: none !important;
+
+        &:not(:last-child) {
+            border-right: 1px solid $black;
+        }
+    }
+}
+
+.display-content-info {
+    position: relative !important;
+    padding: 0 !important;
+
+    .wrap-display div {
+        float: left;
+        width: 20%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &:not(:last-child) {
+            border-right: 1px solid $black;
+        }
+    }
+}
+
+.grid{
+    &-1 .table-layout tbody {
+        line-height: 1.8;
+    }
+
+    &-2 .table-layout tbody {
+        line-height: 1.5;
+        font-size: 12px;
+    }
+
+    &-3 .table-layout tbody {
+        line-height: 1;
+        font-size: 11px;
+    }
+}
+
+.row-1-current {
+    td {
+        border-top: 3px solid !important;
+    }
+
+    .order-no {
+        border-left: 3px solid !important;
+    }
+
+    .row-3 {
+        border-bottom: 3px solid !important;
+
+        td {
+            border-bottom: 3px solid !important;
+        }
+    }
+
+    .display-content-info {
+        border-right: 3px solid !important;
+
+        .wrap-display div {
+            &:not(:last-child) {
+                width: calc(20% + 0.4px) !important;
+            }
+
+            &:last-child {
+                width: calc(20% - 1.6px) !important;
+            }
+        }
+    }
+
+    .row-1-current-under td {
+        border-top: 1px solid $black;
+    }
+}
+
+.row-3-current td {
+    border-bottom: 3px solid !important;
+}

@@ -1,0 +1,210 @@
+﻿@import '../global.scss';
+
+/* Form */
+.form-group {
+    margin-bottom: 0.5rem;
+}
+
+label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.form-inline label {
+    justify-content: left;
+}
+
+.text-center .form-control {
+    text-align: center;
+}
+
+.text-right .form-control {
+    text-align: right;
+}
+
+.validation-errors {
+    color: red;
+}
+
+.textinvalid {
+    border-color: red;
+}
+
+.combobox-valid {
+    &.valid input {
+        border-color: none !important;
+    }
+
+    &.invalid input {
+        border-color: #26b050 !important;
+    }
+
+    &.modified input {
+        border-color: #26b050 !important;
+    }
+}
+
+.combobox-invalid, .custom-invalid{
+    input {
+        border-color: red !important;
+    }
+}
+
+.custom-modified input {
+    border-color: #26b050 !important;
+
+    &:hover {
+        border-color: #26b050 !important;
+    }
+}
+
+.custom-valid input {
+    border-color: #ced4da !important;
+
+    &:hover {
+        border-color: #26b050 !important;
+    }
+}
+
+.custom-control-radio.custom-radio {
+    padding-left: 0;
+
+    input {
+        + label {
+            background: rgba(76,175,147,0.2);
+            border-radius: 0.3125rem;
+            padding: 0.1875rem 0.625rem;
+            font-size: 0.875rem;
+        }
+
+        &:checked + label {
+            background: $box_shadow_input;
+            color: #fff;
+        }       
+    }
+
+    .custom-control-input ~ .custom-control-label::before,
+    .custom-control-label::after {
+        display: none;
+    }
+}
+
+.custom-file-upload {
+    width: auto;
+
+    .custom-file-input:lang(en) ~ .custom-file-label::after {
+        display: none;
+    }
+
+    span {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        display: block;
+        height: calc(1.5em + 0.75rem);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #e9ecef;
+        border-left: inherit;
+        border-radius: 0 0.25rem 0.25rem 0;
+    }
+}
+
+.custom-multi-combobox {
+    position: relative;
+
+    .result {
+        border: 1px solid #ced4da;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .listbox {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        display: none;
+        width: 100%;
+        min-width: 15.625rem;
+        z-index: 99;
+
+        .dxbs-listbox.list-group {
+            &.form-control {
+                border-radius: 0 0 0.25rem 0.25rem;
+                border-color: #4caf93;
+            }
+
+            .list-group-item {
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
+
+    &.show {
+        .result {
+            border-radius: 0.25rem 0.25rem 0 0;
+            border-color: #4caf93;
+            border-bottom-color: transparent;
+        }
+
+        .listbox {
+            display: block;
+        }
+    }
+}
+
+/*.col-form-label {
+    padding-top: calc(.25rem + 0.0625rem);
+    padding-bottom: calc(.25rem + 0.0625rem);
+    line-height: 1.5;
+    margin-right: 1rem;    
+}
+
+.form-search {
+    .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        @media (max-width: 1280px) {
+            max-width: 6rem;
+        }
+    }
+
+    button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+
+.input-group:hover .form-control, .form-control:hover {
+    border-color: $box_shadow_input;
+}
+
+.form-control:focus {
+    border-color: $box_shadow_input;
+}
+
+.round {
+    .form-control:disabled, tfoot .form-control[readonly], .form-control[readonly] {
+        background-color: $bg_button_disable;
+    }
+}
+
+.rounded-top {
+    border-top-left-radius: .5rem !important;
+    border-top-right-radius: .5rem !important;
+}
+
+.form-control:disabled, .form-control[readonly] {
+    background-color: rgba(233,236,239,0.5);
+}
+    .custom-control-input:checked ~ .custom-control-label::before {
+    border-color: $box_shadow_input;
+    background-color: $box_shadow_input;
+}
+*/

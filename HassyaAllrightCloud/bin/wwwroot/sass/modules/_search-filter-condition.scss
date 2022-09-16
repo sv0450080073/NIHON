@@ -1,0 +1,90 @@
+﻿@import '../global.scss';
+
+/* Search & Filter Condition */
+.express-condition {
+    font-size: 0.875rem;
+
+    .nav-tabs, .card {
+        border-color: #28a745;
+    }
+
+    .nav-link {
+        padding: 0.1875rem 1rem;
+    }
+
+    .card-body {
+        padding: 0.5rem 0.5rem 0;
+
+        .nav-link {
+            border-radius: 1rem;
+        }
+    }
+
+    .nav-tabs {
+        .nav-link {
+            &:focus, &:hover {
+                border-color: #28a745 #28a745 #fff;
+            }
+        }
+
+        .nav-item.show .nav-link, .nav-link.active {
+            color: #fff;
+            background-color: #1ab394;
+            border-color: #28a745;
+
+            &:focus, &:hover {
+                border-color: #28a745;
+            }
+        }
+    }
+
+    .nav-pills {
+        .nav-link.active, .show > .nav-link {
+            background-color: #55B79B;
+        }
+
+        .nav-link.disabled {
+            background-color: rgba(0,0,0,.1);
+        }
+    }
+
+    .col-form-label {
+        font-weight: 500;
+    }
+}
+
+.date-section {
+    font-size: 0.875rem;
+
+    .form-control {
+        height: calc(1.5em + .5rem + 0.125rem);
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+
+    .btn {
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+}
+
+.date-sm {
+    .form-control {
+        height: calc(1.5em + .5rem + 0.125rem);
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+    
+    .btn {
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+}
