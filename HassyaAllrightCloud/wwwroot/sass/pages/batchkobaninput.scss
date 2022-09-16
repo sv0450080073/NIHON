@@ -1,0 +1,151 @@
+﻿#koban-table-wrapper {
+    .dx-checkbox {
+        width: auto;
+        height: auto;
+        border: 1px solid #cecece;
+
+        ::after {
+            border: 1px solid #cecece;
+            border-radius: 4px;
+        }
+    }
+}
+.koban-container {
+    border: 1px solid #28A745;
+    border-radius: 3px;
+}
+.bi-table-wrapper {
+    overflow: auto;
+    max-width: 100%;
+}
+
+.bi-column{
+    min-width:60px;
+}
+.table-koban {
+    width: 100%;
+    text-align: center;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    td {
+        border-right: 0.5px solid #d3d3d3;
+        padding: 5px;
+        word-break: break-word;
+        border-top: 0.5px solid #d3d3d3;
+        border-bottom: 0.5px solid #d3d3d3;
+
+        &::selection {
+            background-color: transparent;
+        }
+    }
+
+    td[title]:hover:after {
+        content: attr(title);
+        position: absolute;
+        top: -100%;
+        left: 0;
+    }
+
+    th {
+        position: sticky;
+        z-index: 11;
+        top: 0;
+        border-top: 1px solid #d3d3d3;
+        border-right: 1px solid #d3d3d3;
+        padding: 0;
+        background-color: #1AB394;
+        color: white;
+
+        &:first-child {
+            border-left: 1px solid #d3d3d3;
+            position: fixed;
+            left: 0px
+        }
+
+        div:not(:last-child) {
+            border-bottom: 1px solid #d3d3d3;
+        }
+    }
+
+    .body-row-1 td:first-child {
+        border-left: 1px solid #d3d3d3;
+    }
+
+    thead {
+        .order-no, .symbol, .check-row {
+            max-width: 110px;
+            min-width: 110px;
+        }
+
+        .bi-column {
+            width: 7%;
+            min-width: 52px;
+        }
+    }
+
+    tbody {
+
+        td {
+            width: 30px;
+        }
+    }
+}
+.selected-cell {
+    background-color: #BAE8DF !important;
+}
+.selectedkbn1 {
+    background-color: #EE9AA2;
+}
+
+.dragged-cell {
+    background-color: cornflowerblue !important;
+}
+.dxbs-tabs ul.nav > li > a:not(.disabled) {
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid #cecece;
+}
+.td-sticky{
+    position: sticky !important;
+    left: 0;
+    z-index:990;
+}
+.min-td{
+    min-width: 90px !important;
+}
+.min-td-1 {
+    min-width: 10% !important;
+    width: 22% !important;
+}
+.tb-td {
+    min-width: 70px !important;
+    background-color: white;
+    z-index: 100;
+    position: sticky;
+    left: 0;
+}
+.border-b{
+    border-bottom: 1px solid #cecece;
+}
+.express-condition .nav-pills .nav-link.active{
+    margin-bottom: 4px;
+}
+.custom-td{
+    padding-left: 10px;
+    margin-right:-10px;
+}
+.condition-label-koban {
+    text-align: left;
+    width: 8gpx;
+    min-width: 80px;
+    margin-right: 0 !important;
+    white-space: normal;
+    padding-left: 7px;
+}
+.block-with-text-koban {
+    max-width: 50px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

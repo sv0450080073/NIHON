@@ -1,0 +1,109 @@
+﻿@import '../global.scss';
+
+.gridBusType {
+    overflow: scroll;
+    border: 0.0625rem solid #000;
+    max-height: calc(100vh - 187px);
+    line-height: 1.5;
+
+    &__content {
+        width: calc(4rem * 30 + 12rem);
+    }
+
+    &__head, &__row {
+        display: flex;
+        border-bottom: 0.0625rem solid #000;
+
+        .col-name {
+            width: 12rem;
+            border-right: 0.0625rem solid #000;
+        }
+
+        .col-timeline {
+            width: calc(100% - 12rem);
+            display: flex;
+
+            &__item {
+                width: 4rem;
+                padding: 2px 0;
+
+                &:not(:last-child) {
+                    border-right: 0.0625rem solid #000;
+                }
+            }
+        }
+    }
+
+    &__head {
+        background: #f5f5f5;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
+
+        .col-name {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            position: sticky;
+            left: 0;
+            top: 0;
+            z-index: 10;
+        }
+
+        .col-timeline__item {
+            &.saturday {
+                background: #f0f8ff;
+                color: blue;
+            }
+
+            &.sunday {
+                background: #fff0f5;
+                color: red;
+            }
+
+            span {
+                display: block;
+            }
+        }
+    }
+
+    &__row {
+        .col-name {
+            background: #bbdefb;
+            padding: 2px 5px;
+            position: sticky;
+            left: 0;
+            z-index: 9;
+        }
+
+        .col-timeline__item {
+            text-align: center;
+        }
+
+        &.summary {
+            &-untemporary .col-name {
+                background: #0e25d7;
+                color: $white;
+            }
+
+            &-total .col-name {
+                background: #ffb74e;
+            }
+        }
+    }
+
+    &.gridsize--1 {
+        font-size: 13px;
+    }
+
+    &.gridsize--2 {
+        font-size: 11px;
+    }
+
+    &.gridsize--3 {
+        font-size: 9px;
+    }
+}

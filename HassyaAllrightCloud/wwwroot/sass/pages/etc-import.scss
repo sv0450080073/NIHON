@@ -1,0 +1,90 @@
+﻿.filename-table {
+    width: 30%;
+    margin-right: 1rem;
+}
+
+.content-table {
+    width: 70%;
+}
+
+.etc-data-content {
+    border-color: #28a745;
+    padding: 1rem;
+    flex: 1;
+    margin-bottom: 1rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    margin-right: 0.25rem;
+    width: 80%;
+
+    .input-close-icon {
+        position: absolute;
+        right: 0;
+        top: 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.725rem;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
+
+.kobo-sticky-table-container {
+    --border-width: 0.0625rem;
+    --background-color: #1AB394;
+    --border-color: #D3D3D3;
+    --selected-row: #BAE8DF;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    background-color: #e9ecef;
+    height: 60vh;
+
+    .kobo-sticky-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+
+        tr.selected-row td {
+            background-color: var(--selected-row) !important;
+        }
+
+        th {
+            color: white;
+            z-index: 1;
+            position: sticky;
+            top: 0px;
+            background-color: var(--background-color);
+            border-top: var(--border-width) solid var(--border-color);
+            border-bottom: var(--border-width) solid var(--border-color);
+            border-right: var(--border-width) solid var(--border-color);
+
+            &:last-child {
+                border-right: none;
+            }
+        }
+
+        td {
+            &:first-child {
+                border-left: none;
+            }
+
+            &:last-child {
+                border-right: none;
+            }
+
+            background-color: white;
+            color: var(--dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+.custom-tooltip .tooltip-inner {
+    font-size: 0.75rem;
+}

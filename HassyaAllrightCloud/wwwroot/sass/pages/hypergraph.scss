@@ -1,0 +1,334 @@
+﻿@import '../global.scss';
+
+.chart {
+    &-display {
+        background-color: #fff8e4;
+        width: 50vw;
+        height: 400px;
+        display: inline-block;
+    }
+
+    &-area {
+        width: 100%;
+    }
+}
+
+.grid {
+    &-display {
+        max-height: calc(400px + 7.7rem);
+        width: 100%;
+
+        tr {
+            &:not(:last-child) td {
+                border-bottom: 1px solid white;
+            }
+
+            td:not(:last-child) {
+                border-right: 1px solid white;
+            }
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid white;
+            text-align: center;
+            background: white;
+            color: white;
+
+            &:first-child {
+                border-left: 1px solid white;
+            }
+
+            &:not(:last-child) {
+                border-right: 1px solid white;
+            }
+
+            &:last-child {
+                background-color: #788A97;
+            }
+        }
+
+        td {
+            width: calc(100% / 4);
+
+            &:first-child {
+                text-align: left;
+                padding: 5px;
+                border-left: 1px solid white;
+                background-color: #788A97;
+                color: white;
+            }
+
+            &:not(:first-child) {
+                text-align: right;
+                padding: 5px;
+                background-color: #F9F8F9;
+            }
+        }
+
+        .row-title-0 {
+            background-color: #788A97 !important;
+        }
+
+        .row-title-1 {
+            background-color: #78cdfffc !important;
+        }
+
+        .row-title-2 {
+            background-color: #f34e4ed1 !important;
+        }
+    }
+
+    &-area {
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-left: 20px;
+        display: inline-block;
+        vertical-align: top;
+        max-height: calc(400px + 4rem);
+        min-height: calc(400px + 4rem);
+        width: calc(67.5% - 150vw / 4);
+    }
+
+    &-area-wcount {
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-left: 20px;
+        display: inline-block;
+        vertical-align: top;
+        max-height: calc(400px + 4rem);
+        min-height: calc(400px + 4rem);
+        width: calc(67.5% - 150vw / 5);
+    }
+
+    &-display-wcount {
+        max-height: calc(400px + 7.7rem);
+        width: 100%;
+
+        tr {
+            &:not(:last-child) td {
+                border-bottom: 1px solid white;
+            }
+
+            td:not(:last-child) {
+                border-right: 1px solid white;
+            }
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid white;
+            text-align: center;
+            background: white;
+            color: white;
+
+            &:first-child {
+                border-left: 1px solid white;
+            }
+
+            &:not(:last-child) {
+                border-right: 1px solid white;
+            }
+
+            &:last-child {
+                background-color: #788A97;
+            }
+        }
+
+        td {
+            width: calc(100% / 5);
+
+            &:first-child {
+                text-align: left;
+                padding: 5px;
+                border-left: 1px solid white;
+                background-color: #788A97;
+                color: white;
+            }
+
+            &:not(:first-child) {
+                text-align: right;
+                padding: 5px;
+                background-color: #F9F8F9;
+            }
+        }
+
+        .row-title-0, .row-title-1, .row-title-2 {
+            text-align: left !important;
+            padding: 5px !important;
+            border-left: 1px solid white !important;
+            color: white !important;
+            z-index: 999;
+        }
+
+        .row-title-0 {
+            background-color: #788A97 !important;
+        }
+
+        .row-title-1 {
+            background-color: #78cdfffc !important;
+        }
+
+        .row-title-2 {
+            background-color: #f34e4ed1 !important;
+        }
+    }
+}
+
+#sale {
+    &-grid-area {
+        width: calc(90% - 50vw) !important;
+        max-height: calc(400px + 7.7rem) !important;
+        min-height: calc(400px + 7.7rem) !important;
+    }
+
+    &-grid-area .grid-display td {
+        cursor: context-menu;
+
+        &::selection {
+            background-color: transparent;
+        }
+    }
+
+    &-chart-area {
+        width: 50vw;
+        height: 400px;
+        display: inline-block;
+    }
+
+    &-grid-area-wcount {
+        width: calc(90% - 50vw) !important;
+        max-height: calc(400px + 7.7rem) !important;
+        min-height: calc(400px + 7.7rem) !important;
+    }
+
+    &-grid-area-wcount .grid-display-wcount td {
+        cursor: context-menu;
+
+        &::selection {
+            background-color: transparent;
+        }
+    }
+}
+
+#pie-group-classification-day .grid-area {
+    max-height: calc(400px + 7.7rem) !important;
+    min-height: calc(400px + 7.7rem) !important;
+}
+
+.show {
+    &-legend {
+        margin-bottom: 0.5rem !important;
+    }
+
+    &-last-year-check {
+        margin-left: 10px;
+    }
+}
+
+#frame-select {
+    height: 0;
+    width: 0;
+    background-color: #EEA890;
+    position: absolute;
+    z-index: 99;
+    border-style: solid;
+    border-color: $color--3;
+    visibility: hidden;
+    opacity: 0.5;
+}
+
+.selected-area td {
+    &:not(:first-child) {
+        background-color: #FFF2CC !important;
+    }
+}
+
+.selected-area-wcount td {
+    &.row-value {
+        background-color: #FFF2CC !important;
+    }
+}
+
+.chart-tooltip {
+    background: white;
+
+    p {
+        cursor: pointer;
+        padding: 5px;
+
+        &:hover {
+            background-color: #676666
+        }
+    }
+}
+
+#sale-chart-area {
+    .dx-chart-legend-item {
+        &:first-child {
+            cursor: unset;
+
+            .dx-checkbox {
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+.hidden-graph {
+    display: none;
+}
+
+.bg-this-year {
+    background-color: #3BB999 !important;
+}
+
+.bg-last-year {
+    background-color: #FF8C00 !important;
+}
+
+#bar-staff-day,
+#bar-customer-day,
+#bar-group-classification-day {
+    height: calc(400px + 4.5rem);
+}
+
+#pie-group-classification-day {
+    height: calc(400px + 7.7rem);
+}
+.pie-2 {
+    display: flex;
+    max-height: calc(400px + 7.7rem) !important;
+    min-height: calc(400px + 7.7rem) !important;
+}
+.chart-pie {
+    width: 50% !important;
+    background-color: #FFF2CC;
+}
+
+.excel-output-wrapper {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 1000;
+
+    .excel-output {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+    }
+}
+.grid-area {
+    margin-left: 10px !important;
+    width: calc(67.5% - 105vw / 4) !important;
+}
+
+#sale-grid-area {
+    width: calc(90% - 44vw) !important;
+}
+
+#sale-grid-area-wcount {
+    width: calc(90% - 44vw) !important;
+}

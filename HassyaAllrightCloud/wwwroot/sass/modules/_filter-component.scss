@@ -1,0 +1,35 @@
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+    user-select: none; /* standard syntax */
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}
+
+.filter-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 100%;
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+.filter-show {
+    display: block;
+}
+
+.filter-scroll {
+    overflow: auto;
+    max-height: 30vh;
+}
+
+.filter-item {
+    width: max-content;
+}
+
+.filter-update {
+    color: dodgerblue !important;
+}

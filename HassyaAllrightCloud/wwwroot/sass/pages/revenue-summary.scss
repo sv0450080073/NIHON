@@ -1,0 +1,162 @@
+﻿.group-btns {
+    & button {
+        width: 100%;
+    }
+}
+
+.nav-btn {
+    border: none;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.csv-group-btns {
+    border: 1px solid var(--gray);
+    padding: 1rem;
+    border-radius: 1rem;
+    border-style: dotted;
+}
+
+.nav-btn.active {
+    background-color: var(--primary);
+    color: var(--white)
+}
+
+.nav-btn:not(.active) {
+    background: none !important;
+    border-color: var(--primary);
+    padding: 0.25rem 0.5rem;
+}
+
+.next-pre-font-size {
+    font-size: 1.2rem;
+}
+
+.revenue-summary {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.transportation-report {
+    --col-1-width: 3rem;
+    --border-width: 0.0625rem;
+    --background-color: #1AB394;
+    --border-color: #D3D3D3;
+    --sticky-z-index: 11;
+    --header-color: white;
+    --selected-row: #BAE8DF;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .padding-03 {
+        padding: 0 0.3rem;
+    }
+
+    .cell-border-left {
+        border-left: calc(var(--border-width)*2) solid var(--border-color) !important;
+    }
+
+    .cell-border-right {
+        border-right: calc(var(--border-width)*2) solid var(--border-color) !important;
+    }
+
+    .cell-border-top {
+        border-top: calc(var(--border-width)*2) solid var(--border-color);
+    }
+
+    .group-cols {
+        display: flex;
+    }
+
+    .transportation-common-data {
+        th {
+            color: var(--header-color);
+            background-color: var(--background-color);
+        }
+    }
+
+    .sticky-table {
+
+        table {
+            width: 125rem;
+            border-collapse: separate;
+            border-spacing: 0;
+
+            tr {
+                &.selected td {
+                    background-color: var(--selected-row) !important;
+                }
+
+                td {
+                    height: 1px;
+                    background-color: white;
+
+                    & > div {
+                        height: 100%;
+                    }
+
+                    &:nth-child(-n+2) {
+                        z-index: var(--sticky-z-index);
+                    }
+                }
+
+                th {
+                    color: var(--header-color);
+                    background-color: var(--background-color);
+                    top: 0;
+                    z-index: var(--sticky-z-index);
+
+                    &:first-child {
+                        border-left: var(--border-width) solid var(--border-color);
+                    }
+
+                    &:nth-child(-n+2) {
+                        z-index: calc(var(--sticky-z-index) + 1);
+                        border-top: var(--border-width) solid var(--border-color);
+                        border-bottom: var(--border-width) solid var(--border-color);
+                        border-right: var(--border-width) solid var(--border-color);
+                    }
+                }
+
+                th, td {
+                    &:first-child {
+                        left: 0;
+                        width: var(--col-1-width);
+                        min-width: var(--col-1-width);
+                        max-width: var(--col-1-width);
+                    }
+
+                    &:nth-child(2) {
+                        left: var(--col-1-width);
+                    }
+                }
+
+                td:nth-child(-n+2), th {
+                    position: sticky;
+                    position: -webkit-sticky;
+                }
+            }
+        }
+    }
+}
+
+$rems: 1,2,3,4,5,6,7,8,10,12,13,14,15,20,25, 40, 42, 44,100;
+
+@each $rem in $rems {
+    .width-#{$rem}rem {
+        width: #{$rem}rem !important;
+        min-width: #{$rem}rem !important;
+    }
+
+    .mxw-#{$rem}rem {
+        width: #{$rem}rem !important;
+        max-width: #{$rem}rem !important;
+    }
+
+    .mw-#{$rem}rem {
+        min-width: #{$rem}rem !important;
+    }
+}

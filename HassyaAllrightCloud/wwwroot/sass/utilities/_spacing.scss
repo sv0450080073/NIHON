@@ -1,0 +1,12 @@
+﻿@import '../global.scss';
+
+@each $size in $sizes {
+    .width--#{$size} {
+        width: calcRem($size) !important;
+        min-width: calcRem($size) !important;
+    }
+}
+
+.mr-075 {
+    margin-right: 0.75rem;
+}

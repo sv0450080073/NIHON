@@ -1,0 +1,169 @@
+﻿@import '../global.scss';
+
+.dxbs-edit-btn {
+    &.btn-secondary {
+        color: $color--11;
+        background-color: rgba(76,175,147,0.2);
+        border-color: rgba(76,175,147,0.2);
+    }
+
+    &.btn-secondary:hover {
+        color: #fff;
+        background-color: $color--11;
+        border-color: $color--11;
+    }
+}
+.custom-dx-listbox {
+    &.dxbs-listbox.dxbs-grid-vsd.form-control:not([style]) {
+        max-height: 8.125rem;
+    }
+}
+
+.dx-dropdown-list-container {
+    position: relative;
+    width: 100%;
+
+    .dx-listbox-scrollable.dxbs-dm.dropdown-menu {
+        //min-width: 100%;
+        //max-width: 50vw;
+        //overflow-x: auto;
+        font-size: 0.875rem;
+
+        .dropdown-item {
+            padding: 0.25rem .5rem;
+        }
+    }
+}
+
+.dx-listbox-scrollable.dxbs-dm.dropdown-menu{
+    min-width: 100%;
+}
+
+.table-sticky .dxbs-dropdown-edit.dxbs-date-edit {
+    position: static;
+}
+
+.table-responsive {
+    .dx-dropdown-list-container {
+        position: static;
+    }
+
+    .dx-listbox-scrollable.dxbs-dm.dropdown-menu{
+        width: auto;
+        min-width: 8.125rem;
+    }
+}
+
+.dxbs-listbox li > .list-group-item > .dx-checkbox + span {    
+    max-width: calc(100% - 3rem);
+    vertical-align: top;
+}
+
+.dropdown-listbox .text-overflow {
+    white-space: nowrap;
+    padding: 0.25rem 2rem 0.25rem 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dxbs-listbox-active:before, .dx-reset-readonly-style {
+    background-color: transparent !important;
+}
+
+/*.dx-page-size-selector > .dxbs-combobox > .input-group > div > span.form-control, 
+div.dxbs-date-edit > div:not(.dxbs-edit-clbv) > div > input.form-control, 
+div.dxbs-spin-edit > div:not(.dxbs-edit-clbv) > div > input.form-control, 
+div.dxbs-combobox > div:not(.dxbs-edit-clbv) > div > input.form-control{
+    padding-right: 25px !important;
+}
+/*.custom-dx-listbox{   
+    .custom-control{
+        &-label {
+            display: block;
+        }
+        &.custom-checkbox {
+            display: inline-block;
+            vertical-align: top;
+        }
+    }
+}
+
+.form-inline{
+    .dxbs-textbox > div, 
+    .dxbs-memo > div, 
+    .dxbs-button-edit > div, 
+    .dxbs-spin-edit > div:not(.dxbs-out-of-range-warn), 
+    .dxbs-dropdown-edit > div:not(.input-group-append):not(.input-group-prepend):not(.dxbs-dropdown-area):not(.dxbs-out-of-range-warn):not(.dxbs-ld):not(.dxbs-lp){
+        width: 100%;
+    }
+}
+
+
+.dxbs-button, .dxbs-spin, .dxbs-dropdown{
+    &-edit .input-group {
+        width: 100%;
+    }
+}
+
+
+
+.input-group:hover .dxbs-edit-btn {
+    color: #fff;
+    background-color: $color--11;
+    border-color: $color--11;
+}
+
+// .dxbs-date-edit .dropdown-toggle::after {
+//     width: 0.75rem;
+//     height: 1.3125rem;
+//     border: none;
+//     background: url(../images/calendar.png) no-repeat center / 100%;
+//     vertical-align: top;
+// }
+
+.dxbs-combobox {
+    > div > div.input-group-append > div.dxbs-dm.dropdown-menu {
+        min-width: min-content;
+        width: 100%;
+    }
+
+    &.right > div > div.input-group-append > div.dxbs-dm.dropdown-menu {
+        left: auto !important;
+        right: 0;
+    }
+
+    &.bottom > div > div.input-group-append > div.dxbs-dm.dropdown-menu {
+        top: auto !important;
+        bottom: 100%;
+    }
+}
+
+.dxbs-modal.modal {
+    padding-right: 0 !important;
+}
+
+.dxbs-empty-data-row {
+    color: transparent;
+    width: 18.75rem;
+    user-select: none;
+
+    &:before {
+        position: absolute;
+        content: 'データなし';
+        color: #212529;
+        font: inherit;
+        width: 100%;
+        left: 0;
+    }
+}
+
+//.dxbs-spin-edit{
+//    .form-control{
+//        padding-right: 0 !important;
+//}
+
+*/
+
+.dx-page-size-selector > .dxbs-combobox > .input-group > div > span.form-control, div.dxbs-date-edit > div:not(.dxbs-edit-clbv) > div > input.form-control, div.dxbs-spin-edit > div:not(.dxbs-edit-clbv) > div > input.form-control, div.dxbs-combobox > div:not(.dxbs-edit-clbv) > div > input.form-control {
+    padding-right: 2em !important;
+}

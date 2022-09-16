@@ -1,0 +1,122 @@
+﻿.etc-col-sticky {
+    background-color: #ffffff !important;
+    border: 0.75px solid #dee2e6 !important;
+    border-left: 1px solid #dee2e6 !important;
+    left: 0px !important;
+    z-index: 10 !important;
+}
+
+.etc-header-sticky {
+    border: 0.75px solid #dee2e6 !important;
+    border-left: 1px solid #dee2e6 !important;
+    left: 0px !important;
+    z-index: 100 !important;
+}
+
+.label-input {
+    padding-left: 2px;
+    position: relative;
+    top: 0.25rem;
+}
+
+.k-radio {
+    border: 1px solid #979a9c;
+    border-radius: 50%;
+    margin: 0;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
+    border-style: solid;
+    outline: 0;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    -webkit-appearance: none;
+
+    &::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: currentColor;
+        -webkit-transform: scale(0) translate(-50%, -50%);
+        -ms-transform: scale(0) translate(-50%, -50%);
+        transform: scale(0) translate(-50%, -50%);
+        overflow: hidden;
+        position: absolute;
+        background-color: var(--primary);
+        top: 50%;
+        left: 50%;
+    }
+
+    &:focus {
+        border-color: rgba(0,0,0,0.15);
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+    }
+
+    &:checked {
+        &::before {
+            border-radius: 50%;
+            transform: scale(1) translate(-50%, -50%);
+        }
+
+        &:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(26, 179, 148, 0.25);
+        }
+
+        border-color: var(--primary);
+        color: #fff;
+        background-color: #fff;
+    }
+
+    &:disabled, &:disabled + .k-radio-label {
+        outline: none;
+        cursor: default;
+        opacity: .6;
+        -webkit-filter: grayscale(0.1);
+        filter: grayscale(0.1);
+        pointer-events: none;
+        box-shadow: none;
+    }
+}
+
+.k-radio + .k-radio-label, .k-radio-label + .k-radio {
+    margin-left: 1rem;
+}
+
+.k-radio-label {
+    font-weight: normal;
+}
+
+.validation-success {
+    color: var(--primary);
+    margin-bottom: 0 !important;
+}
+
+.etc-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    table {
+        thead > tr > th {
+            background-color: #1AB394!important;
+            color: white;
+        }
+
+        tbody > tr.selected-row > td {
+            background-color: #BAE8DF!important;
+        }
+    }
+}
+
+#custom-number-spin input {
+    padding-right: 10px!important;
+}
+
+
+div.custom-number-spin.dxbs-spin-edit > div:not(.dxbs-edit-clbv) > div > input.form-control {
+    padding-right: 10px !important;
+}

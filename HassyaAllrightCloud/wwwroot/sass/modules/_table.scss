@@ -1,0 +1,105 @@
+﻿@import '../global.scss';
+
+/* Table */
+table {
+    a {
+        color: $color--11;
+
+        &:hover {
+            color: $color--11;
+            text-decoration: underline;
+        }
+
+        &:focus:before, &:focus:after{
+            display: none;
+        }
+    }
+    /*.dxbs-date-edit .input-group {
+        position: static !important;
+    }*/
+    th {
+        word-break: keep-all;
+        white-space: nowrap;
+    }
+}
+
+.table {
+    td, th {
+        vertical-align: middle;
+        border: 0.0625rem solid #dee2e6;
+        //position: relative;
+    }
+}
+
+.no-border td {
+    border: none;
+}
+
+.table-text-vertical {
+    writing-mode:vertical-lr;
+    text-orientation: upright;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.three-row div{
+    min-height: 1.5rem;
+}
+
+#table-wrapper .table-statusconfirm th.text-left {
+    text-align: left !important;
+}
+
+.table-supermenu.table-layout .text-left{
+    text-align: left !important;
+}
+
+.table-sm {
+    font-size: 0.875rem;
+}
+
+.table-grid-view {
+    &--1 table {
+        font-size: 0.875rem !important;
+        line-height: normal;
+    }
+
+    &--2 table {
+        font-size: 0.75rem  !important;
+        line-height: normal;
+
+        th, td {
+            padding: 0 0.3rem;
+        }
+    }
+
+    &--3 table {
+        font-size: 0.625rem !important;
+        line-height: normal;
+
+        th, td {
+            padding: 0 0.3rem;
+        }
+    }
+}
+
+.mark-modified {
+    border-left: 0.175rem solid deepskyblue !important;
+}
+
+.mark-added {
+    border-left: 0.175rem solid lightgreen !important;
+}
+
+.table-fixed{
+    table-layout: fixed;
+}
+
+.text-preline{
+    white-space: pre-line !important;
+
+    &::first-line{
+        line-height: 0px;
+    }
+}

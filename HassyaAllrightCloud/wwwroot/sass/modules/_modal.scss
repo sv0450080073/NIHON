@@ -1,0 +1,102 @@
+﻿@import '../global.scss';
+
+/* Modal */
+/*.modal {
+    &-open {
+        padding-right: 0 !important;
+    }
+
+    &-content {
+        border-radius: 0.5rem;
+        border: none;
+
+        .table-sm {
+            font-size: 0.875rem;
+        }
+
+        .dxbs-combobox > div > div.input-group-append > div.dxbs-dm.dropdown-menu {
+            max-height: 8rem;
+        }
+    }
+
+    .modal-btn-close{
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+    }
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 37.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .modal-dialog.modal-lg {
+        max-width: 65.4375rem;
+    }
+
+    .modal-dialog.modal-xl {
+        max-width: calcRem(1286);
+    }
+}
+
+.modal-footer, .modal-header {
+    padding: .5rem 1rem;
+}*/
+
+@media (min-width: 992px){
+    .modal-lg, .modal-xl {
+        max-width: fit-content;
+    }
+}
+
+@media (min-width: 1200px){
+    .modal-xl {
+        max-width: 1286px;
+    }
+}
+
+.modal-header {
+    padding: .5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.modal-footer {
+    padding: .25rem .75rem;
+}
+
+.custom-popup {
+    .custom-header {
+        padding: .5rem 1rem;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: 500;
+
+        .close-button {
+            font-size: 1rem;
+            margin-left: auto;
+
+            &:after {
+                display: none;
+            }
+        }
+    }
+}
+
+.modal {
+    padding-right: 17px !important;
+}
+
+.modal-body {
+    form{
+        @include mobile {
+            width: max-content !important;
+            padding-right: 1rem;
+        }
+    }
+}

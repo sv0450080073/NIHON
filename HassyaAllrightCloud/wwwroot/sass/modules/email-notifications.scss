@@ -1,0 +1,119 @@
+﻿@import '../global.scss';
+
+.notifications-link {
+    position: relative;
+    border-radius: 100%;
+    height: 2rem;
+    width: 2rem;
+    margin-right: 10px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+
+    i {
+        font-size: 1.5rem;
+        margin: 4px 0;
+        color: #343434;
+    }
+
+    &:hover {
+        i {
+            color: black;
+        }
+    }
+
+    .badge--notification {
+        position: absolute;
+        top: 0;
+        right: -3px;
+        z-index: 10;
+        color: white;
+        background: red;
+    }
+}
+
+.slide-in {
+    position: fixed;
+    z-index: 800;
+    top: 54px;
+    right: 0;
+    height: calc(100vh - 54px);
+    width: 480px;
+    background: white;
+    box-shadow: -2px 0 10px 0 rgba(4,0,0,.23);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(105%);
+    transition: all .22s ease-out;
+    -webkit-transition: all .22s ease-out;
+
+    &.is_opened {
+        transform: translate3d(0,0,0);
+        visibility: visible;
+        opacity: 1;
+    }
+
+    &__header {
+        background: $bg_sidebar;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+
+        .custom-checkbox {
+            font-size: 0.875rem;
+            .custom-control-input:checked ~ .custom-control-label::before{
+                border-color: white;
+            }
+        }
+    }
+
+    &__content{
+        padding-top: 51px;
+    }
+}
+
+.notifications-content-wrap{
+    height: 100%;
+}
+
+.notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 750px;
+    overflow: scroll;
+
+    &__item {
+        border-bottom: 1px solid #bdbdbd;
+        padding: 5px 10px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.825rem;
+        color: #777;
+
+        &--meta {
+            width: 55px;
+            text-align: right;
+            font-size: 0.75rem;
+
+            a, span {
+                display: block;
+            }
+        }
+
+        &.unread {
+            background: $bg_topbar;
+        }
+
+        &:hover{
+            background: #ddd;
+        }
+    }
+}

@@ -1,0 +1,28 @@
+﻿.btn-primary:hover,
+.btn-primary:not(:disabled):not(.disabled).active, 
+.btn-primary:not(:disabled):not(.disabled):active, 
+.show > .btn-primary.dropdown-toggle {
+    background-color: #339A91;
+    border-color: #339A91;
+}
+.btn-primary.disabled, :disabled.btn-primary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+.btn.disabled, .btn:disabled {
+   &:focus, &.focus{
+       box-shadow: none;
+   }
+}
+.list-button-display-order {
+    .nav-link {
+        padding: 0.125rem 1rem;
+        border-radius: 1rem;
+        border: 1px solid #ced4da;
+        margin-right: 0.25rem;
+
+        &.active {
+            border: 1px solid $bg_sidebar;
+        }
+    }
+}

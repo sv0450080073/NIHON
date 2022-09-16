@@ -1,0 +1,133 @@
+﻿.k-radio {
+    border: 1px solid #979a9c;
+    border-radius: 50%;
+    margin: 0;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
+    border-style: solid;
+    outline: 0;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    -webkit-appearance: none;
+}
+
+.k-radio::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+    -webkit-transform: scale(0) translate(-50%, -50%);
+    -ms-transform: scale(0) translate(-50%, -50%);
+    transform: scale(0) translate(-50%, -50%);
+    overflow: hidden;
+    position: absolute;
+    background-color: var(--primary);
+    top: 50%;
+    left: 50%;
+}
+
+.k-radio:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+
+.k-radio:checked {
+    border-color: var(--primary);
+    color: #fff;
+    background-color: #fff;
+}
+
+.k-radio:checked::before {
+    border-radius: 50%;
+    transform: scale(1) translate(-50%, -50%);
+}
+
+.k-radio:checked:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(26, 179, 148, 0.25);
+}
+
+.k-radio:disabled, .k-radio:disabled + .k-radio-label {
+    outline: none;
+    cursor: default;
+    opacity: .6;
+    -webkit-filter: grayscale(0.1);
+    filter: grayscale(0.1);
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.k-radio + .k-radio-label, .k-radio-label + .k-radio {
+    margin-left: 1rem;
+}
+
+.k-radio-label {
+    font-weight: normal;
+}
+
+.outofrangeitems {
+    top: -5px;
+    border: dotted 1px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.popup-faresupperandlowerlimits {
+    .drag {
+        background-color: #1AB394;
+        opacity: 1 !important;
+        color: white;
+    }
+}
+
+.tab-border-form {
+    .nav-tabs .nav-link {
+        border-top: 1px solid #1AB394;
+        border-left: 1px solid #1AB394;
+        border-right: 1px solid #1AB394;
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+    }
+}
+
+.faresupperandlowerlimits {
+    .table-scroll thead tr:nth-child(2) th {
+        top: 24px;
+    }
+
+    .nav-tabs .nav-link:not(:active) {
+        border: solid 1px #D3D3D3 !important;
+    }
+
+    .table-scroll {
+        position: relative;
+        width: 100%;
+        z-index: 1;
+        margin: auto;
+    }
+
+    .table-scroll table {
+        width: 100%;
+        min-width: 100px;
+        margin: auto;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-scroll th,
+    .table-scroll td {
+        white-space: nowrap !important;
+        width: 1% !important;
+    }
+
+    .table-scroll thead th {
+        background-color: #1AB394 !important;
+        color: white;
+        top: 0;
+        line-height: 1.1rem;
+    }
+}

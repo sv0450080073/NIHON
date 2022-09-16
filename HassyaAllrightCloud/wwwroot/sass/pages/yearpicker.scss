@@ -1,0 +1,101 @@
+﻿.year-picker-component {
+    position: relative;
+    --border-color: #ced4da;
+
+    .border-danger {
+        border: 1px solid red;
+        border-radius: 0.2rem;
+    }
+
+    &:focus-within {
+        box-shadow: 0 0 0 0.2rem rgba(26,179,148,0.25);
+        border-radius: 0.2rem;
+    }
+
+    .input-group-append {
+        position: absolute;
+        right: 0;
+        z-index: 3;
+        height: 100%;
+
+        button {
+            border-color: rgba(76, 175, 147, 0.2);
+        }
+
+        i {
+            font-size: 11px;
+        }
+    }
+
+    .btn-pick-year {
+        color: #4caf93;
+        background-color: rgba(76, 175, 147, 0.2);
+        border-color: rgba(76, 175, 147, 0.2);
+
+        &:hover {
+            color: #fff;
+            background-color: #4caf93;
+            border-color: #4caf93;
+        }
+
+        &:focus {
+            box-shadow: none;
+        }
+    }
+
+    .year-picker-input {
+        background-color: white;
+        padding-right: 2rem;
+
+        &.form-control:not(:last-child) {
+            border-top-right-radius: 0.2rem;
+            border-bottom-right-radius: 0.2rem;
+        }
+    }
+
+    .year-picker {
+        position: absolute;
+        background-color: white;
+        width: 100%;
+        height: 16rem;
+        overflow: hidden;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        margin-top: 0.25rem;
+        border-radius: 0.2rem;
+        z-index: 10;
+
+        .year-picker-header {
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.25rem;
+
+            & > .btn:focus, .btn.focus {
+                box-shadow: none !important;
+            }
+        }
+
+        .year-picker-years {
+            padding: 0.5rem;
+        }
+
+        p {
+            &:nth-child(3) {
+                border-top: 1px solid;
+                border-bottom: 1px solid;
+            }
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            padding: 0.5rem 1rem;
+            margin-bottom: 0;
+
+            &.selected {
+                background-color: #d2d2d2;
+                font-weight: bold;
+            }
+        }
+    }
+}

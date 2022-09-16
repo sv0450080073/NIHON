@@ -1,0 +1,506 @@
+﻿.table-bill-wrapper {
+    max-height: calc(100vh - 150px);
+    min-height: calc(100vh - 150px);
+    overflow: auto;
+    max-width: 100%;
+    background: #ececec;
+}
+
+.table-bill-layout {
+    width: 100%;
+    text-align: center;
+    border-spacing: 0;
+    border-collapse: separate;
+
+    td {
+        border-right: 1px solid white;
+        padding: 5px;
+        word-break: break-word;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 98;
+        border-top: 1px solid white;
+        border-right: 1px solid white;
+        border-bottom: 1px solid white;
+        padding: 0;
+
+        &:first-child {
+            border-left: 1px solid white;
+        }
+
+        div:not(:last-child) {
+            border-bottom: 1px solid white;
+        }
+    }
+
+    .body-bill-row-1 td:first-child {
+        border-left: 1px solid white;
+    }
+
+    thead {
+        color: white;
+        background-color: #1AB394 !important;
+
+        .check-box {
+            left: 0 !important;
+            z-index: 99;
+            max-width: 35px;
+            min-width: 35px;
+        }
+
+        .bill-no {
+            left: 35px !important;
+            z-index: 99;
+            max-width: 50px;
+            min-width: 50px;
+        }
+
+        .bill-reservation {
+            max-width: 50px;
+            min-width: 50px;
+        }
+
+        .bill-office, .payment-name, .bus-type, .bill-quantity, .bill-price, .sale-amount, .tax-included {
+            max-width: 100px;
+            min-width: 100px;
+        }
+
+        .bill-date, .bill-date-da, .bill-amount, .deposit-date, .bill-oi, .receipt-number,
+        .deposit-amount, .unpaid-amount, .sales-amount, .tax-amount, .commission-rate, .commission-amount, .bill-customer, .bill-receipt {
+            max-width: 110px;
+            min-width: 110px;
+        }
+
+        .bill-incident, .incident-load {
+            max-width: 130px;
+            min-width: 130px;
+        }
+
+        .a {
+            max-width: 200px;
+            min-width: 200px;
+        }
+
+        .bill-address {
+            max-width: 200px;
+            min-width: 200px;
+        }
+
+        .bill-name {
+            max-width: 350px;
+            min-width: 350px;
+        }
+
+        .check-box, .bill-no, .bill-date, .bill-office, .bill-address, .bill-name, .bill-date-da, .bill-incident, .incident-load, .payment-name,
+        .bus-type, .bill-price, .bill-amount, .deposit-date, .deposit-amount, .unpaid-amount, .sales-amount, .tax-amount, .commission-rate, .commission-amount,
+        .bill-oi, .receipt-number, .bill-quantity, .bill-receipt {
+            vertical-align: middle;
+            align-items: center;
+        }
+    }
+
+    tbody {
+        .bill-date, .bill-office, .bill-address, .bill-name, .bill-date-da, .bill-incident, .incident-load, payment-name,
+        .payment-name, .bus-type, .deposit-date, .bill-oi, .receipt-number, .destination, .arrival-date, .issued, .bill-customer, .bill-receipt, .bill-reservation {
+            vertical-align: baseline;
+            text-align: left;
+        }
+
+        .bill-quantity, .commission-amount, .commission-rate, .tax-amount, .sales-amount, .unpaid-amount, .deposit-amount, .bill-amount, .bill-price, .tax-included, .sale-amount {
+            vertical-align: baseline;
+            text-align: right;
+        }
+
+        .order-no {
+            vertical-align: baseline;
+        }
+
+        tr {
+            background: #F9F8F9;
+        }
+    }
+}
+
+.body-bill-row-1 {
+    td {
+        border-bottom: 1px solid white;
+    }
+}
+
+.body-bill-row-2 td, .body-bill-row-1 .row-2 {
+    border-bottom: 1px solid white;
+}
+
+.bill-display-button {
+    width: calc(50% - 8px);
+    min-height: 20px;
+    max-height: 20px;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-radius: 2px;
+    background-color: #4caf93;
+    color: #fff;
+    border-color: #4caf93;
+    transition-duration: 0.4s;
+    float: left;
+    font-size: 0.875rem;
+    overflow: hidden;
+
+    &:hover {
+        &:enabled {
+            background-color: #339A91;
+            border-color: #339A91;
+            color: #fff;
+        }
+
+        &:disabled {
+            color: #fff;
+        }
+    }
+
+    &:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        cursor: auto;
+    }
+}
+
+tr.grid-bill-color-1 {
+    color: #FFA500;
+}
+
+tr.grid-bill-color-2 {
+    color: #D2691E;
+}
+
+tr.grid-bill-color-3 {
+    color: #a58862;
+}
+
+tr.grid-bill-color-4 {
+    color: #B8860B;
+}
+
+tr.grid-bill-color-5 {
+    color: #ffda12;
+}
+
+tr.grid-bill-color-6 {
+    color: #59626a;
+    // color: #F0F0F0;
+}
+
+.total-bill-table, .table-bill-layout {
+    th {
+        text-align: center !important;
+        font-weight: normal !important;
+        background: #f5f5f5 !important;
+        background-color: #1AB394 !important;
+        color: white;
+    }
+}
+
+.total-bill-table {
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+.table-bill-layout {
+    width: 100%;
+}
+
+.total-bill-table {
+    max-height: 11.9rem;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    line-height: 1.3rem !important;
+
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 96;
+        border-top: 1px solid white;
+        border-right: 1px solid white;
+        border-bottom: 1px solid white;
+        padding: 0;
+        color: white;
+    }
+
+    th, td {
+        &:first-child {
+            border-left: 0.5px solid white;
+        }
+
+        border-bottom: 1px solid white;
+        border-right: 1px solid white;
+        width: 15rem !important;
+    }
+
+    td {
+        text-align: right;
+        padding: 0px;
+    }
+
+    .blank {
+        text-align: left !important;
+        padding-left: 1.25rem;
+    }
+
+    .tr-total-head {
+        background-color: #e9ecef !important;
+
+        .blank {
+            padding-left: 0.25rem !important;
+            background-color: #1AB394 !important;
+        }
+    }
+
+    #tr-total-1 {
+        .dropdown-toggle {
+            padding-left: 10rem;
+        }
+
+        td {
+            &:first-child {
+                color: white;
+            }
+        }
+    }
+
+    #tr-total-2, #tr-total-3 {
+        .dropdown-toggle {
+            padding-left: 11rem;
+        }
+
+        td {
+            &:first-child {
+                color: white;
+            }
+        }
+    }
+
+    tr {
+        background: #F9F8F9;
+
+        &:first-child th {
+            border-top: 1px solid white;
+            cursor: pointer;
+            color: white !important;
+        }
+    }
+
+    #blank {
+        background-color: white !important;
+    }
+}
+
+.tr-child-1, .tr-child-2, .tr-child-3 {
+    padding: 0;
+
+    td {
+        padding: 0;
+        border-bottom: none;
+
+        div {
+            overflow: hidden;
+            max-height: 0;
+            padding: 0 0.1px;
+            box-sizing: border-box;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+    }
+}
+
+.tr-child-active {
+    td {
+        border-bottom: 0.1px solid white !important;
+
+        div {
+            max-height: 70px !important;
+            padding: 0.1px;
+            transition: max-height 0.6s, padding 0.6s;
+        }
+    }
+}
+
+.bill-title-section {
+    padding: .25rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #e9ecef;
+    border-radius: .25rem;
+    font-weight: 700;
+}
+
+.custom-bill-combo-box {
+    .dropdown-item {
+        white-space: normal;
+        font-size: 12px;
+        min-height: 32px;
+    }
+
+    .form-control {
+        white-space: normal;
+    }
+}
+
+.btn-next {
+    height: 1.9rem !important;
+}
+
+.selected-row {
+    background-color: #BAE8DF !important;
+}
+
+.sticky-col {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    z-index: 97 !important;
+    background-color: #e9ecef !important;
+    color: #59626A;
+}
+
+.first-sticky-col {
+    width: 35px !important;
+    min-width: 35px !important;
+    max-width: 35px !important;
+    left: 0 !important;
+}
+
+.second-sticky-col {
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    left: 35px !important;
+}
+
+.header-popup {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary);
+    font-weight: bold;
+    color: var(--white);
+
+    .header-popup-close-dialog-button {
+        margin-left: auto;
+        padding: 0px;
+        color: white;
+    }
+}
+
+.bill-print-popup-with {
+    max-width: 55rem !important;
+}
+
+//TODO: remove all above
+#div-color-deposit {
+    span.grid-bill-color-1 {
+        background-color: #FFA500;
+    }
+
+    span.grid-bill-color-2 {
+        background-color: #D2691E;
+    }
+
+    span.grid-bill-color-3 {
+        background-color: #a58862;
+    }
+
+    span.grid-bill-color-4 {
+        background-color: #B8860B;
+    }
+
+    span.grid-bill-color-5 {
+        background-color: #ffda12;
+    }
+
+    span.grid-bill-color-6 {
+        //background-color: #bbdefb;
+        background-color: #59626A;
+    }
+}
+
+.ml-2rem {
+    margin-left: 2rem;
+}
+
+.w-1000 {
+    width: 1000px;
+}
+
+@media screen and (max-width: 1920px) {
+    #deposit-payment > .modal > .modal-dialog {
+        max-width: 1400px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    #deposit-payment > .modal > .modal-dialog {
+        max-width: 1000px;
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    #lump > .modal > .modal-dialog {
+        max-width: 800px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    #lump > .modal > .modal-dialog {
+        max-width: 500px;
+    }
+}
+
+.checkbox-container {
+    //width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    //grid-template-rows: repeat(auto-fill, 120px);
+    grid-row-gap: .5em;
+    grid-column-gap: 1em;
+}
+
+.zindex99999 {
+    position: fixed;
+    z-index: 99999;
+}
+
+.icon-color {
+    color: #3BB999 !important;
+    cursor: pointer;
+}
+
+.icon-remove-color {
+    color: #dc3545 !important;
+    cursor: pointer;
+}
+
+.fix-deposit-payment-table {
+    min-height: 150px;
+    max-height: 150px;
+    overflow-y: scroll;
+}
+
+.bottom-right-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 15px;
+}
+
+.condition-label-custom {
+    text-align: left;
+    width: 120px;
+    min-width: 120px;
+    margin-right: 0 !important;
+    white-space: normal;
+}

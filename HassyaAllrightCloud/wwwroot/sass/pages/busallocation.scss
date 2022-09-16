@@ -1,0 +1,87 @@
+﻿@import '../global.scss';
+
+.area-table {
+    height: calcRem(540);
+    overflow-y: auto;
+    /*border: 0.0625rem solid #dee2e6;*/
+    .table-sm th, .table-sm td {
+        line-height: normal;
+        word-break: keep-all;
+        white-space: nowrap;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .row-no-data {
+        height: 30.0625rem;
+    }
+}
+
+.custom-combo-box-no .dropdown-item {
+    white-space: nowrap;
+    //font-size: 12px;
+    min-height: 2rem;
+}
+
+.textarea-note {
+    width: 100%;
+    padding: 0 0.5rem;
+    line-height: 26px;
+    resize: none;
+    background-attachment: local;
+    background-image: linear-gradient(to right, white 10px, transparent 10px), linear-gradient(to left, white 10px, transparent 10px), repeating-linear-gradient(white, white 25px, #ced4da 25px, #ced4da 26px, white 26px);
+}
+
+.text-link{
+    &:after, &:before{
+        display: none;
+    }
+}
+
+.customItemsList {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1250px;
+    margin: 0 auto;
+
+    &__item {
+        flex: 1 0 30%;
+        max-width: 390px;
+
+        .custom-control-label {
+            vertical-align: text-top !important;
+        }
+    }
+}
+
+.bus-allocation-label {
+    color: white;
+    padding: 5px 7px;
+    min-width: 150px;
+    text-align: center;
+    float: left;
+}
+
+.bus-allocation-bg-1 {
+    background-color: #3e2723
+}
+
+.bus-allocation-bg-2 {
+    background-color: #f54337
+}
+
+.bus-allocation-bg-3 {
+    background-color: #64b5f7
+}
+
+.bus-allocation-bg-4 {
+    background-color: #ff9802
+}
+
+.bus-allocation-bg-5 {
+    background-color: #FFC775
+}

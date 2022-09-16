@@ -1,0 +1,22 @@
+﻿@import '../global.scss';
+
+.contextmenu {
+    position: fixed;
+    z-index: 99;
+    .line {
+        border-bottom: 0.0625rem dashed #d3d3d3;
+    }
+}
+
+.blazor-context-menu__item{
+    &--default{
+        padding: 6px 20px 6px 6px;
+    }
+    --with-submenu:after{
+        right: -6px;
+    }
+}
+
+.blazor-context-menu--default {
+    z-index: 100;
+}

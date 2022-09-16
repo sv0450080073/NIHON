@@ -1,0 +1,111 @@
+﻿.availability-check {
+    --col-width: 15px;
+    height: calc(100vh - var(--header-height) - var(--footer-height) - 4rem);
+    display: flex;
+    flex-direction: column;
+
+    #expept-date-picker {
+        & input {
+            height: var(--btn-height);
+            border-radius: var(--border-radius);
+            padding-left: var(--custom-padding);
+            max-width: 150px;
+        }
+
+        & .dxbs-input-group-append button {
+            width: var(--btn-height);
+        }
+
+        & .dxbs-calendar * {
+            font-size: var(--font-size) !important;
+        }
+    }
+
+    .full {
+        height: 100%;
+        width: var(--col-width);
+        background-color: white;
+        margin: auto;
+        border: 1px solid black;
+        position: relative;
+        border-radius: 50px;
+        overflow: hidden;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        .used {
+            position: absolute;
+            width: 100%;
+            background-color: #64B5F7;
+            bottom: 0;
+            border-radius: 50px;
+            height: 100%;
+        }
+    }
+
+    .custom-col {
+        width: var(--col-width);
+        margin: auto;
+        text-align: center;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    .availability-check-detail-popup {
+        position: absolute;
+        display: none;
+        width: 135px;
+
+        & > table {
+            margin: 0px;
+            background-color: white;
+            width: 100%;
+
+            & tr:first-child > td:first-child {
+                vertical-align: top;
+            }
+
+            & tr > td {
+                padding: 2px;
+                font-size: 10px;
+            }
+        }
+    }
+
+    .col-active {
+        background-color: #15826c !important;
+    }
+
+    .border-none {
+        border: none;
+    }
+
+    .saturday-color {
+        color: cornflowerblue;
+    }
+
+    .sunday-color {
+        color: red;
+    }
+
+    .next-btn, .previous-btn, .custom-btn-size {
+        width: var(--btn-height);
+        height: var(--btn-height);
+    }
+
+    .custom-btn-height {
+        height: var(--btn-height);
+    }
+}

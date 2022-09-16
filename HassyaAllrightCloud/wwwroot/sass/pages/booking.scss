@@ -1,0 +1,218 @@
+﻿@import '../global.scss';
+@import '../modules/_form.scss';
+@import '../modules/_table.scss';
+
+.custom-hyper {
+    &.enabled {
+        background: none !important;
+        border: none;
+        padding: 0 !important;
+        color: $box_shadow_input;
+
+        &:focus {
+            box-shadow: 0 0 0 0.1rem rgba(38,143,255,.5);
+        }
+
+        &:hover {
+            text-decoration: underline !important;
+        }
+    }
+
+    &.disabled {
+        background: none !important;
+        border: none;
+        padding: 0 !important;
+        pointer-events: none;
+        cursor: default;
+        color: grey;
+    }
+
+    &.changedminmax {
+        color: red;
+    }
+}
+
+.grid-table{
+    display: flex;
+    justify-content: space-between;
+    .form-group{
+        flex: 0 0 18%;
+    }
+}
+
+.zoom {    
+    .express-condition {
+        position: relative;
+        top: 0;
+        right: 0;
+        transform: translate3d(0, 0, 0);
+        -webkit-transition: all .3s ease-out;
+        -moz-transition: all .3s ease-out;
+        -o-transition: all .3s ease-out;
+        transition: all .3s ease-out;
+        //margin-top: -0.5rem;
+        z-index: 5;
+
+        .zoom-icon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 9;
+
+            i {
+                font-size: 1rem;
+            }
+
+            &--compress {
+                display: none;
+            }
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+
+            .nav-item.show .nav-link, .nav-link.active {
+                border-color: #28a745 #28a745 transparent;
+            }
+        }
+
+        .table-sticky {
+            max-height: 18vh;
+        }
+    }
+
+    &.active {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 50%;
+        z-index: 99;
+
+        &::after {
+            display: block;
+            content: "";
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,.5);
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            left: -100%;
+        }
+
+        .express-condition {
+            width: 80vw;
+            background: $white;
+            padding: 1rem;
+            transform: translate3d(-50%, 5rem, 0);
+            min-height: 80vh;
+
+            .zoom-icon {
+                top: 1rem;
+                right: 1em;
+
+                &--expand {
+                    display: none;
+                }
+
+                &--compress {
+                    display: block;
+                }
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .table-sticky {
+                max-height: 60vh;
+            }
+        }
+    }
+}
+
+.disabled-content {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.table-sticky {
+    //position: relative;
+    width: 100%;
+    z-index: 1;
+    margin: auto;
+    overflow: auto;
+    max-height: 50vh;
+
+    table {
+        width: 100%;
+        margin: auto;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    thead {
+        th {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 9;
+        }
+
+        tr:nth-of-type(2) th {
+            top: calcRem(34);
+        }
+
+        tr:nth-of-type(3) th {
+            top: calcRem(68);
+        }
+    }
+
+    tfoot {
+        td {
+            background: $white;
+            position: -webkit-sticky;
+            position: sticky;
+            bottom: 0;
+            z-index: 9;
+        }
+
+        tr:first-child td {
+            bottom: calcRem(40);
+        }
+    }
+}
+
+.calendar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 99;
+    display: none;
+
+    .day-selected {
+        background: rgba(0, 0, 0, 0.075);
+    }
+
+    .table-active .day-selected {
+        background: transparent;
+    }
+}
+
+.dropdownlist {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 99;
+    display: none;
+}
+
+.custom-body{
+    padding-right: 0px !important;
+}
+
+.customerListLabel {
+    @media only screen and (min-width: 1900px) {
+        padding-right: 2.2rem !important;
+    }
+}
